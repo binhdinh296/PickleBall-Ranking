@@ -383,9 +383,10 @@
    Màu lấy từ --ball / --court nên đổi trong CMS là vợt đổi theo.
    ========================================================================== */
 .paddle, .paddle-horizontal {
-  --m-hi: #F4FFD6; --m-mid: color-mix(in oklab, var(--ball) 55%, var(--court)); --m-lo: color-mix(in oklab, var(--court) 70%, #06302A);
-  --edge: linear-gradient(155deg, #F4FFD6 0%, var(--ball) 26%, color-mix(in oklab, var(--ball) 45%, var(--court)) 52%, var(--court) 78%, #E6FFF6 100%);
-  --glow: color-mix(in oklab, var(--ball) 34%, transparent);
+  /* Kim loại xanh ngọc lục bảo trầm (cùng tông hero); xanh chanh chỉ làm điểm nhấn ở góc viền */
+  --m-hi: color-mix(in oklab, var(--court) 38%, #D5EEDD); --m-mid: color-mix(in oklab, var(--court) 42%, #0F3626); --m-lo: #071A12;
+  --edge: linear-gradient(155deg, var(--m-hi) 0%, var(--m-mid) 26%, var(--m-lo) 54%, var(--m-mid) 80%, color-mix(in oklab, var(--ball) 60%, var(--m-mid)) 100%);
+  --glow: color-mix(in oklab, var(--court) 26%, transparent);
   --b-mid: color-mix(in oklab, var(--ball) 70%, #FFFFFF); --b-lo: color-mix(in oklab, var(--ball) 62%, #2F4600); --b-ink: #142000;
   --t-glow: var(--ball); --t-ink: var(--ink-court);
 }
@@ -394,7 +395,7 @@
 .paddle .paddle-head { padding: 5px;
   box-shadow: 0 28px 50px -30px rgba(0, 0, 0, .85), 0 18px 46px -22px var(--glow), inset 0 1px 0 rgba(255, 255, 255, .5); }
 .paddle .paddle-face { inset: 5px; }
-.paddle .paddle-shade { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22), inset 0 0 0 2px rgba(0, 0, 0, .25); }
+.paddle .paddle-shade { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ball) 42%, transparent), inset 0 0 0 2px rgba(0, 0, 0, .3); } /* đường chỉ xanh chanh mảnh mép trong */
 
 /* Vạch sân mờ trên mặt vợt (vạch kitchen + vạch giữa), như sân ở hero */
 .paddle-lines { position: absolute; inset: 0; pointer-events: none; opacity: .55;
@@ -670,3 +671,5 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
   .pg-progress { display: none; }
   .paddle-slot.pg-in { animation: none; }
 }
+/* Vạch nhỏ dưới tên VĐV: điểm nhấn xanh chanh (viền vợt giờ là xanh ngọc lục bảo trầm nên không dùng --edge) */
+.paddle .p-bar { background: linear-gradient(90deg, var(--ball), var(--court)); box-shadow: 0 0 10px color-mix(in oklab, var(--ball) 45%, transparent); }

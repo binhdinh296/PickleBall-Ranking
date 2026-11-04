@@ -316,9 +316,10 @@ button { font: inherit; }
 
 /* Vợt (trang chủ + vợt số 1 ở trang xếp hạng): một phong cách theo màu thương hiệu, không phân hạng */
 .paddle, .paddle-horizontal {
-  --m-hi: #F4FFD6; --m-mid: color-mix(in oklab, var(--ball) 55%, var(--court)); --m-lo: color-mix(in oklab, var(--court) 70%, #06302A);
-  --edge: linear-gradient(155deg, #F4FFD6 0%, var(--ball) 26%, color-mix(in oklab, var(--ball) 45%, var(--court)) 52%, var(--court) 78%, #E6FFF6 100%);
-  --glow: color-mix(in oklab, var(--ball) 34%, transparent);
+  /* Kim loại xanh ngọc lục bảo trầm (cùng tông hero); xanh chanh chỉ làm điểm nhấn ở góc viền */
+  --m-hi: color-mix(in oklab, var(--court) 38%, #D5EEDD); --m-mid: color-mix(in oklab, var(--court) 42%, #0F3626); --m-lo: #071A12;
+  --edge: linear-gradient(155deg, var(--m-hi) 0%, var(--m-mid) 26%, var(--m-lo) 54%, var(--m-mid) 80%, color-mix(in oklab, var(--ball) 60%, var(--m-mid)) 100%);
+  --glow: color-mix(in oklab, var(--court) 26%, transparent);
   --b-mid: color-mix(in oklab, var(--ball) 70%, #FFFFFF); --b-lo: color-mix(in oklab, var(--ball) 62%, #2F4600); --b-ink: #142000;
   --t-glow: var(--ball); --t-ink: var(--ink-court);
 }
