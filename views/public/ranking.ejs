@@ -10,22 +10,33 @@
       </div>
       <% if (top) { const topTier = top.tier || { key: 'diamond', label: 'Kim cương' }; %>
       <div class="ranking-top-paddle-slot">
-        <a href="/vdv/<%= top.id %>" class="paddle tier-<%= topTier.key %> top-ranking-paddle" title="Xem hồ sơ VĐV số 1 bảng xếp hạng: <%= top.full_name %>">
+        <a href="/vdv/<%= top.id %>" class="paddle-horizontal tier-<%= topTier.key %>" title="Xem hồ sơ VĐV số 1 bảng xếp hạng: <%= top.full_name %>">
+          <!-- Quả bóng pickleball số 01 -->
+          <span class="paddle-ball" aria-hidden="true"><span>01</span></span>
+
+          <!-- Mặt vợt Pickleball nằm ngang -->
           <div class="paddle-head">
-            <span class="paddle-face" aria-hidden="true">
-              <% if (top.avatar) { %><img src="<%= top.avatar %>" alt="<%= top.full_name %>"><% } else { %><span class="paddle-initials"><%= fmt.initials(top.full_name) %></span><% } %>
-              <span class="paddle-shade"></span>
-              <span class="paddle-lines"></span>
-            </span>
-            <span class="paddle-ball" aria-hidden="true"><span>01</span></span>
-            <span class="paddle-caption" aria-hidden="true">
-              <span class="top1-badge-pill">👑 TOP 1<%= gender ? ` · ${fmt.GENDER_LABEL[gender].toUpperCase()}` : '' %></span>
-              <strong class="p-name"><%= top.full_name %></strong>
-              <span class="p-bar"></span>
-              <span class="p-pts"><%= fmt.pts(top.points) %><small>điểm</small></span>
-            </span>
+            <div class="paddle-face">
+              <span class="paddle-shade" aria-hidden="true"></span>
+              <div class="h-avatar-wrap">
+                <%- include('../partials/avatar', { a: top, tone: 'gold', size: 44 }) %>
+              </div>
+              <div class="h-meta-stack">
+                <span class="top1-badge-pill">👑 TOP 1<%= gender ? ` · ${fmt.GENDER_LABEL[gender].toUpperCase()}` : '' %></span>
+                <strong class="h-player-name"><%= top.full_name %></strong>
+                <% if (top.club) { %><span class="h-player-sub"><%= top.club %></span><% } %>
+              </div>
+              <div class="h-score-stack">
+                <span class="h-points"><%= fmt.pts(top.points) %></span>
+                <small class="h-pts-label">ĐIỂM</small>
+              </div>
+            </div>
           </div>
+
+          <!-- Cổ vợt nằm ngang -->
           <span class="paddle-throat" aria-hidden="true"></span>
+
+          <!-- Cán vợt & Băng quấn thể thao -->
           <span class="paddle-handle" aria-hidden="true"><span class="paddle-cap"></span></span>
         </a>
       </div>

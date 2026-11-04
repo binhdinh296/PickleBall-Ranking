@@ -527,8 +527,7 @@ button { font: inherit; }
 }
 
 /* ==========================================================================
-   TOP 1 Pickleball Paddle Badge trên trang Bảng Xếp Hạng
-   (Đúng chuẩn phong cách VĐV nổi bật trên trang chủ, kích thước tinh tế gọn gàng)
+   TOP 1 Pickleball Paddle Horizontal (Cây vợt Pickleball xoay ngang tiết kiệm chiều cao)
    ========================================================================== */
 .ranking-top-paddle-slot {
   display: flex;
@@ -537,47 +536,115 @@ button { font: inherit; }
   flex: none;
 }
 
-.top-ranking-paddle {
-  --pw: 140px;
-  cursor: pointer;
-  text-decoration: none;
-  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.65));
-  transition: transform .35s cubic-bezier(.2, .7, .2, 1), filter .35s ease;
-  user-select: none;
-}
-.top-ranking-paddle:hover {
-  transform: translateY(-8px) rotate(-1.5deg);
-  filter: drop-shadow(0 22px 38px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 22px var(--glow));
-}
-.top-ranking-paddle:hover .paddle-ball {
-  transform: translateY(-8px) rotate(-18deg);
-}
-.top-ranking-paddle .paddle-head {
-  min-height: calc(var(--pw) * 1.34);
-  padding: 4.5px;
-}
-.top-ranking-paddle .paddle-face {
-  inset: 4.5px;
-}
-.top-ranking-paddle .paddle-initials {
-  font-size: 38px;
-}
-.top-ranking-paddle .paddle-ball {
-  width: 42px;
-  height: 42px;
-  margin-left: -21px;
-  top: -19px;
-}
-.top-ranking-paddle .paddle-ball span {
-  font-size: 17px;
-}
-.top-ranking-paddle .paddle-caption {
-  padding: 0 12px 18px;
-  gap: 4px;
-}
-.top-ranking-paddle .top1-badge-pill {
+.paddle-horizontal {
   display: inline-flex;
   align-items: center;
+  position: relative;
+  text-decoration: none;
+  cursor: pointer;
+  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.6));
+  transition: transform .35s cubic-bezier(.2, .7, .2, 1), filter .35s ease;
+  user-select: none;
+  margin-top: 4px;
+}
+.paddle-horizontal:hover {
+  transform: translateY(-3px) scale(1.02);
+  filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 22px var(--glow));
+}
+.paddle-horizontal:hover .paddle-ball {
+  transform: translateY(-3px) rotate(-15deg);
+}
+
+/* Quả bóng pickleball số 01 đính ở góc trên bên trái mặt vợt */
+.paddle-horizontal .paddle-ball {
+  position: absolute;
+  left: 14px;
+  top: -12px;
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  border-radius: 50%;
+  z-index: 6;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .9), transparent 32%),
+    radial-gradient(circle, rgba(0, 0, 0, .26) 2px, transparent 2.5px) 0 0 / 10px 10px,
+    radial-gradient(circle at 50% 50%, var(--b-mid, #E2E9FF), var(--b-lo, #7B83E8));
+  box-shadow: 0 0 0 2px var(--m-mid, #A9C4FF), 0 8px 16px -6px rgba(0, 0, 0, .75), 0 0 14px -3px var(--glow), inset 0 -3px 6px rgba(0, 0, 0, .2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: transform .4s cubic-bezier(.3, 1.6, .5, 1);
+}
+.paddle-horizontal .paddle-ball span {
+  font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--b-ink, #15174A);
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .35);
+}
+
+/* Mặt vợt nằm ngang (Paddle Head & Rim) */
+.paddle-horizontal .paddle-head {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 28px 14px 14px 28px;
+  background: var(--edge);
+  box-shadow: 0 18px 36px -14px rgba(0, 0, 0, .85), inset 0 1px 0 rgba(255, 255, 255, .55);
+  min-height: auto;
+  position: relative;
+  flex: none;
+}
+
+/* Bề mặt vợt (Paddle Face) */
+.paddle-horizontal .paddle-face {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 16px 6px 10px;
+  border-radius: 24px 10px 10px 24px;
+  background:
+    radial-gradient(120% 120% at 20% 50%, rgba(229, 179, 56, 0.12) 0%, transparent 65%),
+    linear-gradient(135deg, #151A24 0%, #0B0E14 100%);
+  overflow: hidden;
+}
+
+.paddle-horizontal .paddle-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, .025) 0 2px, transparent 2px 6px),
+    linear-gradient(90deg, transparent 65%, rgba(0, 0, 0, 0.25) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .15);
+}
+
+/* Avatar VĐV */
+.paddle-horizontal .h-avatar-wrap {
+  position: relative;
+  flex: none;
+}
+.paddle-horizontal .h-avatar-wrap .avatar {
+  --s: 44px;
+  box-shadow: 0 0 0 2px var(--m-mid, #A9C4FF), 0 0 14px var(--glow);
+}
+
+/* Khối thông tin VĐV */
+.paddle-horizontal .h-meta-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.paddle-horizontal .top1-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
   gap: 3px;
   font-size: 9.5px;
   font-weight: 800;
@@ -586,71 +653,119 @@ button { font: inherit; }
   color: #FFF;
   background: rgba(0, 0, 0, 0.65);
   border: 1px solid rgba(255, 215, 0, 0.5);
-  padding: 2px 7px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  margin-bottom: 1px;
-}
-.top-ranking-paddle .p-name {
-  font-size: 13.5px;
-  line-height: 1.25;
-}
-.top-ranking-paddle .p-bar {
-  width: 22px;
-  height: 2.5px;
-}
-.top-ranking-paddle .p-pts {
-  font-size: 21px;
-  gap: 3px;
-}
-.top-ranking-paddle .p-pts small {
-  font-size: 9.5px;
-}
-.top-ranking-paddle .paddle-throat {
-  height: 12px;
-  width: 32%;
-}
-.top-ranking-paddle .paddle-handle {
-  height: 48px;
-  width: 20%;
-}
-.top-ranking-paddle .paddle-cap {
-  height: 8px;
-  bottom: -4px;
+  padding: 1.5px 7px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.3;
 }
 
+.paddle-horizontal .h-player-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -.005em;
+  line-height: 1.25;
+}
+
+.paddle-horizontal .h-player-sub {
+  font-size: 11.5px;
+  color: #94A3B8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+/* Điểm số VĐV */
+.paddle-horizontal .h-score-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: 8px;
+  flex: none;
+}
+
+.paddle-horizontal .h-points {
+  font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: .01em;
+  color: var(--t-glow, #C9D4FF);
+}
+
+.paddle-horizontal .h-pts-label {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .66);
+  margin-top: 2px;
+}
+
+/* Cổ vợt nằm ngang (Paddle Throat) */
+.paddle-horizontal .paddle-throat {
+  width: 14px;
+  height: 34px;
+  margin-left: -1px;
+  background: var(--edge);
+  clip-path: polygon(0 0, 100% 20%, 100% 80%, 0 100%);
+  -webkit-clip-path: polygon(0 0, 100% 20%, 100% 80%, 0 100%);
+  flex: none;
+}
+
+/* Cán vợt nằm ngang (Paddle Handle & Sports Grip) */
+.paddle-horizontal .paddle-handle {
+  position: relative;
+  width: 46px;
+  height: 24px;
+  margin-left: -1px;
+  border-radius: 2px 4px 4px 2px;
+  background: repeating-linear-gradient(-45deg, #141B2B 0 6px, #2A3550 6px 8px), #141B2B;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08), 0 8px 16px -6px rgba(0, 0, 0, .8);
+  flex: none;
+}
+[data-theme="light"] .paddle-horizontal .paddle-handle {
+  background: repeating-linear-gradient(-45deg, #2B3448 0 6px, #46506A 6px 8px), #2B3448;
+}
+
+/* Nắp chuôi vợt (Butt Cap) */
+.paddle-horizontal .paddle-cap {
+  position: absolute;
+  right: -5px;
+  top: -3px;
+  bottom: -3px;
+  width: 6px;
+  border-radius: 1px 3px 3px 1px;
+  background: var(--edge);
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Theme light override */
+[data-theme="light"] .paddle-horizontal .h-player-name { color: #FFFFFF; }
+[data-theme="light"] .paddle-horizontal .h-player-sub { color: #CBD5E1; }
+
 @media (max-width: 640px) {
-  .ranking-hero-row {
-    flex-wrap: nowrap !important;
-  }
-  .top-ranking-paddle {
-    --pw: 110px;
-  }
-  .top-ranking-paddle .paddle-ball {
-    width: 34px;
-    height: 34px;
-    margin-left: -17px;
-    top: -15px;
-  }
-  .top-ranking-paddle .paddle-ball span {
-    font-size: 14px;
-  }
-  .top-ranking-paddle .p-name {
-    font-size: 11.5px;
-  }
-  .top-ranking-paddle .p-pts {
-    font-size: 17px;
-  }
-  .top-ranking-paddle .top1-badge-pill {
-    font-size: 8.5px;
-    padding: 1px 5px;
-  }
-  .top-ranking-paddle .paddle-caption {
-    padding: 0 8px 12px;
-  }
-  .top-ranking-paddle .paddle-handle {
-    height: 38px;
-  }
+  .paddle-horizontal .paddle-head { padding: 3px; border-radius: 22px 10px 10px 22px; }
+  .paddle-horizontal .paddle-face { padding: 5px 12px 5px 6px; gap: 8px; border-radius: 19px 8px 8px 19px; }
+  .paddle-horizontal .h-avatar-wrap .avatar { --s: 36px; }
+  .paddle-horizontal .h-player-name { font-size: 13.5px; }
+  .paddle-horizontal .h-points { font-size: 21px; }
+  .paddle-horizontal .paddle-ball { width: 28px; height: 28px; left: 8px; top: -10px; }
+  .paddle-horizontal .paddle-ball span { font-size: 12px; }
+  .paddle-horizontal .paddle-handle { width: 34px; height: 20px; }
+  .paddle-horizontal .paddle-throat { width: 10px; height: 28px; }
+}
+
+@media (max-width: 420px) {
+  .paddle-horizontal .h-player-sub { display: none; }
+  .paddle-horizontal .paddle-handle { width: 24px; }
 }
 
 /* ==========================================================================
