@@ -321,7 +321,7 @@ button { font: inherit; }
 .ecard .cover { position: relative; aspect-ratio: 16 / 8.5; background: radial-gradient(70% 90% at 80% 0%, color-mix(in oklab, var(--ball) 50%, transparent), transparent 70%), linear-gradient(135deg, color-mix(in oklab, var(--court) 70%, #052523), #07131F); overflow: hidden; display: block; z-index: 1; }
 .ecard .cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(0.16, 1, 0.3, 1); }
 .ecard:hover .cover img { transform: scale(1.05); }
-.ecard .cover svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ecard .cover > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cover-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7, 11, 20, 0.1) 0%, rgba(7, 11, 20, 0.4) 50%, rgba(7, 11, 20, 0.85) 100%); pointer-events: none; }
 
 /* Badge ngày tháng phong cách vé VIP */
@@ -331,6 +331,17 @@ button { font: inherit; }
 
 /* Chip trên ảnh bìa */
 .cover-chips { position: absolute; top: 12px; right: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.cover-chips .chip, .hero-floating-badges .chip {
+  position: static !important; left: auto !important; right: auto !important; top: auto !important;
+  display: inline-flex !important; align-items: center !important; gap: 6px !important;
+  white-space: nowrap !important;
+}
+.cover-chips .chip svg, .hero-floating-badges .chip svg, .chip-live-sub svg {
+  position: static !important; inset: auto !important; width: 14px !important; height: 14px !important;
+  min-width: 14px !important; max-width: 14px !important; flex: none !important;
+  display: inline-block !important; vertical-align: middle !important; margin: 0 !important;
+}
+
 .chip-pulse { animation: chipPulseGlow 2s infinite; }
 @keyframes chipPulseGlow {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 90, 95, 0.6); }
@@ -338,7 +349,7 @@ button { font: inherit; }
 }
 .chip-gold-lux { background: linear-gradient(135deg, #FFE27A 0%, #E6C27A 50%, #B8860B 100%); color: #1E1300; border: 1px solid rgba(255, 235, 160, 0.7); font-weight: 800; box-shadow: 0 4px 14px rgba(230, 194, 122, 0.35); }
 .chip-titanium { background: rgba(18, 24, 38, 0.85); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: #CBD5E1; border: 1px solid rgba(255, 255, 255, 0.15); font-weight: 700; }
-.chip-live-sub { background: rgba(15, 23, 42, 0.88); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: #FF7075; border: 1px solid rgba(255, 90, 95, 0.4); font-size: 11.5px; }
+.chip-live-sub { display: inline-flex; align-items: center; gap: 6px; background: rgba(15, 23, 42, 0.88); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: #FF7075; border: 1px solid rgba(255, 90, 95, 0.4); font-size: 11.5px; padding: 4px 10px; }
 
 /* Nội dung thẻ giải đấu */
 .ecard .body { position: relative; z-index: 1; padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 14px; flex: 1; }

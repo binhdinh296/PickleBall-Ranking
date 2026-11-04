@@ -32,7 +32,7 @@
         <span class="chip chip-titanium">Đã kết thúc</span>
       <% } %>
       <% if (e.liveCount && e.liveCount > 0) { %>
-        <span class="chip chip-live-sub"><%- include('icon', { name: 'live' }) %><%= e.liveCount %> sân Live</span>
+        <span class="chip chip-live-sub"><%- include('icon', { name: 'live' }) %><span><%= e.liveCount %> sân Live</span></span>
       <% } %>
     </div>
   </a>
