@@ -18,7 +18,7 @@
       %>
       <h1 class="hero-title"><%- head.map(word).join(' ') %><%= head.length ? ' ' : '' %><span class="grad-text tail"><%- tail.split(' ').map(word).join(' ') %></span></h1>
       <p class="hero-lead"><%= site.hero_text %></p>
-      <div class="row">
+      <div class="row hero-actions">
         <a class="btn btn-brand btn-lg btn-sport" href="/giai-dau">Xem giải đấu <%- include('../partials/icon', { name: 'arrow' }) %></a>
         <a class="btn btn-lg btn-sport" href="/xep-hang">Bảng xếp hạng</a>
       </div>

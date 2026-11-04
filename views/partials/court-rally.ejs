@@ -3,7 +3,7 @@
   const c = court.court, n = court.net, r = court.rally;
   const paddle = (p, i) => p;
 %>
-<svg class="rally" viewBox="0 0 <%= court.vb.w %> <%= court.vb.h %>" role="img" aria-label="Minh họa sân pickleball chuẩn: hai người chơi đánh dink qua lại, bóng nảy trong vùng kitchen" data-rally>
+<svg class="rally" viewBox="0 0 <%= court.vb.w %> <%= court.vb.h %>" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Minh họa sân pickleball chuẩn: hai người chơi đánh dink qua lại, bóng nảy trong vùng kitchen" data-rally>
   <defs>
     <linearGradient id="rl-surface" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: color-mix(in oklab, var(--court) 55%, #06221F)"/><stop offset="1" style="stop-color: color-mix(in oklab, var(--court) 80%, #0A3B37)"/></linearGradient>
     <linearGradient id="rl-apron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B1A1E"/><stop offset="1" stop-color="#0F2A2B"/></linearGradient>
