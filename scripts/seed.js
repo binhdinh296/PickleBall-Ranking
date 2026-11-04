@@ -30,18 +30,30 @@ const NICKS = ['Smash', 'Dink', 'Volley', 'Lob', 'Spin', 'Erne', 'Bert', 'ATP', 
 // 12 VĐV nổi bật đại diện đầy đủ 6 mức rank (mỗi mức 1 Nam, 1 Nữ)
 // Diamond >= 3400 | Platinum 3300-3395 | Gold 3200-3295 | Silver 3100-3195 | Bronze 3000-3095 | Iron < 3000
 const FEATURED_SPEC = [
-  { given: 'Minh Khoa', gender: 'M', points: 3650, peak: 3700, nick: 'Khoa ATP', club: 'CLB Sài Gòn Dinker', town: 'TP. Hồ Chí Minh' }, // Kim cương
-  { given: 'Ngọc Lan', gender: 'F', points: 3450, peak: 3500, nick: 'Lan Volley', club: 'CLB Ba Đình (Hà Nội)', town: 'Hà Nội' }, // Kim cương
-  { given: 'Quốc Bảo', gender: 'M', points: 3380, peak: 3420, nick: 'Bảo Bert', club: 'CLB Sông Lam (Vinh)', town: 'Vinh' }, // Bạch kim
-  { given: 'Thu Hà', gender: 'F', points: 3320, peak: 3360, nick: 'Hà Smash', club: 'CLB Phượng Hoàng (Đà Nẵng)', town: 'Đà Nẵng' }, // Bạch kim
-  { given: 'Đức Anh', gender: 'M', points: 3270, peak: 3300, nick: 'Đức Erne', club: 'CLB Bến Thủy (Nghệ An)', town: 'Nghệ An' }, // Vàng
-  { given: 'Phương Anh', gender: 'F', points: 3215, peak: 3250, nick: 'Phương Spin', club: 'CLB Tây Hồ Dinker', town: 'Hà Nội' }, // Vàng
-  { given: 'Hải Nam', gender: 'M', points: 3180, peak: 3200, nick: 'Nam Ace', club: 'CLB Thủ Đức Pickleball', town: 'TP. Hồ Chí Minh' }, // Bạc
-  { given: 'Minh Thư', gender: 'F', points: 3120, peak: 3160, nick: 'Thư Dink', club: 'CLB Cửa Lò Pickleball', town: 'Cửa Lò' }, // Bạc
-  { given: 'Gia Huy', gender: 'M', points: 3080, peak: 3100, nick: 'Huy Fire', club: 'CLB Bình Dương Smash', town: 'Bình Dương' }, // Đồng
-  { given: 'Bảo Ngọc', gender: 'F', points: 3025, peak: 3050, nick: 'Ngọc Lob', club: 'CLB Hải Phòng Pickle', town: 'Hải Phòng' }, // Đồng
-  { given: 'Thanh Tùng', gender: 'M', points: 2850, peak: 2900, nick: 'Tùng Speed', club: 'CLB Vũng Tàu Sunshine', town: 'Vũng Tàu' }, // Sắt
-  { given: 'Khánh Linh', gender: 'F', points: 2680, peak: 2720, nick: 'Linh Newbie', club: 'CLB Cần Thơ Riverside', town: 'Cần Thơ' }, // Sắt
+  { given: 'Minh Khoa', gender: 'M', points: 3650, peak: 3700, nick: 'Khoa ATP', club: 'CLB Sài Gòn Dinker', town: 'TP. Hồ Chí Minh',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Kim cương
+  { given: 'Ngọc Lan', gender: 'F', points: 3450, peak: 3500, nick: 'Lan Volley', club: 'CLB Ba Đình (Hà Nội)', town: 'Hà Nội',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Kim cương
+  { given: 'Quốc Bảo', gender: 'M', points: 3380, peak: 3420, nick: 'Bảo Bert', club: 'CLB Sông Lam (Vinh)', town: 'Vinh',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Bạch kim
+  { given: 'Thu Hà', gender: 'F', points: 3320, peak: 3360, nick: 'Hà Smash', club: 'CLB Phượng Hoàng (Đà Nẵng)', town: 'Đà Nẵng',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Bạch kim
+  { given: 'Đức Anh', gender: 'M', points: 3270, peak: 3300, nick: 'Đức Erne', club: 'CLB Bến Thủy (Nghệ An)', town: 'Nghệ An',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Vàng
+  { given: 'Phương Anh', gender: 'F', points: 3215, peak: 3250, nick: 'Phương Spin', club: 'CLB Tây Hồ Dinker', town: 'Hà Nội',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Vàng
+  { given: 'Hải Nam', gender: 'M', points: 3180, peak: 3200, nick: 'Nam Ace', club: 'CLB Thủ Đức Pickleball', town: 'TP. Hồ Chí Minh',
+    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Bạc
+  { given: 'Minh Thư', gender: 'F', points: 3120, peak: 3160, nick: 'Thư Dink', club: 'CLB Cửa Lò Pickleball', town: 'Cửa Lò',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Bạc
+  { given: 'Gia Huy', gender: 'M', points: 3080, peak: 3100, nick: 'Huy Fire', club: 'CLB Bình Dương Smash', town: 'Bình Dương',
+    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Đồng
+  { given: 'Bảo Ngọc', gender: 'F', points: 3025, peak: 3050, nick: 'Ngọc Lob', club: 'CLB Hải Phòng Pickle', town: 'Hải Phòng',
+    avatar: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Đồng
+  { given: 'Thanh Tùng', gender: 'M', points: 2850, peak: 2900, nick: 'Tùng Speed', club: 'CLB Vũng Tàu Sunshine', town: 'Vũng Tàu',
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Sắt
+  { given: 'Khánh Linh', gender: 'F', points: 2680, peak: 2720, nick: 'Linh Newbie', club: 'CLB Cần Thơ Riverside', town: 'Cần Thơ',
+    avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Sắt
 ];
 
 function rnd(seed) {
@@ -96,11 +108,11 @@ async function seed({ log = console.log, force = false } = {}) {
       return phone;
     };
 
-    // 1. Tạo 12 VĐV NỔI BẬT đại diện đủ 6 mức rank
+    // 1. Tạo 12 VĐV NỔI BẬT đại diện đủ 6 mức rank kèm ảnh chân dung thực tế
     for (const spec of FEATURED_SPEC) {
       const full = `${pick(FAMILY)} ${spec.given}`;
-      const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured)
-        VALUES (?,?,?,?,?,?,?,?,true) RETURNING *`, full, spec.nick, makePhone(), spec.gender, spec.town, spec.club, spec.points, spec.peak);
+      const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured, avatar)
+        VALUES (?,?,?,?,?,?,?,?,true,?) RETURNING *`, full, spec.nick, makePhone(), spec.gender, spec.town, spec.club, spec.points, spec.peak, spec.avatar);
 
       await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'init', 'Khởi tạo xếp hạng ban đầu', 'Ban tổ chức', now() - interval '90 days')",
         a.id, Math.max(1800, spec.points - 200), Math.max(1800, spec.points - 200));

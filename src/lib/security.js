@@ -103,7 +103,7 @@ function securityHeaders(req, res, next) {
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
     'Content-Security-Policy': [
       "default-src 'self'",
-      "img-src 'self' data: blob: https://i.ytimg.com https://*.public.blob.vercel-storage.com",
+      "img-src 'self' data: blob: https://i.ytimg.com https://*.public.blob.vercel-storage.com https://images.unsplash.com",
       "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "script-src 'self' https://cdnjs.cloudflare.com",
