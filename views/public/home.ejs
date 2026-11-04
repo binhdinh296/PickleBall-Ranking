@@ -1,10 +1,16 @@
 <%- include('../partials/top') %>
 <%
   const words = site.hero_title.split(' ');
-  const first = locals.topAthlete || athletes[0];
 %>
-<section class="hero hero-sport hero-energy">
+<section class="hero hero-sport hero-energy hero-photo">
   <%- include('../partials/hero-energy') %>
+  <figure class="hero-media">
+    <img src="/static/img/hero-players.webp?v=<%= locals.assetV || "" %>"
+      srcset="/static/img/hero-players-sm.webp?v=<%= locals.assetV || "" %> 900w, /static/img/hero-players.webp?v=<%= locals.assetV || "" %> 1600w"
+      sizes="(min-width: 960px) 58vw, 100vw" width="1600" height="600" fetchpriority="high" decoding="async"
+      alt="Hai vận động viên đang thi đấu pickleball, quả bóng bay qua lưới">
+  </figure>
+  <span class="hero-slash" aria-hidden="true"></span>
   <div class="container hero-grid">
     <div class="stack enter hero-copy">
       <span class="hero-tag"><span class="chip chip-brand"><%= site.hero_eyebrow %></span><span class="clip">Pickleball · Ranking · Livestream</span></span>
@@ -26,33 +32,8 @@
         <span><%- include('../partials/icon', { name: 'shield' }) %>Đăng ký xác minh OTP</span>
       </div>
     </div>
-    <div class="hero-visual enter" style="--d: 140ms;" data-hero-visual>
-      <div class="court-card court-sport">
-        <%- include('../partials/court-rally') %>
-        <span class="court-tag" title="Kích thước sân pickleball tiêu chuẩn">20 × 44 ft · Kitchen 7 ft</span>
-      </div>
-      <% if (liveStream) { const aLead = liveMatch && (liveMatch.score_a ?? 0) >= (liveMatch.score_b ?? 0); %>
-      <a class="float-card score-bug" href="/giai-dau/<%= liveStream.slug %>/truc-tiep?san=<%= liveStream.id %>">
-        <span class="sb-head"><span class="sb-live"><span class="live-dot" style="background: #fff;"></span>LIVE</span><span class="sb-meta"><%= liveStream.court %><%= liveMatch ? ` · ${liveMatch.round_name}` : '' %></span></span>
-        <% if (liveMatch) { %>
-        <span class="sb-row <%= aLead ? 'lead' : '' %>"><span class="sb-name"><%= liveMatch.team_a %></span><span class="sb-score"><%= liveMatch.score_a ?? 0 %></span></span>
-        <span class="sb-row <%= aLead ? '' : 'lead' %>"><span class="sb-name"><%= liveMatch.team_b %></span><span class="sb-score"><%= liveMatch.score_b ?? 0 %></span></span>
-        <% } else { %><span class="sb-row"><span class="sb-name"><%= liveStream.event_name %></span></span><% } %>
-        <span class="sb-cta">Xem trực tiếp →</span>
-      </a>
-      <% } %>
-      <% if (first) { %>
-      <a class="float-card top-bug" href="/vdv/<%= first.id %>">
-        <span class="tb-rank">#1</span>
-        <%- include('../partials/avatar', { a: first, size: 44 }) %>
-        <span class="stack" style="--gap: 0; min-width: 0;"><span class="tb-label">Số 1 bảng xếp hạng</span><strong class="clip"><%= first.full_name %></strong><span class="tb-pts"><%= fmt.pts(first.points) %> điểm</span></span>
-      </a>
-      <% } %>
-    </div>
   </div>
 </section>
-
-
 
 <section class="section paddles-section">
   <div class="container">
@@ -77,13 +58,6 @@
       </div>
     </div>
     <% } %>
-  </div>
-</section>
-
-<section class="section court-slot hero-sport" aria-label="Minh họa sân pickleball">
-  <div class="container">
-    <div class="section-head"><div><h2 class="h2">Nhịp <span class="serif grad-text">dink</span> trong kitchen</h2></div></div>
-    <div data-court-slot></div>
   </div>
 </section>
 

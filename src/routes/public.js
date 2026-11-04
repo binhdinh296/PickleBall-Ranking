@@ -36,22 +36,8 @@ async function featuredEvents(limit) {
 }
 
 router.get('/', wrap(async (req, res) => {
-  const topAthlete = await get('SELECT * FROM athletes WHERE visible ORDER BY points DESC, id LIMIT 1');
-  if (topAthlete) {
-    topAthlete.rank = 1;
-    topAthlete.tier = tierFor(topAthlete.points);
-  }
   const athletes = await all('SELECT * FROM athletes WHERE visible ORDER BY featured DESC, points DESC, id LIMIT ?', num('featured_count') || 8);
   athletes.sort((a, b) => b.points - a.points);
-  const liveStream = await get(`SELECT l.*, e.slug, e.name AS event_name FROM live_streams l JOIN events e ON e.id = l.event_id
-    WHERE e.published AND l.status = 'live' ORDER BY l.actual_start DESC NULLS LAST, l.id LIMIT 1`);
-  let liveMatch = null;
-  if (liveStream) {
-    liveMatch = await get(`SELECT m.*, d.name AS division, ta.name AS team_a, tb.name AS team_b FROM matches m
-      JOIN divisions d ON d.id = m.division_id LEFT JOIN teams ta ON ta.id = m.team_a_id LEFT JOIN teams tb ON tb.id = m.team_b_id
-      WHERE d.event_id = ? AND m.status = 'live' AND (m.live_stream_id = ? OR m.court = ?) ORDER BY m.updated_at DESC LIMIT 1`,
-    liveStream.event_id, liveStream.id, liveStream.court);
-  }
   // Chỉ số cho carousel VĐV nổi bật: hạng toàn bảng, Lock, số lần lên bục, thay đổi điểm gần nhất
   for (const a of athletes) {
     a.rank = await points.rankOf(a);
@@ -63,11 +49,8 @@ router.get('/', wrap(async (req, res) => {
     a.tier = tierFor(a.points);
   }
 
-
-
   res.render('public/home', {
-    title: null, topAthlete, athletes, events: await featuredEvents(3), liveStream, liveMatch, pageScript: 'home',
-    court: require('../lib/rally').build(),
+    title: null, athletes, events: await featuredEvents(3), pageScript: 'home',
   });
 }));
 
