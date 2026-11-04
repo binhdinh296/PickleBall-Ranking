@@ -1,0 +1,70 @@
+<%
+  // Nền "năng lượng" của hero: vệt sáng quét cong, quỹ đạo bóng, bụi sáng, bóng pickleball phát sáng.
+  // Tự vẽ bằng SVG/CSS (không dùng ảnh) — màu lấy từ --ball / --court nên đổi được trong CMS.
+  let seed = 7;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  // Bụi sáng tập trung quanh quỹ đạo bên phải (giống vệt bụi quanh bóng trong ảnh mẫu)
+  const dust = Array.from({ length: 70 }, () => {
+    const t = rnd() * Math.PI * 2;
+    const spread = 0.82 + rnd() * 0.36;
+    return {
+      x: (1180 + Math.cos(t) * 420 * spread).toFixed(0),
+      y: (380 + Math.sin(t) * 230 * spread - Math.cos(t) * 90).toFixed(0),
+      r: (0.8 + rnd() * 2.4).toFixed(1),
+      g: Math.floor(rnd() * 3),
+    };
+  });
+  // Bóng phát sáng: vị trí (% của hero), kích thước, độ trễ chuyển động, nhóm hiển thị trên mobile
+  const balls = [
+    { x: 56, y: 9, s: 38, d: 0, m: 0 },
+    { x: 89, y: 13, s: 56, d: -1.4, m: 1 },
+    { x: 97, y: 45, s: 34, d: -2.6, m: 0 },
+    { x: 86, y: 76, s: 84, d: -0.8, m: 1 },
+    { x: 53, y: 66, s: 30, d: -3.4, m: 0 },
+    { x: 47, y: 27, s: 20, d: -2.0, m: 1 },
+    { x: 70, y: 92, s: 24, d: -4.2, m: 0 },
+  ];
+%>
+<div class="hero-bg" aria-hidden="true">
+  <svg class="he-svg" viewBox="0 0 1600 800" preserveAspectRatio="xMidYMid slice" focusable="false">
+    <defs>
+      <linearGradient id="he-g1" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" style="stop-color: var(--ball)" stop-opacity="0"/>
+        <stop offset=".45" style="stop-color: var(--ball)" stop-opacity=".9"/>
+        <stop offset="1" style="stop-color: var(--court)" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="he-g2" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" style="stop-color: var(--court)" stop-opacity="0"/>
+        <stop offset=".5" style="stop-color: color-mix(in oklab, var(--ball) 55%, var(--court))" stop-opacity=".85"/>
+        <stop offset="1" style="stop-color: var(--ball)" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="he-dust"><stop offset="0" stop-color="#fff"/><stop offset=".45" style="stop-color: var(--ball)"/><stop offset="1" style="stop-color: var(--ball)" stop-opacity="0"/></radialGradient>
+    </defs>
+    <!-- Vệt quét lớn, nhòe như vệt sơn -->
+    <g class="he-haze">
+      <path d="M-120 720 C 260 560, 640 200, 1720 110" stroke="url(#he-g2)" stroke-width="120" fill="none"/>
+      <path d="M-80 380 C 180 120, 560 40, 900 160" stroke="url(#he-g1)" stroke-width="70" fill="none"/>
+    </g>
+    <!-- Vệt quét sắc nét -->
+    <g class="he-strokes" fill="none" stroke-linecap="round">
+      <path d="M-60 770 C 400 610, 820 300, 1660 250" stroke="url(#he-g1)" stroke-width="10"/>
+      <path d="M140 820 C 560 640, 980 450, 1680 430" stroke="url(#he-g2)" stroke-width="4"/>
+      <path d="M40 250 C 230 90, 560 70, 760 190" stroke="url(#he-g1)" stroke-width="3"/>
+    </g>
+    <!-- Tia sáng chạy dọc vệt quét -->
+    <g class="he-flow" fill="none" stroke-linecap="round">
+      <path d="M-60 770 C 400 610, 820 300, 1660 250" stroke="url(#he-g1)" stroke-width="5"/>
+      <path d="M140 820 C 560 640, 980 450, 1680 430" stroke="url(#he-g1)" stroke-width="3" style="animation-delay: -2.4s"/>
+    </g>
+    <!-- Quỹ đạo bóng quanh sân -->
+    <g class="he-orbit" fill="none">
+      <ellipse cx="1180" cy="380" rx="430" ry="235" transform="rotate(-14 1180 380)" stroke="url(#he-g1)" stroke-width="3" class="he-orbit-main"/>
+      <ellipse cx="1180" cy="380" rx="470" ry="262" transform="rotate(-14 1180 380)" stroke="url(#he-g2)" stroke-width="1.4" stroke-dasharray="2 12" class="he-orbit-dots"/>
+    </g>
+    <!-- Bụi sáng -->
+    <% [0, 1, 2].forEach((g) => { %><g class="he-dust he-dust-<%= g %>"><% dust.filter((p) => p.g === g).forEach((p) => { %><circle cx="<%= p.x %>" cy="<%= p.y %>" r="<%= p.r %>" fill="url(#he-dust)"/><% }) %></g><% }) %>
+  </svg>
+  <div class="he-balls">
+    <% balls.forEach((b) => { %><span class="he-ball<%= b.m ? ' he-ball-m' : '' %>" style="--x: <%= b.x %>%; --y: <%= b.y %>%; --s: <%= b.s %>px; --d: <%= b.d %>s;"></span><% }) %>
+  </div>
+</div>

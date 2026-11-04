@@ -3,10 +3,8 @@
   const words = site.hero_title.split(' ');
   const first = locals.topAthlete || athletes[0];
 %>
-<section class="hero hero-sport">
-  <div class="hero-bg" aria-hidden="true">
-    <svg class="hero-bigball" viewBox="0 0 200 200"><circle cx="100" cy="100" r="96" fill="none" stroke="currentColor" stroke-width="3"/><g fill="currentColor"><circle cx="100" cy="30" r="9"/><circle cx="60" cy="48" r="9"/><circle cx="140" cy="48" r="9"/><circle cx="36" cy="88" r="9"/><circle cx="100" cy="74" r="9"/><circle cx="164" cy="88" r="9"/><circle cx="68" cy="110" r="9"/><circle cx="132" cy="110" r="9"/><circle cx="40" cy="138" r="9"/><circle cx="100" cy="132" r="9"/><circle cx="160" cy="138" r="9"/><circle cx="72" cy="168" r="9"/><circle cx="128" cy="168" r="9"/></g></svg>
-  </div>
+<section class="hero hero-sport hero-energy">
+  <%- include('../partials/hero-energy') %>
   <div class="container hero-grid">
     <div class="stack enter hero-copy">
       <span class="hero-tag"><span class="chip chip-brand"><%= site.hero_eyebrow %></span><span class="clip">Pickleball · Ranking · Livestream</span></span>
