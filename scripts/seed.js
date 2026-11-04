@@ -146,13 +146,14 @@ async function seed({ log = console.log, force = false } = {}) {
     }
 
     // 4. Tạo 44 VĐV còn lại phân bố tự nhiên (30 nam, 14 nữ)
-    const makeOther = async (given, gender, base) => {
+    // VĐV nam đầu tiên là Vũ Văn Long có điểm cao nhất (3.680) đạt Rank 1, bật cờ nổi bật featured
+    const makeOther = async (given, gender, base, isFeatured = false) => {
       const full = `${pick(FAMILY)} ${given}`;
       const points = Math.round((base + r() * 0.3) * 1000 / 5) * 5;
       const nick = r() > 0.4 ? given.split(' ').pop() + ' ' + pick(NICKS) : null;
       const peak = points + (r() > 0.5 ? Math.round(r() * 60 / 5) * 5 : 0);
       const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured)
-        VALUES (?,?,?,?,?,?,?,?,false) RETURNING *`, full, nick, makePhone(), gender, pick(TOWNS), pick(CLUBS), points, peak);
+        VALUES (?,?,?,?,?,?,?,?,?) RETURNING *`, full, nick, makePhone(), gender, pick(TOWNS), pick(CLUBS), points, peak, isFeatured);
 
       await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'init', 'Khởi tạo điểm trình', 'Ban tổ chức', now() - interval '80 days')",
         a.id, Math.max(1800, points - 150), Math.max(1800, points - 150));
@@ -161,8 +162,8 @@ async function seed({ log = console.log, force = false } = {}) {
       athletes.push(a);
     };
 
-    for (let i = 0; i < OTHER_MALE.length; i++) await makeOther(OTHER_MALE[i], 'M', 3.4 - i * 0.04);
-    for (let i = 0; i < OTHER_FEMALE.length; i++) await makeOther(OTHER_FEMALE[i], 'F', 3.1 - i * 0.05);
+    for (let i = 0; i < OTHER_MALE.length; i++) await makeOther(OTHER_MALE[i], 'M', 3.4 - i * 0.04, i === 0);
+    for (let i = 0; i < OTHER_FEMALE.length; i++) await makeOther(OTHER_FEMALE[i], 'F', 3.1 - i * 0.05, false);
 
     const men = athletes.filter((a) => a.gender === 'M');
     const women = athletes.filter((a) => a.gender === 'F');
