@@ -76,6 +76,9 @@
    ========================================================================== */
 /* Nối liền với hero: không viền trên, quầng vàng nằm sau hàng vợt thay vì dính mép trên */
 .paddles-section { border-top: 0; background: radial-gradient(55% 55% at 50% 58%, color-mix(in oklab, var(--gold) 9%, transparent), transparent 72%); overflow: hidden; }
+.paddles-section .section-head { justify-content: center; text-align: center; }
+.paddles-section .section-head > div { text-align: center; margin-inline: auto; }
+.paddles-section .h2 { text-align: center; margin-inline: auto; }
 .court-slot { border-top: 0; }
 .paddles { --pw: min(64vw, 230px); position: relative; }
 @media (min-width: 640px) { .paddles { --pw: 230px; } }
