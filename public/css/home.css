@@ -32,13 +32,15 @@
   width: 46px;
   height: 46px;
   border-radius: 12px;
-  background: rgba(20, 184, 166, 0.12);
-  border: 1px solid rgba(20, 184, 166, 0.3);
+  background: rgba(20, 184, 166, 0.15);
+  border: 1px solid rgba(20, 184, 166, 0.35);
   font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif;
   font-style: normal;
   font-weight: 800;
   font-size: 26px;
   line-height: 1;
+  color: var(--ball) !important;
+  text-shadow: 0 0 12px rgba(212, 245, 60, 0.4);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 .cta-inner .step-content {
@@ -637,4 +639,28 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
   .hero-media { height: clamp(118px, 32vw, 150px); margin-bottom: 10px; }
   .hero-media img { object-position: 34% 26%; }
   .hero-photo .hero-lead { display: none; }
+}
+
+/* ==========================================================================
+   Nền hero ảnh: hài hoà với chữ và ảnh
+   - Tông xanh ngọc lục bảo trầm (lấy từ hàng rào/mặt sân trong ảnh): sẫm phía chữ, sáng dần về phía ảnh
+   - Không còn quầng xanh chanh chói sau tiêu đề; quầng bạc hà dịu sát mép ảnh
+   - Sọc mảnh song song với vệt cắt chéo của ảnh (~20° so với phương đứng), không còn vệt sáng cắt ngang chữ/nút
+   ========================================================================== */
+.hero-photo { --hp-deep: #04170F; --hp-base: #07291C; --hp-near: #0C3A28; }
+.hero-photo::before { background:
+  radial-gradient(42% 95% at 60% 42%, rgba(94, 234, 212, .13), transparent 72%),
+  radial-gradient(38% 70% at 4% 0%, color-mix(in oklab, var(--ball) 10%, transparent), transparent 72%),
+  linear-gradient(100deg, var(--hp-deep) 0%, var(--hp-base) 38%, var(--hp-near) 62%, var(--hp-base) 100%); }
+.hero-photo .he-strokes, .hero-photo .he-flow { display: none; }
+.hero-photo .he-haze { opacity: .22; }
+.hero-photo .hero-bg { background: repeating-linear-gradient(110deg, transparent 0 64px, rgba(255, 255, 255, .03) 64px 65px); }
+@media (min-width: 960px) {
+  /* Mép trái ảnh hoà đúng vào màu nền ngay cạnh nó */
+  .hero-photo .hero-media::after { background:
+    linear-gradient(90deg, rgba(12, 58, 40, .85) 0%, rgba(12, 58, 40, .25) 22%, transparent 42%),
+    linear-gradient(0deg, rgba(4, 23, 15, .5), transparent 40%); }
+}
+@media (max-width: 959px) {
+  .hero-photo .hero-media::after { background: linear-gradient(0deg, rgba(7, 41, 28, .85), transparent 50%); }
 }
