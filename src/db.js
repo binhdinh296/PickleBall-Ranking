@@ -21,11 +21,13 @@ function getPool() {
     if (!DB_URL()) throw new Error('Thiếu biến môi trường DATABASE_URL');
     // Serverless: mỗi instance chỉ giữ vài kết nối, đóng kết nối rảnh sớm để không làm cạn giới hạn của CSDL
     const serverless = !!process.env.VERCEL;
+    const isRemote = !DB_URL().includes('127.0.0.1') && !DB_URL().includes('localhost');
     pool = new Pool({
       connectionString: DB_URL(),
       max: Number(process.env.DB_POOL_MAX) || (serverless ? 3 : 10),
       idleTimeoutMillis: serverless ? 10_000 : 30_000,
       connectionTimeoutMillis: 10_000,
+      ssl: isRemote ? { rejectUnauthorized: false } : undefined,
     });
   }
   return pool;
