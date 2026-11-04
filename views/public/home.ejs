@@ -36,19 +36,21 @@
       <h2 class="h2" style="text-align: center;">VẬN ĐỘNG VIÊN <span class="serif gold-text">NỔI BẬT</span></h2>
     </div>
     <% if (!athletes.length) { %><div class="empty">Chưa có vận động viên trên bảng xếp hạng.</div><% } else { %>
-    <div class="paddles enter" style="--d: 300ms;" data-paddles role="region" aria-roledescription="carousel" aria-label="Vận động viên nổi bật">
+    <div class="paddles enter" style="--d: 300ms;" data-paddles data-interval="4000" role="region" aria-roledescription="carousel" aria-label="Vận động viên nổi bật">
       <div class="paddle-viewport" data-viewport>
         <ul class="paddle-track" role="list">
           <% athletes.forEach((a, i) => { %><%- include('../partials/paddle', { a, i }) %><% }) %>
         </ul>
       </div>
+      <div class="pg-progress" aria-hidden="true"><i></i></div>
       <div class="paddle-controls">
         <div class="ball-dots" role="group" aria-label="Chọn vận động viên">
           <% athletes.forEach((a, i) => { %><button type="button" class="ball-dot <%= i === 0 ? 'is-active' : '' %>" data-dot="<%= i %>" aria-label="Tới <%= a.full_name %>"></button><% }) %>
         </div>
         <div class="row" style="--gap: 8px; flex-wrap: nowrap;">
-          <button type="button" class="icon-btn" data-prev aria-label="Lùi"><%- include('../partials/icon', { name: 'back' }) %></button>
-          <button type="button" class="icon-btn" data-next aria-label="Tới"><%- include('../partials/icon', { name: 'arrow' }) %></button>
+          <button type="button" class="icon-btn" data-prev aria-label="Trang trước"><%- include('../partials/icon', { name: 'back' }) %></button>
+          <button type="button" class="icon-btn" data-toggle aria-label="Tạm dừng tự chạy"><span data-icon-pause><%- include('../partials/icon', { name: 'pause' }) %></span><span data-icon-play hidden><%- include('../partials/icon', { name: 'play' }) %></span></button>
+          <button type="button" class="icon-btn" data-next aria-label="Trang sau"><%- include('../partials/icon', { name: 'arrow' }) %></button>
         </div>
       </div>
     </div>

@@ -667,3 +667,22 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
 @media (max-width: 959px) {
   .hero-photo .hero-media::after { background: linear-gradient(0deg, rgba(7, 41, 28, .85), transparent 50%); }
 }
+
+/* ==========================================================================
+   VĐV nổi bật — tự lướt từng trang
+   Thanh tiến trình mảnh báo lúc sang trang; vợt của trang mới nổi lên lần lượt (so le).
+   ========================================================================== */
+.pg-progress { position: relative; height: 3px; margin: 2px auto 0; width: min(100%, 320px); border-radius: 3px; overflow: hidden; background: color-mix(in oklab, var(--text) 10%, transparent); }
+.pg-progress i { position: absolute; inset: 0; transform-origin: 0 50%; transform: scaleX(0); border-radius: inherit;
+  background: linear-gradient(90deg, var(--ball), var(--court)); box-shadow: 0 0 10px color-mix(in oklab, var(--ball) 60%, transparent);
+  animation: pg-fill var(--pg-ms, 4000ms) linear forwards; }
+.paddles.is-paused .pg-progress i { animation: none; transform: scaleX(0); }
+@keyframes pg-fill { to { transform: scaleX(1); } }
+
+.paddle-slot.pg-in { animation: pg-in .75s cubic-bezier(.2, .8, .25, 1.15) both; animation-delay: calc(var(--k, 0) * 80ms + 120ms); }
+@keyframes pg-in { from { opacity: .25; transform: translateY(26px) scale(.94); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-progress { display: none; }
+  .paddle-slot.pg-in { animation: none; }
+}

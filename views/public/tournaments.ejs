@@ -83,7 +83,7 @@
     <!-- Empty Search Message (Hidden by default) -->
     <div id="searchEmptyMessage" class="tournament-empty" style="display: none;">
       <p>Không tìm thấy giải đấu nào phù hợp với từ khóa tìm kiếm.</p>
-      <button type="button" class="btn btn-sm btn-lux-outline" onclick="document.getElementById('tourSearchInput').value=''; document.getElementById('tourSearchInput').dispatchEvent(new Event('input'));">Xóa tìm kiếm</button>
+      <button type="button" class="btn btn-sm btn-lux-outline" data-search-clear>Xóa tìm kiếm</button>
     </div>
 
     <!-- Tournament Cards Grid -->
@@ -103,33 +103,5 @@
     <% } %>
   </div>
 </section>
-
-<!-- Client-side Interactive Search Script -->
-<script>
-  (function() {
-    const input = document.getElementById('tourSearchInput');
-    const cards = document.querySelectorAll('[data-event-card]');
-    const emptyMsg = document.getElementById('searchEmptyMessage');
-
-    if (input && cards.length) {
-      input.addEventListener('input', function() {
-        const query = this.value.toLowerCase().trim();
-        let matches = 0;
-
-        cards.forEach((card) => {
-          const name = card.getAttribute('data-name') || '';
-          const venue = card.getAttribute('data-venue') || '';
-          const isMatch = !query || name.includes(query) || venue.includes(query);
-          card.style.display = isMatch ? '' : 'none';
-          if (isMatch) matches++;
-        });
-
-        if (emptyMsg) {
-          emptyMsg.style.display = (matches === 0 && query) ? 'block' : 'none';
-        }
-      });
-    }
-  })();
-</script>
 
 <%- include('../partials/bottom') %>

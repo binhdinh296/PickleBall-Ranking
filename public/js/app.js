@@ -294,4 +294,72 @@
       if (e.key === 'Escape' && box.open) { box.open = false; var s = box.querySelector('summary'); if (s) s.focus(); }
     });
   });
+
+  // ---- Menu "Xem với vai trò" (dev): đổi vai trò qua fetch rồi quay lại trang đích ----
+  // (chuyển từ script inline trong partials/role-switcher.ejs để tuân thủ CSP)
+  if ($('.rm-form') && !window._roleSwitcherBound) {
+    window._roleSwitcherBound = true;
+    document.addEventListener('submit', function (e) {
+      var form = e.target.closest ? e.target.closest('.rm-form') : null;
+      if (!form) return;
+      e.preventDefault();
+      var nextInput = form.querySelector('input[name="next"]');
+      var next = (nextInput && nextInput.value) || window.location.pathname;
+      var btn = form.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+      var params = new URLSearchParams();
+      new FormData(form).forEach(function (v, k) { params.append(k, v); });
+      var go = function () { window.location.href = next; };
+      fetch(form.action, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
+      }).then(go, go);
+    });
+  }
+
+  // ---- Trang danh sách giải: lọc thẻ giải theo ô tìm kiếm ----
+  (function () {
+    var input = document.getElementById('tourSearchInput');
+    var cards = $$('[data-event-card]');
+    if (!input || !cards.length) return;
+    var emptyMsg = document.getElementById('searchEmptyMessage');
+    input.addEventListener('input', function () {
+      var query = input.value.toLowerCase().trim();
+      var matches = 0;
+      cards.forEach(function (card) {
+        var name = card.getAttribute('data-name') || '';
+        var venue = card.getAttribute('data-venue') || '';
+        var isMatch = !query || name.indexOf(query) !== -1 || venue.indexOf(query) !== -1;
+        card.style.display = isMatch ? '' : 'none';
+        if (isMatch) matches++;
+      });
+      if (emptyMsg) emptyMsg.style.display = (matches === 0 && query) ? 'block' : 'none';
+    });
+    $$('[data-search-clear]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        input.value = '';
+        input.dispatchEvent(new Event('input'));
+        input.focus();
+      });
+    });
+  })();
+
+  // ---- Trang chi tiết giải: chuyển thẻ vinh danh ----
+  (function () {
+    var btns = $$('.podium-nav-btn');
+    var cards = $$('[data-podium-card]');
+    if (!btns.length || !cards.length) return;
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        btns.forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        var target = btn.getAttribute('data-podium-target');
+        cards.forEach(function (c) {
+          c.style.display = (target === 'all' || c.id === target) ? '' : 'none';
+        });
+      });
+    });
+  })();
 })();
