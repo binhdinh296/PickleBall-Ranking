@@ -158,13 +158,27 @@
       <span class="chip chip-gold-lux">★ GRAND SLAM HONORS ★</span>
     </div>
 
+    <!-- Division Switcher for Podium (Pickna Feature) -->
+    <% if (honorDivisions.length > 1) { %>
+    <div class="podium-nav-tabs" role="tablist" aria-label="Chọn bảng vinh danh">
+      <button type="button" class="podium-nav-btn is-active" data-podium-target="all">
+        <span>🏆 Tất cả bảng đấu (<%= honorDivisions.length %>)</span>
+      </button>
+      <% honorDivisions.forEach((d) => { %>
+        <button type="button" class="podium-nav-btn" data-podium-target="podium-div-<%= d.id %>">
+          <span><%= d.name %></span>
+        </button>
+      <% }) %>
+    </div>
+    <% } %>
+
     <div class="stack" style="--gap: 36px;">
       <% honorDivisions.forEach((d) => { 
         const firsts = d.honors.filter((h) => h.place === 1); 
         const seconds = d.honors.filter((h) => h.place === 2); 
         const thirds = d.honors.filter((h) => h.place === 3); 
       %>
-      <div class="royal-podium-card confetti stack" style="--gap: 20px;">
+      <div class="royal-podium-card confetti stack" id="podium-div-<%= d.id %>" data-podium-card style="--gap: 20px;">
         <div class="podium-card-header">
           <span class="podium-div-crest">🏆</span>
           <h3><%= d.name %></h3>
@@ -237,5 +251,29 @@
   </div>
 </section>
 <% } %>
+
+<script>
+  (function() {
+    const btns = document.querySelectorAll('.podium-nav-btn');
+    const cards = document.querySelectorAll('[data-podium-card]');
+    if (!btns.length || !cards.length) return;
+
+    btns.forEach((btn) => {
+      btn.addEventListener('click', function() {
+        btns.forEach((b) => b.classList.remove('is-active'));
+        this.classList.add('is-active');
+        const target = this.getAttribute('data-podium-target');
+
+        cards.forEach((c) => {
+          if (target === 'all' || c.id === target) {
+            c.style.display = '';
+          } else {
+            c.style.display = 'none';
+          }
+        });
+      });
+    });
+  })();
+</script>
 
 <%- include('../partials/bottom') %>

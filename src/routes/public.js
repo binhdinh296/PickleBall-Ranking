@@ -17,7 +17,8 @@ async function featuredEvents(limit) {
   const events = await all('SELECT * FROM events WHERE published ORDER BY featured DESC, start_date DESC LIMIT ?', limit);
   for (const e of events) {
     e.status = fmt.eventStatus(e);
-    e.divisionCount = (await get('SELECT COUNT(*) AS c FROM divisions WHERE event_id = ?', e.id)).c;
+    e.divisions = await all('SELECT id, name, subtitle, max_teams, max_total_points FROM divisions WHERE event_id = ? ORDER BY sort_order, id', e.id);
+    e.divisionCount = e.divisions.length;
     e.liveCount = (await get("SELECT COUNT(*) AS c FROM live_streams WHERE event_id = ? AND status = 'live'", e.id)).c;
     e.regCount = (await get('SELECT COUNT(*) AS c FROM registrations r JOIN divisions d ON d.id = r.division_id WHERE d.event_id = ?', e.id)).c;
     const divs = await all('SELECT prizes FROM divisions WHERE event_id = ?', e.id);

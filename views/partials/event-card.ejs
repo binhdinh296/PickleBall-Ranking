@@ -4,14 +4,17 @@
   const dateStr = sday ? (sday === eday && sm === em ? `${sday}/${sm}/${sy}` : `${sday}/${sm} – ${eday}/${em}/${ey}`) : '';
   const isLive = e.status === 'ongoing' || (e.liveCount && e.liveCount > 0);
 %>
-<article class="ecard luxury-ecard <%= isLive ? 'is-live' : e.status === 'upcoming' ? 'is-upcoming' : 'is-ended' %>">
+<article class="ecard luxury-ecard <%= isLive ? 'is-live' : e.status === 'upcoming' ? 'is-upcoming' : 'is-ended' %>" data-event-card data-name="<%= (e.name || '').toLowerCase() %>" data-venue="<%= (e.venue || '').toLowerCase() %>" data-status="<%= e.status %>">
   <div class="ecard-ambient" aria-hidden="true"></div>
+
+  <!-- Cover Image with Grand Vignette -->
   <a class="cover" href="/giai-dau/<%= e.slug %>" aria-label="<%= e.name %>">
-    <% if (e.banner) { %><img src="<%= e.banner %>" alt="" loading="lazy"><% } else { %>
+    <% if (e.banner) { %><img src="<%= e.banner %>" alt="<%= e.name %>" loading="lazy"><% } else { %>
     <svg viewBox="0 0 400 200" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"><polygon points="120,34 280,34 362,200 38,200"/><line x1="98" y1="78" x2="302" y2="78"/><line x1="82" y1="112" x2="318" y2="112"/></g></svg>
     <% } %>
     <div class="cover-overlay"></div>
 
+    <!-- Ticket-style Date Badge -->
     <% if (sday && sm) { %>
     <div class="date-badge" aria-hidden="true">
       <span class="db-month">THG <%= parseInt(sm, 10) %></span>
@@ -19,6 +22,7 @@
     </div>
     <% } %>
 
+    <!-- Status Badges (Matching Pickna LIVE / COMING / DONE) -->
     <div class="cover-chips">
       <% if (isLive) { %>
         <span class="chip chip-live chip-pulse"><span class="live-dot" style="background:#fff"></span>Đang diễn ra</span>
@@ -33,12 +37,26 @@
     </div>
   </a>
 
+  <!-- Card Body -->
   <div class="body">
     <div class="head-row">
       <span class="event-tag"><%= isLive ? '🔥 GIẢI ĐẤU ĐANG DIỄN RA' : e.status === 'upcoming' ? '⚡ MỞ ĐĂNG KÝ TRANH TÀI' : '✨ BẢNG VÀNG DANH DỰ' %></span>
-      <h3><a href="/giai-dau/<%= e.slug %>"><%= e.name %></a></h3>
+      <h3 class="tournament-title"><a href="/giai-dau/<%= e.slug %>"><%= e.name %></a></h3>
     </div>
 
+    <!-- Division Tags List (Pickna Hallmark Feature) -->
+    <% if (e.divisions && e.divisions.length) { %>
+    <div class="tournament-tags" aria-label="Nội dung thi đấu">
+      <% e.divisions.slice(0, 4).forEach((d) => { %>
+        <span class="tournament-tag"><%= d.name %></span>
+      <% }) %>
+      <% if (e.divisions.length > 4) { %>
+        <span class="tournament-tag more">+<%= e.divisions.length - 4 %> nội dung</span>
+      <% } %>
+    </div>
+    <% } %>
+
+    <!-- Prize Pool Pill -->
     <% if (e.totalPrize) { %>
     <div class="prize-pill">
       <span class="pp-icon">🏆</span>
@@ -47,26 +65,41 @@
     </div>
     <% } %>
 
-    <div class="meta">
-      <span><%- include('icon', { name: 'calendar' }) %><%= dateStr %></span>
-      <% if (e.venue) { %><span><%- include('icon', { name: 'pin' }) %><%= e.venue %></span><% } %>
-      <span><%- include('icon', { name: 'trophy' }) %><%= e.divisionCount || 0 %> nội dung thi đấu<% if (e.regCount) { %> · <strong style="color: var(--text)"><%= e.regCount %> đội đăng ký</strong><% } %></span>
+    <!-- Meta Information Rows -->
+    <div class="tournament-info meta">
+      <div class="tournament-info-row">
+        <%- include('icon', { name: 'calendar' }) %>
+        <span><%= dateStr %></span>
+      </div>
+      <% if (e.venue) { %>
+      <div class="tournament-info-row">
+        <%- include('icon', { name: 'pin' }) %>
+        <span><%= e.venue %></span>
+      </div>
+      <% } %>
+      <div class="tournament-info-row">
+        <%- include('icon', { name: 'trophy' }) %>
+        <span><%= e.divisionCount || (e.divisions ? e.divisions.length : 0) %> nội dung thi đấu<% if (e.regCount) { %> · <strong style="color: var(--text)"><%= e.regCount %> đội đăng ký</strong><% } %></span>
+      </div>
     </div>
 
-    <div class="actions">
+    <!-- Full-Width Golden Grand CTA Bar (Pickna Feature) -->
+    <a class="tournament-cta" href="/giai-dau/<%= e.slug %>">
+      <span><%= isLive ? 'Xem Trực Tiếp & Bảng Đấu' : (e.registration_open && e.status !== 'ended') ? 'Đăng Ký Tranh Tài Ngay' : e.status === 'ended' ? 'Xem Bảng Vàng & Kết Quả' : 'Chọn Giải Đấu' %></span>
+      <span class="tcta-arrow" aria-hidden="true">→</span>
+    </a>
+
+    <!-- Quick Action Secondary Navigation -->
+    <div class="ecard-quick-actions">
+      <a class="qa-link" href="/giai-dau/<%= e.slug %>/danh-sach">Danh sách VĐV</a>
+      <span class="qa-sep">•</span>
+      <a class="qa-link" href="/giai-dau/<%= e.slug %>/nhanh-dau">Nhánh đấu</a>
       <% if (e.liveCount && e.liveCount > 0) { %>
-        <a class="btn btn-live btn-sm btn-glow" href="/giai-dau/<%= e.slug %>/truc-tiep"><%- include('icon', { name: 'live' }) %>Xem Live</a>
-        <a class="btn btn-sm btn-lux-outline" href="/giai-dau/<%= e.slug %>/nhanh-dau">Nhánh đấu</a>
+        <span class="qa-sep">•</span>
+        <a class="qa-link qa-live" href="/giai-dau/<%= e.slug %>/truc-tiep">Live (<%= e.liveCount %>)</a>
       <% } else if (e.status === 'ended') { %>
-        <a class="btn btn-gold-lux btn-sm btn-glow" href="/giai-dau/<%= e.slug %>#vinh-danh"><%- include('icon', { name: 'trophy' }) %>Bục vinh danh</a>
-        <a class="btn btn-sm btn-lux-outline" href="/giai-dau/<%= e.slug %>/nhanh-dau">Kết quả</a>
-      <% } else { %>
-        <% if (e.registration_open) { %>
-          <a class="btn btn-brand btn-sm btn-glow" href="/giai-dau/<%= e.slug %>/dang-ky">Đăng ký ngay</a>
-        <% } else { %>
-          <a class="btn btn-brand btn-sm" href="/giai-dau/<%= e.slug %>">Xem chi tiết</a>
-        <% } %>
-        <a class="btn btn-sm btn-lux-outline" href="/giai-dau/<%= e.slug %>">Thông tin</a>
+        <span class="qa-sep">•</span>
+        <a class="qa-link qa-gold" href="/giai-dau/<%= e.slug %>#vinh-danh">Bục vinh danh</a>
       <% } %>
     </div>
   </div>

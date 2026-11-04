@@ -1,20 +1,135 @@
 <%- include('../partials/top') %>
-<% const tabs = [['ongoing', 'Đang diễn ra'], ['upcoming', 'Sắp diễn ra'], ['ended', 'Đã kết thúc']]; %>
-<section class="page-head glow">
-  <div class="container stack" style="--gap: 18px;">
-    <div><span class="eyebrow">Giải đấu</span><h1 class="h1">Hệ thống <span class="serif grad-text">giải đấu</span></h1><p class="muted" style="margin-top: 8px;">Chọn giải để xem thông tin, nội dung thi đấu, giải thưởng, đăng ký và livestream.</p></div>
-    <nav class="tabs" aria-label="Trạng thái giải">
-      <% tabs.forEach(([k, label]) => { %><a class="tab" href="/giai-dau?tab=<%= k %>" aria-current="<%= tab === k %>"><%= label %> <span class="count">(<%= groups[k].length %>)</span></a><% }) %>
+<%
+  const tabs = [
+    ['ongoing', 'Đang diễn ra', groups.ongoing.length],
+    ['upcoming', 'Sắp diễn ra', groups.upcoming.length],
+    ['ended', 'Đã kết thúc', groups.ended.length],
+    ['all', 'Tất cả giải', groups.all.length]
+  ];
+  const currentTabObj = tabs.find((t) => t[0] === tab) || tabs[0];
+  const currentEvents = groups[tab] || [];
+%>
+
+<section class="page-head glow tournament-head-section">
+  <div class="container stack" style="--gap: 22px;">
+    <!-- Grand Tournament Eyebrow & Title -->
+    <div class="tournament-head stack" style="--gap: 10px;">
+      <span class="eyebrow gold">★ PICKLERANK CHAMPIONSHIP TOUR · HỆ THỐNG GIẢI ĐẤU QUỐC GIA ★</span>
+      <h1 class="h1 grand-title">Hệ thống <span class="serif gold-text">giải đấu</span></h1>
+      <p class="muted head-sub">Nơi hội tụ các giải đấu đỉnh cao, bảng vàng vinh danh nhà vô địch, cập nhật lịch thi đấu, nhánh đấu và livestream trực tiếp đa sân.</p>
+    </div>
+
+    <!-- Grand Tour Stats Ribbon (Matching Pickna scale) -->
+    <div class="tour-stats-ribbon">
+      <div class="ts-card">
+        <span class="ts-icon is-live"><span class="live-dot" style="background:#fff"></span></span>
+        <div class="ts-body">
+          <strong class="ts-num tnum"><%= stats.ongoing %></strong>
+          <span class="ts-label">Đang diễn ra</span>
+        </div>
+      </div>
+
+      <div class="ts-card">
+        <span class="ts-icon is-gold">⚡</span>
+        <div class="ts-body">
+          <strong class="ts-num tnum"><%= stats.upcoming %></strong>
+          <span class="ts-label">Sắp khởi tranh</span>
+        </div>
+      </div>
+
+      <div class="ts-card">
+        <span class="ts-icon is-done">🏆</span>
+        <div class="ts-body">
+          <strong class="ts-num tnum"><%= stats.ended %></strong>
+          <span class="ts-label">Đã bế mạc</span>
+        </div>
+      </div>
+
+      <div class="ts-card ts-card-gold">
+        <span class="ts-icon is-trophy">💰</span>
+        <div class="ts-body">
+          <strong class="ts-num gold-text tnum"><%= stats.totalPrizes %></strong>
+          <span class="ts-label gold-label">Tổng quỹ thưởng giải</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tournament Filter Tabs (Pickna Style) -->
+    <nav class="tournament-tabs" aria-label="Lọc giải đấu">
+      <% tabs.forEach(([k, label, count]) => { %>
+        <a class="tournament-tab <%= tab === k ? 'active' : '' %>" href="/giai-dau?tab=<%= k %>">
+          <b><%= count %></b>
+          <span><%= label %></span>
+        </a>
+      <% }) %>
     </nav>
   </div>
 </section>
-<section style="padding-block: 16px 56px;">
-  <div class="container">
-    <% if (!groups[tab].length) { %><div class="empty">Chưa có giải đấu ở mục <%= tabs.find((t) => t[0] === tab)[1] %>.</div><% } else { %>
-    <div class="grid" style="--min: 300px;">
-      <% groups[tab].forEach((e) => { %><%- include('../partials/event-card', { e }) %><% }) %>
+
+<!-- Main Tournaments Listing Section -->
+<section class="tournaments-main-section">
+  <div class="container stack" style="--gap: 20px;">
+    <!-- Live Search & Filter Bar -->
+    <div class="tour-toolbar">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="tourSearchInput" class="tour-search-field" placeholder="Tìm kiếm tên giải đấu, cụm sân, địa điểm (Vinh, Bến Thủy, Hà Tĩnh...)..." autocomplete="off" spellcheck="false">
+      </div>
+      <div class="toolbar-meta">
+        <span class="muted small">Hiển thị <strong style="color: var(--text)"><%= currentEvents.length %></strong> giải đấu</span>
+      </div>
     </div>
+
+    <!-- Empty Search Message (Hidden by default) -->
+    <div id="searchEmptyMessage" class="tournament-empty" style="display: none;">
+      <p>Không tìm thấy giải đấu nào phù hợp với từ khóa tìm kiếm.</p>
+      <button type="button" class="btn btn-sm btn-lux-outline" onclick="document.getElementById('tourSearchInput').value=''; document.getElementById('tourSearchInput').dispatchEvent(new Event('input'));">Xóa tìm kiếm</button>
+    </div>
+
+    <!-- Tournament Cards Grid -->
+    <% if (!currentEvents.length) { %>
+      <div class="tournament-empty">
+        <p>Hiện chưa có giải đấu nào trong mục <strong><%= currentTabObj[1] %></strong>.</p>
+        <div class="row" style="justify-content: center; gap: 10px; margin-top: 12px;">
+          <a class="btn btn-sm btn-brand" href="/giai-dau?tab=all">Xem tất cả giải đấu</a>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="grid tournament-grid" id="tournamentGrid" style="--min: 340px;">
+        <% currentEvents.forEach((e) => { %>
+          <%- include('../partials/event-card', { e }) %>
+        <% }) %>
+      </div>
     <% } %>
   </div>
 </section>
+
+<!-- Client-side Interactive Search Script -->
+<script>
+  (function() {
+    const input = document.getElementById('tourSearchInput');
+    const cards = document.querySelectorAll('[data-event-card]');
+    const emptyMsg = document.getElementById('searchEmptyMessage');
+
+    if (input && cards.length) {
+      input.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        let matches = 0;
+
+        cards.forEach((card) => {
+          const name = card.getAttribute('data-name') || '';
+          const venue = card.getAttribute('data-venue') || '';
+          const isMatch = !query || name.includes(query) || venue.includes(query);
+          card.style.display = isMatch ? '' : 'none';
+          if (isMatch) matches++;
+        });
+
+        if (emptyMsg) {
+          emptyMsg.style.display = (matches === 0 && query) ? 'block' : 'none';
+        }
+      });
+    }
+  })();
+</script>
+
 <%- include('../partials/bottom') %>

@@ -11,12 +11,18 @@ const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).cat
 
 router.get('/', wrap(async (req, res) => {
   const events = await all('SELECT * FROM events WHERE published ORDER BY start_date DESC');
-  const groups = { ongoing: [], upcoming: [], ended: [] };
+  const groups = { ongoing: [], upcoming: [], ended: [], all: [] };
+  let totalPrizesVal = 0;
+  let totalTeamsVal = 0;
+
   for (const e of events) {
     e.status = fmt.eventStatus(e);
-    e.divisionCount = (await get('SELECT COUNT(*) AS c FROM divisions WHERE event_id = ?', e.id)).c;
+    e.divisions = await all('SELECT id, name, subtitle, max_teams, max_total_points FROM divisions WHERE event_id = ? ORDER BY sort_order, id', e.id);
+    e.divisionCount = e.divisions.length;
     e.liveCount = (await get("SELECT COUNT(*) AS c FROM live_streams WHERE event_id = ? AND status = 'live'", e.id)).c;
     e.regCount = (await get('SELECT COUNT(*) AS c FROM registrations r JOIN divisions d ON d.id = r.division_id WHERE d.event_id = ?', e.id)).c;
+    totalTeamsVal += e.regCount;
+
     const divs = await all('SELECT prizes FROM divisions WHERE event_id = ?', e.id);
     let totalCash = 0;
     for (const d of divs) {
@@ -26,13 +32,31 @@ router.get('/', wrap(async (req, res) => {
         if (num) totalCash += num;
       }
     }
+    totalPrizesVal += totalCash;
     e.totalPrize = totalCash ? fmt.money(totalCash) + ' đ' : null;
+
     groups[e.status].push(e);
+    groups.all.push(e);
   }
+
   groups.upcoming.reverse();
-  const tab = ['ongoing', 'upcoming', 'ended'].includes(req.query.tab) ? req.query.tab
+
+  const tab = ['all', 'ongoing', 'upcoming', 'ended'].includes(req.query.tab) ? req.query.tab
     : groups.ongoing.length ? 'ongoing' : groups.upcoming.length ? 'upcoming' : 'ended';
-  res.render('public/tournaments', { title: 'Giải đấu', groups, tab });
+
+  res.render('public/tournaments', {
+    title: 'Hệ thống giải đấu',
+    groups,
+    tab,
+    stats: {
+      total: events.length,
+      ongoing: groups.ongoing.length,
+      upcoming: groups.upcoming.length,
+      ended: groups.ended.length,
+      totalPrizes: fmt.money(totalPrizesVal) + ' đ',
+      totalTeams: totalTeamsVal
+    }
+  });
 }));
 
 async function loadEvent(req, res, next) {

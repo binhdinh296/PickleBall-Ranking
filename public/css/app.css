@@ -345,9 +345,14 @@ button { font: inherit; }
 .ecard .head-row { display: flex; flex-direction: column; gap: 5px; }
 .ecard .event-tag { font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); }
 .ecard.is-live .event-tag { color: var(--live); }
-.ecard h3 { font-size: 19px; font-weight: 800; line-height: 1.32; margin: 0; }
-.ecard h3 a { color: var(--text); text-decoration: none; transition: color .15s; }
-.ecard h3 a:hover { color: var(--court); }
+.ecard h3, .ecard .tournament-title { font-size: 19px; font-weight: 800; line-height: 1.32; margin: 0; }
+.ecard h3 a, .ecard .tournament-title a { color: var(--text); text-decoration: none; transition: color .15s; }
+.ecard h3 a:hover, .ecard .tournament-title a:hover { color: var(--court); }
+
+/* Danh sách huy hiệu bảng đấu (Division Tags - Pickna Style) */
+.tournament-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 4px; min-height: 28px; align-content: flex-start; }
+.tournament-tag { display: inline-flex; align-items: center; padding: 4px 11px; border-radius: 999px; background: rgba(230, 194, 122, 0.12); border: 1px solid rgba(230, 194, 122, 0.28); color: #F5E8C4; font-size: 11.5px; font-weight: 700; line-height: 1.25; white-space: nowrap; }
+.tournament-tag.more { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.15); color: var(--text-2); font-weight: 600; }
 
 /* Banner tổng tiền thưởng sang trọng */
 .prize-pill { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 12px; background: linear-gradient(90deg, rgba(230, 194, 122, 0.14) 0%, rgba(20, 184, 166, 0.08) 100%); border: 1px solid rgba(230, 194, 122, 0.32); font-size: 13px; }
@@ -355,9 +360,38 @@ button { font: inherit; }
 .prize-pill .pp-text { color: var(--text-2); font-weight: 600; }
 .prize-pill .pp-amount { margin-left: auto; font-size: 15px; font-weight: 800; color: #FFD56B; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
 
-.meta { display: flex; flex-direction: column; gap: 7px; font-size: 13.5px; color: var(--text-2); }
-.meta span { display: flex; gap: 10px; align-items: flex-start; }
-.meta svg { width: 16px; height: 16px; flex: none; margin-top: 2px; color: var(--ink-court); }
+/* Các hàng thông số giải đấu */
+.tournament-info, .meta { display: flex; flex-direction: column; gap: 7px; font-size: 13.5px; color: var(--text-2); margin-top: auto; }
+.tournament-info-row, .meta span { display: flex; gap: 10px; align-items: flex-start; }
+.tournament-info-row svg, .meta svg { width: 16px; height: 16px; flex: none; margin-top: 2px; color: var(--ink-court); }
+
+/* Nút CTA vàng kim hoàng gia phủ toàn chiều rộng (Pickna Signature Feature) */
+.tournament-cta {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  min-height: 48px; border-radius: 14px;
+  background: linear-gradient(135deg, #c9971a, #ffdf74 50%, #b8860b);
+  color: #17120a; font-weight: 850; font-size: 13.5px; letter-spacing: .03em;
+  text-transform: uppercase; text-decoration: none;
+  box-shadow: 0 8px 24px rgba(230, 194, 122, 0.3);
+  transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 4px;
+}
+.tournament-cta:hover {
+  filter: brightness(1.08); transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(230, 194, 122, 0.45);
+  color: #0b0702;
+}
+.tournament-cta .tcta-arrow { font-size: 16px; font-weight: 900; transition: transform .2s; }
+.tournament-cta:hover .tcta-arrow { transform: translateX(4px); }
+
+/* Thanh điều hướng phụ nhanh dưới thẻ */
+.ecard-quick-actions { display: flex; align-items: center; justify-content: center; gap: 8px; padding-top: 4px; font-size: 12px; font-weight: 600; color: var(--text-3); flex-wrap: wrap; }
+.qa-link { color: var(--text-2); text-decoration: none; transition: color .15s; }
+.qa-link:hover { color: var(--court); text-decoration: underline; }
+.qa-sep { opacity: .4; }
+.qa-live { color: #FF7075; font-weight: 700; }
+.qa-gold { color: var(--gold); font-weight: 700; }
+
 .ecard .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; padding-top: 6px; }
 
 /* Nút bấm sang trọng */
@@ -367,6 +401,64 @@ button { font: inherit; }
 .btn-gold-lux:hover { color: #0C0801; filter: brightness(1.08); box-shadow: 0 6px 22px 0 rgba(230, 194, 122, 0.65); }
 .btn-lux-outline { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line-strong); color: var(--text); font-weight: 600; }
 .btn-lux-outline:hover { background: rgba(255, 255, 255, 0.09); border-color: var(--court); color: #fff; }
+
+/* ==========================================================================
+   Trang Hệ thống giải đấu (Tournaments Hub - Pickna Inspired Luxury)
+   ========================================================================== */
+.tournament-head-section { padding-top: 14px; text-align: center; }
+.tournament-head { max-width: 860px; margin: 0 auto; text-align: center; }
+.tournament-head .grand-title { font-size: clamp(28px, 4.5vw, 44px); font-weight: 800; letter-spacing: -.02em; margin: 0; }
+.tournament-head .head-sub { font-size: 15px; line-height: 1.6; color: var(--text-2); margin: 0; }
+
+/* Ruy-băng thống kê tổng thể giải đấu */
+.tour-stats-ribbon { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; max-width: 980px; margin: 0 auto; width: 100%; }
+@media (max-width: 768px) { .tour-stats-ribbon { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 440px) { .tour-stats-ribbon { grid-template-columns: 1fr; } }
+
+.ts-card { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 16px; background: rgba(255, 255, 255, 0.035); border: 1px solid var(--line-strong); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4); text-align: left; }
+.ts-card-gold { background: linear-gradient(135deg, rgba(230, 194, 122, 0.12) 0%, rgba(255, 215, 0, 0.05) 100%), rgba(255, 255, 255, 0.03); border-color: rgba(230, 194, 122, 0.45); }
+.ts-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; background: rgba(255, 255, 255, 0.06); }
+.ts-icon.is-live { background: rgba(255, 90, 95, 0.18); color: var(--live); }
+.ts-icon.is-gold { background: rgba(230, 194, 122, 0.2); }
+.ts-icon.is-done { background: rgba(20, 184, 166, 0.18); color: var(--court); }
+.ts-icon.is-trophy { background: rgba(255, 215, 0, 0.2); font-size: 20px; }
+.ts-body { display: flex; flex-direction: column; min-width: 0; }
+.ts-num { font-size: 18px; font-weight: 800; color: var(--text); line-height: 1.2; }
+.ts-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+
+/* Các tab lọc giải đấu (Pickna Signature Tabs) */
+.tournament-tabs { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 4px auto 0; }
+.tournament-tab {
+  display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 18px;
+  border-radius: 999px; background: rgba(14, 26, 45, 0.85); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-2); font-weight: 700; font-size: 14.5px;
+  text-decoration: none; transition: all .2s ease;
+}
+.tournament-tab:hover { background: rgba(255, 255, 255, 0.08); color: #fff; transform: translateY(-2px); }
+.tournament-tab b {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 4px;
+  border-radius: 999px; background: rgba(255, 255, 255, 0.12); font-size: 11.5px; font-weight: 800;
+}
+.tournament-tab.active {
+  background: linear-gradient(135deg, #c9971a, #ffdf74 55%, #b8860b);
+  border-color: rgba(255, 223, 116, 0.55); color: #17120a;
+  box-shadow: 0 10px 25px rgba(230, 194, 122, 0.35);
+}
+.tournament-tab.active b { background: rgba(0, 0, 0, 0.24); color: #17120a; }
+
+/* Thanh tìm kiếm & lọc nhanh giải đấu */
+.tournaments-main-section { padding-block: 20px 64px; }
+.tour-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 14px 20px; border-radius: 18px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line); }
+.search-input-wrap { position: relative; flex: 1; min-width: 260px; }
+.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: .7; pointer-events: none; }
+.tour-search-field {
+  width: 100%; min-height: 44px; padding: 10px 18px 10px 44px; border-radius: 999px;
+  background: rgba(14, 22, 40, 0.7); border: 1px solid var(--line-strong);
+  color: var(--text); font-size: 14px; font-family: inherit; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.tour-search-field:focus { border-color: var(--court); box-shadow: 0 0 16px rgba(20, 184, 166, 0.35); }
+.tournament-empty { padding: 44px 24px; text-align: center; border-radius: 20px; background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(230, 194, 122, 0.35); color: var(--text-2); font-size: 15px; }
 
 /* ==========================================================================
    Trang chi tiết giải đấu (Tournament Grand Detail View)
@@ -424,6 +516,22 @@ button { font: inherit; }
    Bục vinh danh Hoàng Gia 3D (Royal 3D Stepped Podium)
    ========================================================================== */
 .royal-honors-section { padding-block: 44px 64px; background: radial-gradient(80% 50% at 50% 0%, rgba(230, 194, 122, 0.07), transparent 70%); }
+
+/* Thanh chuyển bảng đấu vinh danh (Pickna Podium Division Nav) */
+.podium-nav-tabs { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.podium-nav-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 999px;
+  background: rgba(14, 26, 45, 0.85); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-2); font-weight: 700; font-size: 13.5px;
+  cursor: pointer; transition: all .2s ease;
+}
+.podium-nav-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; transform: translateY(-2px); }
+.podium-nav-btn.is-active {
+  background: linear-gradient(135deg, #c9971a, #ffdf74 55%, #b8860b);
+  border-color: rgba(255, 223, 116, 0.55); color: #17120a; font-weight: 850;
+  box-shadow: 0 8px 22px rgba(230, 194, 122, 0.35);
+}
+
 .royal-podium-card { position: relative; background: rgba(14, 22, 40, 0.7); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid rgba(230, 194, 122, 0.28); border-radius: 28px; padding: 36px 30px 40px; box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.7); }
 .podium-card-header { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 12px; }
 .podium-div-crest { font-size: 36px; filter: drop-shadow(0 4px 14px rgba(255, 215, 0, 0.45)); }
@@ -534,6 +642,13 @@ button { font: inherit; }
    Tương thích Chế độ sáng (Light Theme Luxury Overrides)
    ========================================================================== */
 [data-theme="light"] .ecard { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.12); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08); }
+[data-theme="light"] .tournament-tags .tournament-tag { background: rgba(230, 194, 122, 0.22); border-color: rgba(184, 134, 11, 0.35); color: #785307; }
+[data-theme="light"] .tournament-tab { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.12); color: var(--text-2); }
+[data-theme="light"] .tournament-tab b { background: rgba(12, 18, 32, 0.08); color: var(--text); }
+[data-theme="light"] .tournament-tab.active { background: linear-gradient(135deg, #c9971a, #ffdf74 55%, #b8860b); color: #17120a; }
+[data-theme="light"] .tour-search-field { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.15); color: #0B1120; }
+[data-theme="light"] .ts-card { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.12); box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.06); }
+[data-theme="light"] .tour-toolbar { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.12); }
 [data-theme="light"] .date-badge { background: rgba(255, 255, 255, 0.94); border-color: rgba(12, 18, 32, 0.14); box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.12); }
 [data-theme="light"] .date-badge .db-month { color: #8A5A12; }
 [data-theme="light"] .date-badge .db-day { color: #0B1120; }
@@ -553,6 +668,8 @@ button { font: inherit; }
 [data-theme="light"] .lpc-row { background: #F8FAFC; border-color: rgba(12, 18, 32, 0.08); }
 [data-theme="light"] .is-gold-row { background: rgba(255, 243, 214, 0.7); border-color: rgba(212, 168, 67, 0.5); }
 [data-theme="light"] .is-gold-row .gold-text { color: #8A5A12; }
+[data-theme="light"] .podium-nav-btn { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.12); color: var(--text-2); }
+[data-theme="light"] .podium-nav-btn.is-active { background: linear-gradient(135deg, #c9971a, #ffdf74 55%, #b8860b); color: #17120a; }
 
 /* ---------- Bảng (tự đổi thành thẻ trên mobile) ---------- */
 .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--card); }
