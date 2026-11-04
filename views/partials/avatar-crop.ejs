@@ -1,0 +1,26 @@
+<div class="field" data-avatar-crop>
+  <span class="label">Ảnh đại diện<%= locals.required ? ' *' : '' %></span>
+  <div class="avatar-pick">
+    <div class="avatar-preview"><% if (locals.current) { %><img src="<%= current %>" alt="Ảnh hiện tại"><% } else { %><%- include('icon', { name: 'camera', size: 28 }) %><% } %></div>
+    <div class="stack" style="--gap: 6px; min-width: 0; flex: 1;">
+      <label class="btn btn-sm" style="align-self: flex-start;">
+        <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only">
+        Chọn ảnh
+      </label>
+      <span class="hint">Ảnh rõ mặt, sẽ được cắt vuông và lưu 300×300.</span>
+    </div>
+  </div>
+  <input type="hidden" name="cropped_avatar_data" value="">
+  <div class="crop-modal" role="dialog" aria-modal="true" aria-label="Cắt ảnh đại diện">
+    <div class="crop-panel">
+      <strong>Căn chỉnh ảnh đại diện</strong>
+      <div class="crop-area"><img alt="Ảnh đang cắt"></div>
+      <div class="row" style="--gap: 8px;">
+        <button type="button" class="btn btn-sm" data-crop-rotate>Xoay</button>
+        <span class="grow"></span>
+        <button type="button" class="btn btn-sm" data-crop-cancel>Hủy</button>
+        <button type="button" class="btn btn-brand btn-sm" data-crop-apply>Áp dụng</button>
+      </div>
+    </div>
+  </div>
+</div>

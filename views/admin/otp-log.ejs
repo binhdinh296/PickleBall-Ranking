@@ -1,0 +1,24 @@
+<%- include('_top') %>
+<% const purpose = { submission: 'Chấm trình', registration: 'Đăng ký giải', admin_login: 'Đăng nhập CMS' }; %>
+<p class="small muted">Số điện thoại được che, mã OTP không bao giờ được lưu dạng đọc được.</p>
+<div class="kpis">
+  <% daily.slice(0, 4).forEach((d) => { %><div class="kpi"><b><%= d.sent %></b><span><%= d.day %> · <%= d.verified %> xác minh</span></div><% }) %>
+</div>
+<div class="table-wrap">
+  <table class="data stack-mobile">
+    <thead><tr><th>Thời gian</th><th>SĐT</th><th>Mục đích</th><th>Nhà cung cấp</th><th>Trạng thái gửi</th><th class="num">Sai</th><th>Kết quả</th></tr></thead>
+    <tbody>
+      <% rows.forEach((r) => { %><tr>
+        <td data-label="Thời gian" class="nowrap"><%= fmt.dateTimeVN(r.created_at) %></td>
+        <td data-label="SĐT" class="tnum"><%= r.phone %></td>
+        <td data-label="Mục đích"><%= purpose[r.purpose] || r.purpose %></td>
+        <td data-label="Nhà cung cấp"><%= r.provider %></td>
+        <td data-label="Gửi"><%= r.provider_status || '—' %></td>
+        <td data-label="Nhập sai" class="num"><%= r.attempts %></td>
+        <td data-label="Kết quả"><span class="chip <%= r.verified_at ? 'chip-ok' : 'chip-muted' %>"><%= r.verified_at ? 'Đã xác minh' : r.used_at ? 'Hủy/lỗi' : 'Chưa dùng' %></span></td>
+      </tr><% }) %>
+      <% if (!rows.length) { %><tr><td colspan="7" data-label="" class="faint">Chưa có yêu cầu OTP.</td></tr><% } %>
+    </tbody>
+  </table>
+</div>
+<%- include('_bottom') %>

@@ -1,0 +1,15 @@
+<%- include('../partials/top', { admin: true }) %>
+<div class="login-wrap glow">
+  <form class="card card-pad form login-card" method="post" action="/admin/login" data-once>
+    <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+    <input type="hidden" name="next" value="<%= next %>">
+    <div class="row" style="--gap: 12px;"><%- include('../partials/logo') %><span class="stack" style="--gap: 0;"><strong class="brand-name"><%= site.site_name %></strong><span class="tiny faint">CMS quản trị</span></span></div>
+    <h1 style="font-size: 24px; font-weight: 800;">Đăng nhập</h1>
+    <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+    <div class="field"><label for="username">Tên đăng nhập</label><input class="input" id="username" name="username" autocomplete="username" autocapitalize="none" required value="<%= username %>"></div>
+    <div class="field"><label for="password">Mật khẩu</label><input class="input" id="password" name="password" type="password" autocomplete="current-password" required></div>
+    <button class="btn btn-brand btn-lg btn-block" type="submit">Đăng nhập</button>
+    <a class="link small" href="/">← Về website</a>
+  </form>
+</div>
+<%- include('../partials/bottom', { admin: true }) %>

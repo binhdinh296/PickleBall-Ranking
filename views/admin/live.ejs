@@ -1,0 +1,51 @@
+<%- include('_top') %>
+<div class="sub-card">
+  <div class="row" style="justify-content: space-between;">
+    <h2 class="section-title">Kênh YouTube lưu video</h2>
+    <% if (account.connected) { %><span class="chip chip-ok">Đã kết nối</span><% } else { %><span class="chip chip-muted">Chưa kết nối</span><% } %>
+  </div>
+  <% if (account.connected) { %>
+    <p class="small">Kênh: <strong><%= account.channelTitle %></strong> · <a class="link" href="https://www.youtube.com/channel/<%= account.channelId %>" target="_blank" rel="noopener">Mở kênh</a></p>
+    <p class="tiny faint">Buổi phát tạo từ CMS được đặt <em>tự lưu</em>: khi kết thúc, YouTube giữ video trên kênh này và website dùng lại cho "Xem lại". Buổi phát dài quá 12 giờ có thể không được YouTube lưu trọn.</p>
+    <% if (user.role === 'admin') { %><form method="post" action="/admin/livestream/youtube/ngat" data-confirm="Ngắt kết nối kênh? Buổi phát đã tạo vẫn còn trên YouTube."><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-danger" type="submit">Ngắt kết nối</button></form><% } %>
+  <% } else if (!ytConfigured) { %>
+    <p class="small muted">Server chưa có thông tin ứng dụng Google. Quản trị kỹ thuật cần đặt <code>YOUTUBE_CLIENT_ID</code>, <code>YOUTUBE_CLIENT_SECRET</code>, <code>APP_URL</code> trong file <code>.env</code> (xem README). Trong lúc chờ, vẫn có thể tạo buổi phát bằng cách <strong>dán link YouTube có sẵn</strong>.</p>
+  <% } else { %>
+    <p class="small muted">Kết nối kênh YouTube cá nhân hoặc kênh thương hiệu của ban tổ chức để CMS tự tạo buổi phát, lấy stream key cho OBS và tự cập nhật trạng thái live.</p>
+    <p class="tiny faint">Cần bật tính năng phát trực tiếp trên kênh (lần đầu có thể chờ tới 24 giờ). URI chuyển hướng cần khai báo trong Google Cloud: <code><%= redirectUri %></code></p>
+    <% if (user.role === 'admin') { %><a class="btn btn-brand" href="/admin/livestream/youtube/ket-noi" style="align-self: flex-start;"><%- include('../partials/icon', { name: 'live' }) %>Kết nối kênh YouTube</a><% } else { %><p class="small">Liên hệ Quản trị viên để kết nối kênh.</p><% } %>
+  <% } %>
+</div>
+
+<div class="toolbar">
+  <form method="get" action="/admin/livestream" class="row grow" style="--gap: 8px; flex-wrap: nowrap;">
+    <label class="sr-only" for="giai">Giải</label>
+    <select class="input" id="giai" name="giai" style="flex: 1; min-width: 0;"><% events.forEach((e) => { %><option value="<%= e.id %>" <%= e.id === eventId ? 'selected' : '' %>><%= e.name %></option><% }) %></select>
+    <button class="btn" type="submit">Xem</button>
+  </form>
+  <a class="btn btn-brand" href="/admin/livestream/moi?giai=<%= eventId %>"><%- include('../partials/icon', { name: 'plus' }) %>Tạo buổi phát</a>
+  <% if (account.connected) { %><form method="post" action="/admin/livestream/dong-bo"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="event_id" value="<%= eventId %>"><button class="btn" type="submit">Đồng bộ trạng thái</button></form><% } %>
+</div>
+<div class="list">
+  <% if (!events.length) { %><div class="list-item faint">Chưa có giải đấu trong 30 ngày gần đây.</div><% } else if (!streams.length) { %><div class="list-item faint">Giải này chưa có buổi phát. Tạo mỗi sân một buổi phát cho mỗi ngày thi đấu.</div><% } %>
+  <% streams.forEach((s) => { %>
+  <a class="list-item" href="/admin/livestream/<%= s.id %>">
+    <% if (s.youtube_video_id) { %><img src="https://i.ytimg.com/vi/<%= s.youtube_video_id %>/mqdefault.jpg" alt="" width="96" height="54" style="border-radius: 8px; object-fit: cover; flex: none;" loading="lazy"><% } %>
+    <span class="main"><strong><%= s.court %> · <%= s.title %></strong><span class="sub"><%= s.scheduled_start ? fmt.dateTimeVN(s.scheduled_start) : 'Chưa đặt giờ' %> · <%= s.via_api ? 'Tạo qua YouTube API' : 'Link dán tay' %></span></span>
+    <span class="chip <%= s.status === 'live' ? 'chip-live' : s.status === 'ended' ? 'chip-muted' : 'chip-ball' %>"><%= fmt.LIVE_STATUS_LABEL[s.status] %></span>
+  </a>
+  <% }) %>
+</div>
+<details class="fold">
+  <summary>Hướng dẫn phát trực tiếp từ sân</summary>
+  <div class="fold-body stack small muted" style="--gap: 8px;">
+    <p>1. Tạo buổi phát cho từng sân, từng ngày (mỗi buổi dưới 12 giờ để YouTube lưu trọn video).</p>
+    <p>2. Trên máy phát tại sân, mở OBS › Cài đặt › Luồng: chọn "Tùy chỉnh", dán <strong>Máy chủ RTMP</strong> và <strong>Stream key</strong> từ trang buổi phát.</p>
+    <p>3. Thêm nguồn "Trình duyệt" (Browser Source) với link <strong>Lớp tỉ số OBS</strong>, cỡ 1920×1080, để hiện tỉ số trực tiếp trên hình.</p>
+    <p>4. Bấm "Bắt đầu phát" trong OBS. YouTube tự chuyển sang trạng thái live và website hiện trình phát ở tab "Trực tiếp".</p>
+    <p>5. Trọng tài bấm "Bắt đầu" từng trận trong mục Trọng tài: hệ thống ghi mốc thời gian để người xem bấm "Xem lại" đúng trận.</p>
+    <p>6. Kết thúc: dừng phát trong OBS (hoặc bấm "Kết thúc buổi phát" trong CMS). Video được lưu trên kênh YouTube.</p>
+    <p><strong>Không gửi stream key qua nhóm chat.</strong> Nếu lộ, tạo buổi phát mới.</p>
+  </div>
+</details>
+<%- include('_bottom') %>

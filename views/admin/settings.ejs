@@ -1,0 +1,61 @@
+<%- include('_top') %>
+<form class="form" method="post" action="/admin/cau-hinh" style="max-width: 900px;">
+  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+  <% const f = (k, label, attrs = '') => `<div class="field"><label for="${k}">${label}</label><input class="input" id="${k}" name="${k}" value="${String(s[k] ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}" ${attrs}></div>`; %>
+  <div class="sub-card">
+    <h2 class="section-title">Thương hiệu & giao diện</h2>
+    <div class="form-grid two">
+      <%- f('site_name', 'Tên website') %>
+      <%- f('site_tagline', 'Dòng phụ dưới logo') %>
+      <%- f('hero_eyebrow', 'Nhãn trên tiêu đề trang chủ') %>
+      <div class="field"><label for="default_theme">Giao diện mặc định</label><select class="input" id="default_theme" name="default_theme"><option value="dark" <%= s.default_theme !== 'light' ? 'selected' : '' %>>Tối</option><option value="light" <%= s.default_theme === 'light' ? 'selected' : '' %>>Sáng</option></select></div>
+      <div class="field span-2"><label for="hero_title">Tiêu đề trang chủ</label><textarea class="input" id="hero_title" name="hero_title" rows="2" style="min-height: 74px;"><%= s.hero_title %></textarea><span class="hint">Chữ "dink" tự in nghiêng; 2 chữ cuối tô gradient.</span></div>
+      <div class="field span-2"><label for="hero_text">Mô tả trang chủ</label><textarea class="input" id="hero_text" name="hero_text"><%= s.hero_text %></textarea></div>
+      <div class="field"><label for="color_ball">Màu bóng (nhấn chính)</label><input class="input" type="color" id="color_ball" name="color_ball" value="<%= s.color_ball %>" style="padding: 4px;"></div>
+      <div class="field"><label for="color_court">Màu sân (nhấn phụ)</label><input class="input" type="color" id="color_court" name="color_court" value="<%= s.color_court %>" style="padding: 4px;"></div>
+      <div class="field"><label for="color_gold">Màu vàng (thứ hạng)</label><input class="input" type="color" id="color_gold" name="color_gold" value="<%= s.color_gold %>" style="padding: 4px;"></div>
+      <div class="field"><span class="label">Xem trước</span><div class="btn btn-brand" aria-hidden="true">Nút chính</div></div>
+    </div>
+    <span class="hint">Toàn bộ gradient, màu chữ ở cả 2 giao diện tự suy ra từ 3 màu này.</span>
+  </div>
+  <div class="sub-card">
+    <h2 class="section-title">Liên hệ & mạng xã hội</h2>
+    <div class="form-grid two">
+      <%- f('hotline', 'Hotline') %><%- f('zalo', 'Zalo') %><%- f('email', 'Email', 'type="email"') %><%- f('address', 'Địa chỉ') %>
+      <%- f('facebook_url', 'Facebook', 'inputmode="url"') %><%- f('youtube_url', 'Kênh YouTube', 'inputmode="url"') %><%- f('zalo_group_url', 'Nhóm Zalo', 'inputmode="url"') %><%- f('privacy_url', 'Link chính sách quyền riêng tư (nếu có)', 'inputmode="url"') %>
+      <div class="field span-2"><label for="footer_text">Mô tả chân trang</label><textarea class="input" id="footer_text" name="footer_text" rows="2" style="min-height: 74px;"><%= s.footer_text %></textarea></div>
+    </div>
+  </div>
+  <div class="sub-card">
+    <h2 class="section-title">Quy tắc điểm (đơn vị phần nghìn: 2500 = 2.500)</h2>
+    <div class="form-grid three">
+      <%- f('min_points_male', 'Sàn Nam', 'inputmode="numeric"') %><%- f('min_points_female', 'Sàn Nữ', 'inputmode="numeric"') %><%- f('lock_margin', 'Biên Lock (điểm cao nhất − x)', 'inputmode="numeric"') %>
+      <%- f('newbie_exit_male', 'Mốc thoát newbie Nam', 'inputmode="numeric"') %><%- f('newbie_exit_female', 'Mốc thoát newbie Nữ', 'inputmode="numeric"') %><%- f('featured_count', 'Số VĐV nổi bật trang chủ', 'inputmode="numeric"') %>
+    </div>
+  </div>
+  <div class="sub-card">
+    <h2 class="section-title">Hạng huy hiệu (vợt & bóng ở mục VĐV nổi bật)</h2>
+    <p class="small muted">Điểm tối thiểu cho mỗi hạng, đơn vị phần nghìn (3400 = 3.400). Dưới mức Đồng là hạng Sắt.</p>
+    <div class="form-grid three">
+      <%- f('tier_diamond_min', 'Kim cương từ', 'inputmode="numeric"') %><%- f('tier_platinum_min', 'Bạch kim từ', 'inputmode="numeric"') %><%- f('tier_gold_min', 'Vàng từ', 'inputmode="numeric"') %>
+      <%- f('tier_silver_min', 'Bạc từ', 'inputmode="numeric"') %><%- f('tier_bronze_min', 'Đồng từ', 'inputmode="numeric"') %>
+    </div>
+  </div>
+  <div class="sub-card">
+    <h2 class="section-title">Số điện thoại & OTP</h2>
+    <label class="check"><input type="checkbox" name="otp_enabled" value="1" <%= s.otp_enabled === '1' ? 'checked' : '' %>><span>Bắt buộc xác minh OTP khi gửi đơn chấm trình và đăng ký giải</span></label>
+    <div class="form-grid three">
+      <div class="field"><label for="otp_provider">Nhà cung cấp gửi tin</label><select class="input" id="otp_provider" name="otp_provider"><% providers.forEach((p) => { %><option value="<%= p %>" <%= s.otp_provider === p ? 'selected' : '' %>><%= p === 'mock' ? 'Giả lập (chỉ để thử nghiệm)' : p === 'esms' ? 'eSMS.vn (SMS brandname)' : p %></option><% }) %></select></div>
+      <%- f('otp_brandname', 'Brandname đã đăng ký') %>
+      <%- f('otp_ttl_seconds', 'Hiệu lực mã (giây)', 'inputmode="numeric"') %>
+      <%- f('otp_cooldown_seconds', 'Chờ gửi lại (giây)', 'inputmode="numeric"') %>
+      <%- f('otp_daily_limit', 'Tối đa mã/SĐT/24 giờ', 'inputmode="numeric"') %>
+      <%- f('otp_max_attempts', 'Số lần nhập sai tối đa', 'inputmode="numeric"') %>
+    </div>
+    <span class="hint">Khóa API của nhà cung cấp đặt trong file .env trên server (ESMS_API_KEY, ESMS_SECRET_KEY), không nhập ở đây.</span>
+    <div class="field"><label for="phone_prefixes">Đầu số di động hợp lệ (mỗi dòng: Nhà mạng: đầu số, …)</label><textarea class="input secret" id="phone_prefixes" name="phone_prefixes" style="min-height: 180px;"><%= s.phone_prefixes %></textarea><details><summary class="link tiny" style="cursor: pointer;">Danh sách mặc định</summary><pre class="tiny faint" style="white-space: pre-wrap;"><%= defaultPrefixes %></pre></details></div>
+  </div>
+  <div class="form-actions"><button class="btn btn-brand" type="submit">Lưu cấu hình</button></div>
+</form>
+<%- include('_bottom') %>

@@ -1,0 +1,17 @@
+/* Lớp tỉ số cho OBS Browser Source: nền trong suốt, kích thước gợi ý 1920×1080 */
+html, body { margin: 0; background: transparent; font-family: 'Be Vietnam Pro', system-ui, sans-serif; }
+.ov { position: fixed; left: clamp(8px, 2vw, 40px); bottom: clamp(8px, 2vw, 40px); min-width: min(520px, calc(100vw - 16px)); max-width: min(760px, calc(100vw - 16px)); color: #fff; border-radius: 18px; overflow: hidden;
+  background: rgba(7, 11, 20, 0.86); box-shadow: 0 20px 60px -20px rgba(0, 0, 0, .7); border: 1px solid rgba(255, 255, 255, .14); transition: opacity .3s; }
+.ov.idle { opacity: 0; }
+.ov-title { display: flex; align-items: center; gap: 12px; padding: 10px 18px; font-size: 18px; font-weight: 700; background: linear-gradient(110deg, var(--ball), var(--court)); color: #06120E; }
+.ov-live { background: #E11D48; color: #fff; font-size: 14px; font-weight: 800; padding: 2px 10px; border-radius: 6px; letter-spacing: .08em; }
+.ov-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 12px 18px; font-size: clamp(18px, 4vw, 28px); font-weight: 700; }
+.ov-name { min-width: 0; }
+.ov-row + .ov-row { border-top: 1px solid rgba(255, 255, 255, .1); }
+.ov-name { overflow-wrap: anywhere; line-height: 1.2; }
+.ov-score { font-size: 40px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ball); min-width: 56px; text-align: right; }
+.ov-score.bump { animation: bump .45s ease; }
+.ov-leg { padding: 0 18px 10px; font-size: 16px; color: rgba(255, 255, 255, .75); }
+.ov-leg:empty { display: none; }
+@keyframes bump { 40% { transform: scale(1.25); } }
+.ov-stack { left: auto; right: 40px; top: 40px; bottom: auto; min-width: 380px; }

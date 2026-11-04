@@ -1,0 +1,77 @@
+<%- include('_top', { back: `/admin/giai-dau/${d.event_id}` }) %>
+<% const streamsMap = Object.fromEntries(streams.map((s) => [s.id, s])); const ev = { slug: d.event.slug }; %>
+<div class="grid" style="--min: 320px; align-items: start;">
+  <div class="sub-card">
+    <h2 class="section-title">1. Đội tham gia (<%= teams.length %>)</h2>
+    <% if (d.team_type === 'pair') { %>
+    <form method="post" action="/admin/noi-dung/<%= d.id %>/doi/dong-bo"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-block" type="submit">Tạo đội từ <%= pendingRegs %> đăng ký đã duyệt</button></form>
+    <% } %>
+    <details>
+      <summary class="link small" style="cursor: pointer;">+ Thêm đội thủ công</summary>
+      <form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/doi" style="margin-top: 10px; gap: 10px;">
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+        <input class="input" name="name" placeholder="Tên đội hoặc 'VĐV A / VĐV B'" required aria-label="Tên đội">
+        <textarea class="input" name="members" placeholder="Danh sách thành viên (mỗi dòng 1 người, cho đội tiếp sức)" aria-label="Thành viên" style="min-height: 80px;"></textarea>
+        <input class="input" name="seed" inputmode="numeric" placeholder="Hạt giống (không bắt buộc)" aria-label="Hạt giống">
+        <button class="btn btn-sm" type="submit">Thêm đội</button>
+      </form>
+    </details>
+    <div class="list" data-scroll style="max-height: 320px;">
+      <% teams.forEach((t) => { %><div class="list-item"><span class="main"><strong class="small"><%= t.name %></strong><% if (t.seed) { %><span class="sub">Hạt giống <%= t.seed %></span><% } %></span><form class="inline-form" method="post" action="/admin/doi/<%= t.id %>/xoa" data-confirm="Xóa đội này?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm" type="submit" aria-label="Xóa đội">✕</button></form></div><% }) %>
+      <% if (!teams.length) { %><div class="list-item faint small">Chưa có đội.</div><% } %>
+    </div>
+  </div>
+  <div class="sub-card">
+    <h2 class="section-title">2. Bốc thăm & tạo lịch</h2>
+    <p class="small muted"><%= d.format === 'roundrobin' ? `Vòng tròn: mỗi đội gặp nhau 1 lần${d.relay_legs ? `, ${d.relay_legs} chặng tiếp sức` : ''}.` : 'Loại trực tiếp: số đội lẻ sẽ có đội được miễn đấu (bye) và tự đi tiếp.' %></p>
+    <form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/tao-nhanh" data-confirm="<%= matches.length ? 'Tạo lại sẽ XÓA toàn bộ trận và tỉ số hiện có. Tiếp tục?' : 'Tạo nhánh đấu?' %>" style="gap: 10px;">
+      <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+      <label class="check"><input type="checkbox" name="randomize" value="1" checked><span>Bốc thăm ngẫu nhiên (bỏ chọn để xếp theo hạt giống)</span></label>
+      <button class="btn btn-brand" type="submit" <%= teams.length < 2 ? 'disabled' : '' %>><%= matches.length ? 'Bốc thăm lại' : 'Bốc thăm & tạo nhánh' %></button>
+    </form>
+    <details>
+      <summary class="link small" style="cursor: pointer;">+ Thêm trận thủ công (vòng Playoff…)</summary>
+      <form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/tran" style="margin-top: 10px; gap: 10px;">
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+        <div class="form-grid two">
+          <input class="input" name="round_order" inputmode="numeric" placeholder="Thứ tự vòng (1, 2…)" required aria-label="Thứ tự vòng">
+          <input class="input" name="round_name" placeholder="Tên vòng: Playoff" aria-label="Tên vòng">
+          <input class="input" name="code" placeholder="Mã trận: PO1" aria-label="Mã trận">
+          <select class="input" name="team_a_id" aria-label="Đội A"><option value="">Đội A</option><% teams.forEach((t) => { %><option value="<%= t.id %>"><%= t.name %></option><% }) %></select>
+          <select class="input" name="team_b_id" aria-label="Đội B"><option value="">Đội B</option><% teams.forEach((t) => { %><option value="<%= t.id %>"><%= t.name %></option><% }) %></select>
+        </div>
+        <button class="btn btn-sm" type="submit">Thêm trận</button>
+      </form>
+    </details>
+    <% if (matches.length) { %><form method="post" action="/admin/noi-dung/<%= d.id %>/xoa-nhanh" data-confirm="Xóa toàn bộ trận của nội dung này?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xóa toàn bộ trận</button></form><% } %>
+  </div>
+</div>
+
+<% if (table) { %>
+<div class="sub-card">
+  <h2 class="section-title">Bảng xếp hạng hiện tại</h2>
+  <div class="list"><% table.rows.forEach((r) => { %><div class="list-item"><strong class="serif" style="font-size: 20px; min-width: 28px;"><%= r.rank %></strong><span class="main"><strong class="small"><%= teamMap[r.id].name %></strong><span class="sub"><%= r.wins %> thắng · <%= r.losses %> thua · hiệu số <%= r.diff > 0 ? '+' : '' %><%= r.diff %> · <%= r.basis %></span></span></div><% }) %></div>
+</div>
+<% } %>
+
+<h2 class="section-title">3. Trận đấu (<%= matches.length %>) · bấm "Nhập tỉ số" để cập nhật</h2>
+<% if (!matches.length) { %><div class="empty">Chưa có trận nào.</div><% } else { %>
+<div class="bracket-scroll admin-bracket">
+  <div class="bracket">
+    <% rounds.forEach((r) => { %>
+    <div class="round">
+      <div class="round-title"><%= r.name %></div>
+      <div class="round-body">
+        <% r.matches.forEach((m) => { %>
+        <div>
+          <%- include('../partials/match-card', { m, teamMap, streams: streamsMap, d, ev }) %>
+          <a class="btn btn-sm btn-block" style="margin-top: 6px;" href="/admin/tran/<%= m.id %>">Nhập tỉ số</a>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</div>
+<% } %>
+<%- include('_bottom') %>

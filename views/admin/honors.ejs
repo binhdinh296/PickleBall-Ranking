@@ -1,0 +1,30 @@
+<%- include('_top', { back: `/admin/giai-dau/${d.event_id}` }) %>
+<% const label = { 1: 'Vô địch', 2: 'Giải nhì', 3: 'Đồng giải ba' }; %>
+<div class="toolbar">
+  <form method="post" action="/admin/noi-dung/<%= d.id %>/vinh-danh/goi-y"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm" type="submit">Lấy tự động từ nhánh đấu</button></form>
+  <% if (suggestion) { %><span class="chip chip-warn">Đã điền gợi ý, kiểm tra rồi bấm Lưu</span><% } %>
+</div>
+<form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/vinh-danh">
+  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+  <div class="grid" style="--min: 300px;">
+    <% slots.forEach((h, i) => { %>
+    <div class="sub-card">
+      <input type="hidden" name="place" value="<%= h.place %>">
+      <strong class="<%= h.place === 1 ? 'gold-text' : '' %>"><%= label[h.place] %></strong>
+      <% [1, 2].forEach((n) => { const nameId = `n${i}_${n}`; %>
+      <div class="field">
+        <label for="<%= nameId %>">VĐV <%= n %></label>
+        <input class="input" id="<%= nameId %>" name="name<%= n %>" value="<%= h[`name${n}`] || '' %>" maxlength="80">
+        <div class="athlete-search" data-athlete-search data-name-field="<%= nameId %>">
+          <input type="hidden" name="athlete<%= n %>_id" value="<%= h[`athlete${n}_id`] || '' %>">
+          <div class="row" style="--gap: 6px; flex-wrap: nowrap;"><input class="input" type="search" placeholder="<%= h[`athlete${n}_id`] ? `Đã gắn hồ sơ #${h[`athlete${n}_id`]}` : 'Gắn hồ sơ VĐV: gõ tên…' %>" aria-label="Tìm hồ sơ VĐV <%= n %>" style="min-height: 42px;"><button type="button" class="btn btn-sm" data-clear aria-label="Bỏ gắn hồ sơ">✕</button></div>
+          <ul></ul>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% }) %>
+  </div>
+  <div class="form-actions"><button class="btn btn-brand" type="submit">Lưu bảng vinh danh</button></div>
+</form>
+<%- include('_bottom') %>

@@ -1,0 +1,97 @@
+<%- include('../partials/top') %>
+<% const placeLabel = { 1: 'Vô địch', 2: 'Giải nhì', 3: 'Giải ba' }; %>
+<section class="page-head glow">
+  <div class="container stack" style="--gap: 20px;">
+    <a class="link small" href="/xep-hang">← Bảng xếp hạng</a>
+    <div class="card card-pad stack" style="--gap: 20px;">
+      <div class="row" style="--gap: 18px; align-items: center; flex-wrap: nowrap;">
+        <%- include('../partials/avatar', { a, size: 96, tone: rank === 1 ? 'gold' : '' }) %>
+        <div class="stack" style="--gap: 6px; min-width: 0;">
+          <span class="eyebrow" style="margin: 0; color: var(--ink-gold);">Hồ sơ vận động viên · Hạng #<%= rank %></span>
+          <h1 style="font-size: clamp(26px, 6.5vw, 40px); font-weight: 800;"><%= a.full_name %></h1>
+          <% if (a.nickname) { %><span class="muted small">Nickname: <strong><%= a.nickname %></strong></span><% } %>
+        </div>
+      </div>
+      <div class="row" style="--gap: 8px;">
+        <span class="chip"><%= fmt.GENDER_LABEL[a.gender] %></span>
+        <% if (a.club) { %><span class="chip"><%= a.club %></span><% } %>
+        <% if (a.hometown) { %><span class="chip"><%= a.hometown %></span><% } %>
+      </div>
+      <div class="grid" style="--min: 150px; gap: 10px;">
+        <div class="stat-tile" style="border-color: color-mix(in oklab, var(--gold) 45%, transparent); background: radial-gradient(90% 90% at 0% 0%, color-mix(in oklab, var(--gold) 14%, transparent), transparent 70%), var(--card);"><b class="gold-text" style="font-size: 34px;"><%= fmt.pts(a.points) %></b><span>Điểm ranking hiện tại</span></div>
+        <div class="stat-tile"><b><%= fmt.pts(a.peak_points) %></b><span>Điểm cao nhất</span></div>
+        <div class="stat-tile"><b><%= fmt.pts(lock) %></b><span>Điểm Lock</span></div>
+      </div>
+      <% if (a.description) { %><p class="muted small" style="white-space: pre-line;"><%= a.description %></p><% } %>
+    </div>
+  </div>
+</section>
+
+<section style="padding-block: 8px 48px;">
+  <div class="container stack" style="--gap: 14px;">
+    <details class="fold" <%= achievements.length ? 'open' : '' %>>
+      <summary><span>Thành tích thi đấu</span><span class="chip chip-muted"><%= achievements.length ? `${achievements.length} lần lên bục` : 'Chưa có dữ liệu' %></span></summary>
+      <div class="fold-body">
+        <% if (!achievements.length) { %><p class="faint small">Chưa có thành tích được ghi nhận.</p><% } else { %>
+        <div class="stack" style="--gap: 0;">
+          <% achievements.forEach((h) => { %>
+          <a class="timeline-item" href="/giai-dau/<%= h.slug %>#vinh-danh">
+            <span class="chip <%= h.place === 1 ? 'chip-gold' : '' %>"><%= placeLabel[h.place] %></span>
+            <span style="min-width: 0;"><strong style="overflow-wrap: anywhere;"><%= h.event %></strong><br><span class="small faint"><%= h.division %></span></span>
+            <span class="tiny faint nowrap"><%= fmt.dateVN(h.end_date) %></span>
+          </a>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+    </details>
+
+    <details class="fold" open>
+      <summary><span>Lịch sử điểm trình</span><span class="chip chip-muted"><%= hist.length %> mốc</span></summary>
+      <div class="fold-body stack" style="--gap: 16px;">
+        <div class="chart card" style="padding: 14px; border-radius: var(--r-md);">
+          <div class="row" style="justify-content: space-between; margin-bottom: 6px;"><span class="small muted">Diễn biến từ sàn <%= fmt.pts(chart.floor) %></span><span class="gold-text tnum" style="font-weight: 800;"><%= fmt.pts(a.points) %></span></div>
+          <svg viewBox="0 0 <%= chart.W %> <%= chart.H %>" role="img" aria-label="Biểu đồ điểm trình từ <%= fmt.pts(chart.floor) %> đến <%= fmt.pts(a.points) %>">
+            <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: var(--court); stop-opacity: .35"/><stop offset="1" style="stop-color: var(--court); stop-opacity: 0"/></linearGradient>
+            <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color: var(--court)"/><stop offset="1" style="stop-color: var(--ball)"/></linearGradient></defs>
+            <line x1="0" x2="<%= chart.W %>" y1="<%= chart.lockY %>" y2="<%= chart.lockY %>" style="stroke: var(--ink-gold)" stroke-dasharray="5 6" stroke-width="1.5"/>
+            <line x1="0" x2="<%= chart.W %>" y1="<%= chart.floorY %>" y2="<%= chart.floorY %>" style="stroke: var(--line-strong)" stroke-dasharray="2 6"/>
+            <path d="<%= chart.area %>" fill="url(#area)"/>
+            <path d="<%= chart.path %>" fill="none" stroke="url(#line)" stroke-width="3" stroke-linecap="round"/>
+            <% chart.points.forEach((p, i) => { %><circle cx="<%= p[0] %>" cy="<%= p[1] %>" r="<%= i === chart.points.length - 1 ? 6 : 3.5 %>" style="fill: <%= i === chart.points.length - 1 ? 'var(--ball)' : 'var(--court)' %>; stroke: var(--bg); stroke-width: 2;"/><% }) %>
+          </svg>
+          <div class="row tiny faint" style="--gap: 16px; margin-top: 8px;"><span><span style="color: var(--ink-gold);">┄</span> Điểm Lock <%= fmt.pts(chart.lock) %></span><span>┈ Sàn <%= fmt.pts(chart.floor) %></span></div>
+        </div>
+        <p class="tiny faint">Đoạn từ sàn là đường tham chiếu, không khẳng định VĐV từng ở mức sàn. Điểm Lock là mức cao nhất trong: sàn theo giới tính, mốc thoát newbie đã đạt và điểm cao nhất − <%= fmt.pts(site.lock_margin) %>.</p>
+        <div class="stack" style="--gap: 0;">
+          <% hist.forEach((h) => { const d = h.new_points - h.old_points; %>
+          <div class="timeline-item">
+            <span class="delta <%= d > 0 ? 'up' : d < 0 ? 'down' : '' %>"><%= h.kind === 'init' ? 'Khởi tạo' : fmt.signedPts(d) %></span>
+            <span style="min-width: 0;"><strong class="small"><%= h.kind === 'tournament' ? 'Kết quả giải' : h.kind === 'init' ? 'Điểm khởi tạo' : 'Điều chỉnh điểm' %></strong><% if (h.event_name) { %> · <a class="link small" href="/giai-dau/<%= h.event_slug %>"><%= h.event_name %></a><% } %><br><span class="tiny faint"><%= h.author || 'Ban tổ chức' %> · <%= fmt.dateTimeVN(h.created_at) %><%= h.note ? ` · ${h.note}` : '' %></span></span>
+            <span class="tnum small nowrap"><%= h.kind === 'init' ? '' : `${fmt.pts(h.old_points)} → ` %><strong><%= fmt.pts(h.new_points) %></strong></span>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+    </details>
+
+    <details class="fold" <%= matches.length ? 'open' : '' %>>
+      <summary><span>Lịch sử thi đấu</span><span class="chip chip-muted"><%= matches.length ? `${matches.length} trận` : 'Chưa có dữ liệu' %></span></summary>
+      <div class="fold-body">
+        <% if (!matches.length) { %><p class="faint small">Chưa có trận đấu được ghi nhận.</p><% } else { %>
+        <div class="stack" style="--gap: 0;">
+          <% matches.forEach((m) => { const mine = m.side === 'a' ? m.score_a : m.score_b; const theirs = m.side === 'a' ? m.score_b : m.score_a; const win = mine > theirs; %>
+          <div class="timeline-item">
+            <span class="chip <%= win ? 'chip-ok' : 'chip-err' %>"><%= win ? 'Thắng' : 'Thua' %></span>
+            <span style="min-width: 0;"><strong class="small" style="overflow-wrap: anywhere;">vs <%= m.side === 'a' ? m.team_b : m.team_a %></strong><br><span class="tiny faint"><a href="/giai-dau/<%= m.slug %>/nhanh-dau?d=<%= m.division_id %>"><%= m.event %></a> · <%= m.division %> · <%= m.round_name %></span>
+              <% if (m.youtube_video_id && m.video_offset !== null) { %><br><a class="link tiny" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=<%= m.youtube_video_id %>&t=<%= m.video_offset %>s">▸ Xem lại trận</a><% } %></span>
+            <span class="tnum nowrap" style="font-weight: 800;"><%= mine %> – <%= theirs %></span>
+          </div>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+    </details>
+  </div>
+</section>
+<%- include('../partials/bottom') %>

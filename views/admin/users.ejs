@@ -1,0 +1,30 @@
+<%- include('_top') %>
+<div class="list">
+  <% rows.forEach((u) => { %>
+  <div class="list-item" style="flex-wrap: wrap;">
+    <span class="main" style="flex: 1 1 220px;"><strong><%= u.display_name %> <span class="faint small">@<%= u.username %></span></strong><span class="sub"><%= fmt.ROLE_LABEL[u.role] %> · <%= u.active ? 'Đang hoạt động' : 'Đã khóa' %><%= u.last_login_at ? ` · đăng nhập ${fmt.dateTimeVN(u.last_login_at)}` : '' %></span></span>
+    <% if (u.id !== user.id) { %>
+    <span class="side">
+      <form class="row inline-form" method="post" action="/admin/nguoi-dung/<%= u.id %>" style="--gap: 6px;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="role"><select class="input" name="role" aria-label="Vai trò" style="min-height: 38px; width: auto;"><% Object.entries(fmt.ROLE_LABEL).forEach(([k, l]) => { %><option value="<%= k %>" <%= u.role === k ? 'selected' : '' %>><%= l %></option><% }) %></select><button class="btn btn-sm" type="submit">Đổi</button></form>
+      <form class="inline-form" method="post" action="/admin/nguoi-dung/<%= u.id %>" data-confirm="<%= u.active ? 'Khóa' : 'Mở khóa' %> tài khoản <%= u.username %>?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="toggle"><button class="btn btn-sm <%= u.active ? 'btn-danger' : '' %>" type="submit"><%= u.active ? 'Khóa' : 'Mở khóa' %></button></form>
+    </span>
+    <details style="flex-basis: 100%;"><summary class="link tiny" style="cursor: pointer;">Đặt lại mật khẩu</summary>
+      <form class="row" method="post" action="/admin/nguoi-dung/<%= u.id %>" style="--gap: 8px; margin-top: 8px;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="reset"><input class="input" type="password" name="password" autocomplete="new-password" placeholder="Mật khẩu mới" aria-label="Mật khẩu mới" style="flex: 1; min-height: 44px;"><button class="btn btn-sm" type="submit">Đặt lại</button></form>
+    </details>
+    <% } else { %><span class="chip">Bạn</span><% } %>
+  </div>
+  <% }) %>
+</div>
+<form class="card card-pad form" method="post" action="/admin/nguoi-dung" style="max-width: 720px;">
+  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+  <h2 class="section-title">Tạo tài khoản</h2>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+  <div class="form-grid two">
+    <div class="field"><label for="username">Tên đăng nhập</label><input class="input" id="username" name="username" autocapitalize="none" required value="<%= values.username || '' %>"></div>
+    <div class="field"><label for="display_name">Tên hiển thị</label><input class="input" id="display_name" name="display_name" required value="<%= values.display_name || '' %>"></div>
+    <div class="field"><label for="role">Vai trò</label><select class="input" id="role" name="role"><option value="editor">Biên tập viên – quản lý VĐV, giải, livestream</option><option value="referee" <%= values.role === 'referee' ? 'selected' : '' %>>Trọng tài – chỉ nhập tỉ số</option><option value="admin" <%= values.role === 'admin' ? 'selected' : '' %>>Quản trị viên – toàn quyền</option></select></div>
+    <div class="field"><label for="password">Mật khẩu ban đầu</label><input class="input" type="password" id="password" name="password" autocomplete="new-password" required minlength="10"></div>
+  </div>
+  <button class="btn btn-brand" type="submit" style="align-self: flex-start;">Tạo tài khoản</button>
+</form>
+<%- include('_bottom') %>

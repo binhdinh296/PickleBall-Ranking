@@ -1,0 +1,34 @@
+<%- include('../partials/top') %>
+<section class="page-head glow">
+  <div class="container stack" style="--gap: 18px;">
+    <%- include('../partials/event-nav', { current: 'list' }) %>
+    <div><span class="eyebrow">Danh sách đăng ký</span><h1 class="h1" style="font-size: clamp(26px, 6.5vw, 42px);"><%= d ? d.name : ev.name %></h1></div>
+    <%- include('../partials/division-tabs') %>
+  </div>
+</section>
+<section style="padding-block: 8px 56px;">
+  <div class="container">
+    <% if (!d) { %><div class="empty">Giải chưa có nội dung thi đấu.</div>
+    <% } else if (!regs.length) { %><div class="empty">Chưa có đăng ký cho nội dung này.</div>
+    <% } else { %>
+    <p class="tiny faint" style="margin-bottom: 10px;"><%= regs.length %><%= d.max_teams ? `/${d.max_teams}` : '' %> <%= d.team_type === 'team' ? 'đội' : 'đôi' %> · <%= regs.filter((r) => r.status === 'approved').length %> đã duyệt</p>
+    <div class="table-wrap">
+      <table class="data stack-mobile">
+        <thead><tr><th>STT</th><th>Vận động viên 1</th><th>Vận động viên 2</th><th class="num">Tổng trình</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <% regs.forEach((r, i) => { %>
+          <tr>
+            <td data-label="STT" class="tnum"><%= i + 1 %></td>
+            <td data-label="VĐV 1"><% if (r.athlete1_id) { %><a class="link" href="/vdv/<%= r.athlete1_id %>"><%= r.name1 %></a><% } else { %><%= r.name1 %><% } %></td>
+            <td data-label="VĐV 2"><% if (r.athlete2_id) { %><a class="link" href="/vdv/<%= r.athlete2_id %>"><%= r.name2 %></a><% } else { %><%= r.name2 %><% } %></td>
+            <td data-label="Tổng trình" class="num"><strong><%= fmt.pts(r.points1 + r.points2) %></strong></td>
+            <td data-label="Trạng thái"><span class="chip <%= r.status === 'approved' ? 'chip-ok' : 'chip-warn' %>"><%= fmt.REG_STATUS_LABEL[r.status] %></span></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </div>
+</section>
+<%- include('../partials/bottom') %>

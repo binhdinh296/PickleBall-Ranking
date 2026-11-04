@@ -1,0 +1,34 @@
+<%- include('../partials/top') %>
+<% const live = streams.filter((s) => s.status === 'live'); const soon = streams.filter((s) => s.status === 'scheduled'); const past = streams.filter((s) => s.status === 'ended'); %>
+<section class="page-head glow">
+  <div class="container stack" style="--gap: 10px;">
+    <span class="eyebrow">Trực tiếp</span>
+    <h1 class="h1">Livestream <span class="serif grad-text">các sân đấu</span></h1>
+    <p class="muted">Xem trực tiếp ngay trên website. Sau khi kết thúc, video được lưu trên kênh YouTube của ban tổ chức để xem lại.</p>
+  </div>
+</section>
+<section style="padding-block: 16px 56px;">
+  <div class="container stack" style="--gap: 32px;">
+    <% if (!streams.length) { %><div class="empty">Hiện chưa có buổi phát nào. Hãy quay lại vào ngày thi đấu.</div><% } %>
+    <% [['Đang phát', live, 'live'], ['Sắp phát', soon, 'soon'], ['Đã phát gần đây', past, 'past']].forEach(([label, list, kind]) => { if (!list.length) return; %>
+    <div class="stack" style="--gap: 14px;">
+      <h2 style="font-size: 20px; font-weight: 800;" class="row"><% if (kind === 'live') { %><span class="live-dot"></span><% } %><%= label %></h2>
+      <div class="grid" style="--min: 280px;">
+        <% list.forEach((s) => { %>
+        <a class="ecard" href="/giai-dau/<%= s.slug %>/truc-tiep?san=<%= s.id %>">
+          <span class="cover" style="aspect-ratio: 16 / 9;">
+            <% if (s.youtube_video_id) { %><img src="https://i.ytimg.com/vi/<%= s.youtube_video_id %>/hqdefault.jpg" alt="" loading="lazy"><% } %>
+            <% if (kind === 'live') { %><span class="chip chip-live">LIVE</span><% } else if (kind === 'soon') { %><span class="chip chip-ball">Sắp phát</span><% } else { %><span class="chip" style="background: rgba(0,0,0,.55); color: #fff; border-color: transparent;">Xem lại</span><% } %>
+          </span>
+          <span class="body" style="gap: 6px;">
+            <strong style="overflow-wrap: anywhere;"><%= s.court %> · <%= s.event_name %></strong>
+            <span class="small faint"><%= kind === 'soon' && s.scheduled_start ? `Dự kiến ${fmt.dateTimeVN(s.scheduled_start)}` : s.title %></span>
+          </span>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</section>
+<%- include('../partials/bottom') %>

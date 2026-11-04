@@ -1,0 +1,55 @@
+<%- include('_top', { back: '/admin/vdv', cropper: true }) %>
+<div class="grid" style="--min: 360px; align-items: start;">
+  <form class="card card-pad form" method="post" action="/admin/vdv/<%= a.id || 'moi' %>" enctype="multipart/form-data" data-once>
+    <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+    <h2 class="section-title">Thông tin vận động viên</h2>
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+    <%- include('../partials/avatar-crop', { current: a.avatar }) %>
+    <div class="form-grid two">
+      <div class="field span-2"><label for="full_name">Họ và tên *</label><input class="input" id="full_name" name="full_name" required maxlength="80" value="<%= a.full_name || '' %>"></div>
+      <div class="field"><label for="nickname">Nickname</label><input class="input" id="nickname" name="nickname" maxlength="40" value="<%= a.nickname || '' %>"></div>
+      <div class="field"><span class="label">Giới tính</span><div class="segmented"><label><input type="radio" name="gender" value="M" <%= a.gender !== 'F' ? 'checked' : '' %>><span>Nam</span></label><label><input type="radio" name="gender" value="F" <%= a.gender === 'F' ? 'checked' : '' %>><span>Nữ</span></label></div></div>
+      <div class="field"><label for="phone">Số điện thoại</label><input class="input" id="phone" name="phone" type="tel" inputmode="tel" data-phone maxlength="16" value="<%= a.phone || '' %>"><span class="hint" data-phone-hint data-default="Số di động Việt Nam, không bắt buộc"></span></div>
+      <% if (!a.id) { %><div class="field"><label for="points">Điểm khởi tạo *</label><input class="input tnum" id="points" name="points" inputmode="decimal" required placeholder="3.000" value="<%= a.points ? fmt.pts(a.points) : '' %>"></div><% } %>
+      <div class="field"><label for="club">Câu lạc bộ</label><input class="input" id="club" name="club" maxlength="80" value="<%= a.club || '' %>"></div>
+      <div class="field"><label for="hometown">Quê quán</label><input class="input" id="hometown" name="hometown" maxlength="80" value="<%= a.hometown || '' %>"></div>
+      <div class="field span-2"><label for="description">Mô tả</label><textarea class="input" id="description" name="description" maxlength="1000"><%= a.description || '' %></textarea></div>
+    </div>
+    <label class="check"><input type="checkbox" name="featured" value="1" <%= a.featured ? 'checked' : '' %>><span>Ưu tiên hiện ở "VĐV nổi bật" trang chủ</span></label>
+    <label class="check"><input type="checkbox" name="visible" value="1" <%= a.visible !== false ? 'checked' : '' %>><span>Hiển thị công khai (bỏ chọn để ẩn hồ sơ theo yêu cầu VĐV)</span></label>
+    <div class="form-actions"><button class="btn btn-brand" type="submit">Lưu</button><% if (a.id) { %><a class="btn" href="/vdv/<%= a.id %>" target="_blank" rel="noopener">Xem trang công khai</a><% } %></div>
+  </form>
+
+  <% if (a.id) { %>
+  <div class="stack" style="--gap: 16px;">
+    <form class="card card-pad form" method="post" action="/admin/vdv/<%= a.id %>/diem">
+      <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+      <h2 class="section-title">Điều chỉnh điểm</h2>
+      <div class="kpis" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+        <div class="kpi"><b class="gold-text"><%= fmt.pts(a.points) %></b><span>Hiện tại</span></div>
+        <div class="kpi"><b><%= fmt.pts(a.peak_points) %></b><span>Cao nhất</span></div>
+        <div class="kpi"><b><%= fmt.pts(lock) %></b><span>Lock</span></div>
+      </div>
+      <div class="segmented" style="--n: 2;"><label><input type="radio" name="mode" value="set" checked><span>Đặt điểm mới</span></label><label><input type="radio" name="mode" value="delta"><span>Cộng / trừ</span></label></div>
+      <div class="form-grid two">
+        <div class="field"><label for="new_points">Điểm mới</label><input class="input tnum" id="new_points" name="points" inputmode="decimal" placeholder="<%= fmt.pts(a.points) %>"></div>
+        <div class="field"><label for="delta">Hoặc cộng/trừ</label><input class="input tnum" id="delta" name="delta" inputmode="decimal" placeholder="+0.100 hoặc -0.050"></div>
+        <div class="field"><label for="kind">Loại</label><select class="input" id="kind" name="kind"><option value="adjust">Điều chỉnh điểm</option><option value="tournament">Kết quả giải</option></select></div>
+        <div class="field"><label for="note">Ghi chú</label><input class="input" id="note" name="note" maxlength="300" placeholder="Lý do điều chỉnh"></div>
+      </div>
+      <% if (user.role === 'admin') { %><label class="check"><input type="checkbox" name="ignore_lock" value="1"><span>Cho phép xuống dưới điểm Lock (được ghi nhật ký)</span></label><% } %>
+      <button class="btn btn-brand" type="submit">Cập nhật điểm</button>
+    </form>
+    <div class="card card-pad stack" style="--gap: 6px;">
+      <h2 class="section-title">Lịch sử điểm</h2>
+      <% (a.history || []).forEach((h) => { const d = h.new_points - h.old_points; %>
+      <div class="timeline-item"><span class="delta <%= d > 0 ? 'up' : d < 0 ? 'down' : '' %>"><%= h.kind === 'init' ? 'Khởi tạo' : fmt.signedPts(d) %></span><span class="small" style="min-width: 0;"><%= h.note || (h.kind === 'tournament' ? 'Kết quả giải' : 'Điều chỉnh') %><br><span class="tiny faint"><%= h.author %> · <%= fmt.dateTimeVN(h.created_at) %></span></span><strong class="tnum small"><%= fmt.pts(h.new_points) %></strong></div>
+      <% }) %>
+    </div>
+    <% if (user.role === 'admin') { %>
+    <form method="post" action="/admin/vdv/<%= a.id %>/xoa" data-confirm="Xóa vĩnh viễn VĐV này cùng lịch sử điểm?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xóa VĐV</button></form>
+    <% } %>
+  </div>
+  <% } %>
+</div>
+<%- include('_bottom', { cropper: true }) %>

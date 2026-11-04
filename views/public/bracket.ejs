@@ -1,0 +1,86 @@
+<%- include('../partials/top') %>
+<section class="page-head glow">
+  <div class="container stack" style="--gap: 18px;">
+    <%- include('../partials/event-nav', { current: 'bracket' }) %>
+    <div><span class="eyebrow">Nhánh đấu</span><h1 class="h1" style="font-size: clamp(26px, 6.5vw, 42px);"><%= d ? d.name : ev.name %></h1>
+      <% if (d && d.format === 'roundrobin') { %><p class="muted small" style="margin-top: 6px;"><%= data.teams.length %> đội<%= d.relay_legs ? ` · ${d.relay_legs} chặng · chạm ${d.relay_legs * d.relay_step}` : '' %> · vòng tròn</p><% } %>
+    </div>
+    <%- include('../partials/division-tabs') %>
+  </div>
+</section>
+<section style="padding-block: 8px 56px;">
+  <div class="container stack" style="--gap: 20px;" <% if (d) { %>data-version-url="/api/divisions/<%= d.id %>/version" data-version="<%= data.version %>" <%= data.stats.live ? 'data-has-live' : '' %><% } %>>
+    <% if (!d) { %><div class="empty">Giải chưa có nội dung thi đấu.</div>
+    <% } else if (!data.matches.length) { %><div class="empty">Chưa có nhánh đấu cho nội dung này.</div>
+    <% } else { %>
+    <div class="stat-tiles">
+      <div class="stat-tile"><b><%= data.stats.total %></b><span>Tổng trận</span></div>
+      <div class="stat-tile"><b style="color: var(--live);"><%= data.stats.live %></b><span>Đang đấu</span></div>
+      <div class="stat-tile"><b><%= data.stats.done %></b><span>Hoàn thành</span></div>
+    </div>
+
+    <% if (data.table) { %>
+    <div class="card card-pad stack" style="--gap: 14px;">
+      <h2 style="font-size: 20px; font-weight: 800;">Bảng xếp hạng vòng tròn</h2>
+      <div class="row tiny" style="--gap: 6px;"><span class="chip">1. Trận thắng</span><span class="chip">2. Hiệu số tổng</span><span class="chip">3. Đối đầu / bảng phụ</span><span class="chip chip-muted">Vẫn bằng: bốc thăm</span></div>
+      <div class="table-wrap">
+        <table class="data stack-mobile">
+          <thead><tr><th>Hạng</th><th>Đội</th><th class="num">Trận</th><th class="num">Thắng</th><th class="num">Thua</th><th class="num">Ghi</th><th class="num">Thua</th><th class="num">Hiệu số</th><th>Căn cứ</th></tr></thead>
+          <tbody>
+            <% data.table.rows.forEach((r) => { const t = data.teamMap[r.id]; %>
+            <tr>
+              <td data-label="Hạng"><strong class="serif <%= r.rank === 1 ? 'gold-text' : '' %>" style="font-size: 20px;"><%= r.rank %></strong></td>
+              <td data-label="Đội"><strong><%= t.name %></strong><% if (t.members) { %><details style="margin-top: 4px;"><summary class="tiny faint" style="cursor: pointer;">Xem VĐV</summary><span class="tiny muted" style="white-space: pre-line;"><%= t.members %></span></details><% } %></td>
+              <td data-label="Trận" class="num"><%= r.played %></td>
+              <td data-label="Thắng" class="num"><%= r.wins %></td>
+              <td data-label="Thua" class="num"><%= r.losses %></td>
+              <td data-label="Điểm ghi" class="num"><%= r.pf %></td>
+              <td data-label="Điểm thua" class="num"><%= r.pa %></td>
+              <td data-label="Hiệu số" class="num"><strong><%= r.diff > 0 ? '+' : '' %><%= r.diff %></strong></td>
+              <td data-label="Căn cứ" class="tiny faint"><%= r.basis %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% data.table.subTables.forEach((s) => { %>
+      <div class="card" style="padding: 14px; border-radius: var(--r-md);">
+        <strong class="small">Bảng phụ <%= s.rows.length %> đội · <%= s.basis %></strong>
+        <p class="tiny faint">Cùng <%= s.wins %> trận thắng, hiệu số tổng <%= s.diff > 0 ? '+' : '' %><%= s.diff %>.</p>
+        <% s.rows.forEach((r) => { %><div class="row small" style="justify-content: space-between;"><span><%= data.teamMap[r.id].name %></span><span class="tnum"><%= r.wins %> thắng · <%= r.diff > 0 ? '+' : '' %><%= r.diff %></span></div><% }) %>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+
+    <% if (d.format === 'roundrobin') { %>
+    <h2 style="font-size: 20px; font-weight: 800;">Lịch thi đấu theo lượt</h2>
+    <div class="stack" style="--gap: 18px;">
+      <% data.rounds.forEach((r) => { %>
+      <div class="stack" style="--gap: 10px;">
+        <span class="eyebrow" style="margin: 0;"><%= r.name %></span>
+        <div class="grid" style="--min: 280px; gap: 12px;">
+          <% r.matches.forEach((m) => { %><%- include('../partials/match-card', { m, teamMap: data.teamMap, streams: data.streams }) %><% }) %>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } else { %>
+    <p class="tiny faint hide-desktop">Vuốt ngang để xem các vòng tiếp theo →</p>
+    <div class="bracket-scroll">
+      <div class="bracket">
+        <% data.rounds.forEach((r) => { %>
+        <div class="round">
+          <div class="round-title"><%= r.name %></div>
+          <div class="round-body">
+            <% r.matches.forEach((m) => { %><%- include('../partials/match-card', { m, teamMap: data.teamMap, streams: data.streams }) %><% }) %>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+    <% } %>
+  </div>
+</section>
+<%- include('../partials/bottom') %>

@@ -1,0 +1,42 @@
+<%- include('_top', { back: `/admin/giai-dau/${d.event_id}` }) %>
+<div class="toolbar">
+  <nav class="tabs grow" aria-label="Lọc trạng thái">
+    <% [['', 'Tất cả'], ['new', 'Mới'], ['approved', 'Đã duyệt'], ['rejected', 'Từ chối']].forEach(([k, l]) => { %><a class="tab" href="?status=<%= k %>" aria-current="<%= status === k %>"><%= l %></a><% }) %>
+  </nav>
+  <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/dang-ky.csv"><%- include('../partials/icon', { name: 'download' }) %>Xuất CSV</a>
+  <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/nhanh-dau">Nhánh đấu →</a>
+</div>
+<div class="list">
+  <% if (!regs.length) { %><div class="list-item faint">Chưa có đăng ký.</div><% } %>
+  <% regs.forEach((r, i) => { %>
+  <div class="list-item" style="flex-wrap: wrap;">
+    <span class="main" style="flex: 1 1 260px;">
+      <strong>#<%= i + 1 %> · <%= r.name1 %> / <%= r.name2 %></strong>
+      <span class="sub"><%= r.phone1 %> (<%= fmt.pts(r.points1) %>) · <%= r.phone2 %> (<%= fmt.pts(r.points2) %>) · Tổng <strong><%= fmt.pts(r.points1 + r.points2) %></strong></span>
+      <span class="sub"><%= fmt.dateTimeVN(r.created_at) %><%= r.phone_verified ? ' · đã xác minh OTP' : '' %><%= r.admin_note ? ` · ${r.admin_note}` : '' %></span>
+    </span>
+    <span class="side">
+      <span class="chip <%= r.status === 'approved' ? 'chip-ok' : r.status === 'rejected' ? 'chip-err' : 'chip-warn' %>"><%= fmt.REG_STATUS_LABEL[r.status] %></span>
+      <% if (r.status !== 'approved') { %><form class="inline-form" method="post" action="/admin/dang-ky/<%= r.id %>/trang-thai"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="status" value="approved"><button class="btn btn-sm btn-brand" type="submit">Duyệt</button></form><% } %>
+      <% if (r.status !== 'rejected') { %><form class="inline-form" method="post" action="/admin/dang-ky/<%= r.id %>/trang-thai"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="status" value="rejected"><button class="btn btn-sm" type="submit">Từ chối</button></form><% } %>
+      <form class="inline-form" method="post" action="/admin/dang-ky/<%= r.id %>/xoa" data-confirm="Xóa đăng ký này?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-danger" type="submit" aria-label="Xóa">✕</button></form>
+    </span>
+  </div>
+  <% }) %>
+</div>
+<form class="card card-pad form" method="post" action="/admin/noi-dung/<%= d.id %>/dang-ky">
+  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+  <h2 class="section-title">Thêm đăng ký thủ công</h2>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+  <div class="form-grid three">
+    <div class="field"><label for="name1">VĐV 1</label><input class="input" id="name1" name="name1" required value="<%= values.name1 || '' %>"></div>
+    <div class="field"><label for="phone1">SĐT 1</label><input class="input" id="phone1" name="phone1" type="tel" data-phone required value="<%= values.phone1 || '' %>"><span class="hint" data-phone-hint></span></div>
+    <div class="field"><label for="points1">Trình 1</label><input class="input tnum" id="points1" name="points1" inputmode="decimal" required value="<%= values.points1 || '' %>"></div>
+    <div class="field"><label for="name2">VĐV 2</label><input class="input" id="name2" name="name2" required value="<%= values.name2 || '' %>"></div>
+    <div class="field"><label for="phone2">SĐT 2</label><input class="input" id="phone2" name="phone2" type="tel" data-phone required value="<%= values.phone2 || '' %>"><span class="hint" data-phone-hint></span></div>
+    <div class="field"><label for="points2">Trình 2</label><input class="input tnum" id="points2" name="points2" inputmode="decimal" required value="<%= values.points2 || '' %>"></div>
+  </div>
+  <span class="hint">VĐV đã có hồ sơ (trùng SĐT) sẽ dùng điểm trên hệ thống.</span>
+  <button class="btn btn-brand" type="submit" style="align-self: flex-start;">Thêm và duyệt</button>
+</form>
+<%- include('_bottom') %>

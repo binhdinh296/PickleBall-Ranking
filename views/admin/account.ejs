@@ -1,0 +1,12 @@
+<%- include('_top') %>
+<form class="card card-pad form" method="post" action="/admin/tai-khoan" style="max-width: 520px;">
+  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+  <p class="muted small"><strong><%= user.displayName %></strong> · <%= user.username %> · <%= fmt.ROLE_LABEL[user.role] %></p>
+  <h2 class="section-title">Đổi mật khẩu</h2>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+  <div class="field"><label for="current">Mật khẩu hiện tại</label><input class="input" type="password" id="current" name="current" autocomplete="current-password" required></div>
+  <div class="field"><label for="password">Mật khẩu mới</label><input class="input" type="password" id="password" name="password" autocomplete="new-password" minlength="10" required><span class="hint">Ít nhất 10 ký tự, có cả chữ và số.</span></div>
+  <div class="field"><label for="password2">Nhập lại mật khẩu mới</label><input class="input" type="password" id="password2" name="password2" autocomplete="new-password" required></div>
+  <button class="btn btn-brand" type="submit">Đổi mật khẩu</button>
+</form>
+<%- include('_bottom') %>

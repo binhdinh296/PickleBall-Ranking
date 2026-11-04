@@ -1,0 +1,58 @@
+<%- include('../partials/top') %>
+<% const closed = !ev.registration_open || ev.status === 'ended'; %>
+<section class="page-head glow">
+  <div class="container stack" style="--gap: 18px; max-width: 920px;">
+    <%- include('../partials/event-nav', { current: 'register' }) %>
+    <div><span class="eyebrow">Đăng ký thi đấu</span><h1 class="h1" style="font-size: clamp(26px, 6.5vw, 42px);"><%= ev.name %></h1></div>
+  </div>
+</section>
+<section style="padding-block: 8px 56px;">
+  <div class="container" style="max-width: 920px;">
+    <% if (done) { %>
+    <div class="card card-pad stack" style="--gap: 14px; text-align: center; align-items: center;">
+      <span class="chip chip-brand">Đăng ký thành công</span>
+      <h2 style="font-size: 24px; font-weight: 800;">Đã ghi nhận đăng ký <%= doneDivision.name %></h2>
+      <p class="muted">Đăng ký ở trạng thái "Mới đăng ký" và chờ ban tổ chức duyệt.</p>
+      <div class="row" style="justify-content: center;"><a class="btn btn-brand" href="/giai-dau/<%= ev.slug %>/danh-sach?d=<%= doneDivision.id %>">Xem danh sách</a><a class="btn" href="/giai-dau/<%= ev.slug %>/dang-ky">Đăng ký thêm</a></div>
+    </div>
+    <% } else if (closed) { %>
+    <div class="empty">Giải đã đóng đăng ký.</div>
+    <% } else if (!ev.divisions.length) { %>
+    <div class="empty">Giải chưa mở nội dung thi đấu.</div>
+    <% } else { %>
+    <form class="form card card-pad" method="post" action="/giai-dau/<%= ev.slug %>/dang-ky" data-once novalidate>
+      <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+      <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+      <fieldset class="stack" style="--gap: 10px; border: 0; padding: 0; margin: 0;">
+        <legend class="label" style="margin-bottom: 10px;">Chọn nội dung thi đấu *</legend>
+        <div class="division-pick">
+          <% ev.divisions.forEach((d, i) => { const checked = String(values.division_id) === String(d.id) || (!values.division_id && ev.divisions.length === 1); %>
+          <label>
+            <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required>
+            <span class="opt">
+              <% if (d.banner) { %><img src="<%= d.banner %>" alt=""><% } %>
+              <strong><%= d.name %></strong>
+              <small><%= d.subtitle || (d.max_total_points ? `Tổng ≤ ${fmt.pts(d.max_total_points)}` : fmt.GENDER_RULE_LABEL[d.gender_rule]) %></small>
+            </span>
+          </label>
+          <% }) %>
+        </div>
+      </fieldset>
+      <div class="form-grid two">
+        <% [1, 2].forEach((n) => { %>
+        <div class="player-box" data-lookup>
+          <strong>Vận động viên <%= n %><%= n === 1 ? ' (người đăng ký)' : '' %></strong>
+          <div class="field"><label for="phone<%= n %>">Số điện thoại *</label><input class="input" id="phone<%= n %>" name="phone<%= n %>" type="tel" inputmode="tel" autocomplete="<%= n === 1 ? 'tel' : 'off' %>" maxlength="16" required data-phone value="<%= values[`phone${n}`] || '' %>" placeholder="09xx xxx xxx"><span class="hint" data-phone-hint data-default="Nhập SĐT để tự điền nếu đã có hồ sơ"></span><span class="hint" data-lookup-status aria-live="polite"></span></div>
+          <div class="field"><label for="full_name<%= n %>">Họ và tên *</label><input class="input" id="full_name<%= n %>" name="full_name<%= n %>" maxlength="80" required data-lookup-name value="<%= values[`name${n}`] || '' %>"></div>
+          <div class="field"><label for="trinh<%= n %>">Trình độ *</label><input class="input tnum" id="trinh<%= n %>" name="trinh<%= n %>" inputmode="decimal" required data-lookup-points placeholder="Ví dụ 3.500" value="<%= values[`trinh${n}`] || '' %>"></div>
+        </div>
+        <% }) %>
+      </div>
+      <% if (otpEnabled) { %><%- include('../partials/otp', { purpose: 'registration', phoneInput: 'phone1', who: 'VĐV 1' }) %><% } %>
+      <label class="check"><input type="checkbox" name="consent" value="1" required><span>Tôi xác nhận thông tin đúng và đồng ý cho ban tổ chức xử lý dữ liệu theo <a class="link" href="/chinh-sach-quyen-rieng-tu" target="_blank">chính sách quyền riêng tư</a>. Danh sách công khai chỉ hiện tên, không hiện số điện thoại.</span></label>
+      <button class="btn btn-brand btn-lg btn-block" type="submit">Gửi đăng ký</button>
+    </form>
+    <% } %>
+  </div>
+</section>
+<%- include('../partials/bottom') %>

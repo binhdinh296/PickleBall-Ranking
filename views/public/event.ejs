@@ -1,0 +1,77 @@
+<%- include('../partials/top', { description: `${ev.name} · ${fmt.dateVN(ev.start_date)} · ${ev.venue || ''}`, ogImage: ev.banner }) %>
+<% const medal = { 1: 'VÔ ĐỊCH', 2: 'GIẢI NHÌ', 3: 'GIẢI BA' }; const liveNow = ev.streams.filter((s) => s.status === 'live'); %>
+<section class="page-head glow">
+  <div class="container stack" style="--gap: 18px;">
+    <a class="link small" href="/giai-dau">← Giải đấu</a>
+    <div class="event-hero">
+      <% if (ev.banner) { %><img src="<%= ev.banner %>" alt="Banner <%= ev.name %>"><% } else { %>
+      <svg viewBox="0 0 800 380" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.22)" stroke-width="2"><polygon points="250,60 550,60 720,380 80,380"/><line x1="206" y1="150" x2="594" y2="150"/><line x1="180" y1="210" x2="620" y2="210"/></g></svg>
+      <% } %>
+    </div>
+    <div class="stack" style="--gap: 10px;">
+      <div class="row" style="--gap: 8px;">
+        <% if (ev.status === 'ongoing') { %><span class="chip chip-live">Đang diễn ra</span><% } else if (ev.status === 'upcoming') { %><span class="chip chip-ball">Sắp diễn ra</span><% } else { %><span class="chip">Đã kết thúc</span><% } %>
+        <% if (liveNow.length) { %><span class="chip chip-live"><span class="live-dot" style="background:#fff"></span><%= liveNow.length %> sân đang live</span><% } %>
+      </div>
+      <h1 class="h1" style="font-size: clamp(28px, 7vw, 48px);"><%= ev.name %></h1>
+    </div>
+    <div class="info-tiles">
+      <div class="info-tile"><%- include('../partials/icon', { name: 'pin' }) %><span style="min-width: 0;"><strong><%= ev.venue || 'Đang cập nhật sân' %></strong><% if (ev.address) { %><br><span class="small muted"><%= ev.address %></span><% } %></span></div>
+      <div class="info-tile"><%- include('../partials/icon', { name: 'calendar' }) %><span><strong class="tnum"><%= fmt.dateVN(ev.start_date) %><%= ev.end_date !== ev.start_date ? ` – ${fmt.dateVN(ev.end_date)}` : '' %></strong><br><span class="small muted">Thời gian thi đấu</span></span></div>
+    </div>
+    <div class="action-grid">
+      <% if (ev.registration_open && ev.status !== 'ended') { %><a class="btn btn-brand" href="/giai-dau/<%= ev.slug %>/dang-ky"><%- include('../partials/icon', { name: 'edit' }) %>Đăng ký</a><% } %>
+      <a class="btn" href="/giai-dau/<%= ev.slug %>/danh-sach"><%- include('../partials/icon', { name: 'list' }) %>Danh sách</a>
+      <a class="btn" href="/giai-dau/<%= ev.slug %>/nhanh-dau"><%- include('../partials/icon', { name: 'bracket' }) %>Nhánh đấu</a>
+      <% if (ev.streams.length) { %><a class="btn <%= liveNow.length ? 'btn-live' : '' %>" href="/giai-dau/<%= ev.slug %>/truc-tiep"><%- include('../partials/icon', { name: 'live' }) %><%= liveNow.length ? 'Xem live' : 'Livestream' %></a><% } %>
+      <% if (ev.zalo_link) { %><a class="btn" href="<%= ev.zalo_link %>" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'zalo' }) %>Nhóm Zalo</a><% } %>
+      <% if (ev.regulation_pdf) { %><a class="btn" href="<%= ev.regulation_pdf %>" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'file' }) %>Điều lệ</a><% } %>
+    </div>
+    <% if (ev.description) { %><p class="muted" style="white-space: pre-line;"><%= ev.description %></p><% } %>
+  </div>
+</section>
+
+<% if (honorDivisions.length) { %>
+<section class="section" id="vinh-danh">
+  <div class="container">
+    <div class="section-head"><div><span class="eyebrow gold">Bảng vinh danh</span><h2 class="h2">Những nhà <span class="serif gold-text">vô địch</span></h2></div></div>
+    <div class="stack" style="--gap: 28px;">
+      <% honorDivisions.forEach((d) => { const firsts = d.honors.filter((h) => h.place === 1); const seconds = d.honors.filter((h) => h.place === 2); const thirds = d.honors.filter((h) => h.place === 3); %>
+      <div class="card card-pad confetti stack" style="--gap: 16px;">
+        <h3 style="font-size: 20px; font-weight: 800; text-align: center; position: relative;"><%= d.name %></h3>
+        <div class="honor-stage" style="position: relative;">
+          <%- include('../partials/honor', { h: firsts[0], cls: 'h1st', label: medal[1] }) %>
+          <%- include('../partials/honor', { h: seconds[0], cls: 'h2nd', label: medal[2] }) %>
+          <%- include('../partials/honor', { h: thirds[0], cls: 'h3rd-a', label: medal[3] }) %>
+          <%- include('../partials/honor', { h: thirds[1], cls: 'h3rd-b', label: medal[3] }) %>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<% if (ev.divisions.length) { %>
+<section class="section">
+  <div class="container">
+    <div class="section-head"><div><span class="eyebrow">Nội dung thi đấu</span><h2 class="h2">Giải thưởng <span class="serif grad-text">theo nội dung</span></h2></div></div>
+    <div class="grid" style="--min: 280px;">
+      <% ev.divisions.forEach((d) => { %>
+      <article class="prize-card">
+        <div class="head stack" style="--gap: 6px;">
+          <% if (d.banner) { %><img src="<%= d.banner %>" alt="<%= d.name %>" loading="lazy"><% } %>
+          <strong style="font-size: 18px;"><%= d.name %></strong>
+          <span class="small muted"><%= [d.subtitle || (d.max_teams ? `Tối đa ${d.max_teams} ${d.team_type === 'team' ? 'đội' : 'đôi'}` : null), d.max_total_points && !String(d.subtitle || '').includes(fmt.pts(d.max_total_points)) ? `Tổng trình ≤ ${fmt.pts(d.max_total_points)}` : null].filter(Boolean).join(' · ') %></span>
+        </div>
+        <% (d.prizes || []).forEach((p, i) => { %>
+        <div class="prize-row"><span class="<%= i === 0 ? 'gold-text' : '' %>" style="font-weight: <%= i === 0 ? 800 : 500 %>;"><%= p.label %></span><strong><%= /^\d[\d.\s]*$/.test(p.amount) ? `${fmt.money(p.amount)} đ` : p.amount %></strong></div>
+        <% }) %>
+        <% if (ev.registration_open && ev.status !== 'ended') { %><div style="padding: 14px 20px;"><a class="btn btn-sm btn-block" href="/giai-dau/<%= ev.slug %>/dang-ky?d=<%= d.id %>">Đăng ký nội dung này</a></div><% } %>
+      </article>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+<%- include('../partials/bottom') %>

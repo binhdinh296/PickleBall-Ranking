@@ -1,0 +1,10 @@
+<div class="stack" style="--gap: 14px;">
+  <a class="link small" href="/giai-dau/<%= ev.slug %>">← <%= ev.name %></a>
+  <nav class="tabs" aria-label="Mục của giải">
+    <a class="tab" href="/giai-dau/<%= ev.slug %>" aria-current="<%= current === 'info' %>">Thông tin</a>
+    <% if (ev.streams.length) { %><a class="tab" href="/giai-dau/<%= ev.slug %>/truc-tiep" aria-current="<%= current === 'live' %>"><% if (ev.streams.some((s) => s.status === 'live')) { %><span class="live-dot"></span><% } %>Trực tiếp</a><% } %>
+    <a class="tab" href="/giai-dau/<%= ev.slug %>/nhanh-dau" aria-current="<%= current === 'bracket' %>">Nhánh đấu</a>
+    <a class="tab" href="/giai-dau/<%= ev.slug %>/danh-sach" aria-current="<%= current === 'list' %>">Danh sách</a>
+    <% if (ev.registration_open && ev.status !== 'ended') { %><a class="tab" href="/giai-dau/<%= ev.slug %>/dang-ky" aria-current="<%= current === 'register' %>">Đăng ký</a><% } %>
+  </nav>
+</div>

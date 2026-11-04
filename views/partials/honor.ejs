@@ -1,0 +1,9 @@
+<% if (h) { %>
+<div class="honor <%= cls %>">
+  <span class="medal <%= h.place === 1 ? 'gold-text' : 'muted' %>"><%= label %></span>
+  <span class="names">
+    <% if (h.athlete1_id) { %><a href="/vdv/<%= h.athlete1_id %>"><%= h.name1 %></a><% } else { %><%= h.name1 %><% } %>
+    <% if (h.name2) { %><br><% if (h.athlete2_id) { %><a href="/vdv/<%= h.athlete2_id %>"><%= h.name2 %></a><% } else { %><%= h.name2 %><% } %><% } %>
+  </span>
+</div>
+<% } %>

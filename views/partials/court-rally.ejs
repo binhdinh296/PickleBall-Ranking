@@ -1,0 +1,108 @@
+<%
+  // Sân pickleball chuẩn 20×44 ft, phối cảnh thật; pha dink rally chạy bằng SMIL (không cần JS)
+  const c = court.court, n = court.net, r = court.rally;
+  const paddle = (p, i) => p;
+%>
+<svg class="rally" viewBox="0 0 <%= court.vb.w %> <%= court.vb.h %>" role="img" aria-label="Minh họa sân pickleball chuẩn: hai người chơi đánh dink qua lại, bóng nảy trong vùng kitchen" data-rally>
+  <defs>
+    <linearGradient id="rl-surface" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: color-mix(in oklab, var(--court) 55%, #06221F)"/><stop offset="1" style="stop-color: color-mix(in oklab, var(--court) 80%, #0A3B37)"/></linearGradient>
+    <linearGradient id="rl-apron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B1A1E"/><stop offset="1" stop-color="#0F2A2B"/></linearGradient>
+    <linearGradient id="rl-kitchen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: color-mix(in oklab, var(--court) 40%, #2B6B3F)"/><stop offset="1" style="stop-color: color-mix(in oklab, var(--court) 55%, #3E8A4E)"/></linearGradient>
+    <radialGradient id="rl-ball" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".35" style="stop-color: var(--ball)"/><stop offset="1" style="stop-color: color-mix(in oklab, var(--ball) 65%, #3A4A00)"/></radialGradient>
+    <linearGradient id="rl-paddle-near" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color: var(--ball)"/><stop offset="1" style="stop-color: var(--court)"/></linearGradient>
+    <linearGradient id="rl-paddle-far" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF1C9"/><stop offset=".5" style="stop-color: var(--gold)"/><stop offset="1" stop-color="#8A5A12"/></linearGradient>
+    <pattern id="rl-holes" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="0.9" fill="#2B3600" opacity=".45"/></pattern>
+    <filter id="rl-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+    <symbol id="rl-paddle-shape" viewBox="-12 -34 24 48" overflow="visible">
+      <rect x="-2.4" y="-4" width="4.8" height="15" rx="2" fill="#111827"/>
+      <path d="M-2.4 0h4.8M-2.4 3h4.8M-2.4 6h4.8M-2.4 9h4.8" stroke="#374151" stroke-width="1"/>
+      <rect x="-3.2" y="10" width="6.4" height="3" rx="1.5" fill="#0B0F19"/>
+      <path d="M-9 -24 Q-9 -32 0 -32 Q9 -32 9 -24 L9 -8 Q9 -2 3 -2 L-3 -2 Q-9 -2 -9 -8 Z"/>
+    </symbol>
+  </defs>
+
+  <!-- Mặt sân -->
+  <polygon points="<%= c.apron %>" fill="url(#rl-apron)"/>
+  <polygon points="<%= c.surface %>" fill="url(#rl-surface)"/>
+  <polygon points="<%= c.kitchenFar %>" fill="url(#rl-kitchen)" opacity=".85"/>
+  <polygon points="<%= c.kitchenNear %>" fill="url(#rl-kitchen)" opacity=".85"/>
+  <polygon points="<%= c.kitchenFar %>" style="fill: var(--ball)" opacity=".18"><animate attributeName="opacity" values="<%= r.kitchenPulse.far %>" keyTimes="<%= r.kitchenPulse.farTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/></polygon>
+  <polygon points="<%= c.kitchenNear %>" style="fill: var(--ball)" opacity=".18"><animate attributeName="opacity" values="<%= r.kitchenPulse.near %>" keyTimes="<%= r.kitchenPulse.nearTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/></polygon>
+  <g stroke="#F8FAFC" stroke-width="2.6" stroke-linecap="round" opacity=".95">
+    <% c.lines.forEach((l) => { %><line x1="<%= l.x1 %>" y1="<%= l.y1 %>" x2="<%= l.x2 %>" y2="<%= l.y2 %>"/><% }) %>
+  </g>
+  <text x="<%= c.kitchenLabel.x %>" y="<%= c.kitchenLabel.y %>" text-anchor="middle" fill="rgba(255,255,255,.55)" font-size="11" font-weight="700" letter-spacing="4" font-family="Be Vietnam Pro, sans-serif">KITCHEN</text>
+
+  <!-- Bóng đổ của bóng trên mặt sân -->
+  <ellipse fill="#000">
+    <animate attributeName="cx" values="<%= r.shadow.cx %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="<%= r.shadow.cy %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+    <animate attributeName="rx" values="<%= r.shadow.rx %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+    <animate attributeName="ry" values="<%= r.shadow.ry %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="<%= r.shadow.op %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- Phía xa lưới: vết nảy, vợt xa, bóng khi ở phía xa -->
+  <% const bf = r.bounces[0], bn = r.bounces[1]; %>
+  <ellipse cx="<%= bf.x %>" cy="<%= bf.y %>" rx="<%= bf.rx %>" ry="<%= bf.ry %>" fill="none" style="stroke: var(--ball)" stroke-width="2" opacity="0"><animate attributeName="opacity" values="<%= bf.op %>" keyTimes="<%= bf.times %>" dur="<%= r.dur %>" repeatCount="indefinite"/></ellipse>
+  <% const pf = r.paddles[1]; %>
+  <g transform="translate(<%= pf.x %> <%= pf.y %>) scale(<%= -pf.k %> <%= pf.k %>)">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="<%= pf.rot %>" keyTimes="<%= pf.rotTimes %>" dur="<%= r.dur %>" repeatCount="indefinite" additive="sum"/>
+      <use href="#rl-paddle-shape" x="-12" y="-34" width="24" height="48" fill="url(#rl-paddle-far)" stroke="#5B3B0A" stroke-width="1.2"/>
+    </g>
+  </g>
+  <% const hf = r.hits[1]; %>
+  <circle cx="<%= hf.x %>" cy="<%= hf.y %>" r="<%= hf.r %>" fill="none" stroke="#fff" stroke-width="2.5" opacity="0" filter="url(#rl-glow)"><animate attributeName="opacity" values="<%= hf.op %>" keyTimes="<%= hf.times %>" dur="<%= r.dur %>" repeatCount="indefinite"/></circle>
+  <g visibility="hidden">
+    <set attributeName="visibility" to="visible" begin="0s" dur="indefinite"/>
+    <animate attributeName="visibility" values="<%= r.ball.back %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" calcMode="discrete" repeatCount="indefinite"/>
+    <circle fill="url(#rl-ball)">
+      <animate attributeName="cx" values="<%= r.ball.cx %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="<%= r.ball.cy %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+      <animate attributeName="r" values="<%= r.ball.r %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Lưới: thân lưới trong suốt, mắt lưới, băng trắng, cột -->
+  <polygon points="<%= n.body %>" fill="rgba(5,10,18,.38)"/>
+  <g stroke="rgba(255,255,255,.22)" stroke-width=".8">
+    <% n.mesh.forEach((l) => { %><line x1="<%= l.x1 %>" y1="<%= l.y1 %>" x2="<%= l.x2 %>" y2="<%= l.y2 %>"/><% }) %>
+  </g>
+  <polyline points="<%= n.tape %>" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+  <g stroke="#94A3B8" stroke-width="4.5" stroke-linecap="round">
+    <% n.posts.forEach((l) => { %><line x1="<%= l.x1 %>" y1="<%= l.y1 %>" x2="<%= l.x2 %>" y2="<%= l.y2 %>"/><% }) %>
+  </g>
+
+  <!-- Phía gần lưới: vết nảy, vợt gần, bóng khi ở phía gần -->
+  <ellipse cx="<%= bn.x %>" cy="<%= bn.y %>" rx="<%= bn.rx %>" ry="<%= bn.ry %>" fill="none" style="stroke: var(--ball)" stroke-width="2.2" opacity="0"><animate attributeName="opacity" values="<%= bn.op %>" keyTimes="<%= bn.times %>" dur="<%= r.dur %>" repeatCount="indefinite"/></ellipse>
+  <% const pn = r.paddles[0]; %>
+  <g transform="translate(<%= pn.x %> <%= pn.y %>) scale(<%= pn.k %>)">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="<%= pn.rot %>" keyTimes="<%= pn.rotTimes %>" dur="<%= r.dur %>" repeatCount="indefinite" additive="sum"/>
+      <use href="#rl-paddle-shape" x="-12" y="-34" width="24" height="48" fill="url(#rl-paddle-near)" stroke="#06120E" stroke-width="1.2"/>
+    </g>
+  </g>
+  <g>
+    <set attributeName="visibility" to="visible" begin="0s" dur="indefinite"/>
+    <animate attributeName="visibility" values="<%= r.ball.front %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" calcMode="discrete" repeatCount="indefinite"/>
+    <circle fill="url(#rl-ball)">
+      <animate attributeName="cx" values="<%= r.ball.cx %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="<%= r.ball.cy %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+      <animate attributeName="r" values="<%= r.ball.r %>" keyTimes="<%= r.keyTimes %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <% const hn = r.hits[0]; %>
+  <circle cx="<%= hn.x %>" cy="<%= hn.y %>" r="<%= hn.r %>" fill="none" stroke="#fff" stroke-width="2.5" opacity="0" filter="url(#rl-glow)"><animate attributeName="opacity" values="<%= hn.op %>" keyTimes="<%= hn.times %>" dur="<%= r.dur %>" repeatCount="indefinite"/></circle>
+
+  <!-- Chữ "DINK!" bật lên mỗi lần bóng nảy trong kitchen -->
+  <% r.bounces.forEach((b, i) => { %>
+  <g opacity="0">
+    <animate attributeName="opacity" values="<%= b.op %>" keyTimes="<%= b.times %>" dur="<%= r.dur %>" repeatCount="indefinite"/>
+    <g transform="translate(<%= b.label.x %> <%= b.label.y %>) rotate(-8)">
+      <rect x="-28" y="-15" width="56" height="24" rx="6" style="fill: var(--ball)"/>
+      <text x="0" y="3" text-anchor="middle" font-family="Barlow Condensed, Be Vietnam Pro, sans-serif" font-style="italic" font-weight="800" font-size="17" fill="#132000" letter-spacing="1">DINK!</text>
+    </g>
+  </g>
+  <% }) %>
+</svg>

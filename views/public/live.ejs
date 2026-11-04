@@ -1,0 +1,81 @@
+<%- include('../partials/top') %>
+<section class="page-head glow">
+  <div class="container stack" style="--gap: 18px;">
+    <%- include('../partials/event-nav', { current: 'live' }) %>
+    <div><span class="eyebrow">Trực tiếp</span><h1 class="h1" style="font-size: clamp(26px, 6.5vw, 42px);">Xem trận đấu <span class="serif grad-text">ngay tại sân</span></h1></div>
+    <% if (ev.streams.length > 1) { %>
+    <nav class="tabs" aria-label="Chọn sân">
+      <% ev.streams.forEach((s) => { %><a class="tab" href="?san=<%= s.id %>" aria-current="<%= stream && stream.id === s.id %>"><% if (s.status === 'live') { %><span class="live-dot"></span><% } %><%= s.court %><% if (s.status === 'ended') { %> · đã xong<% } else if (s.status === 'scheduled') { %> · sắp phát<% } %></a><% }) %>
+    </nav>
+    <% } %>
+  </div>
+</section>
+<section style="padding-block: 8px 56px;">
+  <div class="container">
+    <% if (!stream) { %><div class="empty">Giải chưa có buổi phát trực tiếp.</div><% } else { %>
+    <div class="live-layout">
+      <div class="stack" style="--gap: 12px; min-width: 0;">
+        <div class="player">
+          <% if (stream.youtube_video_id) { %>
+          <iframe src="https://www.youtube-nocookie.com/embed/<%= stream.youtube_video_id %>?autoplay=<%= stream.status === 'live' ? 1 : 0 %>&mute=1&playsinline=1&rel=0&modestbranding=1" title="<%= stream.title %>" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          <% } else { %>
+          <% if (ev.banner) { %><img src="<%= ev.banner %>" alt="" style="position: absolute; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); object-fit: cover; filter: blur(8px) saturate(1.2); opacity: .6;"><% } %>
+          <div class="player-empty" style="background: radial-gradient(70% 70% at 50% 50%, rgba(3,6,12,.72), rgba(3,6,12,.45));"><%- include('../partials/icon', { name: 'live', size: 40 }) %><strong><%= stream.status === 'live' ? 'Đang chờ tín hiệu video' : 'Buổi phát chưa sẵn sàng' %></strong><span class="small" style="opacity: .8;"><%= stream.status === 'live' ? 'Tỉ số vẫn cập nhật trực tiếp bên dưới' : stream.scheduled_start ? `Dự kiến ${fmt.dateTimeVN(stream.scheduled_start)}` : 'Vui lòng quay lại sau' %></span></div>
+          <% } %>
+          <div class="player-badges">
+            <% if (stream.status === 'live') { %><span class="chip chip-live">LIVE</span><% } else if (stream.status === 'ended') { %><span class="chip" style="background: rgba(0,0,0,.55); color: #fff; border-color: transparent;">Xem lại</span><% } else { %><span class="chip chip-ball">Sắp phát</span><% } %>
+            <span class="chip" style="background: rgba(0,0,0,.55); color: #fff; border-color: transparent;"><%= stream.court %></span>
+          </div>
+        </div>
+        <div class="row" style="justify-content: space-between;">
+          <div style="min-width: 0;"><strong style="overflow-wrap: anywhere;"><%= stream.title %></strong><br><span class="tiny faint">Video được lưu trên kênh YouTube của ban tổ chức sau khi buổi phát kết thúc.</span></div>
+          <% if (stream.youtube_video_id) { %><a class="btn btn-sm" href="https://www.youtube.com/watch?v=<%= stream.youtube_video_id %>" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'external' }) %>Mở trên YouTube</a><% } %>
+        </div>
+      </div>
+      <aside class="stack" style="--gap: 14px; min-width: 0;" data-score-url="/api/live/<%= stream.id %>/score">
+        <div class="card card-pad scoreboard stack" style="--gap: 12px; padding: 20px;">
+          <span class="tiny faint" style="font-weight: 700;">ĐANG ĐẤU · <%= stream.court.toUpperCase() %></span>
+          <div data-score-box <%= current ? '' : 'hidden' %> class="stack" style="--gap: 10px;">
+            <span class="small muted" data-f="title"><%= current ? [current.division, current.round_name, current.code].filter(Boolean).join(' · ') : '' %></span>
+            <div class="team"><strong data-f="teamA"><%= current ? (current.players_a || current.team_a) : '' %></strong><span class="score grad-text" data-f="scoreA"><%= current ? current.score_a ?? 0 : 0 %></span></div>
+            <hr class="divider">
+            <div class="team muted"><span style="font-weight: 600;" data-f="teamB"><%= current ? (current.players_b || current.team_b) : '' %></span><span class="score" data-f="scoreB"><%= current ? current.score_b ?? 0 : 0 %></span></div>
+            <span class="tiny faint">Tỉ số tự cập nhật từ trọng tài</span>
+          </div>
+          <p data-score-empty <%= current ? 'hidden' : '' %> class="small faint">Chưa có trận nào đang đấu trên sân này.</p>
+        </div>
+        <% if (upcoming.length) { %>
+        <div class="card card-pad stack" style="--gap: 8px; padding: 20px;">
+          <span class="tiny faint" style="font-weight: 700;">TIẾP THEO TRÊN SÂN NÀY</span>
+          <% upcoming.forEach((m) => { %><div class="small"><strong><%= m.round_name %><%= m.code ? ` · ${m.code}` : '' %></strong><br><span class="muted"><%= m.team_a %> – <%= m.team_b %></span></div><% }) %>
+        </div>
+        <% } %>
+        <% if (replays.length) { %>
+        <div class="card card-pad stack" style="--gap: 6px; padding: 20px;">
+          <span class="tiny faint" style="font-weight: 700;">XEM LẠI TỪNG TRẬN</span>
+          <% replays.forEach((m) => { %>
+          <a class="row small" style="justify-content: space-between; flex-wrap: nowrap; padding: 6px 0;" href="https://www.youtube.com/watch?v=<%= stream.youtube_video_id %>&t=<%= m.video_offset %>s" target="_blank" rel="noopener">
+            <span class="clip"><%= m.code || m.round_name %> · <%= m.team_a %> <%= m.score_a %>–<%= m.score_b %> <%= m.team_b %></span><span class="tnum faint nowrap"><%= fmt.duration(m.video_offset) %></span>
+          </a>
+          <% }) %>
+        </div>
+        <% } %>
+      </aside>
+    </div>
+    <% if (archives.length) { %>
+    <div class="stack" style="--gap: 12px; margin-top: 32px;">
+      <h2 style="font-size: 20px; font-weight: 800;">Video đã lưu của giải</h2>
+      <div class="grid" style="--min: 240px; gap: 12px;">
+        <% archives.forEach((s) => { %>
+        <a class="ecard" href="?san=<%= s.id %>">
+          <span class="cover" style="aspect-ratio: 16 / 9;"><img src="https://i.ytimg.com/vi/<%= s.youtube_video_id %>/hqdefault.jpg" alt="" loading="lazy"></span>
+          <span class="body" style="padding: 14px;"><strong class="small"><%= s.title %></strong><span class="tiny faint"><%= fmt.dateTimeVN(s.actual_start || s.scheduled_start) %></span></span>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+    <% } %>
+  </div>
+</section>
+<%- include('../partials/bottom') %>

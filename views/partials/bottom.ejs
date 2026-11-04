@@ -1,0 +1,72 @@
+</main>
+<% if (!locals.admin) { %>
+<footer class="site-footer">
+  <div class="container">
+    <% if (locals.partners && partners.length && path !== '/doi-tac') { %>
+    <div class="stack" style="--gap: 14px; margin-bottom: 40px;">
+      <span class="eyebrow" style="color: var(--text-3); text-align: center;">Đối tác đồng hành</span>
+      <div class="partners">
+        <% partners.forEach((p) => { %>
+          <a class="partner" href="<%= p.url || '/doi-tac' %>" <%- p.url ? 'target="_blank" rel="noopener"' : '' %>><% if (p.logo) { %><img src="<%= p.logo %>" alt="<%= p.name %>" loading="lazy"><% } else { %><%= p.name %><% } %></a>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+    <div class="footer-grid">
+      <div class="stack" style="--gap: 12px;">
+        <a href="/" class="brand"><%- include('logo') %><span class="brand-name"><%= site.site_name %></span></a>
+        <p class="muted small"><%= site.footer_text %></p>
+      </div>
+      <% const hasContact = site.hotline || site.zalo || site.email || site.address; %>
+      <% if (hasContact || user) { %>
+      <div>
+        <h4>Liên hệ</h4>
+        <ul>
+          <% if (site.hotline) { %><li><a href="tel:<%= site.hotline.replace(/\s/g, '') %>">Hotline: <%= site.hotline %></a></li><% } %>
+          <% if (site.zalo) { %><li>Zalo: <%= site.zalo %></li><% } %>
+          <% if (site.email) { %><li><a href="mailto:<%= site.email %>"><%= site.email %></a></li><% } %>
+          <% if (site.address) { %><li><%= site.address %></li><% } %>
+          <% if (!hasContact) { %><li class="faint">Chưa có thông tin — cập nhật trong CMS › Cấu hình (chỉ người quản trị thấy dòng này)</li><% } %>
+        </ul>
+      </div>
+      <% } %>
+      <div>
+        <h4>Hệ thống</h4>
+        <ul>
+          <li><a href="/cham-trinh">Tự chấm trình</a></li>
+          <li><a href="/xep-hang">Bảng xếp hạng</a></li>
+          <li><a href="/giai-dau">Giải đấu</a></li>
+          <li><a href="/truc-tiep">Trực tiếp</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Kết nối</h4>
+        <ul>
+          <% if (site.facebook_url) { %><li><a href="<%= site.facebook_url %>" target="_blank" rel="noopener">Facebook</a></li><% } %>
+          <% if (site.youtube_url) { %><li><a href="<%= site.youtube_url %>" target="_blank" rel="noopener">YouTube</a></li><% } %>
+          <% if (site.zalo_group_url) { %><li><a href="<%= site.zalo_group_url %>" target="_blank" rel="noopener">Nhóm Zalo</a></li><% } %>
+          <li><a href="/doi-tac">Đối tác đồng hành</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <%= new Date().getFullYear() %> <%= site.site_name %></span>
+      <a href="/chinh-sach-quyen-rieng-tu">Chính sách quyền riêng tư</a>
+    </div>
+  </div>
+</footer>
+<nav class="tabbar" aria-label="Điều hướng nhanh">
+  <a href="/" <%- path === '/' ? 'aria-current="page"' : '' %>><%- include('icon', { name: 'home' }) %>Trang chủ</a>
+  <a href="/xep-hang" <%- path.startsWith('/xep-hang') || path.startsWith('/vdv') ? 'aria-current="page"' : '' %>><%- include('icon', { name: 'ranking' }) %>Xếp hạng</a>
+  <a href="/giai-dau" <%- path.startsWith('/giai-dau') && !path.endsWith('/truc-tiep') ? 'aria-current="page"' : '' %>><%- include('icon', { name: 'trophy' }) %>Giải đấu</a>
+  <a href="/truc-tiep" <%- path.endsWith('truc-tiep') ? 'aria-current="page"' : '' %>><% if (locals.liveCount) { %><span class="live-dot"></span><% } %><%- include('icon', { name: 'live' }) %>Trực tiếp</a>
+  <a href="/cham-trinh" <%- path.startsWith('/cham-trinh') ? 'aria-current="page"' : '' %>><%- include('icon', { name: 'edit' }) %>Chấm trình</a>
+</nav>
+<% } %>
+<script type="application/json" id="phone-config"><%- JSON.stringify(phonePrefixes).replace(/</g, '\\u003c') %></script>
+<% if (locals.cropper) { %><script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script><% } %>
+<script src="/static/js/app.js"></script>
+<% if (locals.pageScript) { %><script src="/static/js/<%= pageScript %>.js"></script><% } %>
+<% if (locals.admin) { %><script src="/static/js/admin.js"></script><% } %>
+</body>
+</html>

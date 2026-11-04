@@ -1,0 +1,51 @@
+<%- include('../partials/top', { admin: true }) %>
+<%
+  const role = user.role;
+  const can = (r) => ({ referee: 1, editor: 2, admin: 3 })[role] >= ({ referee: 1, editor: 2, admin: 3 })[r];
+  const cur = (p, exact) => (exact ? path === p : path === p || path.startsWith(p + '/')) ? 'aria-current="page"' : '';
+  const ip = (n) => include('../partials/icon', { name: n });
+%>
+<div class="admin-shell">
+  <aside class="admin-side" id="admin-side" aria-label="Menu CMS">
+    <div class="side-head"><%- include('../partials/logo') %><span class="stack" style="--gap: 0;"><strong class="brand-name" style="font-size: 15px;"><%= site.site_name %></strong><span class="tiny faint">CMS quản trị</span></span></div>
+    <nav>
+      <% if (can('editor')) { %>
+      <a class="item" href="/admin" <%- cur('/admin', true) %>><%- ip('dashboard') %>Tổng quan</a>
+      <span class="group">Ranking</span>
+      <a class="item" href="/admin/vdv" <%- cur('/admin/vdv') %>><%- ip('users') %>Vận động viên</a>
+      <a class="item" href="/admin/don-cham-trinh" <%- cur('/admin/don-cham-trinh') %>><%- ip('inbox') %>Đơn chấm trình<% if (locals.pendingSubmissions) { %><span class="badge"><%= pendingSubmissions %></span><% } %></a>
+      <span class="group">Giải đấu</span>
+      <a class="item" href="/admin/giai-dau" <%- path.startsWith('/admin/giai-dau') || path.startsWith('/admin/noi-dung') ? 'aria-current="page"' : '' %>><%- ip('trophy') %>Giải đấu<% if (locals.newRegistrations) { %><span class="badge"><%= newRegistrations %></span><% } %></a>
+      <a class="item" href="/admin/livestream" <%- cur('/admin/livestream') %>><%- ip('live') %>Livestream</a>
+      <% } %>
+      <a class="item" href="/admin/trong-tai" <%- path.startsWith('/admin/trong-tai') || path.startsWith('/admin/tran') ? 'aria-current="page"' : '' %>><%- ip('whistle') %>Trọng tài · nhập tỉ số</a>
+      <% if (can('editor')) { %>
+      <span class="group">Website</span>
+      <a class="item" href="/admin/doi-tac" <%- cur('/admin/doi-tac') %>><%- ip('handshake') %>Đối tác</a>
+      <% } %>
+      <% if (can('admin')) { %>
+      <a class="item" href="/admin/cau-hinh" <%- cur('/admin/cau-hinh') %>><%- ip('settings') %>Cấu hình</a>
+      <span class="group">Hệ thống</span>
+      <a class="item" href="/admin/nguoi-dung" <%- cur('/admin/nguoi-dung') %>><%- ip('shield') %>Tài khoản CMS</a>
+      <a class="item" href="/admin/nhat-ky" <%- cur('/admin/nhat-ky', true) %>><%- ip('history') %>Nhật ký thao tác</a>
+      <a class="item" href="/admin/nhat-ky-otp" <%- cur('/admin/nhat-ky-otp') %>><%- ip('phone') %>Nhật ký OTP</a>
+      <% } %>
+    </nav>
+    <div class="side-foot stack" style="--gap: 10px;">
+      <a class="row small" href="/admin/tai-khoan" style="--gap: 10px; flex-wrap: nowrap;"><span class="avatar" style="--s: 36px;"><span><%= fmt.initials(user.displayName) %></span></span><span class="stack" style="--gap: 0; min-width: 0;"><strong class="clip"><%= user.displayName %></strong><span class="tiny faint"><%= fmt.ROLE_LABEL[user.role] %></span></span></a>
+      <div class="row" style="--gap: 8px;">
+        <a class="btn btn-sm grow" href="/" target="_blank" rel="noopener"><%- ip('external') %>Xem website</a>
+        <form class="inline-form" method="post" action="/admin/logout"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm" type="submit" aria-label="Đăng xuất"><%- ip('logout') %></button></form>
+      </div>
+    </div>
+  </aside>
+  <div class="admin-main">
+    <header class="admin-top">
+      <button type="button" class="icon-btn" data-admin-nav aria-controls="admin-side" aria-expanded="false" aria-label="Mở menu"><%- ip('menu') %></button>
+      <% if (locals.back) { %><a class="icon-btn" href="<%= back %>" aria-label="Quay lại"><%- ip('back') %></a><% } %>
+      <h1><%= title %></h1>
+      <% if (locals.roleSwitcher) { %><%- include('../partials/role-switcher') %><% } %>
+      <button type="button" class="icon-btn" data-theme-toggle aria-label="Đổi giao diện sáng/tối"><span class="icon-sun"><%- ip('sun') %></span><span class="icon-moon"><%- ip('moon') %></span></button>
+    </header>
+    <div class="admin-content">
+      <% if (flash) { %><div class="alert alert-<%= flash.type %>" role="status"><%= flash.message %></div><% } %>

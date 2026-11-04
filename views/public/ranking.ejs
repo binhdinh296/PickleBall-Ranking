@@ -1,0 +1,56 @@
+<%- include('../partials/top') %>
+<% const qs = (o) => { const p = new URLSearchParams(); const v = { gender, q, ...o }; Object.keys(v).forEach((k) => { if (v[k]) p.set(k, v[k]); }); const s = p.toString(); return s ? `?${s}` : ''; }; %>
+<section class="page-head glow">
+  <div class="container stack" style="--gap: 20px;">
+    <div class="row" style="justify-content: space-between; align-items: flex-end;">
+      <div><span class="eyebrow">Pickleball ranking</span><h1 class="h1">Bảng xếp hạng <span class="serif grad-text">VĐV</span></h1><p class="muted" style="margin-top: 8px;">Theo dõi điểm ranking và thành tích của các vận động viên.</p></div>
+      <% if (top) { %>
+      <a href="/vdv/<%= top.id %>" class="card card-pad row" style="--gap: 14px; border-color: color-mix(in oklab, var(--gold) 45%, transparent); padding: 14px 18px; min-width: 0; max-width: 100%;">
+        <%- include('../partials/avatar', { a: top, tone: 'gold', size: 52 }) %>
+        <span class="stack" style="--gap: 0; min-width: 0;"><span class="tiny" style="font-weight: 800; letter-spacing: .14em; color: var(--ink-gold);">TOP 1<%= gender ? ` · ${fmt.GENDER_LABEL[gender].toUpperCase()}` : '' %></span><strong class="clip"><%= top.full_name %></strong></span>
+        <span class="gold-text tnum" style="font-size: 28px; font-weight: 800; margin-left: auto;"><%= fmt.pts(top.points) %></span>
+      </a>
+      <% } %>
+    </div>
+    <nav class="tabs" aria-label="Lọc theo giới tính">
+      <a class="tab" href="/xep-hang<%= qs({ gender: '', page: '' }) %>" aria-current="<%= !gender %>">Tất cả</a>
+      <a class="tab" href="/xep-hang<%= qs({ gender: 'M', page: '' }) %>" aria-current="<%= gender === 'M' %>">VĐV Nam</a>
+      <a class="tab" href="/xep-hang<%= qs({ gender: 'F', page: '' }) %>" aria-current="<%= gender === 'F' %>">VĐV Nữ</a>
+    </nav>
+    <form class="row" action="/xep-hang" method="get" role="search" style="--gap: 10px; flex-wrap: nowrap;">
+      <% if (gender) { %><input type="hidden" name="gender" value="<%= gender %>"><% } %>
+      <label class="sr-only" for="q">Tìm vận động viên</label>
+      <input class="input grow" id="q" name="q" type="search" value="<%= q %>" placeholder="Tìm tên, CLB, quê quán" autocomplete="off">
+      <button class="btn btn-brand" type="submit" aria-label="Tìm"><%- include('../partials/icon', { name: 'search' }) %><span class="hide-mobile">Tìm</span></button>
+    </form>
+  </div>
+</section>
+<section style="padding-block: 16px 48px;">
+  <div class="container">
+    <% if (!rows.length) { %>
+      <div class="empty"><%= q ? `Không tìm thấy VĐV phù hợp với "${q}".` : 'Chưa có vận động viên.' %></div>
+    <% } else { %>
+    <p class="tiny faint" style="margin-bottom: 10px;"><%= total %> vận động viên</p>
+    <div class="rank-list">
+      <% rows.forEach((a) => { %>
+      <a class="rank-row" href="/vdv/<%= a.id %>">
+        <span class="r tnum <%= a.rank <= 3 ? 'top gold-text' : '' %>">#<%= a.rank %></span>
+        <%- include('../partials/avatar', { a, size: 44, tone: a.rank === 1 ? 'gold' : '' }) %>
+        <span class="who"><strong><%= a.full_name %> <span aria-label="<%= fmt.GENDER_LABEL[a.gender] %>" style="display: inline; color: <%= a.gender === 'F' ? '#F472B6' : '#60A5FA' %>; font-size: 13px;"><%= a.gender === 'F' ? '♀' : '♂' %></span></strong><span><%= [a.nickname, a.club, a.hometown].filter(Boolean).join(' · ') %></span></span>
+        <span class="p"><%= fmt.pts(a.points) %><small>ĐIỂM</small></span>
+      </a>
+      <% }) %>
+    </div>
+    <% if (pages > 1) { %>
+    <nav class="pager" aria-label="Phân trang">
+      <% if (page > 1) { %><a href="/xep-hang<%= qs({ page: page - 1 }) %>" aria-label="Trang trước">‹</a><% } %>
+      <% for (let p = Math.max(1, page - 2); p <= Math.min(pages, page + 2); p++) { %>
+        <% if (p === page) { %><span aria-current="page"><%= p %></span><% } else { %><a href="/xep-hang<%= qs({ page: p }) %>"><%= p %></a><% } %>
+      <% } %>
+      <% if (page < pages) { %><a href="/xep-hang<%= qs({ page: page + 1 }) %>" aria-label="Trang sau">›</a><% } %>
+    </nav>
+    <% } %>
+    <% } %>
+  </div>
+</section>
+<%- include('../partials/bottom') %>

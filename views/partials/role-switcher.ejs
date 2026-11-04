@@ -1,0 +1,36 @@
+<%
+  // Menu "Xem với vai trò" — chỉ có ở môi trường dev, mở từ chính máy chạy server (xem src/routes/devtools.js).
+  // Chọn vai trò = đăng nhập nhanh bằng tài khoản test tương ứng; "Khách" = đăng xuất và ở lại trang công khai.
+  const current = user ? user.role : 'guest';
+  const roles = [
+    { key: 'guest', label: 'Khách', hint: 'Người xem website, VĐV (không cần tài khoản)', icon: 'users' },
+    { key: 'admin', label: 'Quản trị viên', hint: 'Toàn quyền CMS, cấu hình, tài khoản', icon: 'shield' },
+    { key: 'editor', label: 'Biên tập viên', hint: 'VĐV, giải đấu, livestream, đối tác', icon: 'edit' },
+    { key: 'referee', label: 'Trọng tài', hint: 'Chỉ nhập tỉ số trận được giao', icon: 'whistle' },
+  ];
+  const curRole = roles.find((r) => r.key === current) || { label: fmt.ROLE_LABEL[current] || current };
+  const isTest = !user || /^test_/.test(user.username || '');
+%>
+<details class="role-switch" data-role-switch>
+  <summary class="role-switch-btn" aria-label="Xem với vai trò: <%= curRole.label %>">
+    <span class="rs-dev" aria-hidden="true">DEV</span>
+    <span class="rs-text"><span class="rs-caption">Xem với</span><strong><%= curRole.label %></strong></span>
+    <svg class="rs-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </summary>
+  <div class="role-menu" role="menu">
+    <p class="rm-title">Xem website với vai trò</p>
+    <% roles.forEach((r) => { const on = r.key === current && isTest; %>
+    <form method="post" action="/dev/login/<%= r.key %>" class="rm-form">
+      <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+      <% if (r.key === 'guest') { %><input type="hidden" name="next" value="<%= path.startsWith('/admin') ? '/' : path %>"><% } %>
+      <button type="submit" class="rm-item<%= on ? ' is-current' : '' %>" role="menuitemradio" aria-checked="<%= on %>">
+        <span class="rm-icon"><%- include('icon', { name: r.icon }) %></span>
+        <span class="rm-body"><strong><%= r.label %></strong><small><%= r.hint %></small></span>
+        <% if (on) { %><span class="rm-check" aria-hidden="true">✓</span><% } %>
+      </button>
+    </form>
+    <% }) %>
+    <% if (user && !isTest) { %><p class="rm-note">Đang đăng nhập bằng tài khoản thật <b><%= user.username %></b>. Chọn vai trò sẽ chuyển sang tài khoản test.</p><% } %>
+    <a class="rm-foot" href="/dev">Mở bảng test đầy đủ →</a>
+  </div>
+</details>

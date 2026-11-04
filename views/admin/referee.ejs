@@ -1,0 +1,12 @@
+<%- include('_top') %>
+<p class="muted small">Chọn trận để nhập tỉ số. Trận "Đang đấu" được ưu tiên ở trên cùng.</p>
+<div class="list">
+  <% if (!matches.length) { %><div class="list-item faint">Không có trận nào chờ nhập tỉ số.</div><% } %>
+  <% matches.forEach((m) => { %>
+  <a class="list-item" href="/admin/tran/<%= m.id %>">
+    <span class="main"><strong><%= m.team_a %> <span class="faint">vs</span> <%= m.team_b %></strong><span class="sub"><%= m.event_name %> · <%= m.division %> · <%= m.round_name %><%= m.code ? ` · ${m.code}` : '' %><%= m.court ? ` · ${m.court}` : '' %></span></span>
+    <span class="side"><span class="chip <%= m.status === 'live' ? 'chip-live' : '' %>"><%= fmt.MATCH_STATUS_LABEL[m.status] %></span><% if (m.status === 'live') { %><strong class="tnum"><%= m.score_a ?? 0 %>–<%= m.score_b ?? 0 %></strong><% } %></span>
+  </a>
+  <% }) %>
+</div>
+<%- include('_bottom') %>

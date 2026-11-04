@@ -1,0 +1,16 @@
+<%- include('_top') %>
+<div class="toolbar"><a class="btn btn-brand" href="/admin/giai-dau/moi"><%- include('../partials/icon', { name: 'plus' }) %>Tạo giải đấu</a></div>
+<div class="list">
+  <% if (!rows.length) { %><div class="list-item faint">Chưa có giải đấu.</div><% } %>
+  <% rows.forEach((e) => { %>
+  <a class="list-item" href="/admin/giai-dau/<%= e.id %>">
+    <span class="main"><strong><%= e.name %></strong><span class="sub"><%= fmt.dateVN(e.start_date) %> – <%= fmt.dateVN(e.end_date) %> · <%= e.divisions %> nội dung</span></span>
+    <span class="side">
+      <% if (e.new_regs) { %><span class="chip chip-warn"><%= e.new_regs %> đăng ký mới</span><% } %>
+      <span class="chip <%= e.published ? 'chip-ok' : 'chip-muted' %>"><%= e.published ? 'Công khai' : 'Nháp' %></span>
+      <span class="chip"><%= fmt.EVENT_STATUS_LABEL[e.status] %></span>
+    </span>
+  </a>
+  <% }) %>
+</div>
+<%- include('_bottom') %>

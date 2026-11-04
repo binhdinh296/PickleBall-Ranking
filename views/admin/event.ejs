@@ -1,0 +1,32 @@
+<%- include('_top', { back: '/admin/giai-dau' }) %>
+<div class="card card-pad stack" style="--gap: 12px;">
+  <div class="row" style="--gap: 8px;">
+    <span class="chip <%= ev.published ? 'chip-ok' : 'chip-muted' %>"><%= ev.published ? 'Công khai' : 'Nháp' %></span>
+    <span class="chip"><%= fmt.EVENT_STATUS_LABEL[ev.status] %></span>
+    <span class="chip <%= ev.registration_open ? 'chip-ok' : 'chip-muted' %>"><%= ev.registration_open ? 'Đang mở đăng ký' : 'Đóng đăng ký' %></span>
+  </div>
+  <p class="muted small"><%= fmt.dateVN(ev.start_date) %> – <%= fmt.dateVN(ev.end_date) %> · <%= ev.venue || 'chưa nhập sân' %></p>
+  <div class="row" style="--gap: 8px;">
+    <a class="btn btn-sm" href="/admin/giai-dau/<%= ev.id %>/sua"><%- include('../partials/icon', { name: 'edit' }) %>Sửa thông tin</a>
+    <a class="btn btn-sm" href="/admin/livestream?giai=<%= ev.id %>"><%- include('../partials/icon', { name: 'live' }) %>Livestream</a>
+    <% if (ev.published) { %><a class="btn btn-sm" href="/giai-dau/<%= ev.slug %>" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'external' }) %>Xem trang giải</a><% } %>
+  </div>
+</div>
+<div class="row" style="justify-content: space-between;"><h2 class="section-title">Nội dung thi đấu</h2><a class="btn btn-brand btn-sm" href="/admin/giai-dau/<%= ev.id %>/noi-dung/moi"><%- include('../partials/icon', { name: 'plus' }) %>Thêm nội dung</a></div>
+<% if (!ev.divisions.length) { %><div class="empty">Chưa có nội dung. Thêm nội dung (ví dụ "Đôi nam newbie", "Hỗn hợp 5.3") để mở đăng ký.</div><% } %>
+<div class="grid" style="--min: 300px;">
+  <% ev.divisions.forEach((d) => { %>
+  <div class="sub-card">
+    <div class="row" style="justify-content: space-between; flex-wrap: nowrap;"><strong style="overflow-wrap: anywhere;"><%= d.name %></strong><span class="chip"><%= d.format === 'roundrobin' ? 'Vòng tròn' : 'Loại trực tiếp' %></span></div>
+    <span class="small muted"><%= [d.subtitle, d.max_teams ? `Tối đa ${d.max_teams}` : null, d.max_total_points ? `Tổng ≤ ${fmt.pts(d.max_total_points)}` : null, fmt.GENDER_RULE_LABEL[d.gender_rule]].filter(Boolean).join(' · ') %></span>
+    <div class="row small" style="--gap: 6px;"><% if (d.newRegs) { %><span class="chip chip-warn"><%= d.newRegs %> mới</span><% } %><span class="chip"><%= d.approvedRegs %> đã duyệt</span><span class="chip"><%= d.matchCount %> trận</span></div>
+    <div class="action-grid">
+      <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/dang-ky">Đăng ký</a>
+      <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/nhanh-dau">Nhánh đấu</a>
+      <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/vinh-danh">Vinh danh</a>
+      <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/sua">Sửa</a>
+    </div>
+  </div>
+  <% }) %>
+</div>
+<%- include('_bottom') %>

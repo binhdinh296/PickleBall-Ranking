@@ -1,0 +1,31 @@
+<%- include('_top') %>
+<div class="kpis">
+  <a class="kpi" href="/admin/vdv"><b><%= stats.athletes %></b><span>Vận động viên</span></a>
+  <a class="kpi" href="/admin/don-cham-trinh"><b style="<%= stats.pending ? 'color: var(--warn)' : '' %>"><%= stats.pending %></b><span>Đơn chấm trình chờ duyệt</span></a>
+  <a class="kpi" href="/admin/giai-dau"><b style="<%= stats.newRegs ? 'color: var(--warn)' : '' %>"><%= stats.newRegs %></b><span>Đăng ký giải mới</span></a>
+  <a class="kpi" href="/admin/livestream"><b style="<%= stats.liveNow ? 'color: var(--live)' : '' %>"><%= stats.liveNow %></b><span>Sân đang livestream</span></a>
+</div>
+<div class="grid" style="--min: 340px;">
+  <div class="stack" style="--gap: 10px;">
+    <div class="row" style="justify-content: space-between;"><h2 class="section-title">Giải sắp tới</h2><a class="link small" href="/admin/giai-dau/moi">+ Tạo giải</a></div>
+    <div class="list">
+      <% if (!upcoming.length) { %><div class="list-item faint">Chưa có giải sắp tới.</div><% } %>
+      <% upcoming.forEach((e) => { %><a class="list-item" href="/admin/giai-dau/<%= e.id %>"><span class="main"><strong><%= e.name %></strong><span class="sub"><%= fmt.dateVN(e.start_date) %> · <%= e.published ? 'Công khai' : 'Nháp' %></span></span><span class="chip"><%= fmt.EVENT_STATUS_LABEL[fmt.eventStatus(e)] %></span></a><% }) %>
+    </div>
+  </div>
+  <div class="stack" style="--gap: 10px;">
+    <div class="row" style="justify-content: space-between;"><h2 class="section-title">Buổi phát</h2><a class="link small" href="/admin/livestream/moi">+ Tạo buổi phát</a></div>
+    <div class="list">
+      <% if (!todayStreams.length) { %><div class="list-item faint">Chưa có buổi phát nào sắp diễn ra.</div><% } %>
+      <% todayStreams.forEach((s) => { %><a class="list-item" href="/admin/livestream/<%= s.id %>"><span class="main"><strong><%= s.court %> · <%= s.event_name %></strong><span class="sub"><%= s.scheduled_start ? fmt.dateTimeVN(s.scheduled_start) : 'Chưa đặt giờ' %></span></span><span class="chip <%= s.status === 'live' ? 'chip-live' : '' %>"><%= fmt.LIVE_STATUS_LABEL[s.status] %></span></a><% }) %>
+    </div>
+  </div>
+  <div class="stack" style="--gap: 10px;">
+    <div class="row" style="justify-content: space-between;"><h2 class="section-title">Đơn chấm trình mới</h2><a class="link small" href="/admin/don-cham-trinh">Xem tất cả</a></div>
+    <div class="list">
+      <% if (!recentSubs.length) { %><div class="list-item faint">Không có đơn chờ duyệt.</div><% } %>
+      <% recentSubs.forEach((s) => { %><a class="list-item" href="/admin/don-cham-trinh"><span class="main"><strong><%= s.full_name %></strong><span class="sub"><%= fmt.GENDER_LABEL[s.gender] %> · <%= s.club %> · <%= fmt.dateTimeVN(s.created_at) %></span></span><strong class="tnum"><%= fmt.pts(s.points) %></strong></a><% }) %>
+    </div>
+  </div>
+</div>
+<%- include('_bottom') %>

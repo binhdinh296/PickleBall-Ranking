@@ -1,0 +1,141 @@
+<%
+  const ev = openEvent ? openEvent.slug : 'dong-xuan-cup-2026';
+  const lev = liveEvent ? liveEvent.slug : 'mua-thu-open-2026';
+  const rev = relayEvent ? relayEvent.slug : 'super-cup-tiep-suc-2026';
+  const sid = stream ? stream.id : 1;
+  // Mỗi kịch bản: id cố định (lưu tiến độ), tiêu đề, các bước, dữ liệu test, trang mở ở khung 1/2
+  const groups = [
+    { key: 'guest', label: 'Người dùng (khách)', role: 'guest', items: [
+      { id: 'g-home', t: 'Trang chủ & đổi giao diện', steps: ['Xem bảng vàng, giải nổi bật, thẻ trận đang live', 'Bấm nút mặt trời/mặt trăng để đổi sáng ↔ tối', 'Thanh tab dưới cùng chuyển trang được'], url: '/' },
+      { id: 'g-rank', t: 'Bảng xếp hạng', steps: ['Lọc "VĐV Nữ"', 'Tìm "Cửa Lò" hoặc "Smash"', 'Chuyển trang 2, 3'], url: '/xep-hang' },
+      { id: 'g-profile', t: 'Hồ sơ VĐV', steps: ['Xem 3 ô điểm: hiện tại, cao nhất, Lock', 'Biểu đồ diễn biến điểm', 'Mở/đóng các mục Thành tích, Lịch sử'], url: top ? `/vdv/${top.id}` : '/xep-hang' },
+      { id: 'g-sub-bad', t: 'Chấm trình: SĐT sai', steps: ['Nhập SĐT sai đầu số → báo lỗi ngay khi gõ', 'Nhập 9 số → nhắc "Cần đủ 10 chữ số"', 'Bấm "Gửi mã OTP" khi SĐT sai → bị chặn'], data: [['SĐT sai đầu số', '0101234567'], ['Thiếu số', '091234567'], ['Có +84', '+84 912 345 678']], url: '/cham-trinh' },
+      { id: 'g-sub-ok', t: 'Chấm trình: gửi đơn thành công', steps: ['Nhập thông tin, điểm ≥ 2.500 (nam) / 2.000 (nữ)', 'Chọn ảnh → kéo/xoay → "Áp dụng"', 'Bấm "Gửi mã OTP": mã thử nghiệm hiện ngay dưới ô', 'Nhập sai mã 1 lần → báo còn lượt; nhập đúng → gửi thành công', 'Gửi lại cùng SĐT → bị chặn vì đã có đơn chờ'], data: [['SĐT mới', '0399 888 777'], ['Điểm', '2.750']], url: '/cham-trinh' },
+      { id: 'g-reg', t: 'Đăng ký giải', steps: ['Chọn nội dung bằng banner', 'Nhập SĐT VĐV đã có hồ sơ → tự điền tên & điểm (khóa sửa)', 'Nhập trình vượt tổng mức → bị chặn khi gửi', 'Gửi OTP cho VĐV 1, nhập mã → đăng ký thành công'], data: sample ? [['SĐT VĐV có sẵn', sample.phone], ['SĐT VĐV 2 mới', '0777 123 456']] : [], url: `/giai-dau/${ev}/dang-ky` },
+      { id: 'g-list', t: 'Danh sách đăng ký', steps: ['Đăng ký vừa gửi hiện "Mới đăng ký"', 'Không hiện số điện thoại', 'Bảng thành thẻ dọc trên điện thoại'], url: `/giai-dau/${ev}/danh-sach` },
+      { id: 'g-bracket', t: 'Nhánh đấu loại trực tiếp', steps: ['Vuốt ngang qua các vòng trên điện thoại', 'Trận đang đấu có viền đỏ + nút "Xem live"', 'Trận đã xong có nút "Xem lại"'], url: `/giai-dau/${lev}/nhanh-dau` },
+      { id: 'g-relay', t: 'Vòng tròn tiếp sức & vinh danh', steps: ['Bảng xếp hạng có cột "Căn cứ" và bảng phụ đối đầu', 'Mở trang giải xem bục vinh danh'], url: `/giai-dau/${rev}/nhanh-dau`, url2: `/giai-dau/${rev}` },
+      { id: 'g-live', t: 'Xem livestream', steps: ['Chọn sân, xem trình phát (sân mẫu chưa gắn video YouTube)', 'Tỉ số cạnh trình phát tự cập nhật mỗi 5 giây', 'Kết hợp kịch bản "Trọng tài nhập tỉ số" ở khung 2'], url: `/giai-dau/${lev}/truc-tiep` },
+      { id: 'g-overlay', t: 'Lớp tỉ số OBS', steps: ['Nền trong suốt, tỉ số nảy lên khi đổi', 'Thêm ?kieu=doc để đặt góc trên phải'], url: `/overlay/san/${sid}` },
+    ] },
+    { key: 'admin', label: 'Quản trị viên', role: 'admin', items: [
+      { id: 'a-sub', t: 'Duyệt đơn chấm trình', steps: [`Có ${pending} đơn chờ`, 'Sửa điểm trước khi duyệt → "Duyệt" tạo VĐV mới', 'Từ chối kèm lý do'], url: '/admin/don-cham-trinh', url2: '/xep-hang' },
+      { id: 'a-points', t: 'Điều chỉnh điểm & Lock', steps: ['Đặt điểm thấp hơn Lock → hệ thống giữ ở mức Lock', 'Tick "Cho phép xuống dưới Lock" → được (có ghi nhật ký)', 'Khung 2: hồ sơ công khai hiện mốc mới trên biểu đồ'], url: top ? `/admin/vdv/${top.id}` : '/admin/vdv', url2: top ? `/vdv/${top.id}` : '/xep-hang' },
+      { id: 'a-event', t: 'Tạo giải + nội dung', steps: ['Tạo giải, upload banner & PDF điều lệ, bật "Công khai"', 'Thêm nội dung, bảng giải thưởng (thêm/bớt dòng)', 'Khung 2: kiểm tra trang giải công khai'], url: '/admin/giai-dau/moi', url2: '/giai-dau' },
+      { id: 'a-reg', t: 'Duyệt đăng ký & xuất CSV', steps: ['Duyệt / từ chối đăng ký mới', 'Thêm đăng ký thủ công', 'Xuất CSV mở được bằng Excel (có dấu tiếng Việt)'], url: '/admin/giai-dau' },
+      { id: 'a-bracket', t: 'Bốc thăm & nhánh đấu', steps: ['"Tạo đội từ đăng ký đã duyệt"', '"Bốc thăm & tạo nhánh" (số đội lẻ có BYE)', 'Nhập tỉ số → đội thắng tự vào vòng sau'], url: '/admin/giai-dau' },
+      { id: 'a-honor', t: 'Vinh danh', steps: ['"Lấy tự động từ nhánh đấu"', 'Gắn hồ sơ VĐV bằng ô tìm kiếm', 'Lưu → trang giải hiện bục vinh danh'], url: '/admin/giai-dau' },
+      { id: 'a-live', t: 'Livestream', steps: ['Tạo buổi phát: "Dán link có sẵn" với link YouTube bất kỳ', 'Đổi trạng thái "Đang phát" → khung 2 hiện trình phát', 'Copy link lớp tỉ số OBS', '"Kết thúc buổi phát" → trang công khai chuyển sang xem lại'], data: [['Link YouTube thử', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ']], url: '/admin/livestream', url2: `/giai-dau/${lev}/truc-tiep` },
+      { id: 'a-brand', t: 'Đổi màu thương hiệu', steps: ['Cấu hình → đổi 3 màu bóng/sân/vàng → Lưu', 'Khung 2: tải lại trang chủ, toàn bộ gradient đổi theo', 'Đổi lại màu gốc: #D4F53C · #14B8A6 · #E6C27A'], url: '/admin/cau-hinh', url2: '/' },
+      { id: 'a-otp', t: 'Cấu hình OTP & đầu số', steps: ['Tắt "Bắt buộc OTP" → form chấm trình không còn ô OTP', 'Bật lại', 'Xem Nhật ký OTP: SĐT được che'], url: '/admin/cau-hinh', url2: '/cham-trinh' },
+      { id: 'a-users', t: 'Tài khoản & nhật ký', steps: ['Tạo tài khoản mới (mật khẩu ≥ 10 ký tự, có chữ và số)', 'Khóa / mở khóa, đổi vai trò', 'Nhật ký thao tác ghi đủ các việc vừa làm'], url: '/admin/nguoi-dung', url2: '/admin/nhat-ky' },
+    ] },
+    { key: 'editor', label: 'Biên tập viên', role: 'editor', items: [
+      { id: 'e-menu', t: 'Phạm vi quyền', steps: ['Menu không có Cấu hình, Tài khoản CMS, Nhật ký', 'Mở trực tiếp /admin/cau-hinh → báo "không có quyền"', 'Không thấy nút "Xóa VĐV", "Xóa giải"'], url: '/admin', url2: '/admin/cau-hinh' },
+      { id: 'e-work', t: 'Công việc thường ngày', steps: ['Thêm VĐV có cắt ảnh trên điện thoại', 'Duyệt đơn chấm trình, duyệt đăng ký', 'Tạo buổi phát (không xem được stream key)'], url: '/admin/vdv/moi' },
+    ] },
+    { key: 'referee', label: 'Trọng tài', role: 'referee', items: [
+      { id: 'r-score', t: 'Nhập tỉ số tại sân (realtime)', steps: ['Khung 1 (điện thoại): mở trận đang đấu, bấm + / −', 'Thấy "✓ Đã lưu" sau mỗi lần bấm', 'Khung 2: trang trực tiếp đổi tỉ số trong ~5 giây, overlay OBS trong ~2 giây', 'Bấm "Kết thúc" → nhánh đấu đẩy đội thắng sang vòng sau'], url: liveMatch ? `/admin/tran/${liveMatch.id}` : '/admin/trong-tai', url2: `/giai-dau/${lev}/truc-tiep` },
+      { id: 'r-scope', t: 'Phạm vi quyền', steps: ['Đăng nhập xong vào thẳng trang Trọng tài', 'Mở /admin/vdv → báo "không có quyền"', 'Trong trận: không sửa được đội A/B, mã trận'], url: '/admin/trong-tai', url2: '/admin/vdv' },
+    ] },
+  ];
+  const total = groups.reduce((s, g) => s + g.items.length, 0);
+%>
+<!doctype html>
+<html lang="vi" data-theme="dark" style="--ball: <%= colors.ball %>; --court: <%= colors.court %>; --gold: <%= colors.gold %>;">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="csrf-token" content="<%= csrfToken %>">
+<meta name="robots" content="noindex">
+<title>Bảng test · <%= site.site_name %></title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,600&display=swap">
+<link rel="stylesheet" href="/static/css/app.css">
+<link rel="stylesheet" href="/static/css/devpanel.css">
+</head>
+<body class="dev-body">
+<header class="dev-top">
+  <div class="row" style="--gap: 10px; flex-wrap: nowrap; min-width: 0;">
+    <%- include('../partials/logo') %>
+    <div style="min-width: 0;"><strong>Bảng test</strong> <span class="chip chip-warn" style="padding: 2px 8px;">Chỉ môi trường dev</span><br><span class="tiny faint" data-whoami>Đang kiểm tra phiên…</span></div>
+  </div>
+  <div class="dev-roles" role="group" aria-label="Đăng nhập nhanh theo vai trò">
+    <span class="tiny faint">Vào với vai trò:</span>
+    <% [['guest', 'Khách', '/'], ['admin', 'Quản trị viên', '/admin'], ['editor', 'Biên tập viên', '/admin'], ['referee', 'Trọng tài', '/admin/trong-tai']].forEach(([r, l, next]) => { %>
+    <form method="post" action="/dev/login/<%= r %>" target="f1" data-role-form="<%= r %>">
+      <input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="next" value="<%= next %>">
+      <button class="btn btn-sm <%= r === 'guest' ? '' : 'btn-brand' %>" type="submit"><%= l %></button>
+    </form>
+    <% }) %>
+  </div>
+</header>
+
+<div class="dev-layout">
+  <aside class="dev-side">
+    <div class="row" style="justify-content: space-between;">
+      <strong>Kịch bản test</strong>
+      <span class="tiny faint"><span data-progress>0</span>/<%= total %> đã đạt · <button type="button" class="link tiny" data-reset style="background: none; border: 0; cursor: pointer;">Đặt lại</button></span>
+    </div>
+    <div class="dev-progress"><span data-progress-bar></span></div>
+    <nav class="tabs" role="tablist" aria-label="Vai trò">
+      <% groups.forEach((g, i) => { %><button type="button" class="tab" role="tab" aria-selected="<%= i === 0 %>" data-tab="<%= g.key %>"><%= g.label %> <span class="count" data-count="<%= g.key %>"></span></button><% }) %>
+    </nav>
+    <% groups.forEach((g, i) => { %>
+    <div class="stack" style="--gap: 10px;" data-panel="<%= g.key %>" <%= i === 0 ? '' : 'hidden' %>>
+      <% if (g.role !== 'guest') { %><p class="tiny muted">Bấm "<%= g.label %>" ở thanh trên để đăng nhập nhanh, không cần mật khẩu.</p><% } else { %><p class="tiny muted">Trang công khai không cần đăng nhập. Bấm "Khách" để đăng xuất khỏi CMS nếu đang đăng nhập.</p><% } %>
+      <% g.items.forEach((it) => { %>
+      <details class="dev-case" data-case="<%= it.id %>" data-group="<%= g.key %>">
+        <summary>
+          <input type="checkbox" aria-label="Đánh dấu đã đạt: <%= it.t %>" data-check="<%= it.id %>">
+          <span class="grow"><%= it.t %></span>
+          <span class="tiny faint" data-status="<%= it.id %>"></span>
+        </summary>
+        <ol><% it.steps.forEach((s) => { %><li><%= s %></li><% }) %></ol>
+        <% if (it.data && it.data.length) { %>
+        <div class="dev-data"><% it.data.forEach(([k, v], j) => { %><button type="button" class="chip" data-copy-text="<%= v %>" title="Bấm để chép"><span class="faint"><%= k %>:</span> <span class="tnum"><%= v %></span></button><% }) %></div>
+        <% } %>
+        <div class="row" style="--gap: 6px;">
+          <a class="btn btn-sm" href="<%= it.url %>" target="f1">Mở ở khung 1</a>
+          <a class="btn btn-sm" href="<%= it.url2 || it.url %>" target="f2">Mở ở khung 2<%= it.url2 ? ' (đối chiếu)' : '' %></a>
+          <button type="button" class="btn btn-sm btn-danger" data-fail="<%= it.id %>">Ghi lỗi</button>
+        </div>
+      </details>
+      <% }) %>
+    </div>
+    <% }) %>
+    <details class="fold" style="margin-top: 8px;">
+      <summary class="small">Lưu ý & dọn dẹp</summary>
+      <div class="fold-body stack small muted" style="--gap: 8px;">
+        <p>2 khung dùng chung phiên đăng nhập. Trang công khai vẫn xem bình thường khi đang đăng nhập CMS.</p>
+        <p>OTP đang ở chế độ giả lập: mã hiện ngay trên form. Mỗi SĐT phải chờ 60 giây mới gửi lại được, tối đa 5 mã/24 giờ, nên hãy đổi SĐT khi test nhiều lần.</p>
+        <p>Tài khoản test (test_admin, test_editor, test_referee) có mật khẩu ngẫu nhiên, chỉ vào được qua bảng này. Bảng tự tắt khi <code>NODE_ENV=production</code>.</p>
+        <p>Muốn làm lại dữ liệu mẫu: dừng server, xóa thư mục <code>data/</code>, chạy lại <code>npm run dev</code>.</p>
+        <form method="post" action="/dev/accounts/xoa" data-confirm="Xóa các tài khoản test_*?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-danger" type="submit">Xóa tài khoản test</button></form>
+      </div>
+    </details>
+  </aside>
+
+  <main class="dev-frames">
+    <% [['f1', 'Khung 1', '/', 'phone'], ['f2', 'Khung 2', `/giai-dau/${lev}/truc-tiep`, 'phone']].forEach(([name, label, src, dev]) => { %>
+    <section class="dev-frame" data-frame="<%= name %>">
+      <div class="dev-frame-bar">
+        <strong class="small"><%= label %></strong>
+        <select class="input" data-device aria-label="Cỡ màn hình <%= label %>">
+          <option value="390x844" <%= dev === 'phone' ? 'selected' : '' %>>iPhone 14 · 390</option>
+          <option value="360x780">Android · 360</option>
+          <option value="320x640">Màn nhỏ · 320</option>
+          <option value="768x1024">Tablet · 768</option>
+          <option value="1280x800">Desktop · 1280</option>
+        </select>
+        <button type="button" class="icon-btn" data-reload aria-label="Tải lại <%= label %>" title="Tải lại">↻</button>
+        <a class="icon-btn" data-open-tab href="<%= src %>" target="_blank" rel="noopener" aria-label="Mở <%= label %> trong tab mới" title="Mở tab mới">↗</a>
+      </div>
+      <div class="dev-url tiny faint" data-url><%= src %></div>
+      <div class="dev-stage"><div class="dev-device"><iframe name="<%= name %>" src="<%= src %>" title="<%= label %>"></iframe></div></div>
+    </section>
+    <% }) %>
+  </main>
+</div>
+<script src="/static/js/devpanel.js"></script>
+</body>
+</html>

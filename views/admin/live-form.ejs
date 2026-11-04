@@ -1,0 +1,66 @@
+<%- include('_top', { back: `/admin/livestream${s.event_id ? `?giai=${s.event_id}` : ''}` }) %>
+<% if (s.id) { %>
+<div class="grid" style="--min: 320px; align-items: start;">
+  <div class="stack" style="--gap: 14px;">
+    <div class="player">
+      <% if (s.youtube_video_id) { %><iframe src="https://www.youtube-nocookie.com/embed/<%= s.youtube_video_id %>?mute=1&playsinline=1&rel=0" title="Xem trước <%= s.title %>" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+      <% } else { %><div class="player-empty"><strong>Chưa có video YouTube</strong></div><% } %>
+      <div class="player-badges"><span class="chip <%= s.status === 'live' ? 'chip-live' : 'chip-ball' %>"><%= fmt.LIVE_STATUS_LABEL[s.status] %></span></div>
+    </div>
+    <div class="row" style="--gap: 8px;">
+      <a class="btn btn-sm" href="/giai-dau/<%= s.slug %>/truc-tiep?san=<%= s.id %>" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'external' }) %>Trang xem live</a>
+      <% if (s.youtube_video_id) { %><a class="btn btn-sm" href="https://studio.youtube.com/video/<%= s.youtube_video_id %>/livestreaming" target="_blank" rel="noopener">Mở YouTube Studio</a><% } %>
+      <% if (s.status !== 'ended') { %><form class="inline-form" method="post" action="/admin/livestream/<%= s.id %>/ket-thuc" data-confirm="Kết thúc buổi phát? Người xem sẽ chuyển sang chế độ xem lại."><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-danger" type="submit">Kết thúc buổi phát</button></form><% } %>
+    </div>
+
+    <div class="sub-card">
+      <h2 class="section-title">Cấu hình OBS</h2>
+      <% if (s.via_api && s.hasKey) { %>
+        <% if (user.role === 'admin') { %>
+        <button type="button" class="btn btn-sm" data-stream-key="/admin/livestream/<%= s.id %>/stream-key" style="align-self: flex-start;"><%- include('../partials/icon', { name: 'key' }) %>Hiện máy chủ RTMP & stream key</button>
+        <div class="stack" style="--gap: 10px;" data-key-out hidden>
+          <div class="field"><label for="rtmp-server">Máy chủ RTMP</label><div class="copy-row"><input class="input secret" id="rtmp-server" readonly><button type="button" class="btn btn-sm" data-copy="rtmp-server">Chép</button></div></div>
+          <div class="field"><label for="rtmp-key">Stream key (bí mật)</label><div class="copy-row"><input class="input secret" id="rtmp-key" type="password" readonly><button type="button" class="btn btn-sm" data-copy="rtmp-key">Chép</button></div><span class="hint">Mỗi lần xem được ghi nhật ký. Không gửi qua nhóm chat.</span></div>
+        </div>
+        <% } else { %><p class="small muted">Chỉ Quản trị viên xem được stream key.</p><% } %>
+      <% } else if (s.via_api) { %>
+        <p class="small muted">Buổi phát đã kết thúc, stream key đã được xóa khỏi hệ thống.</p>
+      <% } else { %>
+        <p class="small muted">Buổi phát này dùng link YouTube dán tay: lấy stream key trong YouTube Studio của kênh.</p>
+      <% } %>
+      <div class="field"><label for="overlay">Lớp tỉ số OBS (Browser Source, 1920×1080)</label><div class="copy-row"><input class="input secret" id="overlay" readonly value="<%= s.overlayUrl %>"><button type="button" class="btn btn-sm" data-copy="overlay">Chép</button></div><span class="hint">Thêm <code>?kieu=doc</code> để đặt bảng tỉ số ở góc trên bên phải.</span></div>
+    </div>
+  </div>
+<% } %>
+
+  <form class="card card-pad form" method="post" action="/admin/livestream/<%= s.id || 'moi' %>" data-once>
+    <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+    <h2 class="section-title"><%= s.id ? 'Thông tin buổi phát' : 'Tạo buổi phát mới' %></h2>
+    <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+    <% if (!s.id) { %>
+    <div class="field"><label for="event_id">Giải đấu *</label><select class="input" id="event_id" name="event_id" required><option value="">Chọn giải</option><% events.forEach((e) => { %><option value="<%= e.id %>" <%= s.event_id === e.id ? 'selected' : '' %>><%= e.name %></option><% }) %></select></div>
+    <div class="field"><span class="label">Cách tạo</span>
+      <div class="segmented" style="--n: 2;">
+        <label><input type="radio" name="mode" value="api" <%= s.mode !== 'manual' ? 'checked' : '' %> <%= account.connected ? '' : 'disabled' %>><span>Tạo trên YouTube</span></label>
+        <label><input type="radio" name="mode" value="manual" <%= s.mode === 'manual' || !account.connected ? 'checked' : '' %>><span>Dán link có sẵn</span></label>
+      </div>
+      <span class="hint"><%= account.connected ? `Tạo buổi phát trên kênh "${account.channelTitle}", tự lưu video khi kết thúc.` : 'Chưa kết nối kênh YouTube: dán link buổi phát đã tạo trong YouTube Studio.' %></span>
+    </div>
+    <% } %>
+    <div class="form-grid two">
+      <div class="field"><label for="court">Sân *</label><input class="input" id="court" name="court" required maxlength="30" value="<%= s.court || '' %>" placeholder="Sân 1"></div>
+      <div class="field"><label for="scheduled_start">Giờ bắt đầu dự kiến</label><input class="input" type="datetime-local" id="scheduled_start" name="scheduled_start" value="<%= fmt.toLocalInput(s.scheduled_start) %>"></div>
+      <div class="field span-2"><label for="title">Tiêu đề trên YouTube</label><input class="input" id="title" name="title" maxlength="100" value="<%= s.title || '' %>" placeholder="Giải – Sân 1 – Ngày 1"></div>
+      <% if (!s.id) { %><div class="field"><label for="privacy">Chế độ hiển thị trên YouTube</label><select class="input" id="privacy" name="privacy"><option value="unlisted" <%= s.privacy !== 'public' ? 'selected' : '' %>>Không công khai</option><option value="public" <%= s.privacy === 'public' ? 'selected' : '' %>>Công khai</option></select></div><% } %>
+      <div class="field"><label for="sort_order">Thứ tự hiển thị</label><input class="input" id="sort_order" name="sort_order" inputmode="numeric" value="<%= s.sort_order || 0 %>"></div>
+      <% if (!s.id || !s.via_api) { %><div class="field span-2" <%- s.id ? '' : 'data-mode-manual' %>><label for="youtube_url">Link YouTube của buổi phát</label><input class="input" id="youtube_url" name="youtube_url" inputmode="url" value="<%= s.youtube_video_id ? `https://www.youtube.com/watch?v=${s.youtube_video_id}` : '' %>" placeholder="youtube.com/live/…"></div><% } %>
+      <% if (s.id && !s.via_api) { %><div class="field"><label for="status">Trạng thái</label><select class="input" id="status" name="status"><% Object.entries(fmt.LIVE_STATUS_LABEL).forEach(([k, l]) => { %><option value="<%= k %>" <%= s.status === k ? 'selected' : '' %>><%= l %></option><% }) %></select><span class="hint">Link dán tay: tự chuyển trạng thái khi bắt đầu/kết thúc.</span></div><% } %>
+    </div>
+    <div class="form-actions"><button class="btn btn-brand" type="submit"><%= s.id ? 'Lưu' : 'Tạo buổi phát' %></button></div>
+    <% if (s.id) { %><p class="tiny faint">Tạo lúc <%= fmt.dateTimeVN(s.created_at) %><%= s.actual_start ? ` · bắt đầu ${fmt.dateTimeVN(s.actual_start)}` : '' %><%= s.actual_end ? ` · kết thúc ${fmt.dateTimeVN(s.actual_end)}` : '' %></p><% } %>
+  </form>
+<% if (s.id) { %>
+</div>
+<form method="post" action="/admin/livestream/<%= s.id %>/xoa" data-confirm="Xóa buổi phát khỏi website? Video trên YouTube vẫn giữ nguyên."><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xóa khỏi website</button></form>
+<% } %>
+<%- include('_bottom') %>

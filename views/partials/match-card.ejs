@@ -1,0 +1,21 @@
+<%
+  const ta = m.team_a_id ? teamMap[m.team_a_id] : null;
+  const tb = m.team_b_id ? teamMap[m.team_b_id] : null;
+  const done = m.status === 'done';
+  const aWin = done && ta && (!tb || (m.score_a ?? -1) > (m.score_b ?? -1));
+  const bWin = done && tb && (!ta || (m.score_b ?? -1) > (m.score_a ?? -1));
+  const bye = done && (!ta || !tb);
+  const stream = m.live_stream_id ? streams[m.live_stream_id] : null;
+%>
+<div class="mcard <%= m.status === 'live' ? 'live' : '' %>">
+  <div class="mhead"><span><%= m.code || '' %><%= m.court ? ` · ${m.court}` : '' %></span><% if (m.status === 'live') { %><span class="chip chip-live" style="padding: 2px 8px;">ĐANG ĐẤU</span><% } else if (bye) { %><span>BYE</span><% } else if (done) { %><span class="chip chip-ok" style="padding: 2px 8px;">ĐÃ XONG</span><% } else { %><span>Chưa đấu</span><% } %></div>
+  <div class="side <%= aWin ? 'win' : bWin ? 'lose' : '' %>"><span class="n"><%= m.players_a || (ta ? ta.name : '—') %></span><span class="s"><%= bye ? '' : (m.score_a ?? '') %></span></div>
+  <div class="side <%= bWin ? 'win' : aWin ? 'lose' : '' %>"><span class="n"><%= m.players_b || (tb ? tb.name : (bye ? 'Miễn đấu' : '—')) %></span><span class="s"><%= bye ? '' : (m.score_b ?? '') %></span></div>
+  <% if (m.legs && m.legs.length) { %><div class="mfoot legs"><% m.legs.forEach((p, i) => { %><span class="leg <%= m.current_leg === i + 1 && m.status === 'live' ? 'cur' : '' %>">Chặng <%= i + 1 %><%= p ? ` · ${p}` : '' %> · <%= (d.relay_step || 11) * (i + 1) %></span><% }) %></div><% } %>
+  <% if (stream && stream.youtube_video_id && (m.status === 'live' || (done && m.video_offset !== null))) { %>
+  <div class="mfoot">
+    <% if (m.status === 'live') { %><a class="btn btn-live btn-sm" href="/giai-dau/<%= ev.slug %>/truc-tiep?san=<%= stream.id %>"><%- include('icon', { name: 'live' }) %>Xem live</a>
+    <% } else { %><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=<%= stream.youtube_video_id %>&t=<%= m.video_offset %>s"><%- include('icon', { name: 'play' }) %>Xem lại</a><% } %>
+  </div>
+  <% } %>
+</div>

@@ -1,0 +1,11 @@
+<%- include('_top') %>
+<div class="table-wrap">
+  <table class="data stack-mobile">
+    <thead><tr><th>Thời gian</th><th>Người thực hiện</th><th>Thao tác</th><th>Đối tượng</th><th>Chi tiết</th></tr></thead>
+    <tbody>
+      <% rows.forEach((r) => { %><tr><td data-label="Thời gian" class="nowrap"><%= fmt.dateTimeVN(r.created_at) %></td><td data-label="Người"><%= r.username || '—' %></td><td data-label="Thao tác"><code><%= r.action %></code></td><td data-label="Đối tượng"><%= r.target || '' %></td><td data-label="Chi tiết" class="small muted"><%= r.detail || '' %></td></tr><% }) %>
+      <% if (!rows.length) { %><tr><td colspan="5" data-label="" class="faint">Chưa có nhật ký.</td></tr><% } %>
+    </tbody>
+  </table>
+</div>
+<%- include('_bottom') %>

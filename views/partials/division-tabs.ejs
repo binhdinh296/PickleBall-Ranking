@@ -1,0 +1,5 @@
+<% if (ev.divisions.length > 1) { %>
+<nav class="tabs" aria-label="Nội dung thi đấu">
+  <% ev.divisions.forEach((x) => { %><a class="tab" href="?d=<%= x.id %>" aria-current="<%= d && d.id === x.id %>"><%= x.name %></a><% }) %>
+</nav>
+<% } %>

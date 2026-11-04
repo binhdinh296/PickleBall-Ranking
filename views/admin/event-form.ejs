@@ -1,0 +1,25 @@
+<%- include('_top', { back: ev.id ? `/admin/giai-dau/${ev.id}` : '/admin/giai-dau' }) %>
+<form class="card card-pad form" method="post" action="/admin/giai-dau/<%= ev.id ? `${ev.id}/sua` : 'moi' %>" enctype="multipart/form-data" data-once style="max-width: 860px;">
+  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+  <div class="form-grid two">
+    <div class="field span-2"><label for="name">Tên giải *</label><input class="input" id="name" name="name" required maxlength="150" value="<%= ev.name || '' %>"></div>
+    <div class="field span-2"><label for="slug">Đường dẫn</label><input class="input" id="slug" name="slug" maxlength="80" value="<%= ev.slug || '' %>" placeholder="tự tạo từ tên giải"><span class="hint">Trang giải: /giai-dau/<strong><%= ev.slug || 'ten-giai' %></strong></span></div>
+    <div class="field"><label for="start_date">Ngày bắt đầu *</label><input class="input" type="date" id="start_date" name="start_date" required value="<%= ev.start_date || '' %>"></div>
+    <div class="field"><label for="end_date">Ngày kết thúc *</label><input class="input" type="date" id="end_date" name="end_date" required value="<%= ev.end_date || '' %>"></div>
+    <div class="field"><label for="venue">Sân thi đấu</label><input class="input" id="venue" name="venue" maxlength="150" value="<%= ev.venue || '' %>"></div>
+    <div class="field"><label for="address">Địa chỉ</label><input class="input" id="address" name="address" maxlength="200" value="<%= ev.address || '' %>"></div>
+    <div class="field span-2"><label for="zalo_link">Link nhóm Zalo</label><input class="input" id="zalo_link" name="zalo_link" type="url" inputmode="url" maxlength="300" placeholder="https://zalo.me/g/…" value="<%= ev.zalo_link || '' %>"></div>
+    <div class="field"><label for="banner">Banner (JPG/PNG/WebP)</label><input class="input" id="banner" name="banner" type="file" accept="image/jpeg,image/png,image/webp"><% if (ev.banner) { %><img src="<%= ev.banner %>" alt="Banner hiện tại" style="border-radius: 12px; margin-top: 6px; max-height: 120px; width: auto;"><% } %></div>
+    <div class="field"><label for="regulation_pdf">Điều lệ (PDF)</label><input class="input" id="regulation_pdf" name="regulation_pdf" type="file" accept="application/pdf"><% if (ev.regulation_pdf) { %><a class="link small" href="<%= ev.regulation_pdf %>" target="_blank">Xem điều lệ hiện tại</a><% } %></div>
+    <div class="field span-2"><label for="description">Mô tả</label><textarea class="input" id="description" name="description" maxlength="5000"><%= ev.description || '' %></textarea></div>
+  </div>
+  <label class="check"><input type="checkbox" name="published" value="1" <%= ev.published ? 'checked' : '' %>><span><strong>Công khai</strong> – hiện trên website (bỏ chọn để lưu nháp, giải thử nghiệm)</span></label>
+  <label class="check"><input type="checkbox" name="registration_open" value="1" <%= ev.registration_open ? 'checked' : '' %>><span>Mở đăng ký online</span></label>
+  <label class="check"><input type="checkbox" name="featured" value="1" <%= ev.featured ? 'checked' : '' %>><span>Ưu tiên hiện ở "Giải đấu nổi bật" trang chủ</span></label>
+  <div class="form-actions"><button class="btn btn-brand" type="submit"><%= ev.id ? 'Lưu giải đấu' : 'Tạo giải đấu' %></button></div>
+</form>
+<% if (ev.id && user.role === 'admin') { %>
+<form method="post" action="/admin/giai-dau/<%= ev.id %>/xoa" data-confirm="Xóa giải này cùng toàn bộ nội dung, đăng ký, nhánh đấu và buổi phát?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xóa giải</button></form>
+<% } %>
+<%- include('_bottom') %>

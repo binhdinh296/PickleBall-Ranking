@@ -1,0 +1,36 @@
+<%- include('_top', { back: `/admin/giai-dau/${ev.id}` }) %>
+<form class="card card-pad form" method="post" action="<%= d.id ? `/admin/noi-dung/${d.id}/sua` : `/admin/giai-dau/${ev.id}/noi-dung/moi` %>" enctype="multipart/form-data" data-once style="max-width: 860px;">
+  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+  <p class="muted small">Giải: <strong><%= ev.name %></strong></p>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+  <div class="form-grid two">
+    <div class="field"><label for="name">Tên nội dung *</label><input class="input" id="name" name="name" required maxlength="100" value="<%= d.name || '' %>" placeholder="Đôi nam newbie"></div>
+    <div class="field"><label for="subtitle">Dòng phụ</label><input class="input" id="subtitle" name="subtitle" maxlength="100" value="<%= d.subtitle || '' %>" placeholder="Max 40 đôi"></div>
+    <div class="field"><label for="format">Thể thức</label><select class="input" id="format" name="format"><option value="knockout" <%= d.format !== 'roundrobin' ? 'selected' : '' %>>Loại trực tiếp</option><option value="roundrobin" <%= d.format === 'roundrobin' ? 'selected' : '' %>>Vòng tròn</option></select></div>
+    <div class="field"><label for="team_type">Đơn vị thi đấu</label><select class="input" id="team_type" name="team_type"><option value="pair" <%= d.team_type !== 'team' ? 'selected' : '' %>>Cặp đôi (đăng ký online)</option><option value="team" <%= d.team_type === 'team' ? 'selected' : '' %>>Đội (nhập tay trong CMS)</option></select></div>
+    <div class="field"><label for="max_teams">Số đôi/đội tối đa</label><input class="input" id="max_teams" name="max_teams" inputmode="numeric" value="<%= d.max_teams || '' %>"></div>
+    <div class="field"><label for="gender_rule">Quy định giới tính</label><select class="input" id="gender_rule" name="gender_rule"><% Object.entries(fmt.GENDER_RULE_LABEL).forEach(([k, l]) => { %><option value="<%= k %>" <%= d.gender_rule === k ? 'selected' : '' %>><%= l %></option><% }) %></select></div>
+    <div class="field"><label for="max_total_points">Tổng trình tối đa (2 VĐV)</label><input class="input tnum" id="max_total_points" name="max_total_points" inputmode="decimal" value="<%= d.max_total_points ? fmt.pts(d.max_total_points) : '' %>" placeholder="5.300"></div>
+    <div class="field"><label for="max_player_points">Trình tối đa mỗi VĐV</label><input class="input tnum" id="max_player_points" name="max_player_points" inputmode="decimal" value="<%= d.max_player_points ? fmt.pts(d.max_player_points) : '' %>" placeholder="2.900"></div>
+    <div class="field"><label for="relay_legs">Số chặng tiếp sức</label><input class="input" id="relay_legs" name="relay_legs" inputmode="numeric" value="<%= d.relay_legs || 0 %>"><span class="hint">0 = không dùng tiếp sức.</span></div>
+    <div class="field"><label for="relay_step">Điểm mỗi chặng</label><input class="input" id="relay_step" name="relay_step" inputmode="numeric" value="<%= d.relay_step || 11 %>"><span class="hint">Ví dụ 11 → các mốc 11-22-33-44-55.</span></div>
+    <div class="field"><label for="banner">Ảnh banner nội dung</label><input class="input" id="banner" name="banner" type="file" accept="image/jpeg,image/png,image/webp"><% if (d.banner) { %><img src="<%= d.banner %>" alt="" style="max-height: 80px; width: auto; margin-top: 6px;"><% } %></div>
+    <div class="field"><label for="sort_order">Thứ tự</label><input class="input" id="sort_order" name="sort_order" inputmode="numeric" value="<%= d.sort_order || 0 %>"></div>
+  </div>
+  <div class="stack" style="--gap: 10px;" data-prizes>
+    <span class="label">Giải thưởng</span>
+    <div class="stack" style="--gap: 8px;" data-prize-rows>
+      <% (d.prizes || []).forEach((p) => { %>
+      <div class="prize-edit"><input class="input" name="prize_label" value="<%= p.label %>" aria-label="Hạng"><input class="input" name="prize_amount" value="<%= p.amount %>" aria-label="Giá trị" placeholder="10000000"><button class="btn" type="button" data-prize-remove aria-label="Bỏ dòng">✕</button></div>
+      <% }) %>
+    </div>
+    <template><div class="prize-edit"><input class="input" name="prize_label" aria-label="Hạng" placeholder="Giải ba"><input class="input" name="prize_amount" aria-label="Giá trị" placeholder="2000000"><button class="btn" type="button" data-prize-remove aria-label="Bỏ dòng">✕</button></div></template>
+    <button class="btn btn-sm" type="button" data-prize-add style="align-self: flex-start;"><%- include('../partials/icon', { name: 'plus' }) %>Thêm dòng</button>
+    <span class="hint">Giá trị nhập số (VNĐ) sẽ tự định dạng, hoặc nhập chữ (ví dụ "Cúp + huy chương").</span>
+  </div>
+  <div class="form-actions"><button class="btn btn-brand" type="submit">Lưu nội dung</button></div>
+</form>
+<% if (d.id) { %>
+<form method="post" action="/admin/noi-dung/<%= d.id %>/xoa" data-confirm="Xóa nội dung này cùng đăng ký, nhánh đấu và vinh danh?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xóa nội dung</button></form>
+<% } %>
+<%- include('_bottom') %>

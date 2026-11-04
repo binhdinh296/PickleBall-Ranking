@@ -1,0 +1,1 @@
+<span class="avatar <%= locals.tone || '' %>" style="--s: <%= locals.size || 64 %>px;"><% if (a.avatar) { %><img src="<%= a.avatar %>" alt="" loading="lazy"><% } else { %><span aria-hidden="true"><%= fmt.initials(a.full_name) %></span><% } %></span>

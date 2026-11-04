@@ -1,0 +1,20 @@
+<%- include('../partials/top') %>
+<% const tabs = [['ongoing', 'Đang diễn ra'], ['upcoming', 'Sắp diễn ra'], ['ended', 'Đã kết thúc']]; %>
+<section class="page-head glow">
+  <div class="container stack" style="--gap: 18px;">
+    <div><span class="eyebrow">Giải đấu</span><h1 class="h1">Hệ thống <span class="serif grad-text">giải đấu</span></h1><p class="muted" style="margin-top: 8px;">Chọn giải để xem thông tin, nội dung thi đấu, giải thưởng, đăng ký và livestream.</p></div>
+    <nav class="tabs" aria-label="Trạng thái giải">
+      <% tabs.forEach(([k, label]) => { %><a class="tab" href="/giai-dau?tab=<%= k %>" aria-current="<%= tab === k %>"><%= label %> <span class="count">(<%= groups[k].length %>)</span></a><% }) %>
+    </nav>
+  </div>
+</section>
+<section style="padding-block: 16px 56px;">
+  <div class="container">
+    <% if (!groups[tab].length) { %><div class="empty">Chưa có giải đấu ở mục <%= tabs.find((t) => t[0] === tab)[1] %>.</div><% } else { %>
+    <div class="grid" style="--min: 300px;">
+      <% groups[tab].forEach((e) => { %><%- include('../partials/event-card', { e }) %><% }) %>
+    </div>
+    <% } %>
+  </div>
+</section>
+<%- include('../partials/bottom') %>

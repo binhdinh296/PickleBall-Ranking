@@ -1,0 +1,38 @@
+<%
+  // Vợt và bóng mang chất liệu theo hạng: Kim cương, Bạch kim, Vàng, Bạc, Đồng, Sắt
+  const tier = a.tier;
+  const delta = a.lastDelta ? `${a.lastDelta > 0 ? '▲' : '▼'} ${fmt.signedPts(a.lastDelta).slice(1)}` : '—';
+%>
+<li class="paddle-slot" data-slot>
+  <article class="paddle tier-<%= tier.key %>" data-paddle>
+    <div class="paddle-head">
+      <span class="paddle-face" aria-hidden="true">
+        <% if (a.avatar) { %><img src="<%= a.avatar %>" alt="" loading="<%= i < 5 ? 'eager' : 'lazy' %>"><% } else { %><span class="paddle-initials"><%= fmt.initials(a.full_name) %></span><% } %>
+        <span class="paddle-shade"></span>
+        <span class="paddle-lines"></span>
+      </span>
+      <button type="button" class="paddle-hit" aria-expanded="false" aria-controls="pinfo-<%= a.id %>" aria-label="Xem thông tin <%= a.full_name %>, hạng <%= a.rank %>, hạng huy hiệu <%= tier.label %>"></button>
+      <span class="paddle-ball" aria-hidden="true"><span><%= fmt.pad2(i + 1) %></span></span>
+      <span class="paddle-caption" aria-hidden="true">
+        <strong class="p-name"><%= a.full_name %></strong>
+        <span class="p-bar"></span>
+        <span class="p-pts"><%= fmt.pts(a.points) %><small>điểm</small></span>
+      </span>
+      <div class="paddle-info" id="pinfo-<%= a.id %>">
+        <span class="pi-eyebrow">Hạng #<%= a.rank %> · <%= fmt.GENDER_LABEL[a.gender] %></span>
+        <strong class="pi-name"><%= a.full_name %></strong>
+        <span class="pi-sub"><%= [a.nickname ? `“${a.nickname}”` : null, a.club].filter(Boolean).join(' · ') || a.hometown || '' %></span>
+        <span class="pi-pts"><%= fmt.pts(a.points) %></span>
+        <dl class="pi-stats">
+          <div><dt>Cao nhất</dt><dd><%= fmt.pts(a.peak_points) %></dd></div>
+          <div><dt>Lock</dt><dd><%= fmt.pts(a.lock) %></dd></div>
+          <div><dt>Lên bục</dt><dd><%= a.podiums %></dd></div>
+          <div><dt>Gần nhất</dt><dd class="<%= a.lastDelta > 0 ? 'up' : a.lastDelta < 0 ? 'down' : '' %>"><%= delta %></dd></div>
+        </dl>
+        <a class="btn btn-brand btn-sm" href="/vdv/<%= a.id %>">Xem hồ sơ</a>
+      </div>
+    </div>
+    <span class="paddle-throat" aria-hidden="true"></span>
+    <span class="paddle-handle" aria-hidden="true"><span class="paddle-cap"></span></span>
+  </article>
+</li>

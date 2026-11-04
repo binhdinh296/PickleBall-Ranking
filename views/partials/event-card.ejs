@@ -1,0 +1,30 @@
+<article class="ecard">
+  <a class="cover" href="/giai-dau/<%= e.slug %>" aria-label="<%= e.name %>">
+    <% if (e.banner) { %><img src="<%= e.banner %>" alt="" loading="lazy"><% } else { %>
+    <svg viewBox="0 0 400 200" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"><polygon points="120,34 280,34 362,200 38,200"/><line x1="98" y1="78" x2="302" y2="78"/><line x1="82" y1="112" x2="318" y2="112"/></g></svg>
+    <% } %>
+    <% if (e.status === 'ongoing') { %><span class="chip chip-live"><span class="live-dot" style="background:#fff"></span>Đang diễn ra</span>
+    <% } else if (e.status === 'upcoming') { %><span class="chip chip-ball">Sắp diễn ra</span>
+    <% } else { %><span class="chip" style="background: rgba(0,0,0,.45); color: #fff; border-color: transparent;">Đã kết thúc</span><% } %>
+  </a>
+  <div class="body">
+    <h3><a href="/giai-dau/<%= e.slug %>"><%= e.name %></a></h3>
+    <div class="meta">
+      <span><%- include('icon', { name: 'calendar' }) %><%= fmt.dateVN(e.start_date) %><%= e.end_date !== e.start_date ? ` – ${fmt.dateVN(e.end_date)}` : '' %></span>
+      <% if (e.venue) { %><span><%- include('icon', { name: 'pin' }) %><%= e.venue %></span><% } %>
+      <span><%- include('icon', { name: 'trophy' }) %><%= e.divisionCount || 0 %> nội dung thi đấu<% if (e.liveCount) { %> · <strong style="color: var(--live)"><%= e.liveCount %> sân đang live</strong><% } %></span>
+    </div>
+    <div class="actions">
+      <% if (e.liveCount) { %>
+        <a class="btn btn-live btn-sm" href="/giai-dau/<%= e.slug %>/truc-tiep">Xem live</a>
+        <a class="btn btn-sm" href="/giai-dau/<%= e.slug %>/nhanh-dau">Nhánh đấu</a>
+      <% } else if (e.status === 'ended') { %>
+        <a class="btn btn-gold btn-sm" href="/giai-dau/<%= e.slug %>#vinh-danh">Vinh danh</a>
+        <a class="btn btn-sm" href="/giai-dau/<%= e.slug %>/nhanh-dau">Kết quả</a>
+      <% } else { %>
+        <a class="btn btn-brand btn-sm" href="/giai-dau/<%= e.slug %>/dang-ky">Đăng ký</a>
+        <a class="btn btn-sm" href="/giai-dau/<%= e.slug %>">Chi tiết</a>
+      <% } %>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="vi" style="--ball: <%= colors.ball %>; --court: <%= colors.court %>; --gold: <%= colors.gold %>;">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Overlay <%= data.stream.court %></title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="/static/css/overlay.css">
+</head>
+<body>
+<% const m = data.match; %>
+<div class="ov ov-<%= style %> <%= m ? '' : 'idle' %>" data-overlay="/api/live/<%= data.stream.id %>/score">
+  <div class="ov-title"><span class="ov-live">LIVE</span><span data-f="title"><%= m ? [m.division, m.round, m.code].filter(Boolean).join(' · ') : data.stream.court %></span></div>
+  <div class="ov-row"><span class="ov-name" data-f="teamA"><%= m ? m.teamA : '' %></span><span class="ov-score" data-f="scoreA"><%= m ? m.scoreA : 0 %></span></div>
+  <div class="ov-row"><span class="ov-name" data-f="teamB"><%= m ? m.teamB : '' %></span><span class="ov-score" data-f="scoreB"><%= m ? m.scoreB : 0 %></span></div>
+  <div class="ov-leg" data-f="leg"><%= m && m.leg ? `Chặng ${m.leg.index} · ${m.leg.pair} · đến ${m.leg.target}` : '' %></div>
+</div>
+<script src="/static/js/overlay.js"></script>
+</body>
+</html>

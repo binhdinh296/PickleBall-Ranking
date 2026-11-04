@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi" data-default-theme="<%= site.default_theme === 'light' ? 'light' : 'dark' %>" data-theme="<%= site.default_theme === 'light' ? 'light' : 'dark' %>" style="--ball: <%= colors.ball %>; --court: <%= colors.court %>; --gold: <%= colors.gold %>;">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="csrf-token" content="<%= csrfToken %>">
+<meta name="theme-color" content="#070B14">
+<title><%= title ? `${title} · ${site.site_name}` : `${site.site_name} – ${site.site_tagline}` %></title>
+<meta name="description" content="<%= locals.description || site.hero_text %>">
+<meta property="og:title" content="<%= title || site.site_name %>">
+<meta property="og:description" content="<%= locals.description || site.hero_text %>">
+<% if (locals.ogImage) { %><meta property="og:image" content="<%= ogImage %>"><% } %>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600;1,700<%= locals.pageScript === 'home' ? '&family=Barlow+Condensed:ital,wght@1,700;1,800' : '' %>&display=swap">
+<% if (locals.cropper) { %><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"><% } %>
+<link rel="stylesheet" href="/static/css/app.css">
+<% if (locals.pageScript) { %><link rel="stylesheet" href="/static/css/<%= pageScript %>.css"><% } %>
+<% if (locals.admin) { %><link rel="stylesheet" href="/static/css/admin.css"><% } %>
+<script src="/static/js/theme.js"></script>
+</head>
+<body<% if (locals.admin) { %> class="admin-body"<% } %>>
+<a class="sr-only" href="#main">Bỏ qua đến nội dung</a>
+<% if (!locals.admin) { %>
+<header class="site-header">
+  <div class="container bar">
+    <a href="/" class="brand" aria-label="<%= site.site_name %> – Trang chủ">
+      <%- include('logo') %>
+      <span class="hide-mobile-sm">
+        <span class="brand-name"><%= site.site_name.slice(0, Math.ceil(site.site_name.length / 2)) %><span class="grad-text"><%= site.site_name.slice(Math.ceil(site.site_name.length / 2)) %></span></span>
+        <span class="brand-sub"><%= site.site_tagline %></span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Điều hướng chính">
+      <a href="/" <%- path === '/' ? 'aria-current="page"' : '' %>>Trang chủ</a>
+      <a href="/cham-trinh" <%- path.startsWith('/cham-trinh') ? 'aria-current="page"' : '' %>>Chấm trình</a>
+      <a href="/xep-hang" <%- path.startsWith('/xep-hang') || path.startsWith('/vdv') ? 'aria-current="page"' : '' %>>Xếp hạng</a>
+      <a href="/giai-dau" <%- path.startsWith('/giai-dau') && !path.endsWith('/truc-tiep') ? 'aria-current="page"' : '' %>>Giải đấu</a>
+      <a href="/truc-tiep" <%- path.endsWith('truc-tiep') ? 'aria-current="page"' : '' %>><% if (locals.liveCount) { %><span class="live-dot"></span><% } %>Trực tiếp</a>
+    </nav>
+    <div class="header-actions">
+      <% if (locals.roleSwitcher) { %><%- include('role-switcher') %><% } %>
+      <button type="button" class="icon-btn" data-theme-toggle aria-label="Đổi giao diện sáng/tối">
+        <span class="icon-sun"><%- include('icon', { name: 'sun' }) %></span>
+        <span class="icon-moon"><%- include('icon', { name: 'moon' }) %></span>
+      </button>
+      <a href="/giai-dau" class="btn btn-brand btn-sm hide-mobile">Đăng ký giải</a>
+    </div>
+  </div>
+</header>
+<% } %>
+<main id="main">
+<% if (flash && !locals.admin) { %><div class="container" style="padding-top: 16px;"><div class="alert alert-<%= flash.type %>" role="status"><%= flash.message %></div></div><% } %>

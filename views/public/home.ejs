@@ -1,0 +1,125 @@
+<%- include('../partials/top') %>
+<%
+  const words = site.hero_title.split(' ');
+  const first = athletes[0];
+%>
+<section class="hero hero-sport">
+  <div class="hero-bg" aria-hidden="true">
+    <svg class="hero-bigball" viewBox="0 0 200 200"><circle cx="100" cy="100" r="96" fill="none" stroke="currentColor" stroke-width="3"/><g fill="currentColor"><circle cx="100" cy="30" r="9"/><circle cx="60" cy="48" r="9"/><circle cx="140" cy="48" r="9"/><circle cx="36" cy="88" r="9"/><circle cx="100" cy="74" r="9"/><circle cx="164" cy="88" r="9"/><circle cx="68" cy="110" r="9"/><circle cx="132" cy="110" r="9"/><circle cx="40" cy="138" r="9"/><circle cx="100" cy="132" r="9"/><circle cx="160" cy="138" r="9"/><circle cx="72" cy="168" r="9"/><circle cx="128" cy="168" r="9"/></g></svg>
+  </div>
+  <div class="container hero-grid">
+    <div class="stack enter hero-copy">
+      <span class="hero-tag"><span class="chip chip-brand"><%= site.hero_eyebrow %></span><span class="clip">Pickleball · Ranking · Livestream</span></span>
+      <%
+        // 2 chữ cuối tô gradient và luôn đi cùng nhau (không để lẻ 1 chữ ở dòng cuối)
+        const head = words.length > 2 ? words.slice(0, -2) : [];
+        const tail = words.length > 2 ? words.slice(-2).join(' ') : words.join(' ');
+        const word = (w) => w.replace(/[.,!]/g, '').toLowerCase() === 'dink' ? `<span class="dink">${fmt.esc(w)}</span>` : fmt.esc(w);
+      %>
+      <h1 class="hero-title"><%- head.map(word).join(' ') %><%= head.length ? ' ' : '' %><span class="grad-text tail"><%- tail.split(' ').map(word).join(' ') %></span></h1>
+      <p class="hero-lead"><%= site.hero_text %></p>
+      <div class="row">
+        <a class="btn btn-brand btn-lg btn-sport" href="/giai-dau">Xem giải đấu <%- include('../partials/icon', { name: 'arrow' }) %></a>
+        <a class="btn btn-lg btn-sport" href="/xep-hang">Bảng xếp hạng</a>
+      </div>
+      <div class="hero-features">
+        <span><%- include('../partials/icon', { name: 'ranking' }) %>Ranking minh bạch</span>
+        <span><%- include('../partials/icon', { name: 'live' }) %>Livestream mọi sân</span>
+        <span><%- include('../partials/icon', { name: 'shield' }) %>Đăng ký xác minh OTP</span>
+      </div>
+    </div>
+    <div class="hero-visual enter" style="--d: 140ms;" data-hero-visual>
+      <div class="court-card court-sport">
+        <%- include('../partials/court-rally') %>
+        <span class="court-tag" title="Kích thước sân pickleball tiêu chuẩn">20 × 44 ft · Kitchen 7 ft</span>
+      </div>
+      <% if (liveStream) { const aLead = liveMatch && (liveMatch.score_a ?? 0) >= (liveMatch.score_b ?? 0); %>
+      <a class="float-card score-bug" href="/giai-dau/<%= liveStream.slug %>/truc-tiep?san=<%= liveStream.id %>">
+        <span class="sb-head"><span class="sb-live"><span class="live-dot" style="background: #fff;"></span>LIVE</span><span class="sb-meta"><%= liveStream.court %><%= liveMatch ? ` · ${liveMatch.round_name}` : '' %></span></span>
+        <% if (liveMatch) { %>
+        <span class="sb-row <%= aLead ? 'lead' : '' %>"><span class="sb-name"><%= liveMatch.team_a %></span><span class="sb-score"><%= liveMatch.score_a ?? 0 %></span></span>
+        <span class="sb-row <%= aLead ? '' : 'lead' %>"><span class="sb-name"><%= liveMatch.team_b %></span><span class="sb-score"><%= liveMatch.score_b ?? 0 %></span></span>
+        <% } else { %><span class="sb-row"><span class="sb-name"><%= liveStream.event_name %></span></span><% } %>
+        <span class="sb-cta">Xem trực tiếp →</span>
+      </a>
+      <% } %>
+      <% if (first) { %>
+      <a class="float-card top-bug" href="/vdv/<%= first.id %>">
+        <span class="tb-rank">#1</span>
+        <%- include('../partials/avatar', { a: first, tone: 'gold', size: 44 }) %>
+        <span class="stack" style="--gap: 0; min-width: 0;"><span class="tb-label">Số 1 bảng xếp hạng</span><strong class="clip"><%= first.full_name %></strong><span class="tb-pts"><%= fmt.pts(first.points) %> điểm</span></span>
+      </a>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section paddles-section">
+  <div class="container">
+    <div class="section-head enter" style="--d: 220ms;">
+      <div><h2 class="h2">Vận động viên <span class="serif gold-text">nổi bật</span></h2></div>
+    </div>
+    <% if (!athletes.length) { %><div class="empty">Chưa có vận động viên trên bảng xếp hạng.</div><% } else { %>
+    <div class="paddles enter" style="--d: 300ms;" data-paddles role="region" aria-roledescription="carousel" aria-label="Vận động viên nổi bật">
+      <div class="paddle-viewport" data-viewport>
+        <ul class="paddle-track" role="list">
+          <% athletes.forEach((a, i) => { %><%- include('../partials/paddle', { a, i }) %><% }) %>
+        </ul>
+      </div>
+      <div class="paddle-controls">
+        <div class="ball-dots" role="group" aria-label="Chọn vận động viên">
+          <% athletes.forEach((a, i) => { %><button type="button" class="ball-dot <%= i === 0 ? 'is-active' : '' %>" data-dot="<%= i %>" aria-label="Tới <%= a.full_name %>"></button><% }) %>
+        </div>
+        <div class="row" style="--gap: 8px; flex-wrap: nowrap;">
+          <button type="button" class="icon-btn" data-prev aria-label="Lùi"><%- include('../partials/icon', { name: 'back' }) %></button>
+          <button type="button" class="icon-btn" data-next aria-label="Tới"><%- include('../partials/icon', { name: 'arrow' }) %></button>
+        </div>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</section>
+
+<section class="section court-slot hero-sport" aria-label="Minh họa sân pickleball">
+  <div class="container">
+    <div class="section-head"><div><h2 class="h2">Nhịp <span class="serif grad-text">dink</span> trong kitchen</h2></div></div>
+    <div data-court-slot></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <div><h2 class="h2">Giải đấu <span class="serif grad-text">nổi bật</span></h2></div>
+      <a class="link" href="/giai-dau">Xem tất cả giải →</a>
+    </div>
+    <% if (!events.length) { %><div class="empty">Chưa có giải đấu nào được công bố.</div><% } else { %>
+    <div class="grid event-grid" style="--min: 300px;">
+      <% events.forEach((e, i) => { %><div class="reveal" style="--d: <%= i * 90 %>ms;"><%- include('../partials/event-card', { e }) %></div><% }) %>
+    </div>
+    <% } %>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="cta-frame reveal">
+      <div class="cta-inner glow">
+        <div class="stack" style="--gap: 18px;">
+          <span class="eyebrow" style="margin: 0;">Tự chấm trình</span>
+          <h2 class="h2">Bạn đang ở <span class="serif grad-text">trình nào?</span></h2>
+          <p class="muted">Gửi điểm tự chấm để ban tổ chức xét duyệt và đưa bạn lên bảng xếp hạng. Mốc tối thiểu: Nam <%= fmt.pts(site.min_points_male) %>, Nữ <%= fmt.pts(site.min_points_female) %>.</p>
+          <a class="btn btn-brand btn-lg" style="align-self: flex-start;" href="/cham-trinh">Gửi đơn chấm trình</a>
+        </div>
+        <ol class="stack" style="--gap: 12px; list-style: none; margin: 0; padding: 0;">
+          <li class="info-tile"><span class="serif grad-text" style="font-size: 32px; min-width: 32px;">1</span><span><strong>Nhập thông tin và ảnh đại diện</strong><br><span class="small muted">Cắt ảnh vuông ngay trên điện thoại</span></span></li>
+          <li class="info-tile"><span class="serif grad-text" style="font-size: 32px; min-width: 32px;">2</span><span><strong>Xác minh số điện thoại bằng OTP</strong><br><span class="small muted">Mã 6 số gửi về số di động Việt Nam</span></span></li>
+          <li class="info-tile"><span class="serif grad-text" style="font-size: 32px; min-width: 32px;">3</span><span><strong>Ban tổ chức duyệt và xếp hạng</strong><br><span class="small muted">Kết quả hiện trên bảng xếp hạng công khai</span></span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+<%- include('../partials/bottom') %>

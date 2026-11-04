@@ -1,0 +1,57 @@
+<% const isEditor = ['admin', 'editor'].includes(user.role); %>
+<%- include('_top', { back: isEditor ? `/admin/noi-dung/${m.division_id}/nhanh-dau` : '/admin/trong-tai' }) %>
+<div class="scorer" data-scorer="/admin/tran/<%= m.id %>" data-status="<%= m.status %>" style="max-width: 640px; width: 100%; margin: 0 auto;">
+  <div class="row" style="justify-content: space-between;"><span class="small muted"><%= m.division %> · <%= m.round_name %><%= m.code ? ` · ${m.code}` : '' %></span><span class="chip" data-status-label><%= fmt.MATCH_STATUS_LABEL[m.status] %></span></div>
+  <div class="score-side">
+    <span class="tname"><%= m.players_a || m.team_a || 'Đội A' %></span>
+    <div class="score-ctl">
+      <button type="button" class="btn" data-step="-1" data-target="score_a" aria-label="Trừ 1 điểm đội A">−</button>
+      <input class="input" name="score_a" inputmode="numeric" value="<%= m.score_a ?? 0 %>" aria-label="Điểm đội A">
+      <button type="button" class="btn btn-brand" data-step="1" data-target="score_a" aria-label="Cộng 1 điểm đội A">+</button>
+    </div>
+  </div>
+  <div class="score-side">
+    <span class="tname"><%= m.players_b || m.team_b || 'Đội B' %></span>
+    <div class="score-ctl">
+      <button type="button" class="btn" data-step="-1" data-target="score_b" aria-label="Trừ 1 điểm đội B">−</button>
+      <input class="input" name="score_b" inputmode="numeric" value="<%= m.score_b ?? 0 %>" aria-label="Điểm đội B">
+      <button type="button" class="btn btn-brand" data-step="1" data-target="score_b" aria-label="Cộng 1 điểm đội B">+</button>
+    </div>
+  </div>
+  <% if (m.legs && m.legs.length) { %>
+  <div class="field"><label for="current_leg">Chặng đang đấu</label><select class="input" id="current_leg" name="current_leg"><option value="">—</option><% m.legs.forEach((p, i) => { %><option value="<%= i + 1 %>" <%= m.current_leg === i + 1 ? 'selected' : '' %>>Chặng <%= i + 1 %><%= p ? ` · ${p}` : '' %> · đến <%= (m.relay_step || 11) * (i + 1) %></option><% }) %></select></div>
+  <% } %>
+  <div class="status-btns">
+    <button type="button" class="btn" data-set-status="scheduled">Chưa đấu</button>
+    <button type="button" class="btn" data-set-status="live">Bắt đầu</button>
+    <button type="button" class="btn" data-set-status="done">Kết thúc</button>
+  </div>
+  <span class="hint" data-save-state aria-live="polite">Tỉ số tự lưu sau mỗi lần bấm.</span>
+</div>
+
+<form class="card card-pad form" method="post" action="/admin/tran/<%= m.id %>" style="max-width: 640px; width: 100%; margin: 0 auto;">
+  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+  <input type="hidden" name="back" value="bracket">
+  <h2 class="section-title">Thông tin trận</h2>
+  <div class="form-grid two">
+    <div class="field"><label for="court">Sân</label><input class="input" id="court" name="court" value="<%= m.court || '' %>" placeholder="Sân 1"></div>
+    <div class="field"><label for="live_stream_id">Buổi phát (livestream)</label><select class="input" id="live_stream_id" name="live_stream_id"><option value="">Không gắn</option><% streams.forEach((s) => { %><option value="<%= s.id %>" <%= m.live_stream_id === s.id ? 'selected' : '' %>><%= s.court %> · <%= fmt.LIVE_STATUS_LABEL[s.status] %></option><% }) %></select></div>
+    <div class="field"><label for="video_offset">Mốc trong video (giờ:phút:giây)</label><input class="input tnum" id="video_offset" name="video_offset" value="<%= m.video_offset !== null && m.video_offset !== undefined ? fmt.duration(m.video_offset) : '' %>" placeholder="00:42:10"><span class="hint">Tự ghi khi bấm "Bắt đầu" lúc sân đang phát. Dùng cho nút "Xem lại".</span></div>
+    <div class="field"><label for="players_a">Người ra sân đội A</label><input class="input" id="players_a" name="players_a" value="<%= m.players_a || '' %>" placeholder="Cho đội tiếp sức"></div>
+    <div class="field"><label for="players_b">Người ra sân đội B</label><input class="input" id="players_b" name="players_b" value="<%= m.players_b || '' %>"></div>
+    <% if (isEditor) { %>
+    <div class="field"><label for="team_a_id">Đội A</label><select class="input" id="team_a_id" name="team_a_id"><option value="">—</option><% teams.forEach((t) => { %><option value="<%= t.id %>" <%= m.team_a_id === t.id ? 'selected' : '' %>><%= t.name %></option><% }) %></select></div>
+    <div class="field"><label for="team_b_id">Đội B</label><select class="input" id="team_b_id" name="team_b_id"><option value="">—</option><% teams.forEach((t) => { %><option value="<%= t.id %>" <%= m.team_b_id === t.id ? 'selected' : '' %>><%= t.name %></option><% }) %></select></div>
+    <div class="field"><label for="code">Mã trận</label><input class="input" id="code" name="code" value="<%= m.code || '' %>"></div>
+    <div class="field"><label for="round_name">Tên vòng</label><input class="input" id="round_name" name="round_name" value="<%= m.round_name %>"></div>
+    <% } %>
+  </div>
+  <% if (m.legs && m.legs.length) { %>
+  <div class="stack" style="--gap: 8px;"><span class="label">Cặp thi đấu từng chặng (AA, AB, BB…)</span><div class="form-grid three"><% m.legs.forEach((p, i) => { %><input class="input" name="legs" value="<%= p %>" maxlength="4" aria-label="Chặng <%= i + 1 %>" placeholder="Chặng <%= i + 1 %>"><% }) %></div></div>
+  <% } %>
+  <button class="btn" type="submit" style="align-self: flex-start;">Lưu thông tin trận</button>
+</form>
+<% if (isEditor) { %>
+<form method="post" action="/admin/tran/<%= m.id %>/xoa" data-confirm="Xóa trận này?" style="max-width: 640px; width: 100%; margin: 0 auto;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xóa trận</button></form>
+<% } %>
+<%- include('_bottom') %>
