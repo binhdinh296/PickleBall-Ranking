@@ -56,3 +56,28 @@
     <a class="rm-foot" href="/dev">Mở bảng test đầy đủ →</a>
   </div>
 </details>
+<script>
+  if (!window._roleSwitcherBound) {
+    window._roleSwitcherBound = true;
+    document.addEventListener('submit', function(e) {
+      var form = e.target.closest ? e.target.closest('.rm-form') : null;
+      if (!form) return;
+      e.preventDefault();
+      var next = (form.querySelector('input[name="next"]') && form.querySelector('input[name="next"]').value) || window.location.pathname;
+      var btn = form.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+      var formData = new FormData(form);
+      var params = new URLSearchParams();
+      formData.forEach(function(v, k) { params.append(k, v); });
+      fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      }).then(function() {
+        window.location.href = next;
+      }).catch(function() {
+        window.location.href = next;
+      });
+    });
+  }
+</script>
