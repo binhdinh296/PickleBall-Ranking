@@ -196,13 +196,13 @@ async function seed({ log = console.log, force = false } = {}) {
     divisionId, a.id, a.nickname || a.full_name, a.phone, a.points, b.id, b.nickname || b.full_name, b.phone, b.points, status, note);
 
     // 6. Giải 1: ĐANG DIỄN RA (Có livestream, nhánh knockout kịch tính)
-    const ev1 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description)
+    const ev1 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description, banner)
       VALUES ('mua-thu-open-2026', 'Mùa Thu Open 2026', 'Cụm sân Pickleball Bến Thủy', 'Đường Nguyễn Du, TP. Vinh', ?, ?, false, true, true,
-      'Giải phong trào mở rộng mùa thu quy tụ các tay vợt hàng đầu miền Trung và cả nước.') RETURNING id`, addDays(0), addDays(2));
-    const d1 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order)
-      VALUES (?, 'Đôi nam 6.5', 'Tối đa 16 đôi · Tổng trình ≤ 6.500', 'knockout', 16, 6500, 'male', ?, 1) RETURNING id`, ev1.id, prizes('15000000', '7000000', '3000000'));
-    const d2 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order)
-      VALUES (?, 'Đôi nam nữ 5.8', 'Tối đa 16 đôi · Tổng trình ≤ 5.800', 'knockout', 16, 5800, 'mixed', ?, 2) RETURNING id`, ev1.id, prizes('10000000', '5000000', '2000000'));
+      'Giải phong trào mở rộng mùa thu quy tụ các tay vợt hàng đầu miền Trung và cả nước.', '/static/img/events/mua-thu-open-2026.svg') RETURNING id`, addDays(0), addDays(2));
+    const d1 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order, banner)
+      VALUES (?, 'Đôi nam 6.5', 'Tối đa 16 đôi · Tổng trình ≤ 6.500', 'knockout', 16, 6500, 'male', ?, 1, '/static/img/divisions/doi-nam-6-5.svg') RETURNING id`, ev1.id, prizes('15000000', '7000000', '3000000'));
+    const d2 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order, banner)
+      VALUES (?, 'Đôi nam nữ 5.8', 'Tối đa 16 đôi · Tổng trình ≤ 5.800', 'knockout', 16, 5800, 'mixed', ?, 2, '/static/img/divisions/doi-nam-nu-5-8.svg') RETURNING id`, ev1.id, prizes('10000000', '5000000', '2000000'));
 
     for (let i = 0; i < 16; i += 2) await reg(d1.id, men[i], men[i + 1]);
     for (let i = 0; i < 8; i++) await reg(d2.id, men[i + 16], women[i]);
@@ -214,15 +214,15 @@ async function seed({ log = console.log, force = false } = {}) {
       VALUES (?, 'Sân 2 (Court 2)', 'Mùa Thu Open 2026 – Vòng Tứ Kết Đôi Nam Nữ', 'live', 'dQw4w9WgXcQ', now() - interval '1 hour', now() - interval '1 hour', 2) RETURNING id`, ev1.id);
 
     // 7. Giải 2: SẮP DIỄN RA (Đang mở đăng ký thi đấu, có các đơn mới & từ chối)
-    const ev2 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description)
+    const ev2 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description, banner)
       VALUES ('dong-xuan-cup-2026', 'Đông Xuân Cup 2026', 'Sân Pickleball Hồng Lĩnh', 'Phường Hưng Dũng, TP. Vinh', ?, ?, true, true, true,
-      'Giải đấu thường niên chào xuân 2026 với cơ cấu giải thưởng lớn và nhiều hạng mục thi đấu hấp dẫn.') RETURNING id`, addDays(12), addDays(14));
-    const d3 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order)
-      VALUES (?, 'Đôi nam Newbie (Tổng ≤ 5.000)', 'Dành cho các tay vợt mới thi đấu', 'knockout', 32, 5000, 'male', ?, 1) RETURNING id`, ev2.id, prizes('12000000', '6000000', '2500000'));
-    const d3_2 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order)
-      VALUES (?, 'Đôi nam nữ hỗn hợp 5.5', 'Tối đa 24 đôi', 'knockout', 24, 5500, 'mixed', ?, 2) RETURNING id`, ev2.id, prizes('10000000', '5000000', '2000000'));
-    const d3_3 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_player_points, gender_rule, prizes, sort_order)
-      VALUES (?, 'Đôi nữ 3.0', 'Mỗi VĐV ≤ 3.000', 'knockout', 16, 3000, 'female', ?, 3) RETURNING id`, ev2.id, prizes('8000000', '4000000', '1500000'));
+      'Giải đấu thường niên chào xuân 2026 với cơ cấu giải thưởng lớn và nhiều hạng mục thi đấu hấp dẫn.', '/static/img/events/dong-xuan-cup-2026.svg') RETURNING id`, addDays(12), addDays(14));
+    const d3 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order, banner)
+      VALUES (?, 'Đôi nam Newbie (Tổng ≤ 5.000)', 'Dành cho các tay vợt mới thi đấu', 'knockout', 32, 5000, 'male', ?, 1, '/static/img/divisions/doi-nam-newbie.svg') RETURNING id`, ev2.id, prizes('12000000', '6000000', '2500000'));
+    const d3_2 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order, banner)
+      VALUES (?, 'Đôi nam nữ hỗn hợp 5.5', 'Tối đa 24 đôi', 'knockout', 24, 5500, 'mixed', ?, 2, '/static/img/divisions/doi-nam-nu-hon-hop-5-5.svg') RETURNING id`, ev2.id, prizes('10000000', '5000000', '2000000'));
+    const d3_3 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_player_points, gender_rule, prizes, sort_order, banner)
+      VALUES (?, 'Đôi nữ 3.0', 'Mỗi VĐV ≤ 3.000', 'knockout', 16, 3000, 'female', ?, 3, '/static/img/divisions/doi-nu-3-0.svg') RETURNING id`, ev2.id, prizes('8000000', '4000000', '1500000'));
 
     // Đăng ký giải 2: phủ kín cả 3 bảng đấu
     for (let i = 24; i < 30; i += 2) await reg(d3.id, men[i], men[i + 1], 'approved');
@@ -237,11 +237,11 @@ async function seed({ log = console.log, force = false } = {}) {
     await reg(d3_3.id, women[6], women[7], 'new');
 
     // 8. Giải 3: ĐÃ KẾT THÚC (Vòng tròn đồng đội tiếp sức chạm 55 điểm)
-    const ev3 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, published, description)
+    const ev3 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, published, description, banner)
       VALUES ('super-cup-tiep-suc-2026', 'Super Cup Đồng Đội Tiếp Sức 2026', 'Cụm sân Cửa Lò Pickleball Arena', 'Bình Minh, TX. Cửa Lò', ?, ?, false, true,
-      'Giải đồng đội tiếp sức thể thức mới chạm 55 điểm qua 5 chặng kịch tính.') RETURNING id`, addDays(-25), addDays(-23));
-    const d4 = await get(`INSERT INTO divisions(event_id, name, subtitle, team_type, format, relay_legs, relay_step, prizes, sort_order)
-      VALUES (?, 'Đồng đội tiếp sức Master', '4 đội · 5 chặng · chạm 55 điểm', 'team', 'roundrobin', 5, 11, ?, 1) RETURNING id`, ev3.id, prizes('Cúp vô địch + 20000000', '10000000', '5000000'));
+      'Giải đồng đội tiếp sức thể thức mới chạm 55 điểm qua 5 chặng kịch tính.', '/static/img/events/super-cup-tiep-suc-2026.svg') RETURNING id`, addDays(-25), addDays(-23));
+    const d4 = await get(`INSERT INTO divisions(event_id, name, subtitle, team_type, format, relay_legs, relay_step, prizes, sort_order, banner)
+      VALUES (?, 'Đồng đội tiếp sức Master', '4 đội · 5 chặng · chạm 55 điểm', 'team', 'roundrobin', 5, 11, ?, 1, '/static/img/divisions/dong-doi-tiep-suc-master.svg') RETURNING id`, ev3.id, prizes('Cúp vô địch + 20000000', '10000000', '5000000'));
     const teamNames = ['Sông Lam Pickle Warriors', 'Hà Nội Dinker Stars', 'Sài Gòn Smashers', 'Đà Nẵng Phượng Hoàng'];
     for (let t = 0; t < 4; t++) {
       const members = men.slice(t * 4, t * 4 + 4).map((a) => a.full_name).join('\n');
@@ -251,8 +251,9 @@ async function seed({ log = console.log, force = false } = {}) {
       VALUES (?, 'Sân trung tâm', 'Chung kết Super Cup Đồng Đội Tiếp Sức 2026', 'ended', 'dQw4w9WgXcQ', now() - interval '24 days', now() - interval '24 days', now() - interval '24 days' + interval '4 hours', 1) RETURNING id`, ev3.id);
 
     // 9. Giải 4: BẢN NHÁP (Chưa công khai - để test tính năng bản nháp trong CMS)
-    await run(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description)
+    await run(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description, banner)
       VALUES ('giai-vo-dich-quoc-gia-2026', 'Giải Vô Địch Pickleball Quốc Gia 2026', 'Cung Điền Kinh Mỹ Đình, Hà Nội', 'Đường Trần Hữu Dực, Cầu Giấy, Hà Nội',
+      ?, ?, false, false, false, 'Giải vô địch quốc gia quy tụ các tay vợt hàng đầu tranh cúp vô địch và tuyển chọn đội tuyển.', '/static/img/events/giai-vo-dich-quoc-gia-2026.svg')`, addDays(45), addDays(48));
       ?, ?, false, false, false, 'Giải vô địch quốc gia quy tụ các tay vợt hàng đầu tranh cúp vô địch và tuyển chọn đội tuyển.')`, addDays(45), addDays(48));
 
     return { d1: d1.id, d2: d2.id, d4: d4.id, s1: s1.id, s2: s2.id, s3: s3.id, men, women };
@@ -328,16 +329,16 @@ async function seed({ log = console.log, force = false } = {}) {
 
   // 11. Đối tác tài trợ (Partners & Sponsors) - có cả đối tác đang hiển thị và đối tác ẩn để test bộ lọc
   const sponsors = [
-    { name: 'Joola Pickleball Vietnam', url: 'https://joola.com', sort: 1, visible: true },
-    { name: 'Selkirk Sport', url: 'https://selkirk.com', sort: 2, visible: true },
-    { name: 'Franklin Pickleball', url: 'https://franklinsports.com', sort: 3, visible: true },
-    { name: 'CRBN Pickleball', url: 'https://crbnpickleball.com', sort: 4, visible: true },
-    { name: 'Nước uống điện giải Revive', url: 'https://suntorypepsico.vn', sort: 5, visible: true },
-    { name: 'Ngân hàng Vietcombank', url: 'https://vietcombank.com.vn', sort: 6, visible: true },
-    { name: 'Quỹ Phát Triển Thể Thao Phong Trào', url: 'https://thethao.vn', sort: 7, visible: false },
+    { name: 'Joola Pickleball Vietnam', url: 'https://joola.com', sort: 1, visible: true, logo: '/static/img/partners/joola.svg' },
+    { name: 'Selkirk Sport', url: 'https://selkirk.com', sort: 2, visible: true, logo: '/static/img/partners/selkirk.svg' },
+    { name: 'Franklin Pickleball', url: 'https://franklinsports.com', sort: 3, visible: true, logo: '/static/img/partners/franklin.svg' },
+    { name: 'CRBN Pickleball', url: 'https://crbnpickleball.com', sort: 4, visible: true, logo: '/static/img/partners/crbn.svg' },
+    { name: 'Nước uống điện giải Revive', url: 'https://suntorypepsico.vn', sort: 5, visible: true, logo: '/static/img/partners/revive.svg' },
+    { name: 'Ngân hàng Vietcombank', url: 'https://vietcombank.com.vn', sort: 6, visible: true, logo: '/static/img/partners/vietcombank.svg' },
+    { name: 'Quỹ Phát Triển Thể Thao Phong Trào', url: 'https://thethao.vn', sort: 7, visible: false, logo: '/static/img/partners/thethao.svg' },
   ];
   for (const s of sponsors) {
-    await run('INSERT INTO partners(name, url, sort_order, visible) VALUES (?, ?, ?, ?)', s.name, s.url, s.sort, s.visible);
+    await run('INSERT INTO partners(name, url, sort_order, visible, logo) VALUES (?, ?, ?, ?, ?)', s.name, s.url, s.sort, s.visible, s.logo);
   }
 
   // 12. Nhật ký OTP (OTP Logs) - Giúp trang /admin/nhat-ky-otp hiển thị đầy đủ KPI 14 ngày và bảng danh sách

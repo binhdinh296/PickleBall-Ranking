@@ -56,6 +56,33 @@ function fail(msg) {
 
     await require('./seed').seed({ force: shouldForce, log: (m) => console.log(`✔ ${m}`) });
   }
+
+  // Đảm bảo các giải đấu và đối tác có banner static chuẩn trên Vercel (kể cả khi CSDL Neon cũ chưa seed lại)
+  try {
+    await db.run("UPDATE events SET banner = '/static/img/events/mua-thu-open-2026.svg' WHERE slug = 'mua-thu-open-2026' AND (banner IS NULL OR banner LIKE '/uploads/%')");
+    await db.run("UPDATE events SET banner = '/static/img/events/dong-xuan-cup-2026.svg' WHERE slug = 'dong-xuan-cup-2026' AND (banner IS NULL OR banner LIKE '/uploads/%')");
+    await db.run("UPDATE events SET banner = '/static/img/events/super-cup-tiep-suc-2026.svg' WHERE slug = 'super-cup-tiep-suc-2026' AND (banner IS NULL OR banner LIKE '/uploads/%')");
+    await db.run("UPDATE events SET banner = '/static/img/events/giai-vo-dich-quoc-gia-2026.svg' WHERE slug = 'giai-vo-dich-quoc-gia-2026' AND (banner IS NULL OR banner LIKE '/uploads/%')");
+
+    await db.run("UPDATE divisions SET banner = '/static/img/divisions/doi-nam-6-5.svg' WHERE name = 'Đôi nam 6.5' AND (banner IS NULL OR banner LIKE '/uploads/%')");
+    await db.run("UPDATE divisions SET banner = '/static/img/divisions/doi-nam-nu-5-8.svg' WHERE name = 'Đôi nam nữ 5.8' AND (banner IS NULL OR banner LIKE '/uploads/%')");
+    await db.run("UPDATE divisions SET banner = '/static/img/divisions/doi-nam-newbie.svg' WHERE name LIKE 'Đôi nam Newbie%' AND (banner IS NULL OR banner LIKE '/uploads/%')");
+    await db.run("UPDATE divisions SET banner = '/static/img/divisions/doi-nam-nu-hon-hop-5-5.svg' WHERE name LIKE 'Đôi nam nữ hỗn hợp%' AND (banner IS NULL OR banner LIKE '/uploads/%')");
+    await db.run("UPDATE divisions SET banner = '/static/img/divisions/doi-nu-3-0.svg' WHERE name LIKE 'Đôi nữ 3.0%' AND (banner IS NULL OR banner LIKE '/uploads/%')");
+    await db.run("UPDATE divisions SET banner = '/static/img/divisions/dong-doi-tiep-suc-master.svg' WHERE name LIKE 'Đồng đội tiếp sức%' AND (banner IS NULL OR banner LIKE '/uploads/%')");
+
+    await db.run("UPDATE partners SET logo = '/static/img/partners/joola.svg' WHERE name LIKE 'Joola%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
+    await db.run("UPDATE partners SET logo = '/static/img/partners/selkirk.svg' WHERE name LIKE 'Selkirk%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
+    await db.run("UPDATE partners SET logo = '/static/img/partners/franklin.svg' WHERE name LIKE 'Franklin%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
+    await db.run("UPDATE partners SET logo = '/static/img/partners/crbn.svg' WHERE name LIKE 'CRBN%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
+    await db.run("UPDATE partners SET logo = '/static/img/partners/revive.svg' WHERE name LIKE 'Nước uống%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
+    await db.run("UPDATE partners SET logo = '/static/img/partners/vietcombank.svg' WHERE name LIKE 'Ngân hàng%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
+    await db.run("UPDATE partners SET logo = '/static/img/partners/thethao.svg' WHERE name LIKE 'Quỹ%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
+    console.log('✔ Đồng bộ đường dẫn banner & logo static cho Vercel.');
+  } catch (err) {
+    console.warn('⚠ Không thể cập nhật banner static:', err.message);
+  }
+
   await db.close();
 })().catch((err) => {
   console.error(err);

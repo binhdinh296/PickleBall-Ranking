@@ -10,7 +10,28 @@
   <!-- Cover Image with Grand Vignette -->
   <a class="cover" href="/giai-dau/<%= e.slug %>" aria-label="<%= e.name %>">
     <% if (e.banner) { %><img src="<%= e.banner %>" alt="<%= e.name %>" loading="lazy"><% } else { %>
-    <svg viewBox="0 0 400 200" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"><polygon points="120,34 280,34 362,200 38,200"/><line x1="98" y1="78" x2="302" y2="78"/><line x1="82" y1="112" x2="318" y2="112"/></g></svg>
+    <svg viewBox="0 0 400 200" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <radialGradient id="fc-glow-<%= e.id %>" cx="80%" cy="20%" r="75%">
+          <stop offset="0%" stop-color="#14B8A6" stop-opacity=".45"/>
+          <stop offset="100%" stop-color="#070B14"/>
+        </radialGradient>
+      </defs>
+      <rect width="400" height="200" fill="url(#fc-glow-<%= e.id %>)"/>
+      <g fill="none" stroke="rgba(255,255,255,.28)" stroke-width="1.8">
+        <polygon points="120,34 280,34 362,200 38,200"/>
+        <line x1="98" y1="78" x2="302" y2="78"/>
+        <line x1="82" y1="112" x2="318" y2="112"/>
+        <line x1="200" y1="34" x2="200" y2="78"/>
+        <line x1="200" y1="112" x2="200" y2="200"/>
+      </g>
+      <circle cx="310" cy="52" r="14" fill="#D4F53C"/>
+      <g fill="#3A4A00" fill-opacity=".45">
+        <circle cx="306" cy="48" r="2.2"/>
+        <circle cx="314" cy="50" r="2.2"/>
+        <circle cx="309" cy="56" r="2.2"/>
+      </g>
+    </svg>
     <% } %>
     <div class="cover-overlay"></div>
 

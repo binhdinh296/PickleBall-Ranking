@@ -19,7 +19,28 @@
       <div class="hero-ambient-glow" aria-hidden="true"></div>
       <div class="event-hero luxury-hero">
         <% if (ev.banner) { %><img src="<%= ev.banner %>" alt="Banner <%= ev.name %>"><% } else { %>
-        <svg viewBox="0 0 800 380" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.22)" stroke-width="2"><polygon points="250,60 550,60 720,380 80,380"/><line x1="206" y1="150" x2="594" y2="150"/><line x1="180" y1="210" x2="620" y2="210"/></g></svg>
+        <svg viewBox="0 0 800 380" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <radialGradient id="ev-glow-<%= ev.id %>" cx="80%" cy="20%" r="75%">
+              <stop offset="0%" stop-color="#14B8A6" stop-opacity=".45"/>
+              <stop offset="100%" stop-color="#070B14"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="380" fill="url(#ev-glow-<%= ev.id %>)"/>
+          <g fill="none" stroke="rgba(255,255,255,.28)" stroke-width="2.5">
+            <polygon points="250,60 550,60 720,380 80,380"/>
+            <line x1="206" y1="150" x2="594" y2="150"/>
+            <line x1="180" y1="210" x2="620" y2="210"/>
+            <line x1="400" y1="60" x2="400" y2="150"/>
+            <line x1="400" y1="210" x2="400" y2="380"/>
+          </g>
+          <circle cx="620" cy="100" r="28" fill="#D4F53C"/>
+          <g fill="#3A4A00" fill-opacity=".45">
+            <circle cx="612" cy="92" r="4.5"/>
+            <circle cx="628" cy="96" r="4.5"/>
+            <circle cx="618" cy="108" r="4.5"/>
+          </g>
+        </svg>
         <% } %>
         <div class="hero-glass-vignette"></div>
 

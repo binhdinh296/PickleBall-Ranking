@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#070B14"/><stop offset=".6" stop-color="#0C1A2A"/><stop offset="1" stop-color="#062320"/></linearGradient>
+    <radialGradient id="glow1" cx=".85" cy=".1" r=".6"><stop offset="0" stop-color="#0EA5E9" stop-opacity=".55"/><stop offset="1" stop-color="#0EA5E9" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glow2" cx=".1" cy=".95" r=".5"><stop offset="0" stop-color="#84CC16" stop-opacity=".35"/><stop offset="1" stop-color="#84CC16" stop-opacity="0"/></radialGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#84CC16"/><stop offset="1" stop-color="#0EA5E9"/></linearGradient>
+    <linearGradient id="kit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#84CC16" stop-opacity=".5"/><stop offset="1" stop-color="#84CC16" stop-opacity=".1"/></linearGradient>
+    <radialGradient id="ball" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".4" stop-color="#D4F53C"/><stop offset="1" stop-color="#7A9A10"/></radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/><rect width="1600" height="900" fill="url(#glow1)"/><rect width="1600" height="900" fill="url(#glow2)"/>
+  <g transform="translate(860 240)">
+    <polygon points="160,60 560,60 700,620 20,620" fill="#0EA5E9" fill-opacity=".38"/>
+    <polygon points="118,230 602,230 640,390 80,390" fill="url(#kit)"/>
+    <g fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="5"><polygon points="160,60 560,60 700,620 20,620"/><line x1="118" y1="230" x2="602" y2="230"/><line x1="80" y1="390" x2="640" y2="390"/><line x1="360" y1="60" x2="360" y2="230"/><line x1="360" y1="390" x2="360" y2="620"/></g>
+    <line x1="98" y1="310" x2="622" y2="310" stroke="#fff" stroke-width="8"/>
+    <path d="M140 560 Q 300 -60 520 140" fill="none" stroke="#D4F53C" stroke-opacity=".8" stroke-width="5" stroke-dasharray="4 18" stroke-linecap="round"/>
+    <circle cx="520" cy="140" r="44" fill="url(#ball)"/>
+    <g fill="#3A4A00" fill-opacity=".5"><circle cx="506" cy="124" r="6"/><circle cx="530" cy="118" r="6"/><circle cx="540" cy="146" r="6"/><circle cx="512" cy="156" r="6"/></g>
+  </g>
+  <rect x="100" y="135" width="230" height="52" rx="26" fill="url(#title)"/>
+  <text x="215" y="170" text-anchor="middle" font-family="'Be Vietnam Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="800" fill="#06120E" letter-spacing="3">PICKLEBALL</text>
+  <text x="100" y="275" font-family="'Be Vietnam Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="96" font-weight="800" fill="url(#title)" letter-spacing="-2">SUPER CUP ĐỒNG ĐỘI</text><text x="100" y="385" font-family="'Be Vietnam Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="96" font-weight="800" fill="url(#title)" letter-spacing="-2">TIẾP SỨC 2026</text>
+  <text x="100" y="505" font-family="'Be Vietnam Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="34" font-weight="600" fill="#fff" fill-opacity=".8">01/10/2026 – 02/10/2026  ·  CLB Sài Gòn Dinker, TP. Hồ Chí Minh</text>
+</svg>
