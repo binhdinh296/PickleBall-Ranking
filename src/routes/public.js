@@ -19,6 +19,17 @@ async function featuredEvents(limit) {
     e.status = fmt.eventStatus(e);
     e.divisionCount = (await get('SELECT COUNT(*) AS c FROM divisions WHERE event_id = ?', e.id)).c;
     e.liveCount = (await get("SELECT COUNT(*) AS c FROM live_streams WHERE event_id = ? AND status = 'live'", e.id)).c;
+    e.regCount = (await get('SELECT COUNT(*) AS c FROM registrations r JOIN divisions d ON d.id = r.division_id WHERE d.event_id = ?', e.id)).c;
+    const divs = await all('SELECT prizes FROM divisions WHERE event_id = ?', e.id);
+    let totalCash = 0;
+    for (const d of divs) {
+      const list = Array.isArray(d.prizes) ? d.prizes : [];
+      for (const p of list) {
+        const num = parseInt(String(p.amount || '').replace(/\D/g, ''), 10);
+        if (num) totalCash += num;
+      }
+    }
+    e.totalPrize = totalCash ? fmt.money(totalCash) + ' đ' : null;
   }
   return events;
 }

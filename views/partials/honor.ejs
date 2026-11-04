@@ -1,9 +1,51 @@
-<% if (h) { %>
-<div class="honor <%= cls %>">
-  <span class="medal <%= h.place === 1 ? 'gold-text' : 'muted' %>"><%= label %></span>
-  <span class="names">
-    <% if (h.athlete1_id) { %><a href="/vdv/<%= h.athlete1_id %>"><%= h.name1 %></a><% } else { %><%= h.name1 %><% } %>
-    <% if (h.name2) { %><br><% if (h.athlete2_id) { %><a href="/vdv/<%= h.athlete2_id %>"><%= h.name2 %></a><% } else { %><%= h.name2 %><% } %><% } %>
-  </span>
+<% if (h) { 
+  const is1st = h.place === 1;
+  const is2nd = h.place === 2;
+%>
+<div class="honor-podium <%= cls %> <%= is1st ? 'podium-1st' : is2nd ? 'podium-2nd' : 'podium-3rd' %>">
+  <div class="podium-aura" aria-hidden="true"></div>
+  
+  <div class="podium-avatar-wrap">
+    <% if (is1st) { %><span class="podium-crown" title="Vô địch" aria-hidden="true">👑</span><% } %>
+    <div class="podium-avatars <%= h.name2 ? 'has-pair' : '' %>">
+      <% if (h.avatar1) { %>
+        <img class="podium-avatar" src="<%= h.avatar1 %>" alt="<%= h.name1 %>">
+      <% } else { %>
+        <span class="podium-avatar podium-avatar-ph"><%= (h.name1 || '?').slice(0, 2).toUpperCase() %></span>
+      <% } %>
+      <% if (h.name2) { %>
+        <% if (h.avatar2) { %>
+          <img class="podium-avatar podium-avatar-2" src="<%= h.avatar2 %>" alt="<%= h.name2 %>">
+        <% } else { %>
+          <span class="podium-avatar podium-avatar-2 podium-avatar-ph"><%= (h.name2 || '?').slice(0, 2).toUpperCase() %></span>
+        <% } %>
+      <% } %>
+    </div>
+    <span class="podium-medal-badge <%= is1st ? 'mb-gold' : is2nd ? 'mb-silver' : 'mb-bronze' %>">
+      <%= is1st ? '🥇' : is2nd ? '🥈' : '🥉' %>
+    </span>
+  </div>
+
+  <div class="podium-stand">
+    <span class="podium-rank-tag"><%= is1st ? 'VÔ ĐỊCH' : is2nd ? 'Á QUÂN' : 'ĐỒNG HẠNG BA' %></span>
+    <div class="podium-names">
+      <% if (h.athlete1_id) { %>
+        <a class="p-link" href="/vdv/<%= h.athlete1_id %>"><strong><%= h.name1 %></strong></a>
+      <% } else { %>
+        <strong><%= h.name1 %></strong>
+      <% } %>
+      <% if (h.name2) { %>
+        <span class="p-sep">&amp;</span>
+        <% if (h.athlete2_id) { %>
+          <a class="p-link" href="/vdv/<%= h.athlete2_id %>"><strong><%= h.name2 %></strong></a>
+        <% } else { %>
+          <strong><%= h.name2 %></strong>
+        <% } %>
+      <% } %>
+    </div>
+    <div class="podium-pedestal">
+      <span class="pedestal-num"><%= h.place %></span>
+    </div>
+  </div>
 </div>
 <% } %>

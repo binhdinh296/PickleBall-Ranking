@@ -16,6 +16,17 @@ router.get('/', wrap(async (req, res) => {
     e.status = fmt.eventStatus(e);
     e.divisionCount = (await get('SELECT COUNT(*) AS c FROM divisions WHERE event_id = ?', e.id)).c;
     e.liveCount = (await get("SELECT COUNT(*) AS c FROM live_streams WHERE event_id = ? AND status = 'live'", e.id)).c;
+    e.regCount = (await get('SELECT COUNT(*) AS c FROM registrations r JOIN divisions d ON d.id = r.division_id WHERE d.event_id = ?', e.id)).c;
+    const divs = await all('SELECT prizes FROM divisions WHERE event_id = ?', e.id);
+    let totalCash = 0;
+    for (const d of divs) {
+      const list = Array.isArray(d.prizes) ? d.prizes : [];
+      for (const p of list) {
+        const num = parseInt(String(p.amount || '').replace(/\D/g, ''), 10);
+        if (num) totalCash += num;
+      }
+    }
+    e.totalPrize = totalCash ? fmt.money(totalCash) + ' đ' : null;
     groups[e.status].push(e);
   }
   groups.upcoming.reverse();
@@ -42,7 +53,24 @@ function pickDivision(ev, q) {
 
 router.get('/:slug', wrap(loadEvent), wrap(async (req, res) => {
   const ev = req.event;
-  const honors = await all(`SELECT h.* FROM honors h JOIN divisions d ON d.id = h.division_id WHERE d.event_id = ?
+  ev.regCount = (await get('SELECT COUNT(*) AS c FROM registrations r JOIN divisions d ON d.id = r.division_id WHERE d.event_id = ?', ev.id)).c;
+  let totalCash = 0;
+  for (const d of ev.divisions) {
+    const list = Array.isArray(d.prizes) ? d.prizes : [];
+    for (const p of list) {
+      const num = parseInt(String(p.amount || '').replace(/\D/g, ''), 10);
+      if (num) totalCash += num;
+    }
+  }
+  ev.totalPrize = totalCash ? fmt.money(totalCash) + ' đ' : null;
+
+  const honors = await all(`SELECT h.*,
+      a1.avatar AS avatar1, a1.nickname AS nick1, a1.points AS points1, a1.gender AS gender1,
+      a2.avatar AS avatar2, a2.nickname AS nick2, a2.points AS points2, a2.gender AS gender2
+    FROM honors h
+    LEFT JOIN athletes a1 ON a1.id = h.athlete1_id
+    LEFT JOIN athletes a2 ON a2.id = h.athlete2_id
+    JOIN divisions d ON d.id = h.division_id WHERE d.event_id = ?
     ORDER BY d.sort_order, d.id, h.place, h.sort_order`, ev.id);
   const honorDivisions = ev.divisions.filter((d) => honors.some((h) => h.division_id === d.id))
     .map((d) => ({ ...d, honors: honors.filter((h) => h.division_id === d.id) }));
