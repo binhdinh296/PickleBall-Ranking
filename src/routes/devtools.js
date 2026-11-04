@@ -16,11 +16,14 @@ const TEST_USERS = {
 };
 
 function enabled() {
-  // Không bao giờ bật trên Vercel: sau proxy của Vercel, IP kết nối không phản ánh đúng máy người dùng
-  return !IS_PROD && !IS_VERCEL && process.env.TEST_PANEL !== '0';
+  // Cho phép bật trên Vercel / môi trường test (tắt bằng TEST_PANEL=0 hoặc ENABLE_DEVTOOLS=0)
+  if (process.env.TEST_PANEL === '0' || process.env.ENABLE_DEVTOOLS === '0') return false;
+  return true;
 }
 
 function isLocal(req) {
+  // Khi devtools được bật, cho phép sử dụng nút chuyển vai trò (kể cả trên Vercel/Cloud)
+  if (enabled()) return true;
   const ip = String(req.socket.remoteAddress || '');
   return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
 }

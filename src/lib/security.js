@@ -92,8 +92,8 @@ function rateLimit({ windowMs, max, message = 'Bạn thao tác quá nhanh, vui l
   };
 }
 
-// Ở dev, bảng test (/dev) cần nhúng chính các trang của site vào khung
-const DEV_FRAMING = !IS_PROD && process.env.TEST_PANEL !== '0';
+// Ở dev hoặc khi bật devtools, bảng test (/dev) cần nhúng chính các trang của site vào khung
+const DEV_FRAMING = process.env.TEST_PANEL !== '0' && process.env.ENABLE_DEVTOOLS !== '0';
 
 function securityHeaders(req, res, next) {
   const overlay = req.path.startsWith('/overlay/');
