@@ -127,17 +127,17 @@
 }
 
 /* ==========================================================================
-   Hero phong cách thể thao cao cấp (Luxury Sports & Compact Broadcast):
-   - Giảm chiều cao tổng thể để lộ ngay mục VĐV nổi bật
-   - Thiết kế sang chảnh, chuẩn Grand Slam VIP: viền kính mờ, ánh kim Champagne Gold & Emerald
-   - Tuyệt đối không dùng chữ nghiêng hoặc skew lệch arcade
+   Hero phong cách thể thao cao cấp (Titanium Cyber-Court & Glass Tournament HUD):
+   - Tuyệt đối đồng bộ màu sắc thương hiệu (Midnight Obsidian, Court Teal, Electric Lime)
+   - Thiết kế sang chảnh, tinh tế chuẩn thế giới: kính mờ obsidian, viền dạ quang cyan, typography tương phản cao
+   - Chiều cao siêu gọn, không dùng chữ in nghiêng
    ========================================================================== */
 .hero-sport { position: relative; overflow: hidden; isolation: isolate; }
 .hero-sport::before {
   content: ""; position: absolute; inset: 0; z-index: -2; pointer-events: none;
   background:
-    radial-gradient(750px circle at 82% 40%, rgba(20, 184, 166, 0.12), transparent 70%),
-    radial-gradient(550px circle at 16% 32%, rgba(230, 194, 122, 0.08), transparent 65%),
+    radial-gradient(750px circle at 80% 38%, rgba(20, 184, 166, 0.15), transparent 70%),
+    radial-gradient(550px circle at 15% 45%, rgba(212, 245, 60, 0.05), transparent 65%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
   -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
   mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
@@ -149,91 +149,91 @@
 }
 .hero-bigball {
   position: absolute; width: min(55vw, 440px); left: -10%; bottom: -24%;
-  color: rgba(230, 194, 122, 0.04);
+  color: rgba(20, 184, 166, 0.04);
   animation: bigball 90s linear infinite;
 }
 @keyframes bigball { to { transform: rotate(1turn); } }
 
-/* Tag Mùa giải / Eyebrow phong cách thẻ VIP */
+/* Tag Mùa giải / Eyebrow phong cách thẻ VIP chuẩn màu thương hiệu */
 .hero-sport .hero-tag {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 3.5px 12px 3.5px 4.5px; border-radius: 999px;
-  background: rgba(11, 19, 32, 0.85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(12, 20, 32, 0.85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(20, 184, 166, 0.32);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   align-self: flex-start; max-width: 100%;
 }
 .hero-sport .hero-tag .chip-brand {
-  background: linear-gradient(135deg, #FBF0D9 0%, #E6C27A 45%, #B8933E 100%);
-  color: #171203; font-weight: 800; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  background: linear-gradient(110deg, var(--ball) 0%, var(--court) 100%);
+  color: #06140E; font-weight: 800; font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase;
   padding: 2.5px 9px; border-radius: 999px; border: none;
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.35); white-space: nowrap; flex: none;
+  box-shadow: 0 2px 8px rgba(20, 184, 166, 0.4); white-space: nowrap; flex: none;
 }
 .hero-sport .hero-tag .clip {
-  color: #CBD5E1; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; white-space: nowrap;
+  color: #E2E8F0; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; white-space: nowrap;
 }
 
-/* Tiêu đề gọn, sang trọng, không lệch/skew */
+/* Tiêu đề gọn, sang trọng, tương phản cao */
 .hero .hero-title {
   font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif;
   font-style: normal; font-weight: 800; text-transform: uppercase;
   font-size: clamp(28px, 3.4vw, 44px); line-height: 1.08; letter-spacing: 0.01em;
-  color: #FFFFFF; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
+  color: #FFFFFF; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
   overflow-wrap: anywhere; margin: 0; padding: 0;
 }
 .hero-title .grad-text {
-  background: linear-gradient(135deg, #FFF8E7 0%, #F5DEB3 25%, #E6C27A 50%, #14B8A6 82%, #059669 100%);
+  background: linear-gradient(110deg, #FFFFFF 0%, #D4F53C 35%, #14B8A6 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  filter: drop-shadow(0 2px 14px rgba(230, 194, 122, 0.32));
+  filter: drop-shadow(0 2px 18px rgba(20, 184, 166, 0.38));
   padding-right: 0;
 }
 .hero-title .dink {
-  position: relative; display: inline-block; padding: 0 .14em; margin: 0 .04em; color: #121008; z-index: 0;
+  position: relative; display: inline-block; padding: 0 .14em; margin: 0 .04em; color: #06140E; z-index: 0;
 }
 .hero-title .dink::before {
   content: ''; position: absolute; inset: .12em 0 .04em; z-index: -1;
-  background: linear-gradient(135deg, #FFF0CA 0%, #D4AF37 50%, #B8933E 100%);
-  border-radius: 5px; box-shadow: 0 4px 16px rgba(212, 175, 55, 0.4);
+  background: linear-gradient(110deg, var(--ball), var(--court));
+  border-radius: 5px; box-shadow: 0 4px 16px rgba(20, 184, 166, 0.45);
 }
 .hero-title .dink::after { display: none; }
 
 /* Nút hành động phong cách VIP */
 .btn-sport {
   border-radius: 999px; transform: none; font-weight: 700; font-size: 14.5px;
-  min-height: 42px; padding: 0 22px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 24px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   letter-spacing: 0.01em; transition: transform .2s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
 }
 .btn-sport:active { transform: scale(.98); }
 .hero-sport .btn-brand.btn-sport {
-  background: linear-gradient(135deg, #10B981 0%, #059669 60%, #047857 100%);
-  color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 4px 18px -2px rgba(16, 185, 129, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  background: linear-gradient(110deg, var(--ball) 0%, var(--court) 100%);
+  color: #06140E; border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 20px -2px rgba(20, 184, 166, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 .hero-sport .btn-brand.btn-sport:hover {
   transform: translateY(-1.5px);
-  box-shadow: 0 8px 26px -2px rgba(16, 185, 129, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  background: linear-gradient(135deg, #34D399 0%, #10B981 60%, #059669 100%);
-  color: #FFFFFF;
+  box-shadow: 0 8px 28px -2px rgba(212, 245, 60, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  background: linear-gradient(110deg, #E2FC6A 0%, #20D4C0 100%);
+  color: #06140E;
 }
 .hero-sport .btn.btn-sport:not(.btn-brand) {
-  background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(212, 175, 55, 0.32); color: #F8FAFC;
+  background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(20, 184, 166, 0.28); color: #F8FAFC;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 .hero-sport .btn.btn-sport:not(.btn-brand):hover {
-  transform: translateY(-1.5px); background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(212, 175, 55, 0.65); color: #FFFFFF;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 14px rgba(212, 175, 55, 0.25);
+  transform: translateY(-1.5px); background: rgba(20, 184, 166, 0.1);
+  border-color: rgba(20, 184, 166, 0.65); color: #FFFFFF;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 16px rgba(20, 184, 166, 0.25);
 }
 
-/* Sân đấu tỉ lệ góc rộng (panoramic 560 / 375), khung obsidian kính mờ */
+/* Sân đấu tỉ lệ góc rộng (panoramic 560 / 370), khung kính mờ dạ quang teal */
 .court-sport {
-  aspect-ratio: 560 / 375; background: linear-gradient(165deg, #0A171D 0%, #050E12 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px;
+  aspect-ratio: 560 / 370; background: linear-gradient(165deg, #09151C 0%, #050E13 100%);
+  border: 1px solid rgba(20, 184, 166, 0.28); border-radius: 18px;
   box-shadow:
     0 24px 60px -12px rgba(0, 0, 0, 0.85),
-    0 0 35px -5px rgba(16, 185, 129, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    0 0 35px -5px rgba(20, 184, 166, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
   position: relative; overflow: hidden;
 }
 .court-sport .rally { width: 100%; height: 100%; display: block; }
@@ -241,34 +241,34 @@
   position: absolute; left: 12px; top: 11px; font-size: 10px; font-weight: 700; letter-spacing: .1em;
   text-transform: uppercase; color: #94A3B8; background: rgba(6, 12, 18, 0.75);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1); padding: 4px 9px; border-radius: 999px;
+  border: 1px solid rgba(20, 184, 166, 0.2); padding: 4px 9px; border-radius: 999px;
   max-width: calc(100% - 24px); overflow-wrap: anywhere; z-index: 2;
 }
 
 /* Bảng tỉ số phát sóng trực tiếp (Score Bug) */
 .score-bug {
-  position: absolute; bottom: -4px; left: -8px; width: min(242px, calc(100% - 16px)); padding: 0;
+  position: absolute; bottom: -6px; left: -8px; width: min(242px, calc(100% - 16px)); padding: 0;
   overflow: hidden; display: flex; flex-direction: column;
-  background: rgba(7, 13, 22, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 13px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6), 0 0 24px rgba(16, 185, 129, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  z-index: 3; text-decoration: none; transition: transform .25s ease, box-shadow .25s ease;
+  background: rgba(7, 14, 24, 0.94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(20, 184, 166, 0.3); border-radius: 13px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6), 0 0 24px rgba(20, 184, 166, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  z-index: 3; text-decoration: none; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
 }
 .score-bug:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px); border-color: rgba(20, 184, 166, 0.6);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(20, 184, 166, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .sb-head {
   display: flex; align-items: center; gap: 8px; padding: 5px 10px;
-  background: linear-gradient(110deg, #10B981 0%, #059669 100%); color: #FFFFFF;
+  background: rgba(20, 184, 166, 0.16); border-bottom: 1px solid rgba(20, 184, 166, 0.22); color: #FFFFFF;
   font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
 }
 .sb-live {
-  display: inline-flex; align-items: center; gap: 5px; background: #E11D48; color: #FFFFFF;
+  display: inline-flex; align-items: center; gap: 5px; background: #FF4757; color: #FFFFFF;
   padding: 1.5px 6px; border-radius: 4px; font-size: 9.5px; font-weight: 800;
-  box-shadow: 0 0 8px rgba(225, 29, 72, 0.6);
+  box-shadow: 0 0 8px rgba(255, 71, 87, 0.6);
 }
-.sb-meta { color: rgba(255, 255, 255, 0.92); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-meta { color: #CBD5E1; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sb-row {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   padding: 5px 10px 5px 13px; position: relative; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.75);
@@ -279,42 +279,42 @@
   border-radius: 0 3px 3px 0; background: rgba(255, 255, 255, 0.15);
 }
 .sb-row.lead { color: #FFFFFF; }
-.sb-row.lead::before { background: #10B981; }
+.sb-row.lead::before { background: var(--ball); }
 .sb-name { min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
 .sb-score {
   font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800;
   font-size: 20px; line-height: 1; font-variant-numeric: tabular-nums; min-width: 24px; text-align: right;
 }
-.sb-row.lead .sb-score { color: #10B981; }
-.sb-cta { padding: 5px 10px 6px; font-size: 11px; font-weight: 700; color: #10B981; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.sb-row.lead .sb-score { color: var(--ball); }
+.sb-cta { padding: 5px 10px 6px; font-size: 11px; font-weight: 700; color: var(--court); border-top: 1px solid rgba(255, 255, 255, 0.08); }
 
 /* Thẻ số 1 VIP Bảng xếp hạng (Top Bug) */
 .top-bug {
-  position: absolute; top: -8px; right: -6px; display: flex; align-items: center; gap: 10px;
-  padding: 7px 14px 7px 10px; background: rgba(9, 15, 26, 0.9);
+  position: absolute; top: -10px; right: -8px; display: flex; align-items: center; gap: 10px;
+  padding: 7px 14px 7px 11px; background: rgba(9, 17, 28, 0.92);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(212, 175, 55, 0.45); border-radius: 14px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 20px -2px rgba(212, 175, 55, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(20, 184, 166, 0.35); border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 20px -2px rgba(20, 184, 166, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   z-index: 3; max-width: calc(100% - 16px); text-decoration: none;
   transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
 }
 .top-bug:hover {
-  transform: translateY(-2px); border-color: rgba(212, 175, 55, 0.8);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 26px rgba(212, 175, 55, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px); border-color: rgba(20, 184, 166, 0.75);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 26px rgba(20, 184, 166, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 .tb-rank {
   font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800;
   font-size: 26px; line-height: 1;
-  background: linear-gradient(135deg, #FFF9E6 0%, #E6C27A 50%, #B8933E 100%);
+  background: linear-gradient(120deg, #FFFFFF 0%, #D4F53C 55%, #14B8A6 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0;
 }
 .top-bug .avatar {
   --s: 34px !important; border-radius: 50%;
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.45); flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.45); flex-shrink: 0;
 }
-.tb-label { font-size: 9.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #E6C27A; }
+.tb-label { font-size: 9.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #5EEAD4; }
 .top-bug strong { font-size: 13.5px; font-weight: 700; color: #FFFFFF; line-height: 1.25; }
-.tb-pts { font-size: 11.5px; font-weight: 600; color: #94A3B8; font-variant-numeric: tabular-nums; }
+.tb-pts { font-size: 11.5px; font-weight: 700; color: var(--ball); font-variant-numeric: tabular-nums; }
 
 @media (prefers-reduced-motion: reduce) { .hero-bigball { animation: none; } }
 
@@ -424,7 +424,7 @@
   .hero-sport .score-bug { bottom: -4px; left: -8px; }
   .hero-sport .hero-features { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: #94A3B8; font-weight: 600; margin-top: 2px; }
   .hero-sport .hero-features span { display: inline-flex; align-items: center; gap: 7px; }
-  .hero-sport .hero-features svg { width: 15px; height: 15px; color: #E6C27A; flex-shrink: 0; }
+  .hero-sport .hero-features svg { width: 15px; height: 15px; color: var(--court); flex-shrink: 0; }
   .paddles-section { padding-top: clamp(16px, 2.5vh, 28px); }
   .paddles-section .section-head { margin-bottom: 0; }
   .paddles-section .paddle-track { padding-top: 36px; }

@@ -46,7 +46,7 @@
       <% if (first) { %>
       <a class="float-card top-bug" href="/vdv/<%= first.id %>">
         <span class="tb-rank">#1</span>
-        <%- include('../partials/avatar', { a: first, tone: 'gold', size: 44 }) %>
+        <%- include('../partials/avatar', { a: first, size: 44 }) %>
         <span class="stack" style="--gap: 0; min-width: 0;"><span class="tb-label">Số 1 bảng xếp hạng</span><strong class="clip"><%= first.full_name %></strong><span class="tb-pts"><%= fmt.pts(first.points) %> điểm</span></span>
       </a>
       <% } %>
