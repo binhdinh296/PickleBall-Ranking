@@ -1,17 +1,15 @@
 <%
-  // Vợt và bóng mang chất liệu theo hạng: Kim cương, Bạch kim, Vàng, Bạc, Đồng, Sắt
-  const tier = a.tier;
   const delta = a.lastDelta ? `${a.lastDelta > 0 ? '▲' : '▼'} ${fmt.signedPts(a.lastDelta).slice(1)}` : '—';
 %>
 <li class="paddle-slot" data-slot>
-  <article class="paddle tier-<%= tier.key %>" data-paddle>
+  <article class="paddle" data-paddle>
     <div class="paddle-head">
       <span class="paddle-face" aria-hidden="true">
         <% if (a.avatar) { %><img src="<%= a.avatar %>" alt="" loading="<%= i < 5 ? 'eager' : 'lazy' %>"><% } else { %><span class="paddle-initials"><%= fmt.initials(a.full_name) %></span><% } %>
         <span class="paddle-shade"></span>
         <span class="paddle-lines"></span>
       </span>
-      <button type="button" class="paddle-hit" aria-expanded="false" aria-controls="pinfo-<%= a.id %>" aria-label="Xem thông tin <%= a.full_name %>, hạng <%= a.rank %>, hạng huy hiệu <%= tier.label %>"></button>
+      <button type="button" class="paddle-hit" aria-expanded="false" aria-controls="pinfo-<%= a.id %>" aria-label="Xem thông tin <%= a.full_name %>, hạng <%= a.rank %>"></button>
       <span class="paddle-ball" aria-hidden="true"><span><%= fmt.pad2(a.rank) %></span></span>
       <span class="paddle-caption" aria-hidden="true">
         <strong class="p-name"><%= a.full_name %></strong>

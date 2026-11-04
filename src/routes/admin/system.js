@@ -3,7 +3,6 @@ const { all, get, run } = require('../../db');
 const phoneLib = require('../../lib/phone');
 const otp = require('../../lib/otp');
 const { DEFAULTS, getSettings, saveSettings, isHex } = require('../../lib/settings');
-const { TIER_SETTINGS } = require('../../lib/tiers');
 const { upload, saveImage, removeUpload, fileOf } = require('../../lib/upload');
 const { verifyCsrf, requireRole, audit, hashPassword, passwordProblem } = require('../../lib/security');
 
@@ -65,12 +64,9 @@ router.post('/cau-hinh', admin, wrap(async (req, res) => {
     if (values[k] && !/^https?:\/\//.test(values[k])) return fail('Các link mạng xã hội/chính sách phải bắt đầu bằng http:// hoặc https://');
   }
   for (const k of ['min_points_male', 'min_points_female', 'newbie_exit_male', 'newbie_exit_female', 'lock_margin', 'featured_count',
-    'otp_ttl_seconds', 'otp_cooldown_seconds', 'otp_daily_limit', 'otp_max_attempts', ...TIER_SETTINGS]) {
+    'otp_ttl_seconds', 'otp_cooldown_seconds', 'otp_daily_limit', 'otp_max_attempts']) {
     if (!/^\d{1,6}$/.test(String(values[k] || '').trim())) return fail('Các ngưỡng số phải là số nguyên dương.');
   }
-  // Ngưỡng hạng phải giảm dần: Kim cương > Bạch kim > Vàng > Bạc > Đồng
-  const tierMins = TIER_SETTINGS.map((k) => Number(values[k]));
-  if (tierMins.some((v, i) => i > 0 && v >= tierMins[i - 1])) return fail('Ngưỡng hạng phải giảm dần: Kim cương > Bạch kim > Vàng > Bạc > Đồng.');
   await saveSettings(values);
   await audit(req, 'settings_update');
   req.flash('success', 'Đã lưu cấu hình.');

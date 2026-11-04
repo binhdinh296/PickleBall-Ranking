@@ -5,7 +5,6 @@ const phoneLib = require('../lib/phone');
 const otp = require('../lib/otp');
 const { num, getSettings } = require('../lib/settings');
 const points = require('../lib/points');
-const { tierFor } = require('../lib/tiers');
 const { upload, saveAvatar } = require('../lib/upload');
 const { verifyCsrf, rateLimit } = require('../lib/security');
 
@@ -46,7 +45,6 @@ router.get('/', wrap(async (req, res) => {
       WHERE e.published AND (h.athlete1_id = ? OR h.athlete2_id = ?)`, a.id, a.id)).c;
     const last = await get("SELECT old_points, new_points FROM point_history WHERE athlete_id = ? AND kind <> 'init' ORDER BY created_at DESC, id DESC LIMIT 1", a.id);
     a.lastDelta = last ? last.new_points - last.old_points : 0;
-    a.tier = tierFor(a.points);
   }
 
   res.render('public/home', {
@@ -74,9 +72,7 @@ router.get('/xep-hang', wrap(async (req, res) => {
   // Hạng tính trên toàn bảng (theo giới tính nếu đang lọc), không phụ thuộc từ khóa tìm kiếm
   const rows = await all(`SELECT a.*, (SELECT COUNT(*) FROM athletes b WHERE b.visible ${gender ? 'AND b.gender = a.gender' : ''} AND b.points > a.points) + 1 AS rank
     FROM athletes a WHERE ${whereSql} ORDER BY a.points DESC, a.id LIMIT ? OFFSET ?`, ...params, PAGE_SIZE, (cur - 1) * PAGE_SIZE);
-  for (const a of rows) a.tier = tierFor(a.points);
   const top = await get(`SELECT * FROM athletes WHERE visible ${gender ? 'AND gender = ?' : ''} ORDER BY points DESC, id LIMIT 1`, ...(gender ? [gender] : []));
-  if (top) top.tier = tierFor(top.points);
   res.render('public/ranking', { title: 'Bảng xếp hạng', rows, top, gender, q, page: cur, pages, total });
 }));
 
@@ -101,7 +97,6 @@ router.get('/vdv/:id', wrap(async (req, res, next) => {
   res.render('public/athlete', {
     title: a.full_name, a, hist: hist.slice().reverse(), chart: points.chartData(a, hist),
     lock: points.lockPoints(a), rank: await points.rankOf(a), achievements, matches,
-    tier: tierFor(a.points),
   });
 }));
 

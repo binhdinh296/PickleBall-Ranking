@@ -35,14 +35,6 @@
     </div>
   </div>
   <div class="sub-card">
-    <h2 class="section-title">Hạng huy hiệu (vợt & bóng ở mục VĐV nổi bật)</h2>
-    <p class="small muted">Điểm tối thiểu cho mỗi hạng, đơn vị phần nghìn (3400 = 3.400). Dưới mức Đồng là hạng Sắt.</p>
-    <div class="form-grid three">
-      <%- f('tier_diamond_min', 'Kim cương từ', 'inputmode="numeric"') %><%- f('tier_platinum_min', 'Bạch kim từ', 'inputmode="numeric"') %><%- f('tier_gold_min', 'Vàng từ', 'inputmode="numeric"') %>
-      <%- f('tier_silver_min', 'Bạc từ', 'inputmode="numeric"') %><%- f('tier_bronze_min', 'Đồng từ', 'inputmode="numeric"') %>
-    </div>
-  </div>
-  <div class="sub-card">
     <h2 class="section-title">Số điện thoại & OTP</h2>
     <label class="check"><input type="checkbox" name="otp_enabled" value="1" <%= s.otp_enabled === '1' ? 'checked' : '' %>><span>Bắt buộc xác minh OTP khi gửi đơn chấm trình và đăng ký giải</span></label>
     <div class="form-grid three">

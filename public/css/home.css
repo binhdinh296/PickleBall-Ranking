@@ -377,29 +377,20 @@
 @media (prefers-reduced-motion: reduce) { .hero-bigball { animation: none; } }
 
 /* ==========================================================================
-   Vợt theo hạng: Sắt · Đồng · Bạc · Vàng · Bạch kim · Kim cương
-   Phong cách: kim loại đánh bóng trơn (không hoa văn), đồng bộ đồ họa phát sóng của hero.
+   Vợt VĐV nổi bật: một phong cách thống nhất theo màu thương hiệu (không phân hạng)
    --m-hi/--m-mid/--m-lo: dải kim loại của viền · --glow: quầng sáng dưới vợt
    --b-mid/--b-lo/--b-ink: quả bóng và số · --t-glow: điểm trên ảnh · --t-ink: điểm trên nền thẻ
-   Đổi màu một hạng chỉ cần sửa khối biến của hạng đó.
+   Màu lấy từ --ball / --court nên đổi trong CMS là vợt đổi theo.
    ========================================================================== */
-.paddle { --m-hi: #F1F3F6; --m-mid: #A3ABB8; --m-lo: #4B5361; --glow: transparent;
-  --edge: linear-gradient(155deg, var(--m-hi) 0%, var(--m-mid) 34%, var(--m-lo) 62%, var(--m-mid) 82%, var(--m-hi) 100%); }
-.tier-iron     { --m-hi: #B9BEC6; --m-mid: #6E747E; --m-lo: #30353D; --glow: rgba(120, 128, 140, .28); --b-mid: #9AA0A9; --b-lo: #3A4048; --b-ink: #F4F5F7; --t-glow: #D5D9DF; --t-ink: #8E95A0; }
-.tier-bronze   { --m-hi: #F4CBA7; --m-mid: #B87A4B; --m-lo: #6B3C1E; --glow: rgba(196, 122, 70, .32); --b-mid: #E2A574; --b-lo: #8A4F2A; --b-ink: #2B1508; --t-glow: #F3C29A; --t-ink: #D39260; }
-.tier-silver   { --m-hi: #FFFFFF; --m-mid: #C3CBD4; --m-lo: #6F7A87; --glow: rgba(190, 204, 220, .32); --b-mid: #E9EDF2; --b-lo: #8C97A4; --b-ink: #18202A; --t-glow: #EEF2F6; --t-ink: #B8C2CD; }
-.tier-gold     { --m-hi: #FFF1C4; --m-mid: #DDB45A; --m-lo: #8A6220; --glow: rgba(230, 190, 100, .42); --b-mid: #F6D37A; --b-lo: #A97A22; --b-ink: #2E1E00; --t-glow: #F5D27C; --t-ink: #E6C27A; }
-.tier-platinum { --m-hi: #F2FFFB; --m-mid: #A9DCD2; --m-lo: #4A8C82; --glow: rgba(120, 214, 196, .40); --b-mid: #D8F5EE; --b-lo: #5FA79A; --b-ink: #08302A; --t-glow: #BFF1E6; --t-ink: #7FD3C2; }
-.tier-diamond  { --m-hi: #F4F8FF; --m-mid: #A9C4FF; --m-lo: #5B5FC9; --glow: rgba(140, 150, 255, .50); --b-mid: #E2E9FF; --b-lo: #7B83E8; --b-ink: #15174A; --t-glow: #C9D4FF; --t-ink: #A7B6FF;
-  --edge: linear-gradient(135deg, #F4F8FF 0%, #A9E1FF 22%, #A9C4FF 42%, #D2B8FF 60%, #5B5FC9 80%, #A9E1FF 100%); }
-[data-theme="light"] .tier-iron { --t-ink: #4B5361; }
-[data-theme="light"] .tier-bronze { --t-ink: #8A4F2A; }
-[data-theme="light"] .tier-silver { --t-ink: #5C6774; }
-[data-theme="light"] .tier-gold { --t-ink: #85600F; }
-[data-theme="light"] .tier-platinum { --t-ink: #2E7468; }
-[data-theme="light"] .tier-diamond { --t-ink: #4B4FC0; }
+.paddle, .paddle-horizontal {
+  --m-hi: #F4FFD6; --m-mid: color-mix(in oklab, var(--ball) 55%, var(--court)); --m-lo: color-mix(in oklab, var(--court) 70%, #06302A);
+  --edge: linear-gradient(155deg, #F4FFD6 0%, var(--ball) 26%, color-mix(in oklab, var(--ball) 45%, var(--court)) 52%, var(--court) 78%, #E6FFF6 100%);
+  --glow: color-mix(in oklab, var(--ball) 34%, transparent);
+  --b-mid: color-mix(in oklab, var(--ball) 70%, #FFFFFF); --b-lo: color-mix(in oklab, var(--ball) 62%, #2F4600); --b-ink: #142000;
+  --t-glow: var(--ball); --t-ink: var(--ink-court);
+}
 
-/* Viền mảnh, có đường chỉ sáng mép trong; quầng sáng mềm theo hạng */
+/* Viền mảnh, có đường chỉ sáng mép trong; quầng sáng mềm */
 .paddle .paddle-head { padding: 5px;
   box-shadow: 0 28px 50px -30px rgba(0, 0, 0, .85), 0 18px 46px -22px var(--glow), inset 0 1px 0 rgba(255, 255, 255, .5); }
 .paddle .paddle-face { inset: 5px; }
@@ -419,7 +410,7 @@
 .p-pts small { font-family: 'Be Vietnam Pro', sans-serif; font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255, 255, 255, .66); }
 .pi-pts { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-size: 40px; letter-spacing: 0; }
 
-/* Quả bóng: pickleball thật (lỗ bóng), màu theo hạng, vành mảnh cùng kim loại viền */
+/* Quả bóng: pickleball thật (lỗ bóng), vành mảnh cùng kim loại viền */
 .paddle .paddle-ball { width: 46px; height: 46px; margin-left: -23px; top: -22px;
   background:
     radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .9), transparent 32%),
@@ -427,14 +418,7 @@
     radial-gradient(circle at 50% 50%, var(--b-mid), var(--b-lo));
   box-shadow: 0 0 0 2px var(--m-mid), 0 10px 18px -8px rgba(0, 0, 0, .75), 0 0 18px -4px var(--glow), inset 0 -4px 8px rgba(0, 0, 0, .2); }
 .paddle .paddle-ball span { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800; font-size: 19px; color: var(--b-ink); text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }
-.tier-iron .paddle-ball span { text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
 
-/* Kim cương: ánh sáng lướt chậm trên viền (duy nhất 1 hiệu ứng, không lấp lánh) */
-.tier-diamond .paddle-head, .tier-diamond .paddle-throat, .tier-diamond .paddle-cap, .tier-diamond .p-bar { background-size: 220% 220%; animation: sheen 7s ease-in-out infinite; }
-@keyframes sheen { 0%, 100% { background-position: 0% 40%; } 50% { background-position: 100% 60%; } }
-@media (prefers-reduced-motion: reduce) {
-  .tier-diamond .paddle-head, .tier-diamond .paddle-throat, .tier-diamond .paddle-cap, .tier-diamond .p-bar { animation: none; }
-}
 
 /* Chip ngắn trong dòng giới thiệu hero: giữ 1 dòng, phần chữ bên cạnh mới xuống dòng */
 .hero-tag .chip { white-space: nowrap; flex: none; }

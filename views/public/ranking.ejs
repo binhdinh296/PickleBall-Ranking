@@ -8,9 +8,9 @@
         <h1 class="h1">Bảng xếp hạng <span class="serif grad-text">VĐV</span></h1>
         <p class="muted" style="margin-top: 8px;">Theo dõi điểm ranking và thành tích của các vận động viên.</p>
       </div>
-      <% if (top) { const topTier = top.tier || { key: 'diamond', label: 'Kim cương' }; %>
+      <% if (top) { %>
       <div class="ranking-top-paddle-slot">
-        <a href="/vdv/<%= top.id %>" class="paddle-horizontal tier-<%= topTier.key %>" title="Xem hồ sơ VĐV số 1 bảng xếp hạng: <%= top.full_name %>">
+        <a href="/vdv/<%= top.id %>" class="paddle-horizontal" title="Xem hồ sơ VĐV số 1 bảng xếp hạng: <%= top.full_name %>">
           <!-- Quả bóng pickleball số 01 -->
           <span class="paddle-ball" aria-hidden="true"><span>01</span></span>
 
@@ -69,7 +69,6 @@
         <span class="who">
           <strong style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <%= a.full_name %>
-            <span class="chip chip-tier-<%= a.tier.key %>"><%= a.tier.label %></span>
             <span aria-label="<%= fmt.GENDER_LABEL[a.gender] %>" style="display: inline; color: <%= a.gender === 'F' ? '#F472B6' : '#60A5FA' %>; font-size: 13px;"><%= a.gender === 'F' ? '♀' : '♂' %></span>
           </strong>
           <span><%= [a.nickname, a.club, a.hometown].filter(Boolean).join(' · ') %></span>
