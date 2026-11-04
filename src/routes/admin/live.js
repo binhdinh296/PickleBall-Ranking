@@ -156,8 +156,15 @@ router.post('/livestream/:id/stream-key', admin, wrap(async (req, res) => {
 router.post('/livestream/:id/ket-thuc', editor, wrap(async (req, res) => {
   const s = await get('SELECT * FROM live_streams WHERE id = ?', parseInt(req.params.id, 10) || 0);
   if (!s) { req.flash('error', 'Không tìm thấy buổi phát.'); return res.redirect('/admin/livestream'); }
+  // Hỏi trạng thái THẬT trên YouTube (CSDL có thể chậm tới 1 phút so với YouTube):
+  // tránh trường hợp website ghi "đã kết thúc" + xóa stream key trong khi YouTube vẫn đang phát
+  let neverAired = false;
   try {
-    if (s.via_api && s.status === 'live') await youtube.endBroadcast(s.youtube_video_id);
+    if (s.via_api && s.youtube_video_id) {
+      const st = await youtube.broadcastStatus(s.youtube_video_id);
+      if (st && ['live', 'liveStarting'].includes(st.lifeCycle)) await youtube.endBroadcast(s.youtube_video_id);
+      else if (st && ['created', 'ready', 'testStarting', 'testing'].includes(st.lifeCycle)) neverAired = true;
+    }
   } catch (err) {
     if (!err.expose) throw err;
     req.flash('error', err.message);
@@ -165,7 +172,9 @@ router.post('/livestream/:id/ket-thuc', editor, wrap(async (req, res) => {
   }
   await run("UPDATE live_streams SET status = 'ended', actual_end = COALESCE(actual_end, now()), stream_key_enc = NULL WHERE id = ?", s.id);
   await audit(req, 'stream_end', `stream:${s.id}`);
-  req.flash('success', 'Đã kết thúc buổi phát. YouTube sẽ lưu video trên kênh, website dùng video này cho mục "Xem lại".');
+  req.flash('success', neverAired
+    ? 'Đã kết thúc trên website. Buổi phát chưa từng lên sóng nên YouTube không có video; có thể xóa buổi phát này trong YouTube Studio.'
+    : 'Đã kết thúc buổi phát. YouTube sẽ lưu video trên kênh, website dùng video này cho mục "Xem lại".');
   res.redirect(`/admin/livestream/${s.id}`);
 }));
 

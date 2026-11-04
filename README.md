@@ -172,14 +172,16 @@ Vercel chạy code dạng serverless: không có ổ đĩa ghi được và khô
 
 **Ngày thi đấu:**
 1. Vào CMS › Livestream › *Tạo buổi phát*: mỗi sân, mỗi ngày một buổi.
-2. Trong OBS › Cài đặt › Luồng › *Tùy chỉnh*, dán **Máy chủ RTMP** và **Stream key** lấy ở trang buổi phát.
+2. Trong OBS › Cài đặt › Luồng › *Tùy chỉnh*, dán **Máy chủ** và **Stream key** lấy ở trang buổi phát (chỉ Quản trị viên xem được, mỗi lần xem đều ghi nhật ký). Máy chủ là địa chỉ `rtmps://…` (có mã hóa), không đổi sang `rtmp://`.
 3. Thêm *Browser Source* là link **Lớp tỉ số OBS** (1920×1080) để hiện tỉ số trên hình.
 4. Bắt đầu phát. YouTube tự chuyển trạng thái live, website hiện trình phát ở tab *Trực tiếp*.
-5. Khi kết thúc, YouTube tự lưu video trên kênh. Website dùng video đó cho *Xem lại*, kèm mốc thời gian từng trận (ghi khi trọng tài bấm *Bắt đầu*).
+5. Hết ngày thi đấu: dừng OBS rồi bấm **Kết thúc** ở trang buổi phát trong CMS. Buổi phát **không tự kết thúc** khi mất tín hiệu, để rớt mạng ở sân không làm đứt buổi phát. YouTube tự lưu video trên kênh, website dùng video đó cho *Xem lại*, kèm mốc thời gian từng trận (ghi khi trọng tài bấm *Bắt đầu*).
 
 Lưu ý:
 - YouTube chỉ tự lưu buổi live **dưới 12 giờ**.
-- Chưa kết nối API thì vẫn dùng được: tạo buổi phát trong YouTube Studio rồi chọn *Dán link có sẵn*.
+- Chưa kết nối API thì vẫn dùng được: tạo buổi phát trong YouTube Studio rồi chọn *Dán link có sẵn*. Khi đó tự đổi trạng thái *Đang phát / Đã kết thúc* trong CMS.
+- Chỉ dùng chế độ **Công khai** hoặc **Không công khai**: video *Riêng tư* không phát được trên website.
+- Trình phát nhúng cần trình duyệt gửi địa chỉ trang (Referer); website đã đặt sẵn `Referrer-Policy: strict-origin-when-cross-origin`. Đừng đổi sang `no-referrer`, nếu không YouTube sẽ báo *Error 153*.
 
 ## OTP qua SMS
 

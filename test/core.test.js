@@ -86,3 +86,28 @@ test('Escape HTML: tiêu đề trang chủ từ CMS không chèn được thẻ/
   assert.equal(fmt.esc("Mỗi cú dink & 'ghi nhận'"), 'Mỗi cú dink &amp; &#39;ghi nhận&#39;');
   assert.equal(fmt.esc(null), '');
 });
+
+test('YouTube: buổi phát tạo qua API — giờ bắt đầu luôn ở tương lai, không tự dừng khi rớt mạng, cho nhúng + tự lưu video', () => {
+  const now = Date.parse('2026-11-05T08:00:00Z');
+  const past = youtube.broadcastBody({ title: 'Sân 1', scheduledStart: '2026-11-05T07:00:00Z', privacy: 'unlisted' }, now);
+  assert.equal(past.snippet.scheduledStartTime, '2026-11-05T08:01:00.000Z'); // giờ đã qua → đẩy lên +1 phút
+  const none = youtube.broadcastBody({ title: 'Sân 1' }, now);
+  assert.equal(none.snippet.scheduledStartTime, '2026-11-05T08:01:00.000Z');
+  const future = youtube.broadcastBody({ title: 'Sân 1', scheduledStart: '2026-11-06T01:30:00Z', privacy: 'public' }, now);
+  assert.equal(future.snippet.scheduledStartTime, '2026-11-06T01:30:00.000Z');
+  assert.equal(future.status.privacyStatus, 'public');
+  assert.equal(past.status.privacyStatus, 'unlisted');
+  const cd = future.contentDetails;
+  assert.equal(cd.enableAutoStart, true);
+  assert.equal(cd.enableAutoStop, false);
+  assert.equal(cd.recordFromStart, true);
+  assert.equal(cd.enableEmbed, true);
+  assert.equal(youtube.broadcastBody({ title: 'x'.repeat(150) }, now).snippet.title.length, 100);
+});
+
+test('YouTube: ưu tiên RTMPS cho OBS', () => {
+  assert.deepEqual(youtube.pickIngestion({ ingestionAddress: 'rtmp://a.rtmp.youtube.com/live2', rtmpsIngestionAddress: 'rtmps://a.rtmps.youtube.com/live2', streamName: 'abcd-1234' }),
+    { url: 'rtmps://a.rtmps.youtube.com/live2', key: 'abcd-1234' });
+  assert.deepEqual(youtube.pickIngestion({ ingestionAddress: 'rtmp://a.rtmp.youtube.com/live2', streamName: 'k' }), { url: 'rtmp://a.rtmp.youtube.com/live2', key: 'k' });
+  assert.deepEqual(youtube.pickIngestion(undefined), { url: null, key: null });
+});

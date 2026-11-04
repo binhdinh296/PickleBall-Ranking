@@ -119,27 +119,55 @@ async function api(method, path, query = {}, body) {
       liveStreamingNotEnabled: 'Kênh chưa bật tính năng phát trực tiếp. Bật trong YouTube Studio (lần đầu có thể chờ đến 24 giờ).',
       quotaExceeded: 'Đã vượt hạn mức YouTube API trong ngày.',
       invalidTransition: 'Buổi phát chưa ở trạng thái có thể kết thúc.',
+      invalidScheduledStartTime: 'Giờ bắt đầu dự kiến phải ở tương lai.',
+      insufficientLivePermissions: 'Tài khoản đã kết nối không có quyền phát trực tiếp trên kênh này.',
+      insufficientPermissions: 'Tài khoản đã kết nối không có quyền quản lý kênh này. Hãy kết nối lại bằng tài khoản sở hữu kênh.',
     };
     throw new YoutubeError(map[reason] || 'YouTube từ chối yêu cầu. Kiểm tra lại kênh và quyền đã cấp.');
   }
   return data;
 }
 
-// Tạo buổi phát + luồng RTMP, gắn với nhau; trả về ID video và thông tin ingest cho OBS
-async function createBroadcast({ title, description, scheduledStart, privacy }) {
-  const broadcast = await api('POST', '/liveBroadcasts', { part: 'snippet,status,contentDetails' }, {
-    snippet: { title: title.slice(0, 100), description: description || '', scheduledStartTime: new Date(scheduledStart || Date.now() + 5 * 60000).toISOString() },
+// Nội dung gửi liveBroadcasts.insert (hàm thuần để kiểm thử)
+// - Giờ bắt đầu luôn ở tương lai ít nhất 1 phút: YouTube từ chối giờ đã qua (invalidScheduledStartTime)
+// - enableAutoStart: tự lên sóng khi OBS bắt đầu gửi hình
+// - enableAutoStop = false: rớt mạng ở sân không làm YouTube tự kết thúc buổi phát (buổi đã kết thúc thì không phát tiếp được);
+//   ban tổ chức bấm "Kết thúc" trong CMS khi xong
+// - recordFromStart: YouTube tự lưu video trên kênh khi kết thúc · enableEmbed: cho phép phát ngay trên website
+function broadcastBody({ title, description, scheduledStart, privacy }, now = Date.now()) {
+  const wanted = scheduledStart ? new Date(scheduledStart).getTime() : NaN;
+  const start = Number.isFinite(wanted) && wanted > now + 60000 ? wanted : now + 60000;
+  return {
+    snippet: { title: String(title).slice(0, 100), description: description || '', scheduledStartTime: new Date(start).toISOString() },
     status: { privacyStatus: privacy === 'public' ? 'public' : 'unlisted', selfDeclaredMadeForKids: false },
-    contentDetails: { enableAutoStart: true, enableAutoStop: true, enableDvr: true, recordFromStart: true, enableEmbed: true, latencyPreference: 'low' },
-  });
-  const stream = await api('POST', '/liveStreams', { part: 'snippet,cdn,contentDetails' }, {
-    snippet: { title: `${title.slice(0, 80)} – luồng` },
-    cdn: { ingestionType: 'rtmp', resolution: 'variable', frameRate: 'variable' },
-    contentDetails: { isReusable: false },
-  });
-  await api('POST', '/liveBroadcasts/bind', { id: broadcast.id, part: 'id,contentDetails', streamId: stream.id });
-  const info = stream.cdn.ingestionInfo || {};
-  return { videoId: broadcast.id, streamId: stream.id, ingestionUrl: info.ingestionAddress, streamKey: info.streamName };
+    contentDetails: { enableAutoStart: true, enableAutoStop: false, enableDvr: true, recordFromStart: true, enableEmbed: true, latencyPreference: 'low' },
+  };
+}
+
+// Ưu tiên RTMPS (mã hóa đường truyền, stream key không đi dạng rõ); OBS hỗ trợ sẵn
+function pickIngestion(info = {}) {
+  return { url: info.rtmpsIngestionAddress || info.ingestionAddress || null, key: info.streamName || null };
+}
+
+// Tạo buổi phát + luồng ingest, gắn với nhau; trả về ID video và thông tin cho OBS.
+// Lỗi giữa chừng thì dọn phần đã tạo trên YouTube để kênh không bị buổi phát "mồ côi".
+async function createBroadcast(opts) {
+  const broadcast = await api('POST', '/liveBroadcasts', { part: 'snippet,status,contentDetails' }, broadcastBody(opts));
+  let stream = null;
+  try {
+    stream = await api('POST', '/liveStreams', { part: 'snippet,cdn,contentDetails' }, {
+      snippet: { title: `${String(opts.title).slice(0, 80)} – luồng` },
+      cdn: { ingestionType: 'rtmp', resolution: 'variable', frameRate: 'variable' },
+      contentDetails: { isReusable: false },
+    });
+    await api('POST', '/liveBroadcasts/bind', { id: broadcast.id, part: 'id,contentDetails', streamId: stream.id });
+  } catch (err) {
+    await api('DELETE', '/liveBroadcasts', { id: broadcast.id }).catch(() => {});
+    if (stream) await api('DELETE', '/liveStreams', { id: stream.id }).catch(() => {});
+    throw err;
+  }
+  const ing = pickIngestion(stream.cdn && stream.cdn.ingestionInfo);
+  return { videoId: broadcast.id, streamId: stream.id, ingestionUrl: ing.url, streamKey: ing.key };
 }
 
 async function broadcastStatus(videoId) {
@@ -195,5 +223,5 @@ function parseVideoId(input) {
 
 module.exports = {
   configured, authUrl, handleCallback, disconnect, account, createBroadcast, broadcastStatus, endBroadcast,
-  syncStatuses, parseVideoId, redirectUri, YoutubeError,
+  syncStatuses, parseVideoId, redirectUri, YoutubeError, broadcastBody, pickIngestion,
 };
