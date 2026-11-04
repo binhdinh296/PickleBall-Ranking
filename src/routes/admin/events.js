@@ -342,7 +342,8 @@ router.post('/noi-dung/:id/xoa-nhanh', editor, wrap(async (req, res) => {
 }));
 
 // ---- Trọng tài: danh sách trận + nhập tỉ số tại sân ----
-router.get('/trong-tai', referee, wrap(async (req, res) => {
+router.all('/trong-tai', referee, wrap(async (req, res) => {
+  if (req.method === 'POST') return res.redirect(303, '/admin/trong-tai');
   const matches = await all(`SELECT m.*, d.name AS division, e.name AS event_name, ta.name AS team_a, tb.name AS team_b
     FROM matches m JOIN divisions d ON d.id = m.division_id JOIN events e ON e.id = d.event_id
     LEFT JOIN teams ta ON ta.id = m.team_a_id LEFT JOIN teams tb ON tb.id = m.team_b_id

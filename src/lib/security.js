@@ -125,7 +125,7 @@ const ROLE_RANK = { referee: 1, editor: 2, admin: 3 };
 function requireLogin(req, res, next) {
   if (req.session.user) return next();
   if (req.get('x-csrf-token') !== undefined) return res.status(401).json({ ok: false, error: 'Bạn cần đăng nhập lại.' });
-  return res.redirect('/admin/login?next=' + encodeURIComponent(req.originalUrl));
+  return res.redirect(303, '/admin/login?next=' + encodeURIComponent(req.originalUrl));
 }
 
 function requireRole(role) {

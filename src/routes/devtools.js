@@ -77,7 +77,7 @@ router.post('/login/:role', wrap(async (req, res, next) => {
       // Về lại trang công khai đang xem (không quay vào CMS vì khách không có quyền)
       const target = String(req.body.next || '');
       const safe = target.startsWith('/') && !target.startsWith('//') && !target.startsWith('/admin') ? target : '/';
-      req.session.save(() => res.redirect(safe));
+      req.session.save(() => res.redirect(303, safe));
     });
   }
   if (!TEST_USERS[role]) return res.status(400).send('Vai trò không hợp lệ');
@@ -89,7 +89,9 @@ router.post('/login/:role', wrap(async (req, res, next) => {
     req.session.user = { id: u.id, username: u.username, displayName: u.display_name, role: u.role };
     audit(req, 'dev_quick_login', `user:${u.id}`, role);
     const target = String(req.body.next || '');
-    req.session.save(() => res.redirect(target.startsWith('/') && !target.startsWith('//') ? target : role === 'referee' ? '/admin/trong-tai' : '/admin'));
+    const fallback = role === 'referee' ? '/admin/trong-tai' : '/admin';
+    const safe = target.startsWith('/') && !target.startsWith('//') ? target : fallback;
+    req.session.save(() => res.redirect(303, safe));
   });
 }));
 

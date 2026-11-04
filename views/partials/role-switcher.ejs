@@ -10,6 +10,25 @@
   ];
   const curRole = roles.find((r) => r.key === current) || { label: fmt.ROLE_LABEL[current] || current };
   const isTest = !user || /^test_/.test(user.username || '');
+
+  const targetFor = (roleKey) => {
+    if (roleKey === 'guest') {
+      return path.startsWith('/admin') ? '/' : path;
+    }
+    if (roleKey === 'referee') {
+      if (path.startsWith('/admin') && !path.startsWith('/admin/trong-tai') && !path.startsWith('/admin/tran')) {
+        return '/admin/trong-tai';
+      }
+      return path;
+    }
+    if (roleKey === 'editor') {
+      if (path.startsWith('/admin/cau-hinh') || path.startsWith('/admin/nguoi-dung') || path.startsWith('/admin/nhat-ky') || path.startsWith('/admin/nhat-ky-otp')) {
+        return '/admin';
+      }
+      return path;
+    }
+    return path;
+  };
 %>
 <details class="role-switch" data-role-switch>
   <summary class="role-switch-btn" aria-label="Xem với vai trò: <%= curRole.label %>">
@@ -22,7 +41,7 @@
     <% roles.forEach((r) => { const on = r.key === current && isTest; %>
     <form method="post" action="/dev/login/<%= r.key %>" class="rm-form">
       <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-      <% if (r.key === 'guest') { %><input type="hidden" name="next" value="<%= path.startsWith('/admin') ? '/' : path %>"><% } %>
+      <input type="hidden" name="next" value="<%= targetFor(r.key) %>">
       <button type="submit" class="rm-item<%= on ? ' is-current' : '' %>" role="menuitemradio" aria-checked="<%= on %>">
         <span class="rm-icon"><%- include('icon', { name: r.icon }) %></span>
         <span class="rm-body"><strong><%= r.label %></strong><small><%= r.hint %></small></span>
@@ -31,6 +50,9 @@
     </form>
     <% }) %>
     <% if (user && !isTest) { %><p class="rm-note">Đang đăng nhập bằng tài khoản thật <b><%= user.username %></b>. Chọn vai trò sẽ chuyển sang tài khoản test.</p><% } %>
+    <% if (user && ['admin', 'editor', 'referee'].includes(user.role)) { %>
+      <a class="rm-foot" style="border-bottom: 1px solid var(--line); font-weight: 600; color: var(--gold);" href="<%= user.role === 'referee' ? '/admin/trong-tai' : '/admin' %>">👉 Vào trang CMS (<%= curRole.label %>) →</a>
+    <% } %>
     <a class="rm-foot" href="/dev">Mở bảng test đầy đủ →</a>
   </div>
 </details>

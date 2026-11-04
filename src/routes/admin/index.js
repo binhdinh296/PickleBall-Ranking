@@ -48,12 +48,12 @@ router.post('/login', loginLimiter, wrap(async (req, res, nextFn) => {
     req.session.csrf = csrfToken;
     req.session.user = { id: u.id, username: u.username, displayName: u.display_name, role: u.role };
     audit(req, 'login', `user:${u.id}`);
-    req.session.save(() => res.redirect(next));
+    req.session.save(() => res.redirect(303, next));
   });
 }));
 
 router.post('/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/admin/login'));
+  req.session.destroy(() => res.redirect(303, '/admin/login'));
 });
 
 router.use(requireLogin);
@@ -61,7 +61,7 @@ router.use(requireLogin);
 // Nạp lại quyền từ CSDL để tài khoản bị khóa/đổi vai trò có hiệu lực ngay
 router.use(wrap(async (req, res, next) => {
   const u = await get('SELECT id, username, display_name, role, active FROM users WHERE id = ?', req.session.user.id);
-  if (!u || !u.active) return req.session.destroy(() => res.redirect('/admin/login'));
+  if (!u || !u.active) return req.session.destroy(() => res.redirect(303, '/admin/login'));
   req.session.user = { id: u.id, username: u.username, displayName: u.display_name, role: u.role };
   res.locals.user = req.session.user;
   res.locals.pendingSubmissions = (await get("SELECT COUNT(*) AS c FROM submissions WHERE status = 'pending'")).c;
@@ -69,8 +69,9 @@ router.use(wrap(async (req, res, next) => {
   next();
 }));
 
-router.get('/', wrap(async (req, res) => {
-  if (req.session.user.role === 'referee') return res.redirect('/admin/trong-tai');
+router.all('/', wrap(async (req, res) => {
+  if (req.method === 'POST') return res.redirect(303, '/admin');
+  if (req.session.user.role === 'referee') return res.redirect(303, '/admin/trong-tai');
   const stats = {
     athletes: (await get('SELECT COUNT(*) AS c FROM athletes')).c,
     pending: res.locals.pendingSubmissions,
