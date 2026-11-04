@@ -36,6 +36,11 @@ async function featuredEvents(limit) {
 }
 
 router.get('/', wrap(async (req, res) => {
+  const topAthlete = await get('SELECT * FROM athletes WHERE visible ORDER BY points DESC, id LIMIT 1');
+  if (topAthlete) {
+    topAthlete.rank = 1;
+    topAthlete.tier = tierFor(topAthlete.points);
+  }
   const athletes = await all('SELECT * FROM athletes WHERE visible ORDER BY featured DESC, points DESC, id LIMIT ?', num('featured_count') || 8);
   athletes.sort((a, b) => b.points - a.points);
   const liveStream = await get(`SELECT l.*, e.slug, e.name AS event_name FROM live_streams l JOIN events e ON e.id = l.event_id
@@ -61,7 +66,7 @@ router.get('/', wrap(async (req, res) => {
 
 
   res.render('public/home', {
-    title: null, athletes, events: await featuredEvents(3), liveStream, liveMatch, pageScript: 'home',
+    title: null, topAthlete, athletes, events: await featuredEvents(3), liveStream, liveMatch, pageScript: 'home',
     court: require('../lib/rally').build(),
   });
 }));

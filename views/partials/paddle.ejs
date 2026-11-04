@@ -12,7 +12,7 @@
         <span class="paddle-lines"></span>
       </span>
       <button type="button" class="paddle-hit" aria-expanded="false" aria-controls="pinfo-<%= a.id %>" aria-label="Xem thông tin <%= a.full_name %>, hạng <%= a.rank %>, hạng huy hiệu <%= tier.label %>"></button>
-      <span class="paddle-ball" aria-hidden="true"><span><%= fmt.pad2(i + 1) %></span></span>
+      <span class="paddle-ball" aria-hidden="true"><span><%= fmt.pad2(a.rank) %></span></span>
       <span class="paddle-caption" aria-hidden="true">
         <strong class="p-name"><%= a.full_name %></strong>
         <span class="p-bar"></span>

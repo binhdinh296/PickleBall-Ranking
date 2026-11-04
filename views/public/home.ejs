@@ -1,7 +1,7 @@
 <%- include('../partials/top') %>
 <%
   const words = site.hero_title.split(' ');
-  const first = athletes[0];
+  const first = locals.topAthlete || athletes[0];
 %>
 <section class="hero hero-sport">
   <div class="hero-bg" aria-hidden="true">
