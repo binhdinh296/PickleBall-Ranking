@@ -237,7 +237,7 @@ button { font: inherit; }
 .section-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; margin-bottom: 28px; }
 .eyebrow { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-court); margin-bottom: 10px; }
 .eyebrow.gold { color: var(--ink-gold); }
-.h2 { font-size: clamp(28px, 6.5vw, 48px); font-weight: 800; }
+.h2 { font-size: clamp(20px, 2.8vw, 28px); font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.25; }
 .h1 { font-size: clamp(32px, 8vw, 56px); font-weight: 800; letter-spacing: -0.03em; }
 .page-head { padding-block: 32px 8px; }
 @media (min-width: 900px) { .page-head { padding-block: 56px 16px; } }

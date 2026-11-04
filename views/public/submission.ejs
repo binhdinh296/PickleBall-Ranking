@@ -18,7 +18,7 @@
     <% } else { %>
     <div style="display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); align-items: start;">
       <aside class="card card-pad stack" style="--gap: 12px;">
-        <h2 style="font-size: 18px; font-weight: 800;">Điều kiện gửi đơn</h2>
+        <h2 style="font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;">ĐIỀU KIỆN GỬI ĐƠN</h2>
         <p class="small muted">Điền đúng thông tin thật, chọn ảnh rõ mặt và tự chấm điểm phù hợp trình độ hiện tại.</p>
         <div class="info-tile"><span><strong>VĐV Nam</strong><br><span class="small muted">Nhận đơn từ mốc <%= fmt.pts(floors.M) %></span></span></div>
         <div class="info-tile"><span><strong>VĐV Nữ</strong><br><span class="small muted">Nhận đơn từ mốc <%= fmt.pts(floors.F) %></span></span></div>
@@ -26,7 +26,7 @@
       </aside>
       <form class="card card-pad form" method="post" action="/cham-trinh" enctype="multipart/form-data" data-once novalidate>
         <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-        <h2 style="font-size: 18px; font-weight: 800;">Gửi đơn chấm trình</h2>
+        <h2 style="font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;">GỬI ĐƠN CHẤM TRÌNH</h2>
         <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
         <div class="form-grid two">
           <div class="field span-2"><label for="full_name">Họ và tên *</label><input class="input" id="full_name" name="full_name" required maxlength="80" autocomplete="name" value="<%= values.full_name || '' %>"></div>

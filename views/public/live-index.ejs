@@ -12,7 +12,7 @@
     <% if (!streams.length) { %><div class="empty">Hiện chưa có buổi phát nào. Hãy quay lại vào ngày thi đấu.</div><% } %>
     <% [['Đang phát', live, 'live'], ['Sắp phát', soon, 'soon'], ['Đã phát gần đây', past, 'past']].forEach(([label, list, kind]) => { if (!list.length) return; %>
     <div class="stack" style="--gap: 14px;">
-      <h2 style="font-size: 20px; font-weight: 800;" class="row"><% if (kind === 'live') { %><span class="live-dot"></span><% } %><%= label %></h2>
+      <h2 style="font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;" class="row"><% if (kind === 'live') { %><span class="live-dot"></span><% } %><%= label %></h2>
       <div class="grid" style="--min: 280px;">
         <% list.forEach((s) => { %>
         <a class="ecard" href="/giai-dau/<%= s.slug %>/truc-tiep?san=<%= s.id %>">

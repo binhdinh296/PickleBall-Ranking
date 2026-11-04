@@ -457,7 +457,7 @@
   .hero-copy > .row .btn { flex: 1 1 0; min-width: 0; min-height: 42px; padding-inline: 10px; font-size: 14px; white-space: normal; text-align: center; line-height: 1.2; }
   .paddles-section .section-head { margin-bottom: 0; gap: 6px 16px; }
   .paddles-section .section-head .eyebrow { margin-bottom: 4px; }
-  .paddles-section .h2 { font-size: clamp(24px, 7vw, 32px); }
+  .paddles-section .h2 { font-size: clamp(19px, 2.5vw, 24px); }
   .paddles-section .paddle-track { padding-top: 36px; }
   .hero .hero-title { font-size: clamp(24px, 7vw, 34px); line-height: 1.1; }
   .hero-copy { --gap: 10px; }
