@@ -2,42 +2,33 @@
 <% const qs = (o) => { const p = new URLSearchParams(); const v = { gender, q, ...o }; Object.keys(v).forEach((k) => { if (v[k]) p.set(k, v[k]); }); const s = p.toString(); return s ? `?${s}` : ''; }; %>
 <section class="page-head glow">
   <div class="container stack" style="--gap: 20px;">
-    <div class="row" style="justify-content: space-between; align-items: flex-end;">
-      <div><span class="eyebrow">Pickleball ranking</span><h1 class="h1">Bảng xếp hạng <span class="serif grad-text">VĐV</span></h1><p class="muted" style="margin-top: 8px;">Theo dõi điểm ranking và thành tích của các vận động viên.</p></div>
-      <% if (top) { %>
-      <a href="/vdv/<%= top.id %>" class="top1-paddle" title="Xem hồ sơ VĐV số 1 bảng xếp hạng: <%= top.full_name %>">
-        <!-- Quả bóng pickleball số 1 phát sáng ở góc vợt -->
-        <span class="top1-paddle-ball" aria-hidden="true">
-          <span class="top1-ball-num">1</span>
-        </span>
-
-        <!-- Mặt vợt Pickleball (Paddle Head) -->
-        <div class="top1-paddle-head">
-          <span class="top1-paddle-lines" aria-hidden="true"></span>
-          <div class="top1-avatar-wrap">
-            <%- include('../partials/avatar', { a: top, tone: 'gold', size: 52 }) %>
-            <span class="top1-crown-badge" aria-hidden="true">👑</span>
+    <div class="row ranking-hero-row" style="justify-content: space-between; align-items: center; gap: 20px;">
+      <div style="flex: 1; min-width: min(100%, 260px);">
+        <span class="eyebrow">Pickleball ranking</span>
+        <h1 class="h1">Bảng xếp hạng <span class="serif grad-text">VĐV</span></h1>
+        <p class="muted" style="margin-top: 8px;">Theo dõi điểm ranking và thành tích của các vận động viên.</p>
+      </div>
+      <% if (top) { const topTier = top.tier || { key: 'diamond', label: 'Kim cương' }; %>
+      <div class="ranking-top-paddle-slot">
+        <a href="/vdv/<%= top.id %>" class="paddle tier-<%= topTier.key %> top-ranking-paddle" title="Xem hồ sơ VĐV số 1 bảng xếp hạng: <%= top.full_name %>">
+          <div class="paddle-head">
+            <span class="paddle-face" aria-hidden="true">
+              <% if (top.avatar) { %><img src="<%= top.avatar %>" alt="<%= top.full_name %>"><% } else { %><span class="paddle-initials"><%= fmt.initials(top.full_name) %></span><% } %>
+              <span class="paddle-shade"></span>
+              <span class="paddle-lines"></span>
+            </span>
+            <span class="paddle-ball" aria-hidden="true"><span>01</span></span>
+            <span class="paddle-caption" aria-hidden="true">
+              <span class="top1-badge-pill">👑 TOP 1<%= gender ? ` · ${fmt.GENDER_LABEL[gender].toUpperCase()}` : '' %></span>
+              <strong class="p-name"><%= top.full_name %></strong>
+              <span class="p-bar"></span>
+              <span class="p-pts"><%= fmt.pts(top.points) %><small>điểm</small></span>
+            </span>
           </div>
-          <div class="top1-info">
-            <span class="top1-tag"><span class="dot"></span>TOP 1<%= gender ? ` · ${fmt.GENDER_LABEL[gender].toUpperCase()}` : ' HIỆN TẠI' %></span>
-            <strong class="top1-name"><%= top.full_name %></strong>
-            <span class="top1-sub"><%= [top.nickname ? `“${top.nickname}”` : null, top.club || 'VĐV Độc Lập'].filter(Boolean).join(' · ') %></span>
-          </div>
-          <div class="top1-score">
-            <span class="top1-pts gold-text tnum"><%= fmt.pts(top.points) %></span>
-            <span class="top1-pts-label">ĐIỂM</span>
-          </div>
-        </div>
-
-        <!-- Cổ vợt (Paddle Throat) -->
-        <div class="top1-paddle-throat" aria-hidden="true"></div>
-
-        <!-- Cán vợt (Paddle Handle & Sports Grip) -->
-        <div class="top1-paddle-handle" aria-hidden="true">
-          <span class="top1-handle-band"></span>
-          <span class="top1-butt-cap"></span>
-        </div>
-      </a>
+          <span class="paddle-throat" aria-hidden="true"></span>
+          <span class="paddle-handle" aria-hidden="true"><span class="paddle-cap"></span></span>
+        </a>
+      </div>
       <% } %>
     </div>
     <nav class="tabs" aria-label="Lọc theo giới tính">
