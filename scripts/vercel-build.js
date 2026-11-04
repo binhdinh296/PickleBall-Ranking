@@ -38,14 +38,15 @@ function fail(msg) {
     }
   }
 
-  // Tự động nạp dữ liệu mẫu nếu CSDL còn trống hoặc chưa có đủ 12 VĐV nổi bật Unsplash
+  // Tự động nạp dữ liệu mẫu nếu CSDL còn trống hoặc chưa có đủ dữ liệu full tính năng
   if (process.env.SEED_DEMO !== '0') {
     let shouldForce = process.env.FORCE_SEED === '1' || process.env.SEED_DEMO === 'force';
     if (!shouldForce) {
       try {
         const featUnsplash = await db.get("SELECT COUNT(*) AS c FROM athletes WHERE featured AND avatar LIKE '%unsplash%'");
-        if ((featUnsplash ? featUnsplash.c : 0) < 12) {
-          console.log('⚡ Phát hiện CSDL Neon chưa có đủ 12 VĐV nổi bật Unsplash (hoặc đang dùng dữ liệu cũ). Tự động cập nhật dữ liệu mẫu chuẩn...');
+        const otpCount = (await db.get("SELECT COUNT(*) AS c FROM otp_requests"))?.c || 0;
+        if ((featUnsplash ? featUnsplash.c : 0) < 12 || otpCount === 0) {
+          console.log('⚡ Phát hiện CSDL Neon chưa có đủ dữ liệu full tính năng (OTP/Submissions/Honors). Tự động cập nhật dữ liệu mẫu chuẩn...');
           shouldForce = true;
         }
       } catch (err) {

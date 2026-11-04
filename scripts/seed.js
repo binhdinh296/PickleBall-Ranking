@@ -27,8 +27,7 @@ const TOWNS = ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Vinh', 'Cửa 
 const PREFIX = ['090', '091', '093', '094', '096', '097', '098', '086', '088', '089', '070', '077', '032', '035', '038', '081', '083', '085'];
 const NICKS = ['Smash', 'Dink', 'Volley', 'Lob', 'Spin', 'Erne', 'Bert', 'ATP', 'Ace', 'Fire', 'Speed'];
 
-// 12 VĐV nổi bật đại diện đầy đủ 6 mức rank (mỗi mức 1 Nam, 1 Nữ)
-// Diamond >= 3400 | Platinum 3300-3395 | Gold 3200-3295 | Silver 3100-3195 | Bronze 3000-3095 | Iron < 3000
+// 12 VĐV nổi bật đại diện đầy đủ 6 mức rank (mỗi mức 1 Nam, 1 Nữ) kèm ảnh chân dung Unsplash
 const FEATURED_SPEC = [
   { given: 'Minh Khoa', gender: 'M', points: 3650, peak: 3700, nick: 'Khoa ATP', club: 'CLB Sài Gòn Dinker', town: 'TP. Hồ Chí Minh',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Kim cương
@@ -71,31 +70,54 @@ async function seed({ log = console.log, force = false } = {}) {
   const r = rnd(20261104);
   const pick = (arr) => arr[Math.floor(r() * arr.length)];
 
-  // ---- Tài khoản quản trị ban đầu ----
-  const username = (process.env.ADMIN_USERNAME || 'admin').toLowerCase();
-  let password = process.env.ADMIN_PASSWORD;
-  let generated = false;
-  if (!password) { password = `${crypto.randomBytes(9).toString('base64url')}9a`; generated = true; }
-  if (!(await get('SELECT 1 FROM users WHERE username = ?', username))) {
-    await run("INSERT INTO users(username, display_name, password_hash, role) VALUES (?, 'Quản trị viên', ?, 'admin')", username, hashPassword(password));
-    if (generated) {
-      const file = path.join(ensureDir(DATA_DIR), 'initial-admin.txt');
-      try {
-        fs.writeFileSync(file, `Tài khoản CMS ban đầu (đổi mật khẩu sau lần đăng nhập đầu tiên, rồi xóa file này)\nTên đăng nhập: ${username}\nMật khẩu: ${password}\n`, { mode: 0o600 });
-        log(`Đã tạo tài khoản quản trị "${username}". Mật khẩu ghi trong ${path.relative(process.cwd(), file)}`);
-      } catch {}
-    } else {
-      log(`Đã tạo tài khoản quản trị "${username}" với mật khẩu từ ADMIN_PASSWORD.`);
-    }
-  }
-
   const athleteCount = (await get('SELECT COUNT(*) AS c FROM athletes')).c;
   if (force) {
-    log('Đang dọn sạch dữ liệu cũ để nạp lại dữ liệu mẫu...');
-    await run('TRUNCATE matches, honors, teams, registrations, live_streams, divisions, events, submissions, point_history, athletes, partners CASCADE');
+    log('Đang dọn sạch dữ liệu cũ để nạp lại toàn bộ dữ liệu mẫu full tính năng...');
+    await run('TRUNCATE matches, honors, teams, registrations, live_streams, divisions, events, submissions, point_history, athletes, partners, otp_requests, audit_logs CASCADE');
   } else if (athleteCount > 0) {
     log(`CSDL đã có sẵn ${athleteCount} VĐV, bỏ qua dữ liệu mẫu. (Dùng npm run seed -- --force nếu muốn nạp lại từ đầu).`);
     return;
+  }
+
+  // ---- 1. Cấu hình hệ thống (Settings) ----
+  const defaultSettings = [
+    ['site_name', 'PICKLERANK'],
+    ['site_tagline', 'Hệ thống ranking & giải đấu Pickleball'],
+    ['hero_title', 'HỆ THỐNG RANKING & GIẢI ĐẤU PICKLEBALL'],
+    ['hero_text', 'Bảng xếp hạng điểm trình chính xác, cập nhật tự động sau từng trận đấu và livestream trực tiếp.'],
+    ['contact_email', 'contact@picklerank.vn'],
+    ['contact_phone', '0901 234 567'],
+    ['ball_color', '#D4F53C'],
+    ['court_color', '#14B8A6'],
+    ['gold_color', '#E6C27A'],
+    ['featured_count', '12'],
+    ['otp_provider', 'mock'],
+    ['require_otp_submission', '1'],
+    ['require_otp_registration', '1']
+  ];
+  for (const [k, v] of defaultSettings) {
+    await run('INSERT INTO settings(key, value) VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value', k, v);
+  }
+
+  // ---- 2. Tài khoản quản trị & nhân sự CMS ----
+  const initialUsers = [
+    { username: 'admin', display: 'Quản trị viên', role: 'admin', active: true },
+    { username: 'test_admin', display: 'Test · Quản trị viên', role: 'admin', active: true },
+    { username: 'test_editor', display: 'Test · Biên tập viên', role: 'editor', active: true },
+    { username: 'test_referee', display: 'Test · Trọng tài', role: 'referee', active: true },
+    { username: 'nguyenlong', display: 'Nguyễn Văn Long', role: 'editor', active: true, loginAgo: '2 hours' },
+    { username: 'trandinh', display: 'Trần Đình Trọng', role: 'referee', active: true, loginAgo: '35 minutes' },
+    { username: 'maiphuong', display: 'Lê Mai Phương', role: 'editor', active: true, loginAgo: '1 day' },
+    { username: 'kiemtoan_old', display: 'Nguyễn Khắc Tuấn', role: 'referee', active: false, loginAgo: '45 days' },
+  ];
+
+  for (const u of initialUsers) {
+    const pwd = process.env.ADMIN_PASSWORD || `${crypto.randomBytes(9).toString('base64url')}9a`;
+    const lastLogin = u.loginAgo ? `now() - interval '${u.loginAgo}'` : 'NULL';
+    await run(`INSERT INTO users(username, display_name, password_hash, role, active, last_login_at)
+      VALUES (?, ?, ?, ?, ?, ${lastLogin})
+      ON CONFLICT (username) DO UPDATE SET display_name = EXCLUDED.display_name, role = EXCLUDED.role, active = EXCLUDED.active`,
+      u.username, u.display, hashPassword(pwd), u.role, u.active);
   }
 
   await tx(async () => {
@@ -108,7 +130,7 @@ async function seed({ log = console.log, force = false } = {}) {
       return phone;
     };
 
-    // 1. Tạo 12 VĐV NỔI BẬT đại diện đủ 6 mức rank kèm ảnh chân dung thực tế
+    // 3. Tạo 12 VĐV NỔI BẬT đại diện đủ 6 mức rank kèm ảnh chân dung thực tế
     for (const spec of FEATURED_SPEC) {
       const full = `${pick(FAMILY)} ${spec.given}`;
       const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured, avatar)
@@ -123,7 +145,7 @@ async function seed({ log = console.log, force = false } = {}) {
       athletes.push(a);
     }
 
-    // 2. Tạo 44 VĐV còn lại phân bố tự nhiên (30 nam, 14 nữ)
+    // 4. Tạo 44 VĐV còn lại phân bố tự nhiên (30 nam, 14 nữ)
     const makeOther = async (given, gender, base) => {
       const full = `${pick(FAMILY)} ${given}`;
       const points = Math.round((base + r() * 0.3) * 1000 / 5) * 5;
@@ -145,19 +167,34 @@ async function seed({ log = console.log, force = false } = {}) {
     const men = athletes.filter((a) => a.gender === 'M');
     const women = athletes.filter((a) => a.gender === 'F');
 
-    // ---- Đơn chấm trình chờ duyệt ----
-    await run(`INSERT INTO submissions(full_name, nickname, phone, phone_verified, gender, points, hometown, club, description, status)
-      VALUES ('Lý Gia Bảo', 'Bảo Lý', '0912345670', true, 'M', 2750, 'Vinh', 'CLB Sông Lam', 'Chơi được 1 năm, từng vào bán kết giải phong trào.', 'pending'),
-             ('Trịnh Mai Phương', 'Phương Dink', '0987654320', true, 'F', 2400, 'Hà Nội', 'CLB Ba Đình', 'Tập luyện thường xuyên 6 tháng, cần chấm điểm vào bảng.', 'pending'),
-             ('Vũ Hoàng Long', 'Long Smash', '0933112233', true, 'M', 3200, 'TP. Hồ Chí Minh', 'CLB Sài Gòn Dinker', 'Từng đạt Á quân giải quận 7.', 'approved'),
-             ('Đặng Thị Thảo', NULL, '0977889900', true, 'F', 2150, 'Đà Nẵng', 'CLB Phượng Hoàng', 'Vừa hoàn thành khóa học cơ bản.', 'rejected')`);
+    // 5. Đơn chấm trình: đầy đủ cả 3 trạng thái (Pending, Approved, Rejected)
+    const subs = [
+      { name: 'Lý Gia Bảo', nick: 'Bảo Lý', phone: '0912345670', gender: 'M', pts: 2750, town: 'Vinh', club: 'CLB Sông Lam', desc: 'Chơi được 1 năm, từng vào bán kết giải phong trào địa phương.', status: 'pending', createdAgo: '1 day' },
+      { name: 'Trịnh Mai Phương', nick: 'Phương Dink', phone: '0987654320', gender: 'F', pts: 2400, town: 'Hà Nội', club: 'CLB Ba Đình', desc: 'Tập luyện thường xuyên 6 tháng, cần chấm điểm vào bảng xếp hạng.', status: 'pending', createdAgo: '2 days' },
+      { name: 'Đỗ Hoàng Quân', nick: 'Quân Lob', phone: '0903445566', gender: 'M', pts: 3100, town: 'TP. Hồ Chí Minh', club: 'CLB Sài Gòn Dinker', desc: 'Vô địch giải phong trào quận 2, lối đánh volley nhanh tay.', status: 'pending', createdAgo: '3 hours' },
+      { name: 'Nguyễn Hải Yến', nick: 'Yến Volley', phone: '0977112233', gender: 'F', pts: 2850, town: 'Đà Nẵng', club: 'CLB Phượng Hoàng', desc: 'Chơi 1.5 năm, tham gia giải CLB đạt hạng nhì đôi nữ.', status: 'pending', createdAgo: '12 hours' },
+
+      { name: 'Vũ Hoàng Long', nick: 'Long Smash', phone: '0933112233', gender: 'M', pts: 3200, town: 'TP. Hồ Chí Minh', club: 'CLB Sài Gòn Dinker', desc: 'Từng đạt Á quân giải quận 7.', status: 'approved', reviewer: 'admin', note: 'Đã xác minh video và thành tích giải quận 7.', createdAgo: '5 days' },
+      { name: 'Phạm Thảo My', nick: 'My Ace', phone: '0966889900', gender: 'F', pts: 2900, town: 'Hà Nội', club: 'CLB Tây Hồ Dinker', desc: 'Tập luyện 2 năm, cú giao bóng spin tốt.', status: 'approved', reviewer: 'nguyenlong', note: 'Trình độ cơ bản vững, đạt chuẩn trình 2.900.', createdAgo: '7 days' },
+      { name: 'Bùi Tiến Dũng', nick: 'Dũng Erne', phone: '0988223344', gender: 'M', pts: 3350, town: 'Nghệ An', club: 'CLB Bến Thủy', desc: 'Thi đấu giải mở rộng Nghệ An 2025.', status: 'approved', reviewer: 'admin', note: 'Xác thực trình độ qua video trận bán kết.', createdAgo: '10 days' },
+
+      { name: 'Đặng Thị Thảo', nick: null, phone: '0977889900', gender: 'F', pts: 2150, town: 'Đà Nẵng', club: 'CLB Phượng Hoàng', desc: 'Vừa hoàn thành khóa học cơ bản 1 tháng.', status: 'rejected', reviewer: 'admin', note: 'Chưa đủ điều kiện đánh giá, cần gửi video thi đấu thực tế.', createdAgo: '4 days' },
+      { name: 'Trần Minh Trí', nick: 'Trí Speed', phone: '0911556677', gender: 'M', pts: 3450, town: 'Hải Phòng', club: 'CLB Hải Phòng Pickle', desc: 'Đề xuất xếp hạng trình độ kim cương.', status: 'rejected', reviewer: 'nguyenlong', note: 'Điểm đề xuất vượt quá trình độ quan sát thực tế (đề xuất 3.450 -> nên chấm 2.800).', createdAgo: '8 days' },
+      { name: 'Hoàng Quốc Khánh', nick: null, phone: '0933778899', gender: 'M', pts: 2600, town: 'Cần Thơ', club: 'CLB Cần Thơ Riverside', desc: 'Chơi tự do tại sân nhà.', status: 'rejected', reviewer: 'admin', note: 'Số điện thoại không chính chủ và thông tin chưa rõ ràng.', createdAgo: '15 days' },
+    ];
+
+    for (const s of subs) {
+      await run(`INSERT INTO submissions(full_name, nickname, phone, phone_verified, gender, points, hometown, club, description, status, reviewed_by, reviewed_at, admin_note, created_at)
+        VALUES (?, ?, ?, true, ?, ?, ?, ?, ?, ?, ?, ${s.reviewer ? 'now() - interval \'1 day\'' : 'NULL'}, ?, now() - interval '${s.createdAgo}')`,
+        s.name, s.nick, s.phone, s.gender, s.pts, s.town, s.club, s.desc, s.status, s.reviewer || null, s.note || null);
+    }
 
     const prizes = (a, b, c) => JSON.stringify([{ label: 'Vô địch', amount: a }, { label: 'Á quân', amount: b }, { label: '02 Giải ba', amount: c }]);
-    const reg = async (divisionId, a, b, status = 'approved') => run(`INSERT INTO registrations(division_id, athlete1_id, name1, phone1, points1,
-      athlete2_id, name2, phone2, points2, phone_verified, status) VALUES (?,?,?,?,?,?,?,?,?, true, ?)`,
-    divisionId, a.id, a.nickname || a.full_name, a.phone, a.points, b.id, b.nickname || b.full_name, b.phone, b.points, status);
+    const reg = async (divisionId, a, b, status = 'approved', note = null) => run(`INSERT INTO registrations(division_id, athlete1_id, name1, phone1, points1,
+      athlete2_id, name2, phone2, points2, phone_verified, status, admin_note) VALUES (?,?,?,?,?,?,?,?,?, true, ?, ?)`,
+    divisionId, a.id, a.nickname || a.full_name, a.phone, a.points, b.id, b.nickname || b.full_name, b.phone, b.points, status, note);
 
-    // ---- Giải 1: Đang diễn ra: có livestream, nhánh loại trực tiếp ----
+    // 6. Giải 1: ĐANG DIỄN RA (Có livestream, nhánh knockout kịch tính)
     const ev1 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description)
       VALUES ('mua-thu-open-2026', 'Mùa Thu Open 2026', 'Cụm sân Pickleball Bến Thủy', 'Đường Nguyễn Du, TP. Vinh', ?, ?, false, true, true,
       'Giải phong trào mở rộng mùa thu quy tụ các tay vợt hàng đầu miền Trung và cả nước.') RETURNING id`, addDays(0), addDays(2));
@@ -165,27 +202,40 @@ async function seed({ log = console.log, force = false } = {}) {
       VALUES (?, 'Đôi nam 6.5', 'Tối đa 16 đôi · Tổng trình ≤ 6.500', 'knockout', 16, 6500, 'male', ?, 1) RETURNING id`, ev1.id, prizes('15000000', '7000000', '3000000'));
     const d2 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order)
       VALUES (?, 'Đôi nam nữ 5.8', 'Tối đa 16 đôi · Tổng trình ≤ 5.800', 'knockout', 16, 5800, 'mixed', ?, 2) RETURNING id`, ev1.id, prizes('10000000', '5000000', '2000000'));
+
     for (let i = 0; i < 16; i += 2) await reg(d1.id, men[i], men[i + 1]);
     for (let i = 0; i < 8; i++) await reg(d2.id, men[i + 16], women[i]);
-    const s1 = await get(`INSERT INTO live_streams(event_id, court, title, status, scheduled_start, actual_start, sort_order)
-      VALUES (?, 'Sân trung tâm (Court 1)', 'Mùa Thu Open 2026 – Trận Bán Kết 1', 'live', now() - interval '2 hours', now() - interval '2 hours', 1) RETURNING id`, ev1.id);
-    await run(`INSERT INTO live_streams(event_id, court, title, status, scheduled_start, sort_order)
-      VALUES (?, 'Sân 2 (Court 2)', 'Mùa Thu Open 2026 – Vòng Tứ Kết Đôi Nam Nữ', 'scheduled', now() + interval '1 hour', 2)`, ev1.id);
 
-    // ---- Giải 2: Sắp diễn ra: mở đăng ký ----
+    // Livestream có sẵn video YouTube thực tế để test trình phát và overlay
+    const s1 = await get(`INSERT INTO live_streams(event_id, court, title, status, youtube_video_id, scheduled_start, actual_start, sort_order)
+      VALUES (?, 'Sân trung tâm (Court 1)', 'Mùa Thu Open 2026 – Trận Bán Kết 1', 'live', 'dQw4w9WgXcQ', now() - interval '2 hours', now() - interval '2 hours', 1) RETURNING id`, ev1.id);
+    const s2 = await get(`INSERT INTO live_streams(event_id, court, title, status, youtube_video_id, scheduled_start, actual_start, sort_order)
+      VALUES (?, 'Sân 2 (Court 2)', 'Mùa Thu Open 2026 – Vòng Tứ Kết Đôi Nam Nữ', 'live', 'dQw4w9WgXcQ', now() - interval '1 hour', now() - interval '1 hour', 2) RETURNING id`, ev1.id);
+
+    // 7. Giải 2: SẮP DIỄN RA (Đang mở đăng ký thi đấu, có các đơn mới & từ chối)
     const ev2 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description)
       VALUES ('dong-xuan-cup-2026', 'Đông Xuân Cup 2026', 'Sân Pickleball Hồng Lĩnh', 'Phường Hưng Dũng, TP. Vinh', ?, ?, true, true, true,
       'Giải đấu thường niên chào xuân 2026 với cơ cấu giải thưởng lớn và nhiều hạng mục thi đấu hấp dẫn.') RETURNING id`, addDays(12), addDays(14));
-    const d3 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, prizes, sort_order)
-      VALUES (?, 'Đôi nam Newbie (Tổng ≤ 5.000)', 'Dành cho các tay vợt mới thi đấu', 'knockout', 32, 5000, ?, 1) RETURNING id`, ev2.id, prizes('12000000', '6000000', '2500000'));
-    await run(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order)
-      VALUES (?, 'Đôi nam nữ hỗn hợp 5.5', 'Tối đa 24 đôi', 'knockout', 24, 5500, 'mixed', ?, 2)`, ev2.id, prizes('10000000', '5000000', '2000000'));
-    await run(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_player_points, gender_rule, prizes, sort_order)
-      VALUES (?, 'Đôi nữ 3.0', 'Mỗi VĐV ≤ 3.000', 'knockout', 16, 3000, 'female', ?, 3)`, ev2.id, prizes('8000000', '4000000', '1500000'));
+    const d3 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order)
+      VALUES (?, 'Đôi nam Newbie (Tổng ≤ 5.000)', 'Dành cho các tay vợt mới thi đấu', 'knockout', 32, 5000, 'male', ?, 1) RETURNING id`, ev2.id, prizes('12000000', '6000000', '2500000'));
+    const d3_2 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order)
+      VALUES (?, 'Đôi nam nữ hỗn hợp 5.5', 'Tối đa 24 đôi', 'knockout', 24, 5500, 'mixed', ?, 2) RETURNING id`, ev2.id, prizes('10000000', '5000000', '2000000'));
+    const d3_3 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_player_points, gender_rule, prizes, sort_order)
+      VALUES (?, 'Đôi nữ 3.0', 'Mỗi VĐV ≤ 3.000', 'knockout', 16, 3000, 'female', ?, 3) RETURNING id`, ev2.id, prizes('8000000', '4000000', '1500000'));
+
+    // Đăng ký giải 2: phủ kín cả 3 bảng đấu
     for (let i = 24; i < 30; i += 2) await reg(d3.id, men[i], men[i + 1], 'approved');
     await reg(d3.id, men[30], men[31], 'new');
+    await reg(d3.id, men[0], men[1], 'rejected', 'Tổng điểm 7.030 vượt quá giới hạn 5.000 của bảng Newbie.');
 
-    // ---- Giải 3: Đã kết thúc: vòng tròn đồng đội tiếp sức ----
+    for (let i = 8; i < 12; i++) await reg(d3_2.id, men[i + 12], women[i], 'approved');
+    await reg(d3_2.id, men[14], women[12], 'new');
+    await reg(d3_2.id, men[15], women[13], 'new');
+
+    for (let i = 0; i < 6; i += 2) await reg(d3_3.id, women[i], women[i + 1], 'approved');
+    await reg(d3_3.id, women[6], women[7], 'new');
+
+    // 8. Giải 3: ĐÃ KẾT THÚC (Vòng tròn đồng đội tiếp sức chạm 55 điểm)
     const ev3 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, published, description)
       VALUES ('super-cup-tiep-suc-2026', 'Super Cup Đồng Đội Tiếp Sức 2026', 'Cụm sân Cửa Lò Pickleball Arena', 'Bình Minh, TX. Cửa Lò', ?, ?, false, true,
       'Giải đồng đội tiếp sức thể thức mới chạm 55 điểm qua 5 chặng kịch tính.') RETURNING id`, addDays(-25), addDays(-23));
@@ -196,70 +246,144 @@ async function seed({ log = console.log, force = false } = {}) {
       const members = men.slice(t * 4, t * 4 + 4).map((a) => a.full_name).join('\n');
       await run('INSERT INTO teams(division_id, name, members, seed) VALUES (?,?,?,?)', d4.id, teamNames[t], members, t + 1);
     }
-    const s3 = await get(`INSERT INTO live_streams(event_id, court, title, status, scheduled_start, actual_start, actual_end, sort_order)
-      VALUES (?, 'Sân trung tâm', 'Chung kết Super Cup Đồng Đội Tiếp Sức 2026', 'ended', now() - interval '24 days', now() - interval '24 days', now() - interval '24 days' + interval '4 hours', 1) RETURNING id`, ev3.id);
+    const s3 = await get(`INSERT INTO live_streams(event_id, court, title, status, youtube_video_id, scheduled_start, actual_start, actual_end, sort_order)
+      VALUES (?, 'Sân trung tâm', 'Chung kết Super Cup Đồng Đội Tiếp Sức 2026', 'ended', 'dQw4w9WgXcQ', now() - interval '24 days', now() - interval '24 days', now() - interval '24 days' + interval '4 hours', 1) RETURNING id`, ev3.id);
 
-    return { d1: d1.id, d2: d2.id, d4: d4.id, s1: s1.id, s3: s3.id };
+    // 9. Giải 4: BẢN NHÁP (Chưa công khai - để test tính năng bản nháp trong CMS)
+    await run(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description)
+      VALUES ('giai-vo-dich-quoc-gia-2026', 'Giải Vô Địch Pickleball Quốc Gia 2026', 'Cung Điền Kinh Mỹ Đình, Hà Nội', 'Đường Trần Hữu Dực, Cầu Giấy, Hà Nội',
+      ?, ?, false, false, false, 'Giải vô địch quốc gia quy tụ các tay vợt hàng đầu tranh cúp vô địch và tuyển chọn đội tuyển.')`, addDays(45), addDays(48));
+
+    return { d1: d1.id, d2: d2.id, d4: d4.id, s1: s1.id, s2: s2.id, s3: s3.id, men, women };
   }).then(async (ids) => {
+    const { d1, d2, d4, s1, s2, s3, men, women } = ids;
+
     // ---- Nhánh đấu & kết quả trận đấu ----
-    await bracket.syncTeamsFromRegistrations(ids.d1);
-    await bracket.syncTeamsFromRegistrations(ids.d2);
-    await bracket.generateKnockout(ids.d1, { randomize: false });
-    await bracket.generateKnockout(ids.d2, { randomize: false });
+    await bracket.syncTeamsFromRegistrations(d1);
+    await bracket.syncTeamsFromRegistrations(d2);
+    await bracket.generateKnockout(d1, { randomize: false });
+    await bracket.generateKnockout(d2, { randomize: false });
     const score = (w) => (w ? [11, Math.floor(r() * 8) + 2] : [Math.floor(r() * 8) + 2, 11]);
 
-    const k1 = await bracket.loadMatches(ids.d1);
+    const k1 = await bracket.loadMatches(d1);
     let offset = 0;
     for (const m of k1.filter((x) => x.round_order === 1)) {
       const [a, b] = score(r() > 0.4);
       offset += 900;
-      await bracket.updateMatch(m.id, { score_a: a, score_b: b, status: 'done', court: 'Sân 1', live_stream_id: ids.s1, video_offset: offset });
+      await bracket.updateMatch(m.id, { score_a: a, score_b: b, status: 'done', court: 'Sân 1', live_stream_id: s1, video_offset: offset });
     }
-    const semis = (await bracket.loadMatches(ids.d1)).filter((x) => x.round_order === 2);
+    const semis = (await bracket.loadMatches(d1)).filter((x) => x.round_order === 2);
     if (semis.length >= 2) {
-      await bracket.updateMatch(semis[0].id, { score_a: 11, score_b: 8, status: 'done', court: 'Sân 1', live_stream_id: ids.s1, video_offset: offset + 900 });
-      await bracket.updateMatch(semis[1].id, { score_a: 8, score_b: 6, status: 'live', court: 'Sân 1', live_stream_id: ids.s1, video_offset: offset + 1800 });
+      await bracket.updateMatch(semis[0].id, { score_a: 11, score_b: 8, status: 'done', court: 'Sân 1', live_stream_id: s1, video_offset: offset + 900 });
+      await bracket.updateMatch(semis[1].id, { score_a: 8, score_b: 6, status: 'live', court: 'Sân 1', live_stream_id: s1, video_offset: offset + 1800 });
     }
 
-    const k2 = await bracket.loadMatches(ids.d2);
+    const k2 = await bracket.loadMatches(d2);
     for (const m of k2.filter((x) => x.round_order === 1 && x.status !== 'done')) {
       const [a, b] = score(r() > 0.5);
-      await bracket.updateMatch(m.id, { score_a: a, score_b: b, status: 'done', court: 'Sân 2' });
+      await bracket.updateMatch(m.id, { score_a: a, score_b: b, status: 'done', court: 'Sân 2', live_stream_id: s2, video_offset: 600 });
     }
 
     // Vòng tròn tiếp sức Super Cup
-    await bracket.generateRoundRobin(ids.d4, { randomize: false, relayLegs: 5 });
-    const rr = await bracket.loadMatches(ids.d4);
+    await bracket.generateRoundRobin(d4, { randomize: false, relayLegs: 5 });
+    const rr = await bracket.loadMatches(d4);
     const results = [[55, 43], [55, 48], [52, 55], [54, 55], [55, 40], [45, 55]];
     let vo = 0;
     for (let i = 0; i < rr.length; i++) {
       vo += 2400;
       await bracket.updateMatch(rr[i].id, {
         score_a: results[i % results.length][0], score_b: results[i % results.length][1], status: 'done',
-        legs: ['BB', 'BB', 'AB', 'AA', 'AB'], current_leg: 5, live_stream_id: ids.s3, video_offset: vo,
+        legs: ['BB', 'BB', 'AB', 'AA', 'AB'], current_leg: 5, live_stream_id: s3, video_offset: vo,
       });
     }
 
-    // Bảng vinh danh
-    const table = bracket.standings(await bracket.loadTeams(ids.d4), await bracket.loadMatches(ids.d4));
-    const tmap = new Map((await bracket.loadTeams(ids.d4)).map((t) => [t.id, t]));
+    // 10. Bảng vinh danh gắn trực tiếp hồ sơ VĐV (Honors & Achievements)
+    // Division 1: Đôi nam 6.5
+    await run('INSERT INTO honors(division_id, place, name1, athlete1_id, name2, athlete2_id, sort_order) VALUES (?, 1, ?, ?, ?, ?, 1)',
+      d1, men[0].nickname || men[0].full_name, men[0].id, men[1].nickname || men[1].full_name, men[1].id);
+    await run('INSERT INTO honors(division_id, place, name1, athlete1_id, name2, athlete2_id, sort_order) VALUES (?, 2, ?, ?, ?, ?, 2)',
+      d1, men[4].nickname || men[4].full_name, men[4].id, men[6].nickname || men[6].full_name, men[6].id);
+    await run('INSERT INTO honors(division_id, place, name1, athlete1_id, name2, athlete2_id, sort_order) VALUES (?, 3, ?, ?, ?, ?, 3)',
+      d1, men[8].nickname || men[8].full_name, men[8].id, men[10].nickname || men[10].full_name, men[10].id);
+
+    // Division 2: Đôi nam nữ 5.8
+    await run('INSERT INTO honors(division_id, place, name1, athlete1_id, name2, athlete2_id, sort_order) VALUES (?, 1, ?, ?, ?, ?, 1)',
+      d2, men[2].nickname || men[2].full_name, men[2].id, women[0].nickname || women[0].full_name, women[0].id);
+    await run('INSERT INTO honors(division_id, place, name1, athlete1_id, name2, athlete2_id, sort_order) VALUES (?, 2, ?, ?, ?, ?, 2)',
+      d2, men[4].nickname || men[4].full_name, men[4].id, women[1].nickname || women[1].full_name, women[1].id);
+    await run('INSERT INTO honors(division_id, place, name1, athlete1_id, name2, athlete2_id, sort_order) VALUES (?, 3, ?, ?, ?, ?, 3)',
+      d2, men[6].nickname || men[6].full_name, men[6].id, women[2].nickname || women[2].full_name, women[2].id);
+
+    // Division 4: Super Cup Tiếp Sức
+    const table = bracket.standings(await bracket.loadTeams(d4), await bracket.loadMatches(d4));
+    const tmap = new Map((await bracket.loadTeams(d4)).map((t) => [t.id, t]));
     const places = [1, 2, 3, 3];
     for (let i = 0; i < Math.min(4, table.rows.length); i++) {
-      await run('INSERT INTO honors(division_id, place, name1, sort_order) VALUES (?,?,?,?)', ids.d4, places[i], tmap.get(table.rows[i].id).name, i);
+      const team = tmap.get(table.rows[i].id);
+      await run('INSERT INTO honors(division_id, place, name1, athlete1_id, athlete2_id, sort_order) VALUES (?,?,?,?,?,?)',
+        d4, places[i], team.name, men[i * 2]?.id || null, men[i * 2 + 1]?.id || null, i);
     }
   });
 
-  // Đối tác tài trợ
+  // 11. Đối tác tài trợ (Partners & Sponsors) - có cả đối tác đang hiển thị và đối tác ẩn để test bộ lọc
   const sponsors = [
-    { name: 'Joola Pickleball Vietnam', url: 'https://joola.com', sort: 1 },
-    { name: 'Selkirk Sport', url: 'https://selkirk.com', sort: 2 },
-    { name: 'Franklin Pickleball', url: 'https://franklinsports.com', sort: 3 },
-    { name: 'CRBN Pickleball', url: 'https://crbnpickleball.com', sort: 4 },
-    { name: 'Nước uống điện giải Revive', url: 'https://suntorypepsico.vn', sort: 5 },
-    { name: 'Ngân hàng Vietcombank', url: 'https://vietcombank.com.vn', sort: 6 },
+    { name: 'Joola Pickleball Vietnam', url: 'https://joola.com', sort: 1, visible: true },
+    { name: 'Selkirk Sport', url: 'https://selkirk.com', sort: 2, visible: true },
+    { name: 'Franklin Pickleball', url: 'https://franklinsports.com', sort: 3, visible: true },
+    { name: 'CRBN Pickleball', url: 'https://crbnpickleball.com', sort: 4, visible: true },
+    { name: 'Nước uống điện giải Revive', url: 'https://suntorypepsico.vn', sort: 5, visible: true },
+    { name: 'Ngân hàng Vietcombank', url: 'https://vietcombank.com.vn', sort: 6, visible: true },
+    { name: 'Quỹ Phát Triển Thể Thao Phong Trào', url: 'https://thethao.vn', sort: 7, visible: false },
   ];
   for (const s of sponsors) {
-    await run('INSERT INTO partners(name, url, sort_order, visible) VALUES (?, ?, ?, true)', s.name, s.url, s.sort);
+    await run('INSERT INTO partners(name, url, sort_order, visible) VALUES (?, ?, ?, ?)', s.name, s.url, s.sort, s.visible);
+  }
+
+  // 12. Nhật ký OTP (OTP Logs) - Giúp trang /admin/nhat-ky-otp hiển thị đầy đủ KPI 14 ngày và bảng danh sách
+  const otpSamples = [
+    { phone: '0912345670', purpose: 'submission', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '2 hours' },
+    { phone: '0987654320', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 1, verified: true, ago: '5 hours' },
+    { phone: '0903112233', purpose: 'submission', provider: 'eSMS', status: 'delivered', attempts: 0, verified: true, ago: '1 day' },
+    { phone: '0933445566', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '1 day' },
+    { phone: '0966778899', purpose: 'admin_login', provider: 'Mock', status: 'success', attempts: 0, verified: true, ago: '2 days' },
+    { phone: '0988001122', purpose: 'submission', provider: 'SpeedSMS', status: 'delivered', attempts: 2, verified: true, ago: '2 days' },
+    { phone: '0911223344', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '3 days' },
+    { phone: '0944556677', purpose: 'submission', provider: 'eSMS', status: 'sent', attempts: 3, verified: false, ago: '3 days' },
+    { phone: '0977889900', purpose: 'submission', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '4 days' },
+    { phone: '0933887766', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '5 days' },
+    { phone: '0909123456', purpose: 'submission', provider: 'Twilio', status: 'delivered', attempts: 0, verified: true, ago: '6 days' },
+    { phone: '0987111222', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 1, verified: true, ago: '7 days' },
+    { phone: '0918333444', purpose: 'submission', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '8 days' },
+    { phone: '0968555666', purpose: 'registration', provider: 'eSMS', status: 'delivered', attempts: 0, verified: true, ago: '9 days' },
+    { phone: '0942777888', purpose: 'submission', provider: 'SpeedSMS', status: 'expired', attempts: 0, verified: false, ago: '10 days' },
+    { phone: '0908999000', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '11 days' },
+  ];
+  for (const o of otpSamples) {
+    const verifiedAt = o.verified ? `now() - interval '${o.ago}' + interval '45 seconds'` : 'NULL';
+    await run(`INSERT INTO otp_requests(phone, purpose, code_hash, provider, provider_status, attempts, verified_at, expires_at, ip, created_at)
+      VALUES (?, ?, 'hash_sample', ?, ?, ?, ${verifiedAt}, now() - interval '${o.ago}' + interval '5 minutes', '113.161.42.10', now() - interval '${o.ago}')`,
+      o.phone, o.purpose, o.provider, o.status, o.attempts);
+  }
+
+  // 13. Nhật ký thao tác (Audit Logs) - Giúp trang /admin/nhat-ky hiển thị lịch sử quản trị chi tiết
+  const auditSamples = [
+    { user: 'admin', action: 'update_settings', target: 'settings', detail: 'Cập nhật cấu hình màu sắc giao diện và số VĐV nổi bật', ago: '1 hour' },
+    { user: 'trandinh', action: 'update_match_score', target: 'match:99', detail: 'Cập nhật tỉ số Bán kết 2: 8 - 6', ago: '2 hours' },
+    { user: 'nguyenlong', action: 'approve_submission', target: 'submission:46', detail: 'Duyệt đơn chấm trình VĐV Vũ Hoàng Long (3.200 điểm)', ago: '5 hours' },
+    { user: 'admin', action: 'create_stream', target: 'stream:1', detail: 'Tạo buổi phát Court 1 giải Mùa Thu Open 2026', ago: '6 hours' },
+    { user: 'admin', action: 'publish_event', target: 'event:mua-thu-open-2026', detail: 'Công khai giải đấu Mùa Thu Open 2026', ago: '1 day' },
+    { user: 'nguyenlong', action: 'approve_registration', target: 'registration:12', detail: 'Duyệt đăng ký bảng Đôi nam nữ 5.8', ago: '1 day' },
+    { user: 'admin', action: 'adjust_points', target: 'athlete:1', detail: 'Cập nhật điểm VĐV Minh Khoa từ 3.630 lên 3.650 điểm', ago: '2 days' },
+    { user: 'admin', action: 'reject_submission', target: 'submission:47', detail: 'Từ chối đơn chấm trình do thiếu video đối kháng thực tế', ago: '2 days' },
+    { user: 'maiphuong', action: 'create_partner', target: 'partner:Selkirk', detail: 'Thêm nhà tài trợ Selkirk Sport vào danh sách đối tác', ago: '3 days' },
+    { user: 'admin', action: 'create_event', target: 'event:dong-xuan-cup-2026', detail: 'Tạo giải đấu Đông Xuân Cup 2026 và mở đăng ký trực tuyến', ago: '4 days' },
+    { user: 'trandinh', action: 'login', target: 'user:trandinh', detail: 'Đăng nhập vào hệ thống điều hành trọng tài', ago: '5 days' },
+    { user: 'admin', action: 'create_athlete', target: 'athlete:Nguyễn Minh Khoa', detail: 'Tạo mới hồ sơ VĐV kim cương Nguyễn Minh Khoa', ago: '7 days' },
+  ];
+  for (const a of auditSamples) {
+    await run(`INSERT INTO audit_logs(username, action, target, detail, ip, created_at)
+      VALUES (?, ?, ?, ?, '14.169.35.88', now() - interval '${a.ago}')`,
+      a.user, a.action, a.target, a.detail);
   }
 
   // Sinh ảnh mẫu cho các mục chưa có ảnh
@@ -273,7 +397,18 @@ async function seed({ log = console.log, force = false } = {}) {
   const athleteCountFinal = (await get('SELECT COUNT(*) AS c FROM athletes')).c;
   const eventCountFinal = (await get('SELECT COUNT(*) AS c FROM events')).c;
   const matchCountFinal = (await get('SELECT COUNT(*) AS c FROM matches')).c;
-  log(`✔ Đã nạp dữ liệu mẫu: ${athleteCountFinal} VĐV (12 VĐV nổi bật đủ 6 mức rank), ${eventCountFinal} giải đấu, ${matchCountFinal} trận đấu.`);
+  const subCountFinal = (await get('SELECT COUNT(*) AS c FROM submissions')).c;
+  const otpCountFinal = (await get('SELECT COUNT(*) AS c FROM otp_requests')).c;
+  const auditCountFinal = (await get('SELECT COUNT(*) AS c FROM audit_logs')).c;
+
+  log(`✔ ĐÃ NẠP TOÀN BỘ DỮ LIỆU FULL TÍNH NĂNG THÀNH CÔNG:`);
+  log(`  • ${athleteCountFinal} VĐV (12 VĐV nổi bật đủ 6 mức rank kèm ảnh Unsplash sắc nét)`);
+  log(`  • ${eventCountFinal} Giải đấu (Đang live, Sắp diễn ra, Đã kết thúc, Bản nháp)`);
+  log(`  • ${matchCountFinal} Trận đấu (Nhánh Knockout, Vòng tròn tiếp sức, Trận live kèm video YouTube)`);
+  log(`  • ${subCountFinal} Đơn chấm trình (đầy đủ các tab: Chờ duyệt, Đã duyệt, Đã từ chối)`);
+  log(`  • Bảng vinh danh & Thành tích thi đấu đã liên kết hồ sơ VĐV`);
+  log(`  • ${otpCountFinal} Bản ghi nhật ký OTP (kèm KPI thống kê 14 ngày)`);
+  log(`  • ${auditCountFinal} Bản ghi nhật ký quản trị CMS`);
 }
 
 module.exports = { seed };
