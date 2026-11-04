@@ -65,8 +65,8 @@
 <% } %>
 <script type="application/json" id="phone-config"><%- JSON.stringify(phonePrefixes).replace(/</g, '\\u003c') %></script>
 <% if (locals.cropper) { %><script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script><% } %>
-<script src="/static/js/app.js"></script>
-<% if (locals.pageScript) { %><script src="/static/js/<%= pageScript %>.js"></script><% } %>
-<% if (locals.admin) { %><script src="/static/js/admin.js"></script><% } %>
+<script src="/static/js/app.js?v=<%= locals.assetV || "" %>"></script>
+<% if (locals.pageScript) { %><script src="/static/js/<%= pageScript %>.js?v=<%= locals.assetV || "" %>"></script><% } %>
+<% if (locals.admin) { %><script src="/static/js/admin.js?v=<%= locals.assetV || "" %>"></script><% } %>
 </body>
 </html>

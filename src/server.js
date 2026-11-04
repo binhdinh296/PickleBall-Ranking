@@ -10,21 +10,55 @@ const { PgStore, purgeExpired, csrf, securityHeaders } = require('./lib/security
 const { UPLOAD_DIR } = require('./lib/upload');
 const youtube = require('./lib/youtube');
 const devtools = require('./routes/devtools');
+const { IS_PROD: isProd, IS_VERCEL } = require('./lib/env');
 
-const isProd = process.env.NODE_ENV === 'production';
+// Mã phiên bản tài nguyên tĩnh: đổi sau mỗi lần deploy để trình duyệt không dùng lại CSS/JS cũ trong cache
+const ASSET_V = (process.env.VERCEL_GIT_COMMIT_SHA || process.env.VERCEL_DEPLOYMENT_ID || Date.now().toString(36)).slice(0, 12);
+
+// Serverless không có tiến trình chạy nền: đồng bộ trạng thái buổi live YouTube khi có người mở trang live,
+// tối đa 1 lần/phút mỗi instance, chờ tối đa 3 giây để không làm chậm trang
+let lastSync = 0;
+async function syncOnVisit(req, res, next) {
+  if (req.method === 'GET' && Date.now() - lastSync > 60_000) {
+    lastSync = Date.now();
+    await Promise.race([
+      youtube.syncStatuses().catch((e) => console.error('[youtube] sync', e.message)),
+      new Promise((r) => setTimeout(r, 3000)),
+    ]);
+  }
+  next();
+}
+const LIVE_PATHS = ['/truc-tiep', '/giai-dau/:slug/truc-tiep', '/admin/livestream', '/api/live'];
+
+// Tác vụ định kỳ: dọn phiên đăng nhập hết hạn + đồng bộ YouTube.
+// Vercel Cron gọi kèm header Authorization: Bearer <CRON_SECRET>; server thường đã có setInterval.
+async function cronDaily(req, res) {
+  const secret = process.env.CRON_SECRET;
+  const auth = String(req.get('authorization') || '');
+  const expected = `Bearer ${secret}`;
+  if (!secret || auth.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(auth), Buffer.from(expected))) {
+    return res.status(401).json({ ok: false });
+  }
+  await purgeExpired();
+  const changed = await youtube.syncStatuses().catch(() => 0);
+  res.json({ ok: true, youtubeChanged: changed });
+}
 
 function createApp() {
   const app = express();
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, '..', 'views'));
-  app.set('trust proxy', process.env.TRUST_PROXY === '1' ? 1 : false);
+  // Sau proxy của Vercel (hoặc Nginx/Cloudflare khi đặt TRUST_PROXY=1): lấy đúng IP người dùng và nhận HTTPS cho cookie Secure
+  app.set('trust proxy', IS_VERCEL || process.env.TRUST_PROXY === '1' ? 1 : false);
+  app.locals.assetV = ASSET_V;
   app.disable('x-powered-by');
 
   app.use(securityHeaders);
   app.use('/static', express.static(path.join(__dirname, '..', 'public'), { maxAge: isProd ? '7d' : 0 }));
   // Trình duyệt luôn tự gọi /favicon.ico: chuyển sang icon SVG (tránh lỗi 404 trong console)
   app.get('/favicon.ico', (req, res) => res.redirect(301, '/static/favicon.svg'));
-  app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '30d', dotfiles: 'deny', index: false }));
+  if (!IS_VERCEL) app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '30d', dotfiles: 'deny', index: false }));
+  app.get('/cron/daily', (req, res, next) => cronDaily(req, res).catch(next));
   app.use(express.urlencoded({ extended: false, limit: '200kb' }));
   app.use(express.json({ limit: '50kb' }));
 
@@ -64,6 +98,7 @@ function createApp() {
   });
 
   app.use(csrf);
+  if (IS_VERCEL) app.use(LIVE_PATHS, syncOnVisit);
 
   app.use('/', require('./routes/public'));
   app.use('/', require('./routes/live'));

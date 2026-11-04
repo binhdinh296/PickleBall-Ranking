@@ -50,8 +50,8 @@
 <meta name="robots" content="noindex">
 <title>Bảng test · <%= site.site_name %></title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,600&display=swap">
-<link rel="stylesheet" href="/static/css/app.css">
-<link rel="stylesheet" href="/static/css/devpanel.css">
+<link rel="stylesheet" href="/static/css/app.css?v=<%= locals.assetV || "" %>">
+<link rel="stylesheet" href="/static/css/devpanel.css?v=<%= locals.assetV || "" %>">
 </head>
 <body class="dev-body">
 <header class="dev-top">
@@ -136,6 +136,6 @@
     <% }) %>
   </main>
 </div>
-<script src="/static/js/devpanel.js"></script>
+<script src="/static/js/devpanel.js?v=<%= locals.assetV || "" %>"></script>
 </body>
 </html>

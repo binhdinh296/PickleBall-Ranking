@@ -9,9 +9,11 @@
     "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
     "seed": "node --env-file-if-exists=.env scripts/seed.js",
     "fake-images": "node --env-file-if-exists=.env scripts/fake-images.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "vercel-build": "node scripts/vercel-build.js"
   },
   "dependencies": {
+    "@vercel/blob": "2.8.2",
     "ejs": "^7.0.2",
     "express": "^4.22.3",
     "express-session": "^1.19.0",
@@ -25,5 +27,8 @@
   "private": true,
   "engines": {
     "node": ">=22.9"
+  },
+  "overrides": {
+    "zod": "4.6.7"
   }
 }

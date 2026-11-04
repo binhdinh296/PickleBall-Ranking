@@ -3,6 +3,7 @@ const { get, run } = require('../db');
 const { getSettings, num } = require('./settings');
 const { hmac, safeEqual } = require('./crypto');
 const phoneLib = require('./phone');
+const { IS_PROD } = require('./env');
 
 const PURPOSES = ['submission', 'registration', 'admin_login'];
 
@@ -69,7 +70,7 @@ async function send({ phone: rawPhone, purpose, ip }) {
   const ttl = num('otp_ttl_seconds') || 300;
   const s = getSettings();
   const providerName = providers[s.otp_provider] ? s.otp_provider : 'mock';
-  if (providerName === 'mock' && process.env.NODE_ENV === 'production' && process.env.ALLOW_MOCK_OTP !== '1') {
+  if (providerName === 'mock' && IS_PROD && process.env.ALLOW_MOCK_OTP !== '1') {
     throw new OtpError('Chưa cấu hình nhà cung cấp gửi OTP.');
   }
   const text = `${s.site_name}: ma xac minh cua ban la ${code}. Hieu luc ${Math.round(ttl / 60)} phut. Khong chia se ma nay.`;
@@ -83,8 +84,9 @@ async function send({ phone: rawPhone, purpose, ip }) {
     await run("UPDATE otp_requests SET provider_status = 'error', used_at = now() WHERE id = ?", row.id);
     throw err instanceof OtpError ? err : new OtpError('Không gửi được mã, vui lòng thử lại sau.');
   }
-  // Chế độ giả lập ngoài production: trả mã về để kiểm thử
-  const devCode = providerName === 'mock' && process.env.NODE_ENV !== 'production' ? code : undefined;
+  // Chế độ giả lập: trả mã về để kiểm thử. Ở production chỉ khi bật rõ ràng DEMO_SHOW_OTP=1 (bản demo, không có dữ liệu thật)
+  const showCode = !IS_PROD || process.env.DEMO_SHOW_OTP === '1';
+  const devCode = providerName === 'mock' && showCode ? code : undefined;
   return { phone, carrier: v.carrier, cooldown, ttl, devCode };
 }
 

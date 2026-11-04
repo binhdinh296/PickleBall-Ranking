@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const express = require('express');
 const { all, get, run } = require('../db');
 const { hashPassword, audit } = require('../lib/security');
+const { IS_PROD, IS_VERCEL } = require('../lib/env');
 
 const router = express.Router();
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -15,7 +16,8 @@ const TEST_USERS = {
 };
 
 function enabled() {
-  return process.env.NODE_ENV !== 'production' && process.env.TEST_PANEL !== '0';
+  // Không bao giờ bật trên Vercel: sau proxy của Vercel, IP kết nối không phản ánh đúng máy người dùng
+  return !IS_PROD && !IS_VERCEL && process.env.TEST_PANEL !== '0';
 }
 
 function isLocal(req) {

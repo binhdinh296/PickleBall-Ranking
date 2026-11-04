@@ -65,17 +65,19 @@ npm test
 ## Cấu trúc thư mục
 
 ```
+api/index.js           Điểm vào serverless khi chạy trên Vercel
+vercel.json            Cấu hình Vercel (build, vùng chạy, cron)
 src/
   server.js            Khởi tạo Express, bảo mật, session
   db.js                Kết nối PostgreSQL, giao dịch, migration
   migrations/          File SQL đánh số
   lib/                 phone (SĐT VN), otp, youtube, points (điểm/Lock), bracket (nhánh đấu),
-                       upload (ảnh), security (CSRF, phân quyền, rate limit), settings, format, crypto
+                       upload (ảnh: ổ đĩa hoặc Vercel Blob), env (nhận biết production/Vercel), security (CSRF, phân quyền, rate limit), settings, format, crypto
   routes/              public, tournaments, live (API tỉ số, overlay), admin/*
 views/                 EJS: public/*, admin/*, partials/*
 public/css             app.css (token màu + layout mobile-first), admin.css, overlay.css
 public/js              theme.js, app.js (SĐT, OTP, cắt ảnh, tự cập nhật), admin.js (nhập tỉ số…), overlay.js
-scripts/               dev.js (Postgres nhúng), migrate.js, seed.js
+scripts/               dev.js (Postgres nhúng), migrate.js, seed.js, vercel-build.js, fake-images.js
 test/                  Unit test (node:test)
 ```
 
@@ -93,7 +95,7 @@ Mọi màu sắc suy ra từ **3 màu gốc**:
 - Token chi tiết của từng theme nằm đầu file `public/css/app.css`.
 - Font: **Be Vietnam Pro** (thiết kế riêng cho tiếng Việt) và **Playfair Display** nghiêng cho chữ nhấn.
 
-## Triển khai production
+## Triển khai production (server thường)
 
 1. Chuẩn bị PostgreSQL ≥ 14 và Node.js ≥ 22.9.
 2. Tạo `.env` từ `.env.example`:
@@ -117,6 +119,47 @@ Mọi màu sắc suy ra từ **3 màu gốc**:
    Lệnh seed chỉ tạo tài khoản quản trị khi CSDL trống. Dữ liệu mẫu chỉ nạp nếu bảng VĐV trống: hãy xóa dữ liệu mẫu trong CMS trước khi mở cho người dùng thật.
 4. Chạy `npm start` bằng PM2 hoặc systemd, đặt sau Nginx/Cloudflare có HTTPS, và đặt `TRUST_PROXY=1`.
 5. Sao lưu hằng ngày: `pg_dump` cho CSDL và thư mục `data/uploads/` cho ảnh/PDF.
+
+## Triển khai trên Vercel
+
+Vercel chạy code dạng serverless: không có ổ đĩa ghi được và không có tiến trình chạy nền. Dự án đã được chỉnh để chạy được trong điều kiện này:
+
+| Thành phần | Trên Vercel |
+|---|---|
+| Điểm vào | `api/index.js` (mọi đường dẫn được `vercel.json` chuyển về đây) |
+| CSDL | PostgreSQL thuê ngoài: Neon hoặc Supabase (gắn từ tab **Storage** của Vercel) |
+| Ảnh, PDF | Vercel Blob (gắn từ tab **Storage**) |
+| Tạo bảng + tài khoản admin | Tự chạy trong bước build (`scripts/vercel-build.js`) |
+| Dọn phiên hết hạn | Vercel Cron 1 lần/ngày (3:00 giờ VN) |
+| Đồng bộ trạng thái live YouTube | Khi có người mở trang live/CMS livestream (tối đa 1 lần/phút) + cron hằng ngày |
+| Vùng chạy | Singapore (`sin1`). Nên chọn CSDL ở cùng vùng Singapore. |
+
+### Các bước
+
+1. Đẩy mã nguồn lên một repo GitHub **riêng tư**, rồi vào Vercel → **Add New → Project → Import** repo đó. Không cần đổi Framework/Build settings (đã khai báo trong `vercel.json`).
+2. Tab **Storage** của project: thêm **Neon** (Postgres, vùng Singapore) và **Blob**. Vercel tự thêm biến `DATABASE_URL` và `BLOB_READ_WRITE_TOKEN`.
+3. **Settings → Environment Variables** (môi trường Production), thêm:
+
+   | Biến | Giá trị |
+   |---|---|
+   | `SESSION_SECRET`, `APP_SECRET`, `CRON_SECRET` | Mỗi biến một chuỗi ngẫu nhiên riêng ≥ 32 ký tự (`openssl rand -hex 32`) |
+   | `APP_URL` | Địa chỉ website, ví dụ `https://pickle-ball-ranking.vercel.app` |
+   | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Tài khoản CMS đầu tiên (mật khẩu ≥ 10 ký tự, có chữ và số) |
+   | `SEED_DEMO=1` | *Tùy chọn, chỉ cho bản demo:* nạp dữ liệu mẫu hư cấu khi CSDL trống |
+   | `ALLOW_MOCK_OTP=1`, `DEMO_SHOW_OTP=1` | *Tùy chọn, chỉ cho bản demo:* chưa có SMS thật thì dùng OTP giả lập và hiện mã ngay trên form |
+   | `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET` | Khi kết nối YouTube (xem mục dưới) |
+   | `ESMS_API_KEY`, `ESMS_SECRET_KEY` | Khi gửi OTP qua SMS thật |
+
+4. **Deployments → Redeploy**. Log build phải có dòng `✔ Migration xong.` và `✔ Đã tạo tài khoản quản trị …`. Nếu thiếu biến, build dừng và báo rõ thiếu biến nào.
+5. Đăng nhập `/admin`, đổi mật khẩu, rồi **xóa `ADMIN_PASSWORD`** khỏi Vercel. Bản demo: xóa luôn `SEED_DEMO`, `ALLOW_MOCK_OTP`, `DEMO_SHOW_OTP` trước khi có người dùng thật.
+
+### Giới hạn khi chạy trên Vercel
+
+- File tải lên tối đa **4 MB** (Vercel giới hạn 4,5 MB cho mỗi request).
+- Gói Hobby chỉ cho cron chạy 1 lần/ngày, nên trạng thái buổi live tạo qua YouTube API được cập nhật khi có người mở trang live, không theo từng phút như server thường.
+- Giới hạn tần suất gửi OTP/đăng nhập tính theo từng instance; chặn chính vẫn nằm ở CSDL (tối đa mã/SĐT/ngày, khóa tài khoản sau 5 lần sai).
+- Bảng test `/dev` và nút "Xem với vai trò" luôn tắt trên Vercel.
+- Lỗi khởi động (sai `DATABASE_URL`…) hiện trang "Hệ thống tạm thời chưa sẵn sàng"; chi tiết xem ở **Deployments → chọn bản deploy → Logs**.
 
 ## Kết nối YouTube (livestream lưu vào kênh của bạn)
 
@@ -170,4 +213,3 @@ Lưu ý:
 - Tự sinh vòng *Playoff "cơ hội thứ 2"* (hiện tạo tay bằng *Thêm trận thủ công*).
 - Tự cộng/trừ điểm theo kết quả trận (hiện điều chỉnh tay, có ghi lịch sử).
 - Thanh toán lệ phí online, captcha chống spam, lưu ảnh trên S3/CDN, nhập VĐV từ Excel, OTP đăng nhập CMS.
-# PickleBall-Ranking

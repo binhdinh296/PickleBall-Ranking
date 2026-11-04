@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Overlay <%= data.stream.court %></title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&display=swap">
-<link rel="stylesheet" href="/static/css/overlay.css">
+<link rel="stylesheet" href="/static/css/overlay.css?v=<%= locals.assetV || "" %>">
 </head>
 <body>
 <% const m = data.match; %>
@@ -16,6 +16,6 @@
   <div class="ov-row"><span class="ov-name" data-f="teamB"><%= m ? m.teamB : '' %></span><span class="ov-score" data-f="scoreB"><%= m ? m.scoreB : 0 %></span></div>
   <div class="ov-leg" data-f="leg"><%= m && m.leg ? `Chặng ${m.leg.index} · ${m.leg.pair} · đến ${m.leg.target}` : '' %></div>
 </div>
-<script src="/static/js/overlay.js"></script>
+<script src="/static/js/overlay.js?v=<%= locals.assetV || "" %>"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const session = require('express-session');
 const { get, run } = require('../db');
+const { IS_PROD } = require('./env');
 
 // ---- Mật khẩu (scrypt) ----
 function hashPassword(password) {
@@ -92,7 +93,7 @@ function rateLimit({ windowMs, max, message = 'Bạn thao tác quá nhanh, vui l
 }
 
 // Ở dev, bảng test (/dev) cần nhúng chính các trang của site vào khung
-const DEV_FRAMING = process.env.NODE_ENV !== 'production' && process.env.TEST_PANEL !== '0';
+const DEV_FRAMING = !IS_PROD && process.env.TEST_PANEL !== '0';
 
 function securityHeaders(req, res, next) {
   const overlay = req.path.startsWith('/overlay/');
@@ -102,7 +103,7 @@ function securityHeaders(req, res, next) {
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
     'Content-Security-Policy': [
       "default-src 'self'",
-      "img-src 'self' data: blob: https://i.ytimg.com",
+      "img-src 'self' data: blob: https://i.ytimg.com https://*.public.blob.vercel-storage.com",
       "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "script-src 'self' https://cdnjs.cloudflare.com",

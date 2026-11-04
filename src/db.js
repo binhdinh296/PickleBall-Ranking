@@ -7,14 +7,26 @@ const { Pool, types } = require('pg');
 types.setTypeParser(1082, (v) => v);
 types.setTypeParser(20, (v) => parseInt(v, 10));
 
+// Thư mục dữ liệu cục bộ (PostgreSQL nhúng khi dev, ảnh tải lên khi không dùng Vercel Blob).
+// KHÔNG tạo thư mục lúc nạp module: trên Vercel ổ đĩa chỉ đọc, tạo thư mục sẽ làm function sập ngay.
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
-fs.mkdirSync(DATA_DIR, { recursive: true });
+function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); return dir; }
+
+// Vercel + Neon/Supabase có thể đặt tên biến là POSTGRES_URL thay vì DATABASE_URL
+const DB_URL = () => process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
 let pool = null;
 function getPool() {
   if (!pool) {
-    if (!process.env.DATABASE_URL) throw new Error('Thiếu biến môi trường DATABASE_URL');
-    pool = new Pool({ connectionString: process.env.DATABASE_URL, max: Number(process.env.DB_POOL_MAX) || 10 });
+    if (!DB_URL()) throw new Error('Thiếu biến môi trường DATABASE_URL');
+    // Serverless: mỗi instance chỉ giữ vài kết nối, đóng kết nối rảnh sớm để không làm cạn giới hạn của CSDL
+    const serverless = !!process.env.VERCEL;
+    pool = new Pool({
+      connectionString: DB_URL(),
+      max: Number(process.env.DB_POOL_MAX) || (serverless ? 3 : 10),
+      idleTimeoutMillis: serverless ? 10_000 : 30_000,
+      connectionTimeoutMillis: 10_000,
+    });
   }
   return pool;
 }
@@ -73,4 +85,4 @@ async function close() {
   pool = null;
 }
 
-module.exports = { all, get, run, tx, query, migrate, close, DATA_DIR };
+module.exports = { all, get, run, tx, query, migrate, close, DATA_DIR, ensureDir };

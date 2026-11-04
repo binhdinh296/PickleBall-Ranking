@@ -1,0 +1,8 @@
+# Không đẩy dữ liệu chạy thử (CSDL nhúng, ảnh, mật khẩu admin ban đầu) và biến môi trường lên Vercel
+data/
+.env
+.env.*
+!.env.example
+*.zip
+*.log
+.DS_Store

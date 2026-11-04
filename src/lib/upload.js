@@ -3,20 +3,27 @@ const fs = require('fs');
 const crypto = require('crypto');
 const multer = require('multer');
 const sharp = require('sharp');
-const { DATA_DIR } = require('../db');
+const { DATA_DIR, ensureDir } = require('../db');
+const { IS_VERCEL } = require('./env');
 
+// ---- Nơi lưu file ----
+// • Có BLOB_READ_WRITE_TOKEN (Vercel Blob): lưu lên Blob, CSDL giữ URL đầy đủ https://….public.blob.vercel-storage.com/…
+// • Không có: lưu vào ổ đĩa data/uploads, CSDL giữ đường dẫn /uploads/… (server thường, máy dev)
+// Trên Vercel ổ đĩa chỉ đọc nên bắt buộc dùng Blob.
 const UPLOAD_DIR = path.join(DATA_DIR, 'uploads');
-for (const sub of ['avatars', 'events', 'divisions', 'partners', 'docs']) {
-  fs.mkdirSync(path.join(UPLOAD_DIR, sub), { recursive: true });
-}
+const useBlob = () => !!process.env.BLOB_READ_WRITE_TOKEN;
+const BLOB_HOST = /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//i;
 
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const userError = (message) => Object.assign(new Error(message), { expose: true });
 
+// Vercel giới hạn thân request 4,5 MB cho mỗi function → giữ file dưới mức đó để báo lỗi rõ ràng
+const MAX_FILE = IS_VERCEL ? 4 * 1024 * 1024 : 8 * 1024 * 1024;
+
 // File giữ trong bộ nhớ; ảnh luôn được mã hóa lại bằng sharp nên metadata/mã độc bị loại bỏ
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 8 * 1024 * 1024, fieldSize: 6 * 1024 * 1024, files: 4, fields: 60 },
+  limits: { fileSize: MAX_FILE, fieldSize: 6 * 1024 * 1024, files: 4, fields: 60 },
   fileFilter(req, file, cb) {
     const ok = IMAGE_TYPES.includes(file.mimetype) || file.mimetype === 'application/pdf';
     cb(ok ? null : userError('Định dạng file không được hỗ trợ (chỉ JPG, PNG, WebP, PDF).'), ok);
@@ -27,18 +34,32 @@ function newName(ext) {
   return `${Date.now().toString(36)}_${crypto.randomBytes(6).toString('hex')}.${ext}`;
 }
 
+// Ghi 1 file đã xử lý, trả về địa chỉ lưu trong CSDL
+async function store(sub, name, buffer, contentType) {
+  if (useBlob()) {
+    const { put } = require('@vercel/blob');
+    const blob = await put(`${sub}/${name}`, buffer, {
+      access: 'public', contentType, addRandomSuffix: false, cacheControlMaxAge: 31536000,
+    });
+    return blob.url;
+  }
+  if (IS_VERCEL) throw userError('Máy chủ chưa cấu hình nơi lưu ảnh (Vercel Blob). Liên hệ quản trị kỹ thuật.');
+  fs.writeFileSync(path.join(ensureDir(path.join(UPLOAD_DIR, sub)), name), buffer);
+  return `/uploads/${sub}/${name}`;
+}
+
 async function saveImage(buffer, sub, { width, height, fit = 'inside' } = {}) {
-  const name = newName('webp');
+  let out;
   try {
-    await sharp(buffer, { limitInputPixels: 40_000_000 })
+    out = await sharp(buffer, { limitInputPixels: 40_000_000 })
       .rotate()
       .resize({ width, height, fit, withoutEnlargement: fit === 'inside' })
       .webp({ quality: 82 })
-      .toFile(path.join(UPLOAD_DIR, sub, name));
+      .toBuffer();
   } catch {
     throw userError('Không đọc được file ảnh, vui lòng chọn ảnh khác.');
   }
-  return `/uploads/${sub}/${name}`;
+  return store(sub, newName('webp'), out, 'image/webp');
 }
 
 // Ảnh đại diện: nhận data URL đã cắt từ Cropper.js hoặc file gốc, lưu 300×300 WebP
@@ -59,19 +80,25 @@ async function saveAvatar({ dataUrl, file }) {
 async function savePdf(file) {
   if (!file || file.mimetype !== 'application/pdf') return null;
   if (file.buffer.subarray(0, 5).toString() !== '%PDF-') throw userError('File điều lệ không phải PDF hợp lệ');
-  const name = newName('pdf');
-  fs.writeFileSync(path.join(UPLOAD_DIR, 'docs', name), file.buffer);
-  return `/uploads/docs/${name}`;
+  return store('docs', newName('pdf'), file.buffer, 'application/pdf');
 }
 
-function removeUpload(publicPath) {
-  if (!publicPath || !publicPath.startsWith('/uploads/')) return;
-  const full = path.join(UPLOAD_DIR, publicPath.slice('/uploads/'.length));
-  if (full.startsWith(UPLOAD_DIR)) fs.rm(full, { force: true }, () => {});
+// Xóa file cũ (không chặn luồng chính; lỗi xóa chỉ ghi log)
+function removeUpload(stored) {
+  if (!stored) return;
+  if (BLOB_HOST.test(stored)) {
+    if (!useBlob()) return;
+    const { del } = require('@vercel/blob');
+    del(stored).catch((err) => console.error('[upload] xóa blob', err.message));
+    return;
+  }
+  if (!stored.startsWith('/uploads/') || IS_VERCEL) return;
+  const full = path.join(UPLOAD_DIR, stored.slice('/uploads/'.length));
+  if (full.startsWith(UPLOAD_DIR + path.sep)) fs.rm(full, { force: true }, () => {});
 }
 
 function fileOf(req, field) {
   return (req.files || []).find((f) => f.fieldname === field) || null;
 }
 
-module.exports = { upload, saveImage, saveAvatar, savePdf, removeUpload, fileOf, UPLOAD_DIR };
+module.exports = { upload, saveImage, saveAvatar, savePdf, removeUpload, fileOf, UPLOAD_DIR, useBlob };

@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { all, get, run, tx, DATA_DIR } = require('../src/db');
+const { all, get, run, tx, DATA_DIR, ensureDir } = require('../src/db');
 const { loadSettings } = require('../src/lib/settings');
 const { hashPassword } = require('../src/lib/security');
 const bracket = require('../src/lib/bracket');
@@ -37,7 +37,7 @@ async function seed({ log = console.log } = {}) {
   if (!(await get('SELECT 1 FROM users WHERE username = ?', username))) {
     await run("INSERT INTO users(username, display_name, password_hash, role) VALUES (?, 'Quản trị viên', ?, 'admin')", username, hashPassword(password));
     if (generated) {
-      const file = path.join(DATA_DIR, 'initial-admin.txt');
+      const file = path.join(ensureDir(DATA_DIR), 'initial-admin.txt');
       fs.writeFileSync(file, `Tài khoản CMS ban đầu (đổi mật khẩu sau lần đăng nhập đầu tiên, rồi xóa file này)\nTên đăng nhập: ${username}\nMật khẩu: ${password}\n`, { mode: 0o600 });
       log(`Đã tạo tài khoản quản trị "${username}". Mật khẩu ghi trong ${path.relative(process.cwd(), file)}`);
     } else {
@@ -164,7 +164,10 @@ async function seed({ log = console.log } = {}) {
 
   await run("INSERT INTO partners(name, sort_order) VALUES ('Đối tác mẫu A', 1), ('Đối tác mẫu B', 2), ('Đối tác mẫu C', 3)");
   await run(`UPDATE athletes SET featured = true WHERE id IN (SELECT id FROM athletes ORDER BY points DESC LIMIT 3)`);
-  await require('./fake-images').fillMissingImages({ log });
+  // Ảnh giả: cần nơi lưu ảnh (ổ đĩa ở máy thường, Vercel Blob khi chạy trên Vercel)
+  const { useBlob } = require('../src/lib/upload');
+  if (useBlob() || !process.env.VERCEL) await require('./fake-images').fillMissingImages({ log });
+  else log('Bỏ qua ảnh mẫu: chưa cấu hình Vercel Blob (BLOB_READ_WRITE_TOKEN).');
   log(`Đã nạp dữ liệu mẫu: ${(await get('SELECT COUNT(*) AS c FROM athletes')).c} VĐV, ${(await get('SELECT COUNT(*) AS c FROM events')).c} giải, ${(await get('SELECT COUNT(*) AS c FROM matches')).c} trận.`);
 }
 

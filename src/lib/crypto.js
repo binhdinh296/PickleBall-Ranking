@@ -1,10 +1,11 @@
 const crypto = require('crypto');
+const { IS_PROD } = require('./env');
 
 // Khóa ứng dụng dùng để mã hóa token YouTube, stream key và băm OTP
 function appKey() {
   const secret = process.env.APP_SECRET;
   if (!secret || secret.length < 32) {
-    if (process.env.NODE_ENV === 'production') throw new Error('APP_SECRET phải dài ít nhất 32 ký tự');
+    if (IS_PROD) throw new Error('APP_SECRET phải dài ít nhất 32 ký tự');
     return crypto.createHash('sha256').update('dev-only-app-secret').digest();
   }
   return crypto.createHash('sha256').update(secret).digest();
