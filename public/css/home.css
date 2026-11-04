@@ -60,7 +60,7 @@
     radial-gradient(circle at 50% 50%, var(--b-mid, var(--ball)), var(--b-lo, color-mix(in oklab, var(--ball) 72%, #3A4A00)));
   box-shadow: 0 8px 18px -6px rgba(0, 0, 0, .7), inset 0 -4px 8px rgba(0, 0, 0, .18);
   display: flex; align-items: center; justify-content: center; pointer-events: none; transition: transform .5s cubic-bezier(.3, 1.6, .5, 1); }
-.paddle-ball span { font-family: var(--font-serif); font-style: italic; font-weight: 700; font-size: 20px; color: var(--b-ink, #1B2400); line-height: 1; }
+.paddle-ball span { font-family: var(--font-serif); font-style: normal; font-weight: 700; font-size: 20px; color: var(--b-ink, #1B2400); line-height: 1; }
 
 /* Chú thích mặc định: tên + điểm ở chân mặt vợt (chữ tự xuống dòng, không cắt) */
 .paddle-caption { position: relative; z-index: 1; align-self: end; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 20px 26px; text-align: center; color: #fff; pointer-events: none; transition: opacity .35s, transform .35s; }
@@ -141,7 +141,7 @@
 .hero-bigball { position: absolute; width: min(70vw, 620px); left: -14%; bottom: -30%; color: color-mix(in oklab, var(--ball) 10%, transparent); animation: bigball 60s linear infinite; }
 @keyframes bigball { to { transform: rotate(1turn); } }
 
-.hero .hero-title { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: italic; font-weight: 800; text-transform: uppercase;
+.hero .hero-title { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800; text-transform: uppercase;
   font-size: clamp(50px, 13.5vw, 108px); line-height: 1.02; letter-spacing: -0.005em; overflow-wrap: anywhere; padding-top: .06em; }
 .hero-title .grad-text { padding-right: .06em; }
 /* Chữ "dink" như dán băng màu bóng, có vệt tốc độ */
@@ -173,14 +173,14 @@
 .sb-row.lead { color: #fff; }
 .sb-row.lead::before { background: var(--ball); }
 .sb-name { min-width: 0; overflow-wrap: anywhere; line-height: 1.3; }
-.sb-score { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: italic; font-weight: 800; font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; min-width: 34px; text-align: right; }
+.sb-score { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800; font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; min-width: 34px; text-align: right; }
 .sb-row.lead .sb-score { color: var(--ball); }
 .sb-cta { padding: 8px 16px 10px; font-size: 13px; font-weight: 700; color: var(--ball); border-top: 1px solid rgba(255, 255, 255, .08); }
 
 /* Thẻ số 1 */
 .top-bug { right: 8px; top: -14px; display: flex; align-items: center; gap: 12px; max-width: calc(100% - 16px); border-color: color-mix(in oklab, var(--gold) 50%, transparent); }
 @media (min-width: 960px) { .top-bug { right: -12px; } }
-.tb-rank { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: italic; font-weight: 800; font-size: 40px; line-height: 1; color: var(--ink-gold); }
+.tb-rank { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800; font-size: 40px; line-height: 1; color: var(--ink-gold); }
 .tb-label { font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-gold); }
 .tb-pts { font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; }
 
@@ -225,9 +225,9 @@
 .paddle-caption { gap: 6px; padding: 0 18px 24px; }
 .p-name { font-size: 16.5px; letter-spacing: -.005em; }
 .p-bar { width: 26px; height: 3px; border-radius: 3px; background: var(--edge); box-shadow: 0 0 10px var(--glow); }
-.p-pts { display: inline-flex; align-items: baseline; gap: 5px; font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: italic; font-weight: 800; font-size: 28px; line-height: 1; letter-spacing: .01em; color: var(--t-glow, var(--ball)); }
+.p-pts { display: inline-flex; align-items: baseline; gap: 5px; font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800; font-size: 28px; line-height: 1; letter-spacing: .01em; color: var(--t-glow, var(--ball)); }
 .p-pts small { font-family: 'Be Vietnam Pro', sans-serif; font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255, 255, 255, .66); }
-.pi-pts { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: italic; font-size: 40px; letter-spacing: 0; }
+.pi-pts { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-size: 40px; letter-spacing: 0; }
 
 /* Quả bóng: pickleball thật (lỗ bóng), màu theo hạng, vành mảnh cùng kim loại viền */
 .paddle .paddle-ball { width: 46px; height: 46px; margin-left: -23px; top: -22px;
@@ -236,7 +236,7 @@
     radial-gradient(circle, rgba(0, 0, 0, .26) 2.4px, transparent 3px) 0 0 / 12px 12px,
     radial-gradient(circle at 50% 50%, var(--b-mid), var(--b-lo));
   box-shadow: 0 0 0 2px var(--m-mid), 0 10px 18px -8px rgba(0, 0, 0, .75), 0 0 18px -4px var(--glow), inset 0 -4px 8px rgba(0, 0, 0, .2); }
-.paddle .paddle-ball span { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: italic; font-weight: 800; font-size: 19px; color: var(--b-ink); text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }
+.paddle .paddle-ball span { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800; font-size: 19px; color: var(--b-ink); text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }
 .tier-iron .paddle-ball span { text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
 
 /* Kim cương: ánh sáng lướt chậm trên viền (duy nhất 1 hiệu ứng, không lấp lánh) */

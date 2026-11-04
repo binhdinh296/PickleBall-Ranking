@@ -6,7 +6,7 @@
   </div>
   <% if (account.connected) { %>
     <p class="small">Kênh: <strong><%= account.channelTitle %></strong> · <a class="link" href="https://www.youtube.com/channel/<%= account.channelId %>" target="_blank" rel="noopener">Mở kênh</a></p>
-    <p class="tiny faint">Buổi phát tạo từ CMS được đặt <em>tự lưu</em>: khi kết thúc, YouTube giữ video trên kênh này và website dùng lại cho "Xem lại". Buổi phát dài quá 12 giờ có thể không được YouTube lưu trọn.</p>
+    <p class="tiny faint">Buổi phát tạo từ CMS được đặt <strong>tự lưu</strong>: khi kết thúc, YouTube giữ video trên kênh này và website dùng lại cho "Xem lại". Buổi phát dài quá 12 giờ có thể không được YouTube lưu trọn.</p>
     <% if (user.role === 'admin') { %><form method="post" action="/admin/livestream/youtube/ngat" data-confirm="Ngắt kết nối kênh? Buổi phát đã tạo vẫn còn trên YouTube."><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-danger" type="submit">Ngắt kết nối</button></form><% } %>
   <% } else if (!ytConfigured) { %>
     <p class="small muted">Server chưa có thông tin ứng dụng Google. Quản trị kỹ thuật cần đặt <code>YOUTUBE_CLIENT_ID</code>, <code>YOUTUBE_CLIENT_SECRET</code>, <code>APP_URL</code> trong file <code>.env</code> (xem README). Trong lúc chờ, vẫn có thể tạo buổi phát bằng cách <strong>dán link YouTube có sẵn</strong>.</p>
