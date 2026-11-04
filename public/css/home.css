@@ -679,7 +679,7 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
 .paddles.is-paused .pg-progress i { animation: none; transform: scaleX(0); }
 @keyframes pg-fill { to { transform: scaleX(1); } }
 
-.paddle-slot.pg-in { animation: pg-in .75s cubic-bezier(.2, .8, .25, 1.15) both; animation-delay: calc(var(--k, 0) * 80ms + 120ms); }
+.paddle-slot.pg-in { animation: pg-in .6s cubic-bezier(.2, .8, .25, 1.15) both; animation-delay: calc(var(--k, 0) * 60ms + 80ms); }
 @keyframes pg-in { from { opacity: .25; transform: translateY(26px) scale(.94); } to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {

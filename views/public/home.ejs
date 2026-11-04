@@ -36,7 +36,7 @@
       <h2 class="h2" style="text-align: center;">VẬN ĐỘNG VIÊN <span class="serif gold-text">NỔI BẬT</span></h2>
     </div>
     <% if (!athletes.length) { %><div class="empty">Chưa có vận động viên trên bảng xếp hạng.</div><% } else { %>
-    <div class="paddles enter" style="--d: 300ms;" data-paddles data-interval="4000" role="region" aria-roledescription="carousel" aria-label="Vận động viên nổi bật">
+    <div class="paddles enter" style="--d: 300ms;" data-paddles data-interval="2500" role="region" aria-roledescription="carousel" aria-label="Vận động viên nổi bật">
       <div class="paddle-viewport" data-viewport>
         <ul class="paddle-track" role="list">
           <% athletes.forEach((a, i) => { %><%- include('../partials/paddle', { a, i }) %><% }) %>
