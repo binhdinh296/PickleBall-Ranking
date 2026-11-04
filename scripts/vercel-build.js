@@ -1,7 +1,7 @@
 // Chạy trong bước build của Vercel (xem vercel.json → buildCommand):
 // 1. Cập nhật cấu trúc CSDL (migration)
 // 2. Tạo tài khoản quản trị đầu tiên từ ADMIN_USERNAME / ADMIN_PASSWORD (nếu CSDL chưa có admin)
-// 3. SEED_DEMO=1: nạp dữ liệu mẫu hư cấu khi CSDL còn trống (chỉ dùng cho bản demo)
+// 3. Tự động nạp dữ liệu mẫu hư cấu khi CSDL còn trống (trừ khi đặt rõ SEED_DEMO=0)
 // Không ghi file ra đĩa, không in mật khẩu ra log.
 const db = require('../src/db');
 const { hashPassword, passwordProblem } = require('../src/lib/security');
@@ -38,7 +38,8 @@ function fail(msg) {
     }
   }
 
-  if (process.env.SEED_DEMO === '1') {
+  // Tự động nạp dữ liệu mẫu nếu CSDL chưa có VĐV nào (trừ khi cố ý đặt SEED_DEMO=0)
+  if (process.env.SEED_DEMO !== '0') {
     await require('./seed').seed({ log: (m) => console.log(`✔ ${m}`) });
   }
   await db.close();
