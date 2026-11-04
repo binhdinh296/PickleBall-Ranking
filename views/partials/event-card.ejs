@@ -3,13 +3,16 @@
   const [ey, em, eday] = String(e.end_date || '').slice(0, 10).split('-');
   const dateStr = sday ? (sday === eday && sm === em ? `${sday}/${sm}/${sy}` : `${sday}/${sm} – ${eday}/${em}/${ey}`) : '';
   const isLive = e.status === 'ongoing' || (e.liveCount && e.liveCount > 0);
+  const bannerImg = (e.banner && !e.banner.startsWith('/uploads/')) ? e.banner : (e.slug ? `/static/img/events/${e.slug}.svg` : null);
 %>
 <article class="ecard luxury-ecard <%= isLive ? 'is-live' : e.status === 'upcoming' ? 'is-upcoming' : 'is-ended' %>" data-event-card data-name="<%= (e.name || '').toLowerCase() %>" data-venue="<%= (e.venue || '').toLowerCase() %>" data-status="<%= e.status %>">
   <div class="ecard-ambient" aria-hidden="true"></div>
 
   <!-- Cover Image with Grand Vignette -->
   <a class="cover" href="/giai-dau/<%= e.slug %>" aria-label="<%= e.name %>">
-    <% if (e.banner) { %><img src="<%= e.banner %>" alt="<%= e.name %>" loading="lazy"><% } else { %>
+    <% if (bannerImg) { %>
+      <img src="<%= bannerImg %>" alt="<%= e.name %>" loading="lazy">
+    <% } else { %>
     <svg viewBox="0 0 400 200" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
         <radialGradient id="fc-glow-<%= e.id %>" cx="80%" cy="20%" r="75%">

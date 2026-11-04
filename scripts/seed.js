@@ -254,7 +254,6 @@ async function seed({ log = console.log, force = false } = {}) {
     await run(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description, banner)
       VALUES ('giai-vo-dich-quoc-gia-2026', 'Giải Vô Địch Pickleball Quốc Gia 2026', 'Cung Điền Kinh Mỹ Đình, Hà Nội', 'Đường Trần Hữu Dực, Cầu Giấy, Hà Nội',
       ?, ?, false, false, false, 'Giải vô địch quốc gia quy tụ các tay vợt hàng đầu tranh cúp vô địch và tuyển chọn đội tuyển.', '/static/img/events/giai-vo-dich-quoc-gia-2026.svg')`, addDays(45), addDays(48));
-      ?, ?, false, false, false, 'Giải vô địch quốc gia quy tụ các tay vợt hàng đầu tranh cúp vô địch và tuyển chọn đội tuyển.')`, addDays(45), addDays(48));
 
     return { d1: d1.id, d2: d2.id, d4: d4.id, s1: s1.id, s2: s2.id, s3: s3.id, men, women };
   }).then(async (ids) => {

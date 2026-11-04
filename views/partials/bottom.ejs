@@ -6,8 +6,12 @@
     <div class="stack" style="--gap: 14px; margin-bottom: 40px;">
       <span class="eyebrow" style="color: var(--text-3); text-align: center;">Đối tác đồng hành</span>
       <div class="partners">
-        <% partners.forEach((p) => { %>
-          <a class="partner" href="<%= p.url || '/doi-tac' %>" <%- p.url ? 'target="_blank" rel="noopener"' : '' %>><% if (p.logo) { %><img src="<%= p.logo %>" alt="<%= p.name %>" loading="lazy"><% } else { %><%= p.name %><% } %></a>
+        <% partners.forEach((p) => {
+             const pSlug = (p.name || '').toLowerCase();
+             const pKey = pSlug.includes('joola') ? 'joola' : pSlug.includes('selkirk') ? 'selkirk' : pSlug.includes('franklin') ? 'franklin' : pSlug.includes('crbn') ? 'crbn' : pSlug.includes('revive') ? 'revive' : pSlug.includes('vietcombank') ? 'vietcombank' : 'thethao';
+             const pLogo = (p.logo && !p.logo.startsWith('/uploads/')) ? p.logo : `/static/img/partners/${pKey}.svg`;
+        %>
+          <a class="partner" href="<%= p.url || '/doi-tac' %>" <%- p.url ? 'target="_blank" rel="noopener"' : '' %>><img src="<%= pLogo %>" alt="<%= p.name %>" loading="lazy"></a>
         <% }) %>
       </div>
     </div>

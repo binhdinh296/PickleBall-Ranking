@@ -17,8 +17,9 @@
     <!-- Grand Panoramic Hero Banner -->
     <div class="event-hero-lux-wrap">
       <div class="hero-ambient-glow" aria-hidden="true"></div>
+      <% const heroBanner = (ev.banner && !ev.banner.startsWith('/uploads/')) ? ev.banner : (ev.slug ? `/static/img/events/${ev.slug}.svg` : null); %>
       <div class="event-hero luxury-hero">
-        <% if (ev.banner) { %><img src="<%= ev.banner %>" alt="Banner <%= ev.name %>"><% } else { %>
+        <% if (heroBanner) { %><img src="<%= heroBanner %>" alt="Banner <%= ev.name %>"><% } else { %>
         <svg viewBox="0 0 800 380" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
             <radialGradient id="ev-glow-<%= ev.id %>" cx="80%" cy="20%" r="75%">

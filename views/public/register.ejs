@@ -30,7 +30,10 @@
           <label>
             <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required>
             <span class="opt">
-              <% if (d.banner) { %><img src="<%= d.banner %>" alt=""><% } %>
+              <%
+                const divImg = (d.banner && !d.banner.startsWith('/uploads/')) ? d.banner : `/static/img/divisions/${d.name.includes('6.5') ? 'doi-nam-6-5' : d.name.includes('5.8') ? 'doi-nam-nu-5-8' : d.name.toLowerCase().includes('newbie') ? 'doi-nam-newbie' : d.name.includes('5.5') ? 'doi-nam-nu-hon-hop-5-5' : d.name.includes('3.0') ? 'doi-nu-3-0' : 'dong-doi-tiep-suc-master'}.svg`;
+              %>
+              <img src="<%= divImg %>" alt="" loading="lazy">
               <strong><%= d.name %></strong>
               <small><%= d.subtitle || (d.max_total_points ? `Tổng ≤ ${fmt.pts(d.max_total_points)}` : fmt.GENDER_RULE_LABEL[d.gender_rule]) %></small>
             </span>
