@@ -36,7 +36,14 @@
       <a class="rank-row" href="/vdv/<%= a.id %>">
         <span class="r tnum <%= a.rank <= 3 ? 'top gold-text' : '' %>">#<%= a.rank %></span>
         <%- include('../partials/avatar', { a, size: 44, tone: a.rank === 1 ? 'gold' : '' }) %>
-        <span class="who"><strong><%= a.full_name %> <span aria-label="<%= fmt.GENDER_LABEL[a.gender] %>" style="display: inline; color: <%= a.gender === 'F' ? '#F472B6' : '#60A5FA' %>; font-size: 13px;"><%= a.gender === 'F' ? '♀' : '♂' %></span></strong><span><%= [a.nickname, a.club, a.hometown].filter(Boolean).join(' · ') %></span></span>
+        <span class="who">
+          <strong style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <%= a.full_name %>
+            <span class="chip chip-tier-<%= a.tier.key %>"><%= a.tier.label %></span>
+            <span aria-label="<%= fmt.GENDER_LABEL[a.gender] %>" style="display: inline; color: <%= a.gender === 'F' ? '#F472B6' : '#60A5FA' %>; font-size: 13px;"><%= a.gender === 'F' ? '♀' : '♂' %></span>
+          </strong>
+          <span><%= [a.nickname, a.club, a.hometown].filter(Boolean).join(' · ') %></span>
+        </span>
         <span class="p"><%= fmt.pts(a.points) %><small>ĐIỂM</small></span>
       </a>
       <% }) %>

@@ -14,16 +14,18 @@
       <button type="button" class="paddle-hit" aria-expanded="false" aria-controls="pinfo-<%= a.id %>" aria-label="Xem thông tin <%= a.full_name %>, hạng <%= a.rank %>, hạng huy hiệu <%= tier.label %>"></button>
       <span class="paddle-ball" aria-hidden="true"><span><%= fmt.pad2(i + 1) %></span></span>
       <span class="paddle-caption" aria-hidden="true">
+        <span class="p-tier"><%= tier.label %></span>
         <strong class="p-name"><%= a.full_name %></strong>
         <span class="p-bar"></span>
         <span class="p-pts"><%= fmt.pts(a.points) %><small>điểm</small></span>
       </span>
       <div class="paddle-info" id="pinfo-<%= a.id %>">
-        <span class="pi-eyebrow">Hạng #<%= a.rank %> · <%= fmt.GENDER_LABEL[a.gender] %></span>
+        <span class="pi-eyebrow">Hạng #<%= a.rank %> · <%= tier.label %> · <%= fmt.GENDER_LABEL[a.gender] %></span>
         <strong class="pi-name"><%= a.full_name %></strong>
         <span class="pi-sub"><%= [a.nickname ? `“${a.nickname}”` : null, a.club].filter(Boolean).join(' · ') || a.hometown || '' %></span>
         <span class="pi-pts"><%= fmt.pts(a.points) %></span>
         <dl class="pi-stats">
+          <div><dt>Hạng huy hiệu</dt><dd class="gold-text"><%= tier.label %></dd></div>
           <div><dt>Cao nhất</dt><dd><%= fmt.pts(a.peak_points) %></dd></div>
           <div><dt>Lock</dt><dd><%= fmt.pts(a.lock) %></dd></div>
           <div><dt>Lên bục</dt><dd><%= a.podiums %></dd></div>

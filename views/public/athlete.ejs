@@ -13,6 +13,7 @@
         </div>
       </div>
       <div class="row" style="--gap: 8px;">
+        <span class="chip chip-tier-<%= tier.key %>">Hạng <%= tier.label %></span>
         <span class="chip"><%= fmt.GENDER_LABEL[a.gender] %></span>
         <% if (a.club) { %><span class="chip"><%= a.club %></span><% } %>
         <% if (a.hometown) { %><span class="chip"><%= a.hometown %></span><% } %>

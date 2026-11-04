@@ -8,17 +8,15 @@ const { hashPassword } = require('../src/lib/security');
 const bracket = require('../src/lib/bracket');
 
 const FAMILY = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Võ', 'Vũ', 'Đặng', 'Bùi', 'Đỗ', 'Hồ', 'Ngô', 'Dương', 'Lý', 'Đinh'];
-const MALE = [
-  'Minh Khoa', 'Quốc Bảo', 'Đức Anh', 'Hải Nam', 'Gia Huy', 'Thanh Tùng', 'Văn Long', 'Tuấn Kiệt',
-  'Hoàng Phúc', 'Đình Trọng', 'Công Danh', 'Trung Kiên', 'Bảo Lâm', 'Nhật Minh', 'Quang Vinh', 'Anh Tuấn',
-  'Thành Đạt', 'Hữu Phước', 'Xuân Trường', 'Tiến Dũng', 'Việt Hoàng', 'Khánh Duy', 'Huy Hoàng', 'Trọng Hiếu',
-  'Minh Trí', 'Hải Đăng', 'Quang Hải', 'Văn Đức', 'Hồng Quân', 'Thế Anh', 'Đức Trọng', 'Bảo Nam',
-  'Chí Cường', 'Văn Hậu', 'Minh Nhật', 'Tấn Tài',
+const OTHER_MALE = [
+  'Văn Long', 'Tuấn Kiệt', 'Hoàng Phúc', 'Đình Trọng', 'Công Danh', 'Trung Kiên', 'Bảo Lâm', 'Nhật Minh',
+  'Quang Vinh', 'Anh Tuấn', 'Thành Đạt', 'Hữu Phước', 'Xuân Trường', 'Tiến Dũng', 'Việt Hoàng', 'Khánh Duy',
+  'Huy Hoàng', 'Trọng Hiếu', 'Minh Trí', 'Hải Đăng', 'Quang Hải', 'Văn Đức', 'Hồng Quân', 'Thế Anh',
+  'Đức Trọng', 'Bảo Nam', 'Chí Cường', 'Văn Hậu', 'Minh Nhật', 'Tấn Tài',
 ];
-const FEMALE = [
-  'Thu Hà', 'Ngọc Lan', 'Minh Thư', 'Phương Anh', 'Bảo Ngọc', 'Khánh Linh', 'Thanh Huyền', 'Mai Anh',
-  'Hồng Nhung', 'Diệu Linh', 'Tuyết Mai', 'Quỳnh Nga', 'Thu Thảo', 'Hương Giang', 'Bích Phương', 'Yến Nhi',
-  'Mỹ Linh', 'Trang Nhung', 'Hải Yến', 'Thảo My',
+const OTHER_FEMALE = [
+  'Thanh Huyền', 'Mai Anh', 'Hồng Nhung', 'Diệu Linh', 'Tuyết Mai', 'Quỳnh Nga', 'Thu Thảo',
+  'Hương Giang', 'Bích Phương', 'Yến Nhi', 'Mỹ Linh', 'Trang Nhung', 'Hải Yến', 'Thảo My',
 ];
 const CLUBS = [
   'CLB Sông Lam (Vinh)', 'CLB Bến Thủy (Nghệ An)', 'CLB Cửa Lò Pickleball', 'CLB Ba Đình (Hà Nội)',
@@ -28,6 +26,23 @@ const CLUBS = [
 const TOWNS = ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Vinh', 'Cửa Lò', 'Hà Tĩnh', 'Hải Phòng', 'Bình Dương', 'Cần Thơ', 'Vũng Tàu', 'Nha Trang', 'Quảng Ninh'];
 const PREFIX = ['090', '091', '093', '094', '096', '097', '098', '086', '088', '089', '070', '077', '032', '035', '038', '081', '083', '085'];
 const NICKS = ['Smash', 'Dink', 'Volley', 'Lob', 'Spin', 'Erne', 'Bert', 'ATP', 'Ace', 'Fire', 'Speed'];
+
+// 12 VĐV nổi bật đại diện đầy đủ 6 mức rank (mỗi mức 1 Nam, 1 Nữ)
+// Diamond >= 3400 | Platinum 3300-3395 | Gold 3200-3295 | Silver 3100-3195 | Bronze 3000-3095 | Iron < 3000
+const FEATURED_SPEC = [
+  { given: 'Minh Khoa', gender: 'M', points: 3650, peak: 3700, nick: 'Khoa ATP', club: 'CLB Sài Gòn Dinker', town: 'TP. Hồ Chí Minh' }, // Kim cương
+  { given: 'Ngọc Lan', gender: 'F', points: 3450, peak: 3500, nick: 'Lan Volley', club: 'CLB Ba Đình (Hà Nội)', town: 'Hà Nội' }, // Kim cương
+  { given: 'Quốc Bảo', gender: 'M', points: 3380, peak: 3420, nick: 'Bảo Bert', club: 'CLB Sông Lam (Vinh)', town: 'Vinh' }, // Bạch kim
+  { given: 'Thu Hà', gender: 'F', points: 3320, peak: 3360, nick: 'Hà Smash', club: 'CLB Phượng Hoàng (Đà Nẵng)', town: 'Đà Nẵng' }, // Bạch kim
+  { given: 'Đức Anh', gender: 'M', points: 3270, peak: 3300, nick: 'Đức Erne', club: 'CLB Bến Thủy (Nghệ An)', town: 'Nghệ An' }, // Vàng
+  { given: 'Phương Anh', gender: 'F', points: 3215, peak: 3250, nick: 'Phương Spin', club: 'CLB Tây Hồ Dinker', town: 'Hà Nội' }, // Vàng
+  { given: 'Hải Nam', gender: 'M', points: 3180, peak: 3200, nick: 'Nam Ace', club: 'CLB Thủ Đức Pickleball', town: 'TP. Hồ Chí Minh' }, // Bạc
+  { given: 'Minh Thư', gender: 'F', points: 3120, peak: 3160, nick: 'Thư Dink', club: 'CLB Cửa Lò Pickleball', town: 'Cửa Lò' }, // Bạc
+  { given: 'Gia Huy', gender: 'M', points: 3080, peak: 3100, nick: 'Huy Fire', club: 'CLB Bình Dương Smash', town: 'Bình Dương' }, // Đồng
+  { given: 'Bảo Ngọc', gender: 'F', points: 3025, peak: 3050, nick: 'Ngọc Lob', club: 'CLB Hải Phòng Pickle', town: 'Hải Phòng' }, // Đồng
+  { given: 'Thanh Tùng', gender: 'M', points: 2850, peak: 2900, nick: 'Tùng Speed', club: 'CLB Vũng Tàu Sunshine', town: 'Vũng Tàu' }, // Sắt
+  { given: 'Khánh Linh', gender: 'F', points: 2680, peak: 2720, nick: 'Linh Newbie', club: 'CLB Cần Thơ Riverside', town: 'Cần Thơ' }, // Sắt
+];
 
 function rnd(seed) {
   let s = seed;
@@ -72,34 +87,49 @@ async function seed({ log = console.log, force = false } = {}) {
   }
 
   await tx(async () => {
-    // ---- VĐV (56 vận động viên) ----
     const athletes = [];
     const used = new Set();
-    const make = async (given, gender, base) => {
+    const makePhone = () => {
       let phone;
       do { phone = pick(PREFIX) + String(Math.floor(r() * 1e7)).padStart(7, '0'); } while (used.has(phone));
       used.add(phone);
-      const full = `${pick(FAMILY)} ${given}`;
-      const points = Math.round((base + r() * 0.35) * 1000 / 5) * 5;
-      const nick = r() > 0.4 ? given.split(' ').pop() + ' ' + pick(NICKS) : null;
-      const peak = points + (r() > 0.6 ? Math.round(r() * 80 / 5) * 5 : 0);
+      return phone;
+    };
+
+    // 1. Tạo 12 VĐV NỔI BẬT đại diện đủ 6 mức rank
+    for (const spec of FEATURED_SPEC) {
+      const full = `${pick(FAMILY)} ${spec.given}`;
       const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured)
-        VALUES (?,?,?,?,?,?,?,?,?) RETURNING *`, full, nick, phone, gender, pick(TOWNS), pick(CLUBS), points, peak, false);
-      
-      // Lịch sử điểm số đa dạng
+        VALUES (?,?,?,?,?,?,?,?,true) RETURNING *`, full, spec.nick, makePhone(), spec.gender, spec.town, spec.club, spec.points, spec.peak);
+
       await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'init', 'Khởi tạo xếp hạng ban đầu', 'Ban tổ chức', now() - interval '90 days')",
-        a.id, Math.max(1800, points - 250), Math.max(1800, points - 250));
-      if (r() > 0.3) {
-        await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'tournament', 'Thành tích giải Mùa Hè 2026', 'Ban tổ chức', now() - interval '45 days')",
-          a.id, points - 150, points - 50);
-      }
-      await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'adjust', 'Đánh giá xếp hạng gần nhất', 'Ban tổ chức', now() - interval '10 days')",
-        a.id, points - 50, points);
+        a.id, Math.max(1800, spec.points - 200), Math.max(1800, spec.points - 200));
+      await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'tournament', 'Huy chương giải Mùa Hè 2026', 'Ban tổ chức', now() - interval '40 days')",
+        a.id, spec.points - 100, spec.points - 20);
+      await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'adjust', 'Cập nhật điểm sau giải đấu gần nhất', 'Ban tổ chức', now() - interval '7 days')",
+        a.id, spec.points - 20, spec.points);
+      athletes.push(a);
+    }
+
+    // 2. Tạo 44 VĐV còn lại phân bố tự nhiên (30 nam, 14 nữ)
+    const makeOther = async (given, gender, base) => {
+      const full = `${pick(FAMILY)} ${given}`;
+      const points = Math.round((base + r() * 0.3) * 1000 / 5) * 5;
+      const nick = r() > 0.4 ? given.split(' ').pop() + ' ' + pick(NICKS) : null;
+      const peak = points + (r() > 0.5 ? Math.round(r() * 60 / 5) * 5 : 0);
+      const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured)
+        VALUES (?,?,?,?,?,?,?,?,false) RETURNING *`, full, nick, makePhone(), gender, pick(TOWNS), pick(CLUBS), points, peak);
+
+      await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'init', 'Khởi tạo điểm trình', 'Ban tổ chức', now() - interval '80 days')",
+        a.id, Math.max(1800, points - 150), Math.max(1800, points - 150));
+      await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'adjust', 'Đánh giá xếp hạng', 'Ban tổ chức', now() - interval '15 days')",
+        a.id, points - 30, points);
       athletes.push(a);
     };
 
-    for (let i = 0; i < MALE.length; i++) await make(MALE[i], 'M', 3.85 - i * 0.045);
-    for (let i = 0; i < FEMALE.length; i++) await make(FEMALE[i], 'F', 3.45 - i * 0.05);
+    for (let i = 0; i < OTHER_MALE.length; i++) await makeOther(OTHER_MALE[i], 'M', 3.4 - i * 0.04);
+    for (let i = 0; i < OTHER_FEMALE.length; i++) await makeOther(OTHER_FEMALE[i], 'F', 3.1 - i * 0.05);
+
     const men = athletes.filter((a) => a.gender === 'M');
     const women = athletes.filter((a) => a.gender === 'F');
 
@@ -220,9 +250,6 @@ async function seed({ log = console.log, force = false } = {}) {
     await run('INSERT INTO partners(name, url, sort_order, visible) VALUES (?, ?, ?, true)', s.name, s.url, s.sort);
   }
 
-  // Đặt 4 VĐV hàng đầu làm VĐV nổi bật trên trang chủ
-  await run(`UPDATE athletes SET featured = true WHERE id IN (SELECT id FROM athletes ORDER BY points DESC LIMIT 4)`);
-
   // Sinh ảnh mẫu cho các mục chưa có ảnh
   const { useBlob } = require('../src/lib/upload');
   if (useBlob() || !process.env.VERCEL) {
@@ -234,7 +261,7 @@ async function seed({ log = console.log, force = false } = {}) {
   const athleteCountFinal = (await get('SELECT COUNT(*) AS c FROM athletes')).c;
   const eventCountFinal = (await get('SELECT COUNT(*) AS c FROM events')).c;
   const matchCountFinal = (await get('SELECT COUNT(*) AS c FROM matches')).c;
-  log(`✔ Đã nạp dữ liệu mẫu: ${athleteCountFinal} VĐV, ${eventCountFinal} giải đấu, ${matchCountFinal} trận đấu, 6 đối tác tài trợ.`);
+  log(`✔ Đã nạp dữ liệu mẫu: ${athleteCountFinal} VĐV (12 VĐV nổi bật đủ 6 mức rank), ${eventCountFinal} giải đấu, ${matchCountFinal} trận đấu.`);
 }
 
 module.exports = { seed };

@@ -202,6 +202,20 @@ button { font: inherit; }
 .chip-err { color: var(--err); border-color: color-mix(in oklab, var(--err) 45%, transparent); }
 .chip-muted { color: var(--text-3); }
 
+/* Huy hiệu hạng (Diamond, Platinum, Gold, Silver, Bronze, Iron) */
+.chip-tier-diamond  { background: linear-gradient(135deg, rgba(169, 196, 255, .25), rgba(91, 95, 201, .3)); color: #A9C4FF; border-color: rgba(169, 196, 255, .4); font-size: 11px; padding: 2px 8px; font-weight: 700; }
+.chip-tier-platinum { background: linear-gradient(135deg, rgba(169, 220, 210, .25), rgba(74, 140, 130, .3)); color: #7FD3C2; border-color: rgba(120, 214, 196, .4); font-size: 11px; padding: 2px 8px; font-weight: 700; }
+.chip-tier-gold     { background: linear-gradient(135deg, rgba(221, 180, 90, .25), rgba(138, 98, 32, .3)); color: #F5D27C; border-color: rgba(230, 190, 100, .4); font-size: 11px; padding: 2px 8px; font-weight: 700; }
+.chip-tier-silver   { background: linear-gradient(135deg, rgba(195, 203, 212, .25), rgba(111, 122, 135, .3)); color: #D5D9DF; border-color: rgba(190, 204, 220, .4); font-size: 11px; padding: 2px 8px; font-weight: 700; }
+.chip-tier-bronze   { background: linear-gradient(135deg, rgba(184, 122, 75, .25), rgba(107, 60, 30, .3)); color: #F3C29A; border-color: rgba(196, 122, 70, .4); font-size: 11px; padding: 2px 8px; font-weight: 700; }
+.chip-tier-iron     { background: rgba(110, 116, 126, .2); color: #8E95A0; border-color: rgba(110, 116, 126, .35); font-size: 11px; padding: 2px 8px; font-weight: 700; }
+[data-theme="light"] .chip-tier-diamond  { color: #3B3FAD; border-color: #8CA0EB; }
+[data-theme="light"] .chip-tier-platinum { color: #1E6357; border-color: #5AA394; }
+[data-theme="light"] .chip-tier-gold     { color: #785307; border-color: #D4A843; }
+[data-theme="light"] .chip-tier-silver   { color: #4B5563; border-color: #9CA3AF; }
+[data-theme="light"] .chip-tier-bronze   { color: #7C3D18; border-color: #C0794D; }
+[data-theme="light"] .chip-tier-iron     { color: #374151; border-color: #6B7280; }
+
 /* ---------- Tab cuộn ngang (chọn nội dung, chọn sân) ---------- */
 .tabs { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; padding: 2px 2px 6px; margin: 0 -2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .tabs::-webkit-scrollbar { display: none; }
