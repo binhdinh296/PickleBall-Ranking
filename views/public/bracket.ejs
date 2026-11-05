@@ -2,7 +2,7 @@
 <section class="page-head glow">
   <div class="container stack" style="--gap: 18px;">
     <%- include('../partials/event-nav', { current: 'bracket' }) %>
-    <div><span class="eyebrow">Nhánh đấu</span><h1 class="h1" style="font-size: clamp(26px, 6.5vw, 42px);"><%= d ? d.name : ev.name %></h1>
+    <div><span class="eyebrow">NHÁNH ĐẤU</span><h1 class="h1" style="font-size: clamp(26px, 6.5vw, 42px);"><%= d ? d.name : ev.name %></h1>
       <% if (d && d.format === 'roundrobin') { %><p class="muted small" style="margin-top: 6px;"><%= data.teams.length %> đội<%= d.relay_legs ? ` · ${d.relay_legs} chặng · chạm ${d.relay_legs * d.relay_step}` : '' %> · vòng tròn</p><% } %>
     </div>
     <%- include('../partials/division-tabs') %>

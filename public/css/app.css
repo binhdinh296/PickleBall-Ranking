@@ -225,7 +225,7 @@ button { font: inherit; }
 .eyebrow { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-court); margin-bottom: 10px; }
 .eyebrow.gold { color: var(--ink-gold); }
 .h2 { font-size: clamp(20px, 2.8vw, 28px); font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.25; }
-.h1 { font-size: clamp(32px, 8vw, 56px); font-weight: 800; letter-spacing: -0.03em; }
+.h1 { font-size: clamp(26px, 4.5vw, 40px); font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; line-height: 1.2; }
 .page-head { padding-block: 32px 8px; }
 @media (min-width: 900px) { .page-head { padding-block: 56px 16px; } }
 .glow { background: radial-gradient(70% 60% at 90% 0%, var(--glow-a), transparent 70%), radial-gradient(50% 50% at 0% 100%, var(--glow-b), transparent 70%); }

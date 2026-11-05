@@ -2,7 +2,7 @@
 <section class="page-head glow">
   <div class="container stack" style="--gap: 18px;">
     <%- include('../partials/event-nav', { current: 'live' }) %>
-    <div><span class="eyebrow">Trực tiếp</span><h1 class="h1" style="font-size: clamp(26px, 6.5vw, 42px);">Xem trận đấu <span class="serif grad-text">ngay tại sân</span></h1></div>
+    <div><span class="eyebrow">TRỰC TIẾP</span><h1 class="h1" style="font-size: clamp(26px, 6.5vw, 42px);">XEM TRẬN ĐẤU <span class="serif grad-text">NGAY TẠI SÂN</span></h1></div>
     <% if (ev.streams.length > 1) { %>
     <nav class="tabs" aria-label="Chọn sân">
       <% ev.streams.forEach((s) => { %><a class="tab" href="?san=<%= s.id %>" aria-current="<%= stream && stream.id === s.id %>"><% if (s.status === 'live') { %><span class="live-dot"></span><% } %><%= s.court %><% if (s.status === 'ended') { %> · đã xong<% } else if (s.status === 'scheduled') { %> · sắp phát<% } %></a><% }) %>
