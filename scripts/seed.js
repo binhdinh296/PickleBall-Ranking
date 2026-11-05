@@ -18,40 +18,44 @@ const OTHER_FEMALE = [
   'Thanh Huyền', 'Mai Anh', 'Hồng Nhung', 'Diệu Linh', 'Tuyết Mai', 'Quỳnh Nga', 'Thu Thảo',
   'Hương Giang', 'Bích Phương', 'Yến Nhi', 'Mỹ Linh', 'Trang Nhung', 'Hải Yến', 'Thảo My',
 ];
+// Dữ liệu mẫu chỉ dùng CLB và địa phương thuộc Nghệ An, Hà Tĩnh (tên CLB là hư cấu)
 const CLUBS = [
-  'CLB Sông Lam (Vinh)', 'CLB Bến Thủy (Nghệ An)', 'CLB Cửa Lò Pickleball', 'CLB Ba Đình (Hà Nội)',
-  'CLB Sài Gòn Dinker', 'CLB Phượng Hoàng (Đà Nẵng)', 'CLB Thủ Đức Pickleball', 'CLB Bình Dương Smash',
-  'CLB Hải Phòng Pickle', 'CLB Tây Hồ Dinker', 'CLB Vũng Tàu Sunshine', 'CLB Cần Thơ Riverside',
+  'CLB Sông Lam (Vinh)', 'CLB Bến Thủy (Vinh)', 'CLB Cửa Lò Pickleball', 'CLB Cửa Hội Dinker (Cửa Lò)',
+  'CLB Hoàng Mai Smash (Nghệ An)', 'CLB Diễn Châu Pickleball', 'CLB Đô Lương Pickle', 'CLB Thái Hòa Dinker (Nghệ An)',
+  'CLB Hồng Lĩnh Pickleball (Hà Tĩnh)', 'CLB Thạch Hà Dinker (Hà Tĩnh)', 'CLB Thiên Cầm Sunshine (Hà Tĩnh)', 'CLB Kỳ Anh Smash (Hà Tĩnh)',
 ];
-const TOWNS = ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Vinh', 'Cửa Lò', 'Hà Tĩnh', 'Hải Phòng', 'Bình Dương', 'Cần Thơ', 'Vũng Tàu', 'Nha Trang', 'Quảng Ninh'];
+const TOWNS = [
+  'Vinh', 'Cửa Lò', 'Hoàng Mai', 'Thái Hòa', 'Diễn Châu', 'Đô Lương', 'Quỳnh Lưu', 'Nghi Lộc',
+  'Hà Tĩnh', 'Hồng Lĩnh', 'Kỳ Anh', 'Cẩm Xuyên', 'Nghi Xuân', 'Thạch Hà',
+];
 const PREFIX = ['090', '091', '093', '094', '096', '097', '098', '086', '088', '089', '070', '077', '032', '035', '038', '081', '083', '085'];
 const NICKS = ['Smash', 'Dink', 'Volley', 'Lob', 'Spin', 'Erne', 'Bert', 'ATP', 'Ace', 'Fire', 'Speed'];
 
 // 12 VĐV nổi bật đại diện đầy đủ 6 mức rank (mỗi mức 1 Nam, 1 Nữ) kèm ảnh chân dung Unsplash
 const FEATURED_SPEC = [
-  { given: 'Minh Khoa', gender: 'M', points: 3650, peak: 3700, nick: 'Khoa ATP', club: 'CLB Sài Gòn Dinker', town: 'TP. Hồ Chí Minh',
+  { given: 'Minh Khoa', gender: 'M', points: 3650, peak: 3700, nick: 'Khoa ATP', club: 'CLB Sông Lam (Vinh)', town: 'Vinh',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Kim cương
-  { given: 'Ngọc Lan', gender: 'F', points: 3450, peak: 3500, nick: 'Lan Volley', club: 'CLB Ba Đình (Hà Nội)', town: 'Hà Nội',
+  { given: 'Ngọc Lan', gender: 'F', points: 3450, peak: 3500, nick: 'Lan Volley', club: 'CLB Hồng Lĩnh Pickleball (Hà Tĩnh)', town: 'Hồng Lĩnh',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Kim cương
-  { given: 'Quốc Bảo', gender: 'M', points: 3380, peak: 3420, nick: 'Bảo Bert', club: 'CLB Sông Lam (Vinh)', town: 'Vinh',
+  { given: 'Quốc Bảo', gender: 'M', points: 3380, peak: 3420, nick: 'Bảo Bert', club: 'CLB Bến Thủy (Vinh)', town: 'Vinh',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Bạch kim
-  { given: 'Thu Hà', gender: 'F', points: 3320, peak: 3360, nick: 'Hà Smash', club: 'CLB Phượng Hoàng (Đà Nẵng)', town: 'Đà Nẵng',
+  { given: 'Thu Hà', gender: 'F', points: 3320, peak: 3360, nick: 'Hà Smash', club: 'CLB Thạch Hà Dinker (Hà Tĩnh)', town: 'Hà Tĩnh',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Bạch kim
-  { given: 'Đức Anh', gender: 'M', points: 3270, peak: 3300, nick: 'Đức Erne', club: 'CLB Bến Thủy (Nghệ An)', town: 'Nghệ An',
+  { given: 'Đức Anh', gender: 'M', points: 3270, peak: 3300, nick: 'Đức Erne', club: 'CLB Cửa Hội Dinker (Cửa Lò)', town: 'Cửa Lò',
     avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Vàng
-  { given: 'Phương Anh', gender: 'F', points: 3215, peak: 3250, nick: 'Phương Spin', club: 'CLB Tây Hồ Dinker', town: 'Hà Nội',
+  { given: 'Phương Anh', gender: 'F', points: 3215, peak: 3250, nick: 'Phương Spin', club: 'CLB Diễn Châu Pickleball', town: 'Diễn Châu',
     avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Vàng
-  { given: 'Hải Nam', gender: 'M', points: 3180, peak: 3200, nick: 'Nam Ace', club: 'CLB Thủ Đức Pickleball', town: 'TP. Hồ Chí Minh',
+  { given: 'Hải Nam', gender: 'M', points: 3180, peak: 3200, nick: 'Nam Ace', club: 'CLB Kỳ Anh Smash (Hà Tĩnh)', town: 'Kỳ Anh',
     avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Bạc
   { given: 'Minh Thư', gender: 'F', points: 3120, peak: 3160, nick: 'Thư Dink', club: 'CLB Cửa Lò Pickleball', town: 'Cửa Lò',
     avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Bạc
-  { given: 'Gia Huy', gender: 'M', points: 3080, peak: 3100, nick: 'Huy Fire', club: 'CLB Bình Dương Smash', town: 'Bình Dương',
+  { given: 'Gia Huy', gender: 'M', points: 3080, peak: 3100, nick: 'Huy Fire', club: 'CLB Hoàng Mai Smash (Nghệ An)', town: 'Hoàng Mai',
     avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Đồng
-  { given: 'Bảo Ngọc', gender: 'F', points: 3025, peak: 3050, nick: 'Ngọc Lob', club: 'CLB Hải Phòng Pickle', town: 'Hải Phòng',
+  { given: 'Bảo Ngọc', gender: 'F', points: 3025, peak: 3050, nick: 'Ngọc Lob', club: 'CLB Thiên Cầm Sunshine (Hà Tĩnh)', town: 'Cẩm Xuyên',
     avatar: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Đồng
-  { given: 'Thanh Tùng', gender: 'M', points: 2850, peak: 2900, nick: 'Tùng Speed', club: 'CLB Vũng Tàu Sunshine', town: 'Vũng Tàu',
+  { given: 'Thanh Tùng', gender: 'M', points: 2850, peak: 2900, nick: 'Tùng Speed', club: 'CLB Đô Lương Pickle', town: 'Đô Lương',
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Sắt
-  { given: 'Khánh Linh', gender: 'F', points: 2680, peak: 2720, nick: 'Linh Newbie', club: 'CLB Cần Thơ Riverside', town: 'Cần Thơ',
+  { given: 'Khánh Linh', gender: 'F', points: 2680, peak: 2720, nick: 'Linh Newbie', club: 'CLB Thái Hòa Dinker (Nghệ An)', town: 'Thái Hòa',
     avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&h=500&fit=crop&crop=faces&auto=format' }, // Sắt
 ];
 
@@ -81,11 +85,11 @@ async function seed({ log = console.log, force = false } = {}) {
 
   // ---- 1. Cấu hình hệ thống (Settings) ----
   const defaultSettings = [
-    ['site_name', 'PICKLERANK'],
+    ['site_name', 'PickNgheTinh'],
     ['site_tagline', 'Hệ thống ranking & giải đấu Pickleball'],
     ['hero_title', 'HỆ THỐNG RANKING & GIẢI ĐẤU PICKLEBALL'],
-    ['hero_text', 'Bảng xếp hạng điểm trình chính xác, cập nhật tự động sau từng trận đấu và livestream trực tiếp.'],
-    ['contact_email', 'contact@picklerank.vn'],
+    ['hero_text', 'Nơi kết nối cộng đồng Pickleball Nghệ An, Hà Tĩnh, tổ chức giải đấu chuyên nghiệp và xây dựng hệ thống ranking minh bạch.'],
+    ['contact_email', 'contact@picknghetinh.vn'],
     ['contact_phone', '0901 234 567'],
     ['ball_color', '#D4F53C'],
     ['court_color', '#14B8A6'],
@@ -170,18 +174,18 @@ async function seed({ log = console.log, force = false } = {}) {
 
     // 5. Đơn chấm trình: đầy đủ cả 3 trạng thái (Pending, Approved, Rejected)
     const subs = [
-      { name: 'Lý Gia Bảo', nick: 'Bảo Lý', phone: '0912345670', gender: 'M', pts: 2750, town: 'Vinh', club: 'CLB Sông Lam', desc: 'Chơi được 1 năm, từng vào bán kết giải phong trào địa phương.', status: 'pending', createdAgo: '1 day' },
-      { name: 'Trịnh Mai Phương', nick: 'Phương Dink', phone: '0987654320', gender: 'F', pts: 2400, town: 'Hà Nội', club: 'CLB Ba Đình', desc: 'Tập luyện thường xuyên 6 tháng, cần chấm điểm vào bảng xếp hạng.', status: 'pending', createdAgo: '2 days' },
-      { name: 'Đỗ Hoàng Quân', nick: 'Quân Lob', phone: '0903445566', gender: 'M', pts: 3100, town: 'TP. Hồ Chí Minh', club: 'CLB Sài Gòn Dinker', desc: 'Vô địch giải phong trào quận 2, lối đánh volley nhanh tay.', status: 'pending', createdAgo: '3 hours' },
-      { name: 'Nguyễn Hải Yến', nick: 'Yến Volley', phone: '0977112233', gender: 'F', pts: 2850, town: 'Đà Nẵng', club: 'CLB Phượng Hoàng', desc: 'Chơi 1.5 năm, tham gia giải CLB đạt hạng nhì đôi nữ.', status: 'pending', createdAgo: '12 hours' },
+      { name: 'Lý Gia Bảo', nick: 'Bảo Lý', phone: '0912345670', gender: 'M', pts: 2750, town: 'Vinh', club: 'CLB Sông Lam (Vinh)', desc: 'Chơi được 1 năm, từng vào bán kết giải phong trào địa phương.', status: 'pending', createdAgo: '1 day' },
+      { name: 'Trịnh Mai Phương', nick: 'Phương Dink', phone: '0987654320', gender: 'F', pts: 2400, town: 'Nghi Xuân', club: 'CLB Hồng Lĩnh Pickleball (Hà Tĩnh)', desc: 'Tập luyện thường xuyên 6 tháng, cần chấm điểm vào bảng xếp hạng.', status: 'pending', createdAgo: '2 days' },
+      { name: 'Đỗ Hoàng Quân', nick: 'Quân Lob', phone: '0903445566', gender: 'M', pts: 3100, town: 'Hà Tĩnh', club: 'CLB Thạch Hà Dinker (Hà Tĩnh)', desc: 'Vô địch giải phong trào Thạch Hà, lối đánh volley nhanh tay.', status: 'pending', createdAgo: '3 hours' },
+      { name: 'Nguyễn Hải Yến', nick: 'Yến Volley', phone: '0977112233', gender: 'F', pts: 2850, town: 'Diễn Châu', club: 'CLB Diễn Châu Pickleball', desc: 'Chơi 1.5 năm, tham gia giải CLB đạt hạng nhì đôi nữ.', status: 'pending', createdAgo: '12 hours' },
 
-      { name: 'Vũ Hoàng Long', nick: 'Long Smash', phone: '0933112233', gender: 'M', pts: 3200, town: 'TP. Hồ Chí Minh', club: 'CLB Sài Gòn Dinker', desc: 'Từng đạt Á quân giải quận 7.', status: 'approved', reviewer: 'admin', note: 'Đã xác minh video và thành tích giải quận 7.', createdAgo: '5 days' },
-      { name: 'Phạm Thảo My', nick: 'My Ace', phone: '0966889900', gender: 'F', pts: 2900, town: 'Hà Nội', club: 'CLB Tây Hồ Dinker', desc: 'Tập luyện 2 năm, cú giao bóng spin tốt.', status: 'approved', reviewer: 'nguyenlong', note: 'Trình độ cơ bản vững, đạt chuẩn trình 2.900.', createdAgo: '7 days' },
-      { name: 'Bùi Tiến Dũng', nick: 'Dũng Erne', phone: '0988223344', gender: 'M', pts: 3350, town: 'Nghệ An', club: 'CLB Bến Thủy', desc: 'Thi đấu giải mở rộng Nghệ An 2025.', status: 'approved', reviewer: 'admin', note: 'Xác thực trình độ qua video trận bán kết.', createdAgo: '10 days' },
+      { name: 'Vũ Hoàng Long', nick: 'Long Smash', phone: '0933112233', gender: 'M', pts: 3200, town: 'Kỳ Anh', club: 'CLB Kỳ Anh Smash (Hà Tĩnh)', desc: 'Từng đạt Á quân giải mở rộng Kỳ Anh.', status: 'approved', reviewer: 'admin', note: 'Đã xác minh video và thành tích giải mở rộng Kỳ Anh.', createdAgo: '5 days' },
+      { name: 'Phạm Thảo My', nick: 'My Ace', phone: '0966889900', gender: 'F', pts: 2900, town: 'Cửa Lò', club: 'CLB Cửa Hội Dinker (Cửa Lò)', desc: 'Tập luyện 2 năm, cú giao bóng spin tốt.', status: 'approved', reviewer: 'nguyenlong', note: 'Trình độ cơ bản vững, đạt chuẩn trình 2.900.', createdAgo: '7 days' },
+      { name: 'Bùi Tiến Dũng', nick: 'Dũng Erne', phone: '0988223344', gender: 'M', pts: 3350, town: 'Vinh', club: 'CLB Bến Thủy (Vinh)', desc: 'Thi đấu giải mở rộng Nghệ An 2025.', status: 'approved', reviewer: 'admin', note: 'Xác thực trình độ qua video trận bán kết.', createdAgo: '10 days' },
 
-      { name: 'Đặng Thị Thảo', nick: null, phone: '0977889900', gender: 'F', pts: 2150, town: 'Đà Nẵng', club: 'CLB Phượng Hoàng', desc: 'Vừa hoàn thành khóa học cơ bản 1 tháng.', status: 'rejected', reviewer: 'admin', note: 'Chưa đủ điều kiện đánh giá, cần gửi video thi đấu thực tế.', createdAgo: '4 days' },
-      { name: 'Trần Minh Trí', nick: 'Trí Speed', phone: '0911556677', gender: 'M', pts: 3450, town: 'Hải Phòng', club: 'CLB Hải Phòng Pickle', desc: 'Đề xuất xếp hạng trình độ kim cương.', status: 'rejected', reviewer: 'nguyenlong', note: 'Điểm đề xuất vượt quá trình độ quan sát thực tế (đề xuất 3.450 -> nên chấm 2.800).', createdAgo: '8 days' },
-      { name: 'Hoàng Quốc Khánh', nick: null, phone: '0933778899', gender: 'M', pts: 2600, town: 'Cần Thơ', club: 'CLB Cần Thơ Riverside', desc: 'Chơi tự do tại sân nhà.', status: 'rejected', reviewer: 'admin', note: 'Số điện thoại không chính chủ và thông tin chưa rõ ràng.', createdAgo: '15 days' },
+      { name: 'Đặng Thị Thảo', nick: null, phone: '0977889900', gender: 'F', pts: 2150, town: 'Đô Lương', club: 'CLB Đô Lương Pickle', desc: 'Vừa hoàn thành khóa học cơ bản 1 tháng.', status: 'rejected', reviewer: 'admin', note: 'Chưa đủ điều kiện đánh giá, cần gửi video thi đấu thực tế.', createdAgo: '4 days' },
+      { name: 'Trần Minh Trí', nick: 'Trí Speed', phone: '0911556677', gender: 'M', pts: 3450, town: 'Hoàng Mai', club: 'CLB Hoàng Mai Smash (Nghệ An)', desc: 'Đề xuất xếp hạng trình độ kim cương.', status: 'rejected', reviewer: 'nguyenlong', note: 'Điểm đề xuất vượt quá trình độ quan sát thực tế (đề xuất 3.450 -> nên chấm 2.800).', createdAgo: '8 days' },
+      { name: 'Hoàng Quốc Khánh', nick: null, phone: '0933778899', gender: 'M', pts: 2600, town: 'Cẩm Xuyên', club: 'CLB Thiên Cầm Sunshine (Hà Tĩnh)', desc: 'Chơi tự do tại sân nhà.', status: 'rejected', reviewer: 'admin', note: 'Số điện thoại không chính chủ và thông tin chưa rõ ràng.', createdAgo: '15 days' },
     ];
 
     for (const s of subs) {
@@ -197,8 +201,8 @@ async function seed({ log = console.log, force = false } = {}) {
 
     // 6. Giải 1: ĐANG DIỄN RA (Có livestream, nhánh knockout kịch tính)
     const ev1 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description, banner)
-      VALUES ('mua-thu-open-2026', 'Mùa Thu Open 2026', 'Cụm sân Pickleball Bến Thủy', 'Đường Nguyễn Du, TP. Vinh', ?, ?, false, true, true,
-      'Giải phong trào mở rộng mùa thu quy tụ các tay vợt hàng đầu miền Trung và cả nước.', '/static/img/events/mua-thu-open-2026.svg') RETURNING id`, addDays(0), addDays(2));
+      VALUES ('mua-thu-open-2026', 'Mùa Thu Open 2026', 'Cụm sân Pickleball Bến Thủy', 'Đường Nguyễn Du, Bến Thủy, Vinh, Nghệ An', ?, ?, false, true, true,
+      'Giải phong trào mở rộng mùa thu quy tụ các tay vợt hàng đầu Nghệ An và Hà Tĩnh.', '/static/img/events/mua-thu-open-2026.svg') RETURNING id`, addDays(0), addDays(2));
     const d1 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order, banner)
       VALUES (?, 'Đôi nam 6.5', 'Tối đa 16 đôi · Tổng trình ≤ 6.500', 'knockout', 16, 6500, 'male', ?, 1, '/static/img/divisions/doi-nam-6-5.svg') RETURNING id`, ev1.id, prizes('15000000', '7000000', '3000000'));
     const d2 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order, banner)
@@ -215,7 +219,7 @@ async function seed({ log = console.log, force = false } = {}) {
 
     // 7. Giải 2: SẮP DIỄN RA (Đang mở đăng ký thi đấu, có các đơn mới & từ chối)
     const ev2 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description, banner)
-      VALUES ('dong-xuan-cup-2026', 'Đông Xuân Cup 2026', 'Sân Pickleball Hồng Lĩnh', 'Phường Hưng Dũng, TP. Vinh', ?, ?, true, true, true,
+      VALUES ('dong-xuan-cup-2026', 'Đông Xuân Cup 2026', 'Sân Pickleball Hồng Lĩnh', 'Đường Trần Phú, Hồng Lĩnh, Hà Tĩnh', ?, ?, true, true, true,
       'Giải đấu thường niên chào xuân 2026 với cơ cấu giải thưởng lớn và nhiều hạng mục thi đấu hấp dẫn.', '/static/img/events/dong-xuan-cup-2026.svg') RETURNING id`, addDays(12), addDays(14));
     const d3 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, max_teams, max_total_points, gender_rule, prizes, sort_order, banner)
       VALUES (?, 'Đôi nam Newbie (Tổng ≤ 5.000)', 'Dành cho các tay vợt mới thi đấu', 'knockout', 32, 5000, 'male', ?, 1, '/static/img/divisions/doi-nam-newbie.svg') RETURNING id`, ev2.id, prizes('12000000', '6000000', '2500000'));
@@ -238,11 +242,11 @@ async function seed({ log = console.log, force = false } = {}) {
 
     // 8. Giải 3: ĐÃ KẾT THÚC (Vòng tròn đồng đội tiếp sức chạm 55 điểm)
     const ev3 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, published, description, banner)
-      VALUES ('super-cup-tiep-suc-2026', 'Super Cup Đồng Đội Tiếp Sức 2026', 'Cụm sân Cửa Lò Pickleball Arena', 'Bình Minh, TX. Cửa Lò', ?, ?, false, true,
+      VALUES ('super-cup-tiep-suc-2026', 'Super Cup Đồng Đội Tiếp Sức 2026', 'Cụm sân Cửa Lò Pickleball Arena', 'Đường Bình Minh, Cửa Lò, Nghệ An', ?, ?, false, true,
       'Giải đồng đội tiếp sức thể thức mới chạm 55 điểm qua 5 chặng kịch tính.', '/static/img/events/super-cup-tiep-suc-2026.svg') RETURNING id`, addDays(-25), addDays(-23));
     const d4 = await get(`INSERT INTO divisions(event_id, name, subtitle, team_type, format, relay_legs, relay_step, prizes, sort_order, banner)
       VALUES (?, 'Đồng đội tiếp sức Master', '4 đội · 5 chặng · chạm 55 điểm', 'team', 'roundrobin', 5, 11, ?, 1, '/static/img/divisions/dong-doi-tiep-suc-master.svg') RETURNING id`, ev3.id, prizes('Cúp vô địch + 20000000', '10000000', '5000000'));
-    const teamNames = ['Sông Lam Pickle Warriors', 'Hà Nội Dinker Stars', 'Sài Gòn Smashers', 'Đà Nẵng Phượng Hoàng'];
+    const teamNames = ['Sông Lam Pickle Warriors', 'Hồng Lĩnh Dinker Stars', 'Cửa Lò Smashers', 'Thiên Cầm Sunshine'];
     for (let t = 0; t < 4; t++) {
       const members = men.slice(t * 4, t * 4 + 4).map((a) => a.full_name).join('\n');
       await run('INSERT INTO teams(division_id, name, members, seed) VALUES (?,?,?,?)', d4.id, teamNames[t], members, t + 1);
@@ -252,8 +256,8 @@ async function seed({ log = console.log, force = false } = {}) {
 
     // 9. Giải 4: BẢN NHÁP (Chưa công khai - để test tính năng bản nháp trong CMS)
     await run(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description, banner)
-      VALUES ('giai-vo-dich-quoc-gia-2026', 'Giải Vô Địch Pickleball Quốc Gia 2026', 'Cung Điền Kinh Mỹ Đình, Hà Nội', 'Đường Trần Hữu Dực, Cầu Giấy, Hà Nội',
-      ?, ?, false, false, false, 'Giải vô địch quốc gia quy tụ các tay vợt hàng đầu tranh cúp vô địch và tuyển chọn đội tuyển.', '/static/img/events/giai-vo-dich-quoc-gia-2026.svg')`, addDays(45), addDays(48));
+      VALUES ('giai-vo-dich-quoc-gia-2026', 'Giải Vô Địch Pickleball Nghệ Tĩnh 2026', 'Nhà thi đấu đa năng Hà Tĩnh', 'Đường Hà Huy Tập, Hà Tĩnh',
+      ?, ?, false, false, false, 'Giải vô địch hai tỉnh Nghệ An – Hà Tĩnh quy tụ các tay vợt hàng đầu tranh cúp vô địch Nghệ Tĩnh.', '/static/img/events/giai-vo-dich-quoc-gia-2026.svg')`, addDays(45), addDays(48));
 
     return { d1: d1.id, d2: d2.id, d4: d4.id, s1: s1.id, s2: s2.id, s3: s3.id, men, women };
   }).then(async (ids) => {
@@ -328,13 +332,14 @@ async function seed({ log = console.log, force = false } = {}) {
 
   // 11. Đối tác tài trợ (Partners & Sponsors) - có cả đối tác đang hiển thị và đối tác ẩn để test bộ lọc
   const sponsors = [
-    { name: 'Joola Pickleball Vietnam', url: 'https://joola.com', sort: 1, visible: true, logo: '/static/img/partners/joola.svg' },
-    { name: 'Selkirk Sport', url: 'https://selkirk.com', sort: 2, visible: true, logo: '/static/img/partners/selkirk.svg' },
-    { name: 'Franklin Pickleball', url: 'https://franklinsports.com', sort: 3, visible: true, logo: '/static/img/partners/franklin.svg' },
-    { name: 'CRBN Pickleball', url: 'https://crbnpickleball.com', sort: 4, visible: true, logo: '/static/img/partners/crbn.svg' },
-    { name: 'Nước uống điện giải Revive', url: 'https://suntorypepsico.vn', sort: 5, visible: true, logo: '/static/img/partners/revive.svg' },
-    { name: 'Ngân hàng Vietcombank', url: 'https://vietcombank.com.vn', sort: 6, visible: true, logo: '/static/img/partners/vietcombank.svg' },
-    { name: 'Quỹ Phát Triển Thể Thao Phong Trào', url: 'https://thethao.vn', sort: 7, visible: false, logo: '/static/img/partners/thethao.svg' },
+    // Nhà tài trợ HƯ CẤU (không dùng tên/logo thương hiệu thật khi chưa được phép), không gắn link ra ngoài
+    { name: 'Dinkra Paddle', url: '', sort: 1, visible: true, logo: '/static/img/partners/dinkra.svg' },
+    { name: 'Lam Giang Sportswear', url: '', sort: 2, visible: true, logo: '/static/img/partners/lam-giang.svg' },
+    { name: 'Pickvia Pickleball Gear', url: '', sort: 3, visible: true, logo: '/static/img/partners/pickvia.svg' },
+    { name: 'Nước điện giải Hydrava', url: '', sort: 4, visible: true, logo: '/static/img/partners/hydrava.svg' },
+    { name: 'Lumira Resort Cửa Lò', url: '', sort: 5, visible: true, logo: '/static/img/partners/lumira.svg' },
+    { name: 'Zenmo Fitness', url: '', sort: 6, visible: true, logo: '/static/img/partners/zenmo.svg' },
+    { name: 'Quỹ Pickleball Cộng Đồng Nghệ Tĩnh', url: '', sort: 7, visible: false, logo: '/static/img/partners/quy-nghe-tinh.svg' },
   ];
   for (const s of sponsors) {
     await run('INSERT INTO partners(name, url, sort_order, visible, logo) VALUES (?, ?, ?, ?, ?)', s.name, s.url, s.sort, s.visible, s.logo);
@@ -376,7 +381,7 @@ async function seed({ log = console.log, force = false } = {}) {
     { user: 'nguyenlong', action: 'approve_registration', target: 'registration:12', detail: 'Duyệt đăng ký bảng Đôi nam nữ 5.8', ago: '1 day' },
     { user: 'admin', action: 'adjust_points', target: 'athlete:1', detail: 'Cập nhật điểm VĐV Minh Khoa từ 3.630 lên 3.650 điểm', ago: '2 days' },
     { user: 'admin', action: 'reject_submission', target: 'submission:47', detail: 'Từ chối đơn chấm trình do thiếu video đối kháng thực tế', ago: '2 days' },
-    { user: 'maiphuong', action: 'create_partner', target: 'partner:Selkirk', detail: 'Thêm nhà tài trợ Selkirk Sport vào danh sách đối tác', ago: '3 days' },
+    { user: 'maiphuong', action: 'create_partner', target: 'partner:Pickvia', detail: 'Thêm nhà tài trợ Pickvia Pickleball Gear vào danh sách đối tác', ago: '3 days' },
     { user: 'admin', action: 'create_event', target: 'event:dong-xuan-cup-2026', detail: 'Tạo giải đấu Đông Xuân Cup 2026 và mở đăng ký trực tuyến', ago: '4 days' },
     { user: 'trandinh', action: 'login', target: 'user:trandinh', detail: 'Đăng nhập vào hệ thống điều hành trọng tài', ago: '5 days' },
     { user: 'admin', action: 'create_athlete', target: 'athlete:Nguyễn Minh Khoa', detail: 'Tạo mới hồ sơ VĐV kim cương Nguyễn Minh Khoa', ago: '7 days' },

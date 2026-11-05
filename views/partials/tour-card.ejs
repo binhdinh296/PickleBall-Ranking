@@ -1,0 +1,91 @@
+<%
+  // Thẻ giải cho trang /giai-dau. Tham số: e (sự kiện), featured (bool), today (YYYY-MM-DD).
+  // Thẻ thường: dạng lưới trên desktop, dạng hàng ngang gọn trên mobile (xem tournaments.css).
+  const isFeatured = !!locals.featured;
+  const [sy, sm, sday] = String(e.start_date || '').slice(0, 10).split('-');
+  const [ey, em, eday] = String(e.end_date || '').slice(0, 10).split('-');
+  const sameDay = sday === eday && sm === em && sy === ey;
+  const rangeStr = sday ? (sameDay ? `${sday}/${sm}/${sy}` : `${sday}/${sm} – ${eday}/${em}/${ey}`) : '';
+  const hasLive = e.liveCount && e.liveCount > 0;
+  const status = e.status === 'ongoing' ? 'live' : e.status === 'upcoming' ? 'upcoming' : 'ended';
+  // Banner riêng của giải (CMS > Giải đấu > Banner). Ảnh lỗi/mất file → app.js gỡ ảnh, thẻ hiện nền sân mặc định.
+  const bannerImg = e.banner || null;
+  const daysLeft = (e.status === 'upcoming' && sday && locals.today)
+    ? Math.round((Date.parse(`${sy}-${sm}-${sday}`) - Date.parse(today)) / 86400000) : null;
+  const kicker = status === 'live' ? 'Đang thi đấu'
+    : status === 'upcoming' ? (daysLeft === 1 ? 'Khởi tranh ngày mai' : daysLeft > 1 ? `Khởi tranh sau ${daysLeft} ngày` : 'Sắp khởi tranh')
+    : 'Đã bế mạc';
+  // Nhãn trên ảnh: thẻ thường gộp luôn số ngày còn lại để bỏ dòng kicker trên desktop
+  const flagLabel = status === 'live' ? 'Live'
+    : status === 'upcoming' ? (isFeatured ? 'Sắp diễn ra' : daysLeft === 1 ? 'Ngày mai' : daysLeft > 1 ? `Còn ${daysLeft} ngày` : 'Sắp diễn ra')
+    : 'Đã kết thúc';
+  const prizeNum = e.totalPrize ? String(e.totalPrize).replace(/\s*đ$/, '') : null;
+  const regOpen = e.registration_open && status === 'upcoming';
+  const ctaLabel = isFeatured
+    ? (hasLive || status === 'live' ? 'Xem trực tiếp & bảng đấu' : regOpen ? 'Đăng ký tranh tài' : status === 'ended' ? 'Xem bảng vàng & kết quả' : 'Xem chi tiết giải')
+    : (hasLive || status === 'live' ? 'Trực tiếp' : regOpen ? 'Đăng ký' : status === 'ended' ? 'Kết quả' : 'Chi tiết');
+  const divs = e.divisions || [];
+  const maxTags = isFeatured ? 6 : 2;
+%>
+<article class="tc tc--<%= status %><%= isFeatured ? ' tc--featured' : ' tc--compact' %>" data-event-card data-name="<%= (e.name || '').toLowerCase() %>" data-venue="<%= (e.venue || '').toLowerCase() %>" data-status="<%= e.status %>">
+  <a class="tc-cover<%= bannerImg ? '' : ' img-missing' %>" href="/giai-dau/<%= e.slug %>" tabindex="-1" aria-hidden="true">
+    <% if (bannerImg) { %><img src="<%= bannerImg %>" alt="" data-fallback="" loading="<%= isFeatured ? 'eager' : 'lazy' %>"><% } %>
+    <svg class="tc-lines" viewBox="0 0 440 200" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="6" y="6" width="428" height="188"/>
+      <line x1="220" y1="0" x2="220" y2="200" class="tc-net"/>
+      <line x1="150" y1="6" x2="150" y2="194"/><line x1="290" y1="6" x2="290" y2="194"/>
+      <line x1="6" y1="100" x2="150" y2="100"/><line x1="290" y1="100" x2="434" y2="100"/>
+    </svg>
+    <span class="tc-flags">
+      <span class="tc-flag is-<%= status %>"><% if (status === 'live') { %><span class="live-dot"></span><% } %><%= flagLabel %></span>
+      <% if (hasLive) { %><span class="tc-flag is-courts"><%- include('icon', { name: 'live' }) %><%= e.liveCount %> sân live</span><% } %>
+    </span>
+  </a>
+
+  <div class="tc-body">
+    <span class="tc-kicker"><span class="tc-kicker-dot"></span><%= kicker %></span>
+    <h3 class="tc-title"><a href="/giai-dau/<%= e.slug %>"><%= e.name %></a></h3>
+    <ul class="tc-meta">
+      <% if (rangeStr) { %><li><%- include('icon', { name: 'calendar' }) %><span><%= rangeStr %></span></li><% } %>
+      <% if (e.venue) { %><li><%- include('icon', { name: 'pin' }) %><span><%= e.venue %></span></li><% } %>
+      <% if (!isFeatured && prizeNum) { %><li class="tc-meta-prize"><%- include('icon', { name: 'trophy' }) %><span><%= prizeNum %>đ</span></li><% } %>
+    </ul>
+
+    <% if (divs.length) { %>
+    <div class="tc-tags" aria-label="Nội dung thi đấu">
+      <% divs.slice(0, maxTags).forEach((d) => { %><span class="tc-tag"><%= d.name %></span><% }) %>
+      <% if (divs.length > maxTags) { %><span class="tc-tag is-more">+<%= divs.length - maxTags %></span><% } %>
+    </div>
+    <% } %>
+
+    <div class="tc-foot">
+      <dl class="tc-stub">
+        <div class="tc-stat is-prize">
+          <dt>Quỹ thưởng</dt>
+          <dd><% if (prizeNum) { %><%= prizeNum %><i>đ</i><% } else { %>—<% } %></dd>
+        </div>
+        <div class="tc-stat">
+          <dt>Nội dung</dt>
+          <dd><%= e.divisionCount || divs.length %></dd>
+        </div>
+        <div class="tc-stat">
+          <dt>Đội</dt>
+          <dd><%= e.regCount || 0 %></dd>
+        </div>
+      </dl>
+
+      <div class="tc-actions">
+        <a class="tc-cta" href="/giai-dau/<%= e.slug %>">
+          <span><%= ctaLabel %></span>
+          <span class="tc-cta-ball" aria-hidden="true"><%- include('icon', { name: 'arrow' }) %></span>
+        </a>
+        <nav class="tc-links" aria-label="Lối tắt <%= e.name %>">
+          <a href="/giai-dau/<%= e.slug %>/danh-sach" title="Danh sách VĐV"><%- include('icon', { name: 'users' }) %><span>VĐV</span></a>
+          <a href="/giai-dau/<%= e.slug %>/nhanh-dau" title="Nhánh đấu"><%- include('icon', { name: 'bracket' }) %><span>Nhánh đấu</span></a>
+          <% if (hasLive) { %><a class="is-live" href="/giai-dau/<%= e.slug %>/truc-tiep" title="Xem trực tiếp"><%- include('icon', { name: 'live' }) %><span>Live</span></a>
+          <% } else if (status === 'ended') { %><a class="is-gold" href="/giai-dau/<%= e.slug %>#vinh-danh" title="Bục vinh danh"><%- include('icon', { name: 'trophy' }) %><span>Vinh danh</span></a><% } %>
+        </nav>
+      </div>
+    </div>
+  </div>
+</article>

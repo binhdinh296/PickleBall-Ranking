@@ -1,55 +1,93 @@
-<%- include('../partials/top', { cropper: true }) %>
-<section class="page-head glow">
-  <div class="container stack" style="--gap: 10px; max-width: 1100px;">
-    <span class="eyebrow">TỰ CHẤM TRÌNH VẬN ĐỘNG VIÊN</span>
-    <h1 class="h1">TỰ CHẤM TRÌNH <span class="serif grad-text">VẬN ĐỘNG VIÊN</span></h1>
-    <p class="muted">Gửi điểm tự chấm để ban tổ chức kiểm tra và duyệt. Mốc tối thiểu: Nam <%= fmt.pts(floors.M) %>, Nữ <%= fmt.pts(floors.F) %>.</p>
-  </div>
-</section>
-<section style="padding-block: 16px 56px;">
-  <div class="container" style="max-width: 1100px;">
-    <% if (done) { %>
-    <div class="card card-pad stack" style="--gap: 14px; text-align: center; align-items: center;">
-      <span class="chip chip-brand">Đã gửi đơn</span>
-      <h2 style="font-size: 26px; font-weight: 800;">Cảm ơn bạn!</h2>
-      <p class="muted">Đơn chấm trình đang chờ ban tổ chức duyệt. Khi được duyệt, bạn sẽ xuất hiện trên bảng xếp hạng.</p>
-      <a class="btn btn-brand" href="/xep-hang">Xem bảng xếp hạng</a>
-    </div>
-    <% } else { %>
-    <div style="display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); align-items: start;">
-      <aside class="card card-pad stack" style="--gap: 12px;">
-        <h2 style="font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;">ĐIỀU KIỆN GỬI ĐƠN</h2>
-        <p class="small muted">Điền đúng thông tin thật, chọn ảnh rõ mặt và tự chấm điểm phù hợp trình độ hiện tại.</p>
-        <div class="info-tile"><span><strong>VĐV Nam</strong><br><span class="small muted">Nhận đơn từ mốc <%= fmt.pts(floors.M) %></span></span></div>
-        <div class="info-tile"><span><strong>VĐV Nữ</strong><br><span class="small muted">Nhận đơn từ mốc <%= fmt.pts(floors.F) %></span></span></div>
-        <div class="info-tile"><span><strong>Số điện thoại</strong><br><span class="small muted">Số di động Việt Nam, chưa có trong hệ thống<%= otpEnabled ? ', xác minh bằng OTP' : '' %></span></span></div>
-      </aside>
-      <form class="card card-pad form" method="post" action="/cham-trinh" enctype="multipart/form-data" data-once novalidate>
-        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-        <h2 style="font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;">GỬI ĐƠN CHẤM TRÌNH</h2>
-        <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
-        <div class="form-grid two">
-          <div class="field span-2"><label for="full_name">Họ và tên *</label><input class="input" id="full_name" name="full_name" required maxlength="80" autocomplete="name" value="<%= values.full_name || '' %>"></div>
-          <div class="field"><label for="nickname">Nickname</label><input class="input" id="nickname" name="nickname" maxlength="40" value="<%= values.nickname || '' %>"></div>
-          <div class="field"><span class="label">Giới tính *</span>
-            <div class="segmented" role="radiogroup" aria-label="Giới tính">
-              <label><input type="radio" name="gender" value="M" <%= values.gender !== 'F' ? 'checked' : '' %>><span>Nam</span></label>
-              <label><input type="radio" name="gender" value="F" <%= values.gender === 'F' ? 'checked' : '' %>><span>Nữ</span></label>
-            </div>
-          </div>
-          <div class="field"><label for="phone">Số điện thoại *</label><input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required data-phone value="<%= values.phone || '' %>" placeholder="09xx xxx xxx"><span class="hint" data-phone-hint data-default="Số di động Việt Nam 10 số"></span></div>
-          <div class="field"><label for="ranking_points">Điểm tự chấm *</label><input class="input tnum" id="ranking_points" name="ranking_points" inputmode="decimal" required placeholder="Ví dụ 2.750" value="<%= values.points || '' %>"></div>
-          <div class="field"><label for="hometown">Quê quán *</label><input class="input" id="hometown" name="hometown" required maxlength="80" value="<%= values.hometown || '' %>"></div>
-          <div class="field"><label for="club">Câu lạc bộ *</label><input class="input" id="club" name="club" required maxlength="80" value="<%= values.club || '' %>"></div>
-          <div class="field span-2"><label for="description">Mô tả thêm</label><textarea class="input" id="description" name="description" maxlength="1000" placeholder="Trình độ, thành tích, ghi chú…"><%= values.description || '' %></textarea></div>
+<%- include('../partials/top', { cropper: true, pageScript: 'submission' }) %>
+<%
+  const floorM = fmt.pts(floors.M);
+  const floorF = fmt.pts(floors.F);
+  const isF = values.gender === 'F';
+  const imgV = locals.assetV || '';
+%>
+<div class="sx">
+  <div class="container sx-layout">
+    <!-- Ảnh + giới thiệu: banner trên mobile, cột ảnh dính bên trái trên desktop -->
+    <aside class="sx-visual">
+      <div class="sx-photo" aria-hidden="true">
+        <img src="/static/img/cham-trinh.webp?v=<%= imgV %>"
+          srcset="/static/img/cham-trinh-sm.webp?v=<%= imgV %> 640w, /static/img/cham-trinh.webp?v=<%= imgV %> 1024w"
+          sizes="(max-width: 959px) 100vw, 480px" width="1024" height="1536" alt="" fetchpriority="high" decoding="async">
+      </div>
+      <div class="sx-intro">
+        <span class="sx-eyebrow">Chấm trình vận động viên</span>
+        <h1 class="sx-title">Tự chấm <em>trình</em></h1>
+        <p class="sx-lead">Gửi điểm tự đánh giá. Ban tổ chức xem xét và đưa bạn lên bảng xếp hạng.</p>
+        <ul class="sx-facts">
+          <li><span>Nam</span><b class="tnum">từ <%= floorM %></b></li>
+          <li><span>Nữ</span><b class="tnum">từ <%= floorF %></b></li>
+          <li><span>Xác minh</span><b><%= otpEnabled ? 'Mã OTP' : 'Số di động' %></b></li>
+        </ul>
+      </div>
+    </aside>
+
+    <div class="sx-main">
+      <% if (done) { %>
+      <div class="sx-card sx-done" role="status">
+        <span class="sx-done-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+        <h2 class="sx-h2">Đã nhận đơn của bạn</h2>
+        <p class="sx-muted">Đơn chấm trình đang chờ ban tổ chức duyệt. Khi được duyệt, bạn sẽ xuất hiện trên bảng xếp hạng.</p>
+        <div class="sx-done-actions">
+          <a class="btn btn-brand" href="/xep-hang">Xem bảng xếp hạng</a>
+          <a class="btn" href="/giai-dau">Xem các giải đấu</a>
         </div>
-        <%- include('../partials/avatar-crop', { required: true }) %>
-        <% if (otpEnabled) { %><%- include('../partials/otp', { purpose: 'submission', phoneInput: 'phone' }) %><% } %>
-        <label class="check"><input type="checkbox" name="consent" value="1" required><span>Tôi đồng ý cho ban tổ chức xử lý họ tên, số điện thoại và ảnh để xét duyệt và hiển thị trên bảng xếp hạng, theo <a class="link" href="/chinh-sach-quyen-rieng-tu" target="_blank">chính sách quyền riêng tư</a>.</span></label>
-        <button class="btn btn-brand btn-lg btn-block" type="submit">Gửi đơn chấm trình</button>
+      </div>
+      <% } else { %>
+      <form class="sx-card sx-form form" method="post" action="/cham-trinh" enctype="multipart/form-data" data-once novalidate>
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+        <header class="sx-form-head">
+          <h2 class="sx-h2">Gửi đơn chấm trình</h2>
+          <p class="sx-muted">Khoảng 2 phút. Thông tin chỉ dùng để xét duyệt và hiển thị trên bảng xếp hạng.</p>
+        </header>
+        <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+
+        <fieldset class="sx-step">
+          <legend><span class="sx-step-no">1</span>Thông tin cá nhân</legend>
+          <div class="form-grid two">
+            <div class="field span-2"><label for="full_name">Họ và tên *</label><input class="input" id="full_name" name="full_name" required maxlength="80" autocomplete="name" value="<%= values.full_name || '' %>"></div>
+            <div class="field"><label for="nickname">Nickname</label><input class="input" id="nickname" name="nickname" maxlength="40" value="<%= values.nickname || '' %>"></div>
+            <div class="field"><span class="label">Giới tính *</span>
+              <div class="segmented" role="radiogroup" aria-label="Giới tính">
+                <label><input type="radio" name="gender" value="M" <%= !isF ? 'checked' : '' %>><span>Nam</span></label>
+                <label><input type="radio" name="gender" value="F" <%= isF ? 'checked' : '' %>><span>Nữ</span></label>
+              </div>
+            </div>
+            <div class="field span-2"><label for="phone">Số điện thoại *</label><input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required data-phone value="<%= values.phone || '' %>" placeholder="09xx xxx xxx"><span class="hint" data-phone-hint data-default="Số di động Việt Nam 10 số"></span></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="sx-step">
+          <legend><span class="sx-step-no">2</span>Trình độ &amp; câu lạc bộ</legend>
+          <div class="form-grid two">
+            <div class="field span-2">
+              <label for="ranking_points">Điểm tự chấm *</label>
+              <input class="input tnum" id="ranking_points" name="ranking_points" inputmode="decimal" required placeholder="Ví dụ 2.750" aria-describedby="points_hint" value="<%= values.points || '' %>">
+              <span class="hint" id="points_hint" data-floor-hint data-floor-m="<%= floorM %>" data-floor-f="<%= floorF %>">Tối thiểu <%= isF ? floorF : floorM %> cho VĐV <%= isF ? 'Nữ' : 'Nam' %></span>
+            </div>
+            <div class="field"><label for="hometown">Quê quán *</label><input class="input" id="hometown" name="hometown" required maxlength="80" value="<%= values.hometown || '' %>"></div>
+            <div class="field"><label for="club">Câu lạc bộ *</label><input class="input" id="club" name="club" required maxlength="80" value="<%= values.club || '' %>"></div>
+            <div class="field span-2"><label for="description">Mô tả thêm</label><textarea class="input" id="description" name="description" maxlength="1000" placeholder="Trình độ, thành tích, ghi chú…"><%= values.description || '' %></textarea></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="sx-step">
+          <legend><span class="sx-step-no">3</span>Ảnh &amp; xác nhận</legend>
+          <div class="sx-step-body">
+            <%- include('../partials/avatar-crop', { required: true }) %>
+            <% if (otpEnabled) { %><%- include('../partials/otp', { purpose: 'submission', phoneInput: 'phone' }) %><% } %>
+            <label class="check"><input type="checkbox" name="consent" value="1" required><span>Tôi đồng ý cho ban tổ chức xử lý họ tên, số điện thoại và ảnh để xét duyệt và hiển thị trên bảng xếp hạng, theo <a class="link" href="/chinh-sach-quyen-rieng-tu" target="_blank" rel="noopener">chính sách quyền riêng tư</a>.</span></label>
+          </div>
+        </fieldset>
+
+        <button class="btn btn-brand btn-lg btn-block sx-submit" type="submit">Gửi đơn chấm trình</button>
       </form>
+      <% } %>
     </div>
-    <% } %>
   </div>
-</section>
-<%- include('../partials/bottom', { cropper: true }) %>
+</div>
+<%- include('../partials/bottom', { cropper: true, pageScript: 'submission' }) %>

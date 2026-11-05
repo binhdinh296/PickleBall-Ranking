@@ -1,0 +1,17 @@
+<%
+  // Tấm logo nhà tài trợ. Tham số: p (đối tác), hidden (bản sao cho dải chạy, ẩn với trình đọc màn hình).
+  // Ưu tiên logo tải lên trong CMS; ảnh lỗi/mất file → app.js đổi sang logo mẫu (nếu có), lỗi tiếp thì hiện tên.
+  const pName = p.name || '';
+  const lower = pName.toLowerCase();
+  // Logo mẫu cho các nhà tài trợ hư cấu trong dữ liệu demo
+  const DEMO = [['dinkra', 'dinkra'], ['lam giang', 'lam-giang'], ['pickvia', 'pickvia'], ['hydrava', 'hydrava'], ['lumira', 'lumira'], ['zenmo', 'zenmo'], ['quỹ pickleball cộng đồng', 'quy-nghe-tinh']];
+  const seedKey = (DEMO.find(([k]) => lower.includes(k)) || [])[1] || null;
+  const seedLogo = seedKey ? `/static/img/partners/${seedKey}.svg` : '';
+  const logo = p.logo || seedLogo || null;
+  const fallback = logo === seedLogo ? '' : seedLogo;
+  const isHidden = !!locals.hidden;
+%>
+<a class="sp-tile<%= logo ? '' : ' img-missing' %>" href="<%= p.url || '/doi-tac' %>"<%- p.url ? ' target="_blank" rel="noopener"' : '' %><%- isHidden ? ' tabindex="-1"' : '' %> title="<%= pName %>">
+  <% if (logo) { %><img src="<%= logo %>" alt="<%= isHidden ? '' : pName %>" data-fallback="<%= fallback %>" loading="lazy" decoding="async"><% } %>
+  <span class="sp-name"><%= pName %></span>
+</a>

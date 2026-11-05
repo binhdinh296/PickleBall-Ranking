@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="240" viewBox="0 0 480 240">
+  <!-- Logo mẫu của nhà tài trợ hư cấu, chỉ dùng cho dữ liệu demo -->
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#38BDF8"/><stop offset="1" stop-color="#6366F1"/></linearGradient></defs>
+  <path d="M100 40 52 128h34l-14 74 52-96H88z" fill="url(#g)"/>
+  <text x="166" y="126" font-family="'Be Vietnam Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="52" font-weight="800" fill="#111827" letter-spacing="1">HYDRAVA</text>
+  <text x="168" y="166" font-family="'Be Vietnam Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#6B7280" letter-spacing="5">NƯỚC ĐIỆN GIẢI</text>
+</svg>

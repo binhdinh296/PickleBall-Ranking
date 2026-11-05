@@ -3,11 +3,11 @@ const phone = require('./phone');
 
 // Các khóa cấu hình chỉnh được trong CMS > Cấu hình
 const DEFAULTS = {
-  site_name: 'PICKLERANK',
+  site_name: 'PickNgheTinh',
   site_tagline: 'HỆ THỐNG GIẢI ĐẤU',
   hero_eyebrow: 'Mùa giải 2026',
   hero_title: 'Mỗi cú dink, mỗi điểm số đều được ghi nhận.',
-  hero_text: 'Giải đấu chuyên nghiệp, bảng xếp hạng minh bạch và livestream từng trận cho cộng đồng Pickleball, tất cả ở một nơi.',
+  hero_text: 'Nơi kết nối cộng đồng Pickleball Nghệ An, Hà Tĩnh, tổ chức giải đấu chuyên nghiệp và xây dựng hệ thống ranking minh bạch.',
   footer_text: 'Hệ thống giải đấu, ranking và livestream Pickleball.',
   hotline: '',
   zalo: '',

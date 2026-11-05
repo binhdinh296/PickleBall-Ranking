@@ -11,15 +11,20 @@
   <div class="container stack" style="--gap: 22px;">
     <div class="row" style="justify-content: space-between; align-items: center;">
       <a class="link small breadcrumb-back" href="/giai-dau">← Quay lại danh sách giải</a>
-      <span class="event-official-badge">★ PICKLERANK CHAMPIONSHIP TOUR ★</span>
+      <span class="event-official-badge">★ <%= site.site_name %> Championship Tour ★</span>
     </div>
 
     <!-- Grand Panoramic Hero Banner -->
     <div class="event-hero-lux-wrap">
       <div class="hero-ambient-glow" aria-hidden="true"></div>
-      <% const heroBanner = (ev.banner && !ev.banner.startsWith('/uploads/')) ? ev.banner : (ev.slug ? `/static/img/events/${ev.slug}.svg` : null); %>
+      <%
+        // Ưu tiên banner trong CMS; ảnh lỗi/mất file → app.js đổi sang ảnh mẫu theo slug
+        const slugBanner = ev.slug ? `/static/img/events/${ev.slug}.svg` : '';
+        const heroBanner = ev.banner || slugBanner || null;
+        const heroFallback = heroBanner === slugBanner ? '' : slugBanner;
+      %>
       <div class="event-hero luxury-hero">
-        <% if (heroBanner) { %><img src="<%= heroBanner %>" alt="Banner <%= ev.name %>"><% } else { %>
+        <% if (heroBanner) { %><img src="<%= heroBanner %>" alt="Banner <%= ev.name %>" data-fallback="<%= heroFallback %>"><% } else { %>
         <svg viewBox="0 0 800 380" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
             <radialGradient id="ev-glow-<%= ev.id %>" cx="80%" cy="20%" r="75%">

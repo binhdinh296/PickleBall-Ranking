@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="240" viewBox="0 0 480 240">
+  <!-- Logo mẫu của nhà tài trợ hư cấu, chỉ dùng cho dữ liệu demo -->
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D4F53C"/><stop offset="1" stop-color="#65A30D"/></linearGradient></defs>
+  <circle cx="86" cy="120" r="52" fill="url(#g)"/><g fill="#0B1120" fill-opacity=".28"><circle cx="70" cy="100" r="7"/><circle cx="100" cy="96" r="7"/><circle cx="108" cy="128" r="7"/><circle cx="78" cy="138" r="7"/><circle cx="62" cy="122" r="6"/></g>
+  <text x="166" y="126" font-family="'Be Vietnam Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="52" font-weight="800" fill="#111827" letter-spacing="1">PICKVIA</text>
+  <text x="168" y="166" font-family="'Be Vietnam Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#6B7280" letter-spacing="5">PICKLEBALL GEAR</text>
+</svg>

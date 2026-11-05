@@ -3,18 +3,30 @@
 <footer class="site-footer">
   <div class="container">
     <% if (locals.partners && partners.length && path !== '/doi-tac') { %>
-    <div class="stack" style="--gap: 14px; margin-bottom: 40px;">
-      <span class="eyebrow" style="color: var(--text-3); text-align: center;">Đối tác đồng hành</span>
-      <div class="partners">
-        <% partners.forEach((p) => {
-             const pSlug = (p.name || '').toLowerCase();
-             const pKey = pSlug.includes('joola') ? 'joola' : pSlug.includes('selkirk') ? 'selkirk' : pSlug.includes('franklin') ? 'franklin' : pSlug.includes('crbn') ? 'crbn' : pSlug.includes('revive') ? 'revive' : pSlug.includes('vietcombank') ? 'vietcombank' : 'thethao';
-             const pLogo = (p.logo && !p.logo.startsWith('/uploads/')) ? p.logo : `/static/img/partners/${pKey}.svg`;
-        %>
-          <a class="partner" href="<%= p.url || '/doi-tac' %>" <%- p.url ? 'target="_blank" rel="noopener"' : '' %>><img src="<%= pLogo %>" alt="<%= p.name %>" loading="lazy"></a>
-        <% }) %>
+    <%
+      // Từ 6 nhà tài trợ trở lên: dải bảng quảng cáo chạy ngang (nhân đôi danh sách để chạy liền mạch)
+      const spMarquee = partners.length >= 6;
+    %>
+    <section class="sponsors" aria-labelledby="sponsors-title">
+      <div class="sponsors-head">
+        <span class="sponsors-rule" aria-hidden="true"></span>
+        <h2 id="sponsors-title" class="sponsors-title">Nhà tài trợ &amp; đối tác đồng hành</h2>
+        <span class="sponsors-rule" aria-hidden="true"></span>
       </div>
-    </div>
+      <div class="sponsors-board<%= spMarquee ? ' is-marquee' : '' %>">
+        <div class="sponsors-track">
+          <ul class="sponsors-set">
+            <% partners.forEach((p) => { %><li><%- include('partner-tile', { p, hidden: false }) %></li><% }) %>
+          </ul>
+          <% if (spMarquee) { %>
+          <ul class="sponsors-set" aria-hidden="true">
+            <% partners.forEach((p) => { %><li><%- include('partner-tile', { p, hidden: true }) %></li><% }) %>
+          </ul>
+          <% } %>
+        </div>
+      </div>
+      <a class="sponsors-more" href="/doi-tac">Xem tất cả đối tác<%- include('icon', { name: 'arrow', size: 14 }) %></a>
+    </section>
     <% } %>
     <div class="footer-grid">
       <div class="stack" style="--gap: 12px;">

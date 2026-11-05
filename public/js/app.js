@@ -319,32 +319,23 @@
     });
   }
 
-  // ---- Trang danh sách giải: lọc thẻ giải theo ô tìm kiếm ----
-  (function () {
-    var input = document.getElementById('tourSearchInput');
-    var cards = $$('[data-event-card]');
-    if (!input || !cards.length) return;
-    var emptyMsg = document.getElementById('searchEmptyMessage');
-    input.addEventListener('input', function () {
-      var query = input.value.toLowerCase().trim();
-      var matches = 0;
-      cards.forEach(function (card) {
-        var name = card.getAttribute('data-name') || '';
-        var venue = card.getAttribute('data-venue') || '';
-        var isMatch = !query || name.indexOf(query) !== -1 || venue.indexOf(query) !== -1;
-        card.style.display = isMatch ? '' : 'none';
-        if (isMatch) matches++;
-      });
-      if (emptyMsg) emptyMsg.style.display = (matches === 0 && query) ? 'block' : 'none';
-    });
-    $$('[data-search-clear]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        input.value = '';
-        input.dispatchEvent(new Event('input'));
-        input.focus();
-      });
-    });
-  })();
+  // ---- Banner giải lỗi/mất file (vd. ảnh upload cũ không còn): đổi sang ảnh dự phòng, hết dự phòng thì gỡ ảnh ----
+  // <img data-fallback="/đường/dẫn">: thử ảnh dự phòng; data-fallback="" → gỡ ảnh, khung cha nhận class .img-missing
+  function bannerFailed(img) {
+    var fb = img.getAttribute('data-fallback');
+    if (fb && img.getAttribute('src') !== fb) { img.removeAttribute('srcset'); img.setAttribute('src', fb); return; }
+    img.removeAttribute('data-fallback');
+    if (img.parentNode) img.parentNode.classList.add('img-missing');
+    img.remove();
+  }
+  document.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && t.tagName === 'IMG' && t.hasAttribute('data-fallback')) bannerFailed(t);
+  }, true);
+  // Ảnh có thể đã lỗi trước khi app.js chạy (script nạp cuối trang)
+  $$('img[data-fallback]').forEach(function (img) {
+    if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) bannerFailed(img);
+  });
 
   // ---- Trang chi tiết giải: chuyển thẻ vinh danh ----
   (function () {

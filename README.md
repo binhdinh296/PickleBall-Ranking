@@ -1,4 +1,4 @@
-# PickleRank – Hệ thống ranking, giải đấu & livestream Pickleball
+# PickNgheTinh – Hệ thống ranking, giải đấu & livestream Pickleball
 
 Website xếp hạng vận động viên (VĐV) và quản lý giải đấu Pickleball. Có CMS quản trị theo tài khoản và livestream qua YouTube xem ngay trên web. Giao diện **mobile-first**, có 2 theme tối/sáng.
 
@@ -6,7 +6,7 @@ Website xếp hạng vận động viên (VĐV) và quản lý giải đấu Pic
 - **Ảnh:** xử lý bằng `sharp`.
 - **Livestream:** dùng YouTube Data API v3.
 
-> "PickleRank" là tên tạm. Đổi tên, màu và nội dung trong **CMS › Cấu hình**. Toàn bộ dữ liệu mẫu là hư cấu.
+> Tên thương hiệu: **PickNgheTinh**. Đổi tên, màu và nội dung trong **CMS › Cấu hình**. Toàn bộ dữ liệu mẫu là hư cấu, đặt tại Nghệ An và Hà Tĩnh.
 
 ## Tính năng
 

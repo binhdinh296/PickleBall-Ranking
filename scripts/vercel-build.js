@@ -71,13 +71,11 @@ function fail(msg) {
     await db.run("UPDATE divisions SET banner = '/static/img/divisions/doi-nu-3-0.svg' WHERE name LIKE 'Đôi nữ 3.0%' AND (banner IS NULL OR banner LIKE '/uploads/%')");
     await db.run("UPDATE divisions SET banner = '/static/img/divisions/dong-doi-tiep-suc-master.svg' WHERE name LIKE 'Đồng đội tiếp sức%' AND (banner IS NULL OR banner LIKE '/uploads/%')");
 
-    await db.run("UPDATE partners SET logo = '/static/img/partners/joola.svg' WHERE name LIKE 'Joola%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
-    await db.run("UPDATE partners SET logo = '/static/img/partners/selkirk.svg' WHERE name LIKE 'Selkirk%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
-    await db.run("UPDATE partners SET logo = '/static/img/partners/franklin.svg' WHERE name LIKE 'Franklin%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
-    await db.run("UPDATE partners SET logo = '/static/img/partners/crbn.svg' WHERE name LIKE 'CRBN%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
-    await db.run("UPDATE partners SET logo = '/static/img/partners/revive.svg' WHERE name LIKE 'Nước uống%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
-    await db.run("UPDATE partners SET logo = '/static/img/partners/vietcombank.svg' WHERE name LIKE 'Ngân hàng%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
-    await db.run("UPDATE partners SET logo = '/static/img/partners/thethao.svg' WHERE name LIKE 'Quỹ%' AND (logo IS NULL OR logo LIKE '/uploads/%')");
+    // Logo mẫu của nhà tài trợ hư cấu trong dữ liệu demo
+    const demoLogos = [['Dinkra%', 'dinkra'], ['Lam Giang%', 'lam-giang'], ['Pickvia%', 'pickvia'], ['%Hydrava%', 'hydrava'], ['Lumira%', 'lumira'], ['Zenmo%', 'zenmo'], ['Quỹ Pickleball Cộng Đồng%', 'quy-nghe-tinh']];
+    for (const [pattern, file] of demoLogos) {
+      await db.run(`UPDATE partners SET logo = '/static/img/partners/${file}.svg' WHERE name LIKE ? AND (logo IS NULL OR logo LIKE '/uploads/%')`, pattern);
+    }
     console.log('✔ Đồng bộ đường dẫn banner & logo static cho Vercel.');
   } catch (err) {
     console.warn('⚠ Không thể cập nhật banner static:', err.message);
