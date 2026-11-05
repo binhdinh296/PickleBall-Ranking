@@ -7,7 +7,7 @@
   ],
   "functions": {
     "api/index.js": {
-      "includeFiles": "{views,public,src/migrations,src/data}/**",
+      "includeFiles": "{views,public,src/migrations,src/data,scripts}/**",
       "maxDuration": 30
     }
   },

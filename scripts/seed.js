@@ -139,16 +139,35 @@ async function seed({ log = console.log, force = false } = {}) {
       log('Nạp 971 VĐV thực tế từ file Pickna (src/data/pickna-athletes.json)...');
       const picknaList = JSON.parse(fs.readFileSync(picknaFile, 'utf8'));
       let featuredCount = 0;
-      for (let i = 0; i < picknaList.length; i++) {
-        const p = picknaList[i];
-        const hasAvatar = Boolean(p.avatar && p.avatar.trim().length > 0 && !p.avatar.includes('default'));
-        const isFeatured = Boolean(hasAvatar && featuredCount < 12);
-        if (isFeatured) featuredCount++;
-        const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured, avatar)
-          VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING *`,
-          p.full_name || '', p.nickname || null, makePhone(), p.gender || 'M', p.hometown || null, p.club || null, Number(p.points) || 0, Number(p.peak_points) || Number(p.points) || 0, isFeatured, p.avatar || null);
-
-        athletes.push(a);
+      const CHUNK_SIZE = 50;
+      for (let i = 0; i < picknaList.length; i += CHUNK_SIZE) {
+        const chunk = picknaList.slice(i, i + CHUNK_SIZE);
+        const values = [];
+        const placeholders = [];
+        for (const p of chunk) {
+          const hasAvatar = Boolean(p.avatar && p.avatar.trim().length > 0 && !p.avatar.includes('default'));
+          const isFeatured = Boolean(hasAvatar && featuredCount < 12);
+          if (isFeatured) featuredCount++;
+          values.push(
+            p.full_name || '',
+            p.nickname || null,
+            makePhone(),
+            p.gender || 'M',
+            p.hometown || null,
+            p.club || null,
+            Number(p.points) || 0,
+            Number(p.peak_points) || Number(p.points) || 0,
+            isFeatured,
+            p.avatar || null
+          );
+          placeholders.push('(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        }
+        const rows = await all(
+          `INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured, avatar)
+           VALUES ${placeholders.join(', ')} RETURNING *`,
+          ...values
+        );
+        athletes.push(...rows);
       }
       log(`Đã nạp thành công ${athletes.length} VĐV.`);
     } else {

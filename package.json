@@ -12,6 +12,7 @@
     "clone-pickna": "node --env-file-if-exists=.env scripts/clone-pickna.js",
     "test": "node --test test/*.test.js",
     "sync-db": "node scripts/sync-db.js",
+    "build": "node scripts/vercel-build.js",
     "vercel-build": "node scripts/vercel-build.js"
   },
   "dependencies": {
