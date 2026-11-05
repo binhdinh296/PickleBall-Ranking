@@ -1,17 +1,27 @@
 const db = require('../db');
 
 function getAthletesList() {
+  const errors = [];
+  try {
+    const list = require('./pickna-athletes.json');
+    if (Array.isArray(list) && list.length > 0) return { list };
+  } catch (err) {
+    errors.push('require ./pickna-athletes.json: ' + err.message);
+  }
+
   try {
     const list = require('../data/pickna-athletes.json');
-    if (Array.isArray(list) && list.length > 0) return list;
+    if (Array.isArray(list) && list.length > 0) return { list };
   } catch (err) {
-    console.error('[sync] Failed require pickna-athletes.json:', err.message);
+    errors.push('require ../data/pickna-athletes.json: ' + err.message);
   }
 
   const fs = require('fs');
   const path = require('path');
   const candidates = [
+    path.join(__dirname, 'pickna-athletes.json'),
     path.join(__dirname, '../data/pickna-athletes.json'),
+    path.join(process.cwd(), 'src/lib/pickna-athletes.json'),
     path.join(process.cwd(), 'src/data/pickna-athletes.json'),
     path.resolve('src/data/pickna-athletes.json'),
   ];
@@ -19,13 +29,21 @@ function getAthletesList() {
     try {
       if (fs.existsSync(p)) {
         const list = JSON.parse(fs.readFileSync(p, 'utf8'));
-        if (Array.isArray(list) && list.length > 0) return list;
+        if (Array.isArray(list) && list.length > 0) return { list };
+      } else {
+        errors.push('not found: ' + p);
       }
     } catch (err) {
-      console.error('[sync] Failed parsing', p, err.message);
+      errors.push('read ' + p + ': ' + err.message);
     }
   }
-  return [];
+
+  let cwdFiles = [];
+  try { cwdFiles = fs.readdirSync(process.cwd()); } catch (e) { cwdFiles = [e.message]; }
+  let dirFiles = [];
+  try { dirFiles = fs.readdirSync(__dirname); } catch (e) { dirFiles = [e.message]; }
+
+  return { list: [], debug: { errors, cwd: process.cwd(), __dirname, cwdFiles, dirFiles } };
 }
 
 async function syncPicknaAthletes(force = false) {
@@ -35,10 +53,11 @@ async function syncPicknaAthletes(force = false) {
       return { success: true, count: existing, message: 'Already synced' };
     }
 
-    const athletesData = getAthletesList();
-    if (athletesData.length === 0) {
-      console.error('[sync] Không tìm thấy dữ liệu pickna-athletes.json');
-      return { success: false, error: 'Không tìm thấy file pickna-athletes.json' };
+    const res = getAthletesList();
+    const athletesData = res.list;
+    if (!athletesData || athletesData.length === 0) {
+      console.error('[sync] Không tìm thấy dữ liệu pickna-athletes.json:', res.debug);
+      return { success: false, error: 'Không tìm thấy file pickna-athletes.json', debug: res.debug };
     }
 
     console.log(`[sync] Bắt đầu nạp ${athletesData.length} VĐV từ Pickna (hiện có ${existing})...`);
