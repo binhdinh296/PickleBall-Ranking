@@ -69,7 +69,7 @@ function addDays(n) {
   return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 }
 
-async function seed({ log = console.log, force = false } = {}) {
+async function seed({ log = console.log, force = false, athletes: customAthletes = null } = {}) {
   await loadSettings();
   const r = rnd(20261104);
   const pick = (arr) => arr[Math.floor(r() * arr.length)];
@@ -134,14 +134,20 @@ async function seed({ log = console.log, force = false } = {}) {
       return phone;
     };
 
-    let picknaList = null;
-    try {
-      picknaList = require('../src/data/pickna-athletes.json');
-    } catch {
+    let picknaList = Array.isArray(customAthletes) && customAthletes.length > 0 ? customAthletes : null;
+    if (!picknaList) {
       try {
-        const pFile = path.join(__dirname, '../src/data/pickna-athletes.json');
-        if (fs.existsSync(pFile)) picknaList = JSON.parse(fs.readFileSync(pFile, 'utf8'));
-      } catch {}
+        picknaList = require('../src/data/athletes-data');
+      } catch {
+        try {
+          picknaList = require('../src/data/pickna-athletes.json');
+        } catch {
+          try {
+            const pFile = path.join(__dirname, '../src/data/pickna-athletes.json');
+            if (fs.existsSync(pFile)) picknaList = JSON.parse(fs.readFileSync(pFile, 'utf8'));
+          } catch {}
+        }
+      }
     }
 
     if (Array.isArray(picknaList) && picknaList.length > 0) {

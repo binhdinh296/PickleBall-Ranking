@@ -3,6 +3,7 @@
 const { createApp } = require('../src/server');
 const { loadSettings } = require('../src/lib/settings');
 const db = require('../src/db');
+const athletesData = require('../src/data/athletes-data');
 
 let app = null;
 let loading = null;
@@ -18,9 +19,9 @@ async function ensureDbData(force = false) {
   try {
     const athleteCount = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c || 0;
     if (athleteCount < 500 || force) {
-      lastSyncStatus = `starting: athleteCount=${athleteCount}`;
+      lastSyncStatus = `starting: athleteCount=${athleteCount}, athletesData=${athletesData?.length || 0}`;
       const { seed } = require('../scripts/seed');
-      await seed({ force: true, log: (m) => console.log(`[seed] ${m}`) });
+      await seed({ force: true, athletes: athletesData, log: (m) => console.log(`[seed] ${m}`) });
       const newCount = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c || 0;
       lastSyncStatus = `done: newCount=${newCount}`;
     } else {
