@@ -38,15 +38,15 @@ function fail(msg) {
     }
   }
 
-  // Tự động nạp dữ liệu mẫu nếu CSDL còn trống hoặc chưa có đủ dữ liệu full tính năng
+  // Tự động nạp dữ liệu VĐV nếu CSDL còn trống hoặc chưa có đủ dữ liệu Pickna
   if (process.env.SEED_DEMO !== '0') {
     let shouldForce = process.env.FORCE_SEED === '1' || process.env.SEED_DEMO === 'force';
     if (!shouldForce) {
       try {
-        const featUnsplash = await db.get("SELECT COUNT(*) AS c FROM athletes WHERE featured AND avatar LIKE '%unsplash%'");
+        const athleteCount = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c || 0;
         const otpCount = (await db.get("SELECT COUNT(*) AS c FROM otp_requests"))?.c || 0;
-        if ((featUnsplash ? featUnsplash.c : 0) < 12 || otpCount === 0) {
-          console.log('⚡ Phát hiện CSDL Neon chưa có đủ dữ liệu full tính năng (OTP/Submissions/Honors). Tự động cập nhật dữ liệu mẫu chuẩn...');
+        if (athleteCount < 500 || otpCount === 0) {
+          console.log(`⚡ Phát hiện CSDL Neon chưa có đủ VĐV Pickna (hiện có ${athleteCount}/971). Tự động nạp dữ liệu chuẩn...`);
           shouldForce = true;
         }
       } catch (err) {

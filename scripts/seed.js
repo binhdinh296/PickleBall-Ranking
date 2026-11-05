@@ -134,40 +134,60 @@ async function seed({ log = console.log, force = false } = {}) {
       return phone;
     };
 
-    // 3. Tạo 12 VĐV NỔI BẬT đại diện đủ 6 mức rank kèm ảnh chân dung thực tế
-    for (const spec of FEATURED_SPEC) {
-      const full = `${pick(FAMILY)} ${spec.given}`;
-      const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured, avatar)
-        VALUES (?,?,?,?,?,?,?,?,true,?) RETURNING *`, full, spec.nick, makePhone(), spec.gender, spec.town, spec.club, spec.points, spec.peak, spec.avatar);
+    const picknaFile = path.join(__dirname, '../src/data/pickna-athletes.json');
+    if (fs.existsSync(picknaFile)) {
+      log('Nạp 971 VĐV thực tế từ file Pickna (src/data/pickna-athletes.json)...');
+      const picknaList = JSON.parse(fs.readFileSync(picknaFile, 'utf8'));
+      for (let i = 0; i < picknaList.length; i++) {
+        const p = picknaList[i];
+        const isFeatured = i < 12;
+        const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured, avatar)
+          VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING *`,
+          p.full_name, p.nickname, makePhone(), p.gender, p.hometown, p.club, p.points, p.peak_points, isFeatured, p.avatar);
 
-      await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'init', 'Khởi tạo xếp hạng ban đầu', 'Ban tổ chức', now() - interval '90 days')",
-        a.id, Math.max(1800, spec.points - 200), Math.max(1800, spec.points - 200));
-      await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'tournament', 'Huy chương giải Mùa Hè 2026', 'Ban tổ chức', now() - interval '40 days')",
-        a.id, spec.points - 100, spec.points - 20);
-      await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'adjust', 'Cập nhật điểm sau giải đấu gần nhất', 'Ban tổ chức', now() - interval '7 days')",
-        a.id, spec.points - 20, spec.points);
-      athletes.push(a);
+        await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'init', 'Khởi tạo từ hệ thống Pickna ranking', 'Ban tổ chức', now() - interval '60 days')",
+          a.id, Math.max(1800, p.points - 50), Math.max(1800, p.points - 50));
+        await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'adjust', 'Cập nhật xếp hạng', 'Ban tổ chức', now() - interval '5 days')",
+          a.id, p.points - 10, p.points);
+
+        athletes.push(a);
+      }
+    } else {
+      // 3. Tạo 12 VĐV NỔI BẬT đại diện đủ 6 mức rank kèm ảnh chân dung thực tế
+      for (const spec of FEATURED_SPEC) {
+        const full = `${pick(FAMILY)} ${spec.given}`;
+        const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured, avatar)
+          VALUES (?,?,?,?,?,?,?,?,true,?) RETURNING *`, full, spec.nick, makePhone(), spec.gender, spec.town, spec.club, spec.points, spec.peak, spec.avatar);
+
+        await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'init', 'Khởi tạo xếp hạng ban đầu', 'Ban tổ chức', now() - interval '90 days')",
+          a.id, Math.max(1800, spec.points - 200), Math.max(1800, spec.points - 200));
+        await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'tournament', 'Huy chương giải Mùa Hè 2026', 'Ban tổ chức', now() - interval '40 days')",
+          a.id, spec.points - 100, spec.points - 20);
+        await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'adjust', 'Cập nhật điểm sau giải đấu gần nhất', 'Ban tổ chức', now() - interval '7 days')",
+          a.id, spec.points - 20, spec.points);
+        athletes.push(a);
+      }
+
+      // 4. Tạo 44 VĐV còn lại phân bố tự nhiên (30 nam, 14 nữ)
+      // VĐV nam đầu tiên là Vũ Văn Long có điểm cao nhất (3.680) đạt Rank 1, bật cờ nổi bật featured
+      const makeOther = async (given, gender, base, isFeatured = false) => {
+        const full = `${pick(FAMILY)} ${given}`;
+        const points = Math.round((base + r() * 0.3) * 1000 / 5) * 5;
+        const nick = r() > 0.4 ? given.split(' ').pop() + ' ' + pick(NICKS) : null;
+        const peak = points + (r() > 0.5 ? Math.round(r() * 60 / 5) * 5 : 0);
+        const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured)
+          VALUES (?,?,?,?,?,?,?,?,?) RETURNING *`, full, nick, makePhone(), gender, pick(TOWNS), pick(CLUBS), points, peak, isFeatured);
+
+        await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'init', 'Khởi tạo điểm trình', 'Ban tổ chức', now() - interval '80 days')",
+          a.id, Math.max(1800, points - 150), Math.max(1800, points - 150));
+        await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'adjust', 'Đánh giá xếp hạng', 'Ban tổ chức', now() - interval '15 days')",
+          a.id, points - 30, points);
+        athletes.push(a);
+      };
+
+      for (let i = 0; i < OTHER_MALE.length; i++) await makeOther(OTHER_MALE[i], 'M', 3.4 - i * 0.04, i === 0);
+      for (let i = 0; i < OTHER_FEMALE.length; i++) await makeOther(OTHER_FEMALE[i], 'F', 3.1 - i * 0.05, false);
     }
-
-    // 4. Tạo 44 VĐV còn lại phân bố tự nhiên (30 nam, 14 nữ)
-    // VĐV nam đầu tiên là Vũ Văn Long có điểm cao nhất (3.680) đạt Rank 1, bật cờ nổi bật featured
-    const makeOther = async (given, gender, base, isFeatured = false) => {
-      const full = `${pick(FAMILY)} ${given}`;
-      const points = Math.round((base + r() * 0.3) * 1000 / 5) * 5;
-      const nick = r() > 0.4 ? given.split(' ').pop() + ' ' + pick(NICKS) : null;
-      const peak = points + (r() > 0.5 ? Math.round(r() * 60 / 5) * 5 : 0);
-      const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured)
-        VALUES (?,?,?,?,?,?,?,?,?) RETURNING *`, full, nick, makePhone(), gender, pick(TOWNS), pick(CLUBS), points, peak, isFeatured);
-
-      await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'init', 'Khởi tạo điểm trình', 'Ban tổ chức', now() - interval '80 days')",
-        a.id, Math.max(1800, points - 150), Math.max(1800, points - 150));
-      await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'adjust', 'Đánh giá xếp hạng', 'Ban tổ chức', now() - interval '15 days')",
-        a.id, points - 30, points);
-      athletes.push(a);
-    };
-
-    for (let i = 0; i < OTHER_MALE.length; i++) await makeOther(OTHER_MALE[i], 'M', 3.4 - i * 0.04, i === 0);
-    for (let i = 0; i < OTHER_FEMALE.length; i++) await makeOther(OTHER_FEMALE[i], 'F', 3.1 - i * 0.05, false);
 
     const men = athletes.filter((a) => a.gender === 'M');
     const women = athletes.filter((a) => a.gender === 'F');
