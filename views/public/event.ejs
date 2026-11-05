@@ -176,6 +176,7 @@
 <!-- Bục Vinh Danh Hoàng Gia (Royal 3D Stepped Podium) -->
 <% if (honorDivisions && honorDivisions.length) { %>
 <section class="section royal-honors-section" id="vinh-danh">
+  <canvas class="honors-confetti" data-confetti aria-hidden="true"></canvas>
   <div class="container">
     <div class="section-head reveal">
       <div>
@@ -279,4 +280,5 @@
 </section>
 <% } %>
 
+<% if (honorDivisions && honorDivisions.length) { %><script src="/static/js/confetti.js?v=<%= locals.assetV || '' %>" defer></script><% } %>
 <%- include('../partials/bottom') %>
