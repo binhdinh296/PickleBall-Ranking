@@ -134,21 +134,9 @@ async function seed({ log = console.log, force = false, athletes: customAthletes
       return phone;
     };
 
-    let picknaList = Array.isArray(customAthletes) && customAthletes.length > 0 ? customAthletes : null;
-    if (!picknaList) {
-      try {
-        picknaList = require('../src/data/athletes-data');
-      } catch {
-        try {
-          picknaList = require('../src/data/pickna-athletes.json');
-        } catch {
-          try {
-            const pFile = path.join(__dirname, '../src/data/pickna-athletes.json');
-            if (fs.existsSync(pFile)) picknaList = JSON.parse(fs.readFileSync(pFile, 'utf8'));
-          } catch {}
-        }
-      }
-    }
+    let picknaList = Array.isArray(customAthletes) && customAthletes.length > 0
+      ? customAthletes
+      : require('../src/lib/sync-athletes').getAthletesList();
 
     if (Array.isArray(picknaList) && picknaList.length > 0) {
       log(`Nạp ${picknaList.length} VĐV thực tế từ file Pickna...`);

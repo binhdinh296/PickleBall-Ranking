@@ -1,5 +1,25 @@
+const fs = require('fs');
+const path = require('path');
 const db = require('../db');
-const athletesData = require('../data/athletes-data');
+
+function getAthletesList() {
+  const candidates = [
+    path.join(__dirname, '../data/pickna-athletes.json'),
+    path.join(process.cwd(), 'src/data/pickna-athletes.json'),
+    path.resolve('src/data/pickna-athletes.json'),
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) {
+      try {
+        const list = JSON.parse(fs.readFileSync(p, 'utf8'));
+        if (Array.isArray(list) && list.length > 0) return list;
+      } catch (err) {
+        console.error('[sync] Failed parsing', p, err.message);
+      }
+    }
+  }
+  return [];
+}
 
 async function syncPicknaAthletes(force = false) {
   try {
@@ -8,9 +28,15 @@ async function syncPicknaAthletes(force = false) {
       return { success: true, count: existing, message: 'Already synced' };
     }
 
-    console.log(`[sync] Bắt đầu đồng bộ 971 VĐV từ Pickna (hiện có ${existing})...`);
+    const athletesData = getAthletesList();
+    if (athletesData.length === 0) {
+      console.error('[sync] Không tìm thấy dữ liệu pickna-athletes.json');
+      return { success: false, error: 'Không tìm thấy file pickna-athletes.json' };
+    }
 
-    // Xóa danh sách VĐV cũ và lịch sử điểm
+    console.log(`[sync] Bắt đầu nạp ${athletesData.length} VĐV từ Pickna (hiện có ${existing})...`);
+
+    // Dọn danh sách cũ
     await db.run("DELETE FROM point_history");
     await db.run("DELETE FROM athletes");
 
@@ -56,12 +82,12 @@ async function syncPicknaAthletes(force = false) {
     }
 
     const finalCount = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c || 0;
-    console.log(`[sync] Đồng bộ thành công ${finalCount} VĐV.`);
+    console.log(`[sync] Nạp thành công ${finalCount} VĐV.`);
     return { success: true, count: finalCount };
   } catch (err) {
-    console.error('[sync] Lỗi đồng bộ:', err);
+    console.error('[sync] Lỗi nạp VĐV:', err);
     return { success: false, error: err.message };
   }
 }
 
-module.exports = { syncPicknaAthletes };
+module.exports = { syncPicknaAthletes, getAthletesList };
