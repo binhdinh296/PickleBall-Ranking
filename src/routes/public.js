@@ -35,7 +35,16 @@ async function featuredEvents(limit) {
 }
 
 router.get('/', wrap(async (req, res) => {
-  const athletes = await all('SELECT * FROM athletes WHERE visible ORDER BY featured DESC, points DESC, id LIMIT ?', num('featured_count') || 8);
+  // Rule: Chỉ hiển thị VĐV có ảnh avatar ở mục "Vận động viên nổi bật"
+  const athletes = await all(
+    `SELECT * FROM athletes
+     WHERE visible
+       AND avatar IS NOT NULL
+       AND length(trim(avatar)) > 0
+       AND avatar NOT LIKE '%default%'
+     ORDER BY featured DESC, points DESC, id LIMIT ?`,
+    num('featured_count') || 12
+  );
   athletes.sort((a, b) => b.points - a.points);
   // Chỉ số cho carousel VĐV nổi bật: hạng toàn bảng, Lock, số lần lên bục, thay đổi điểm gần nhất
   for (const a of athletes) {

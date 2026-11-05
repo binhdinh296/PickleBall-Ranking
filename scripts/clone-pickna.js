@@ -211,9 +211,16 @@ async function importToDatabase(athletes) {
   // Sắp xếp VĐV theo điểm giảm dần
   athletes.sort((a, b) => b.points - a.points);
 
-  // Top 12 VĐV điểm cao nhất được gắn featured để lên slider trang chủ
+  // Top 12 VĐV có avatar được gắn featured để lên slider trang chủ (Rule: Không có avatar thì không lên slider)
+  let featuredCount = 0;
   for (let i = 0; i < athletes.length; i++) {
-    athletes[i].featured = i < 12;
+    const hasAvatar = athletes[i].avatar && athletes[i].avatar.trim().length > 0 && !athletes[i].avatar.includes('default');
+    if (hasAvatar && featuredCount < 12) {
+      athletes[i].featured = true;
+      featuredCount++;
+    } else {
+      athletes[i].featured = false;
+    }
   }
 
   // Lưu file cache JSON để phục vụ seed nhanh hoặc khôi phục

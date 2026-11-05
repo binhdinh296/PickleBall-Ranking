@@ -63,6 +63,9 @@ async function readAthlete(req, existing) {
   }
   const avatar = await saveAvatar({ dataUrl: b.cropped_avatar_data, file: fileOf(req, 'avatar') });
   if (avatar) data.avatar = avatar;
+  if (data.featured && !data.avatar && (!existing || !existing.avatar)) {
+    return { error: 'Chỉ có thể đặt làm VĐV nổi bật khi đã có ảnh đại diện (avatar).', data };
+  }
   return { data };
 }
 

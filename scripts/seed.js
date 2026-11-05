@@ -138,9 +138,12 @@ async function seed({ log = console.log, force = false } = {}) {
     if (fs.existsSync(picknaFile)) {
       log('Nạp 971 VĐV thực tế từ file Pickna (src/data/pickna-athletes.json)...');
       const picknaList = JSON.parse(fs.readFileSync(picknaFile, 'utf8'));
+      let featuredCount = 0;
       for (let i = 0; i < picknaList.length; i++) {
         const p = picknaList[i];
-        const isFeatured = i < 12;
+        const hasAvatar = p.avatar && p.avatar.trim().length > 0 && !p.avatar.includes('default');
+        const isFeatured = hasAvatar && featuredCount < 12;
+        if (isFeatured) featuredCount++;
         const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured, avatar)
           VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING *`,
           p.full_name, p.nickname, makePhone(), p.gender, p.hometown, p.club, p.points, p.peak_points, isFeatured, p.avatar);
