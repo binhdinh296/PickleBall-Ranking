@@ -2,43 +2,27 @@
 // (Chạy trên server thường vẫn dùng `npm start` → src/server.js như trước.)
 const { createApp } = require('../src/server');
 const { loadSettings } = require('../src/lib/settings');
-const db = require('../src/db');
-const athletesData = require('../src/data/athletes-data');
+const { syncPicknaAthletes } = require('../src/lib/sync-athletes');
 
 let app = null;
 let loading = null;
 let loadedAt = 0;
-let seedChecked = false;
-let lastSyncStatus = 'not_started';
-let lastSyncError = null;
+let synced = false;
 const SETTINGS_TTL = 30_000; // nhiều instance chạy song song → làm mới cấu hình CMS định kỳ
-
-async function ensureDbData(force = false) {
-  if (seedChecked && !force) return;
-  seedChecked = true;
-  try {
-    const athleteCount = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c || 0;
-    if (athleteCount < 500 || force) {
-      lastSyncStatus = `starting: athleteCount=${athleteCount}, athletesData=${athletesData?.length || 0}`;
-      const { seed } = require('../scripts/seed');
-      await seed({ force: true, athletes: athletesData, log: (m) => console.log(`[seed] ${m}`) });
-      const newCount = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c || 0;
-      lastSyncStatus = `done: newCount=${newCount}`;
-    } else {
-      lastSyncStatus = `skipped: athleteCount=${athleteCount}`;
-    }
-  } catch (err) {
-    lastSyncError = err.stack || err.message;
-    console.error('[runtime] ensureDbData error:', err);
-    seedChecked = false;
-  }
-}
 
 async function ready() {
   if (app && Date.now() - loadedAt < SETTINGS_TTL) return;
   if (!loading) {
     loading = (async () => {
-      await ensureDbData();
+      if (!synced) {
+        synced = true;
+        try {
+          await syncPicknaAthletes();
+        } catch (e) {
+          console.error('[startup sync]', e.message);
+          synced = false;
+        }
+      }
       await loadSettings();
       if (!app) app = createApp();
       loadedAt = Date.now();
@@ -50,13 +34,14 @@ async function ready() {
 }
 
 module.exports = async (req, res) => {
-  if (req.url === '/api/debug-sync') {
-    if (req.url.includes('force=1')) await ensureDbData(true);
-    let count = null;
-    try { count = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c; } catch (e) { count = e.message; }
+  // Điểm kiểm tra hoặc kích hoạt đồng bộ khẩn cấp
+  if (req.url && req.url.startsWith('/api/sync-pickna')) {
+    const force = req.url.includes('force=1');
+    const result = await syncPicknaAthletes(force);
     res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({ lastSyncStatus, lastSyncError, athleteCount: count }));
+    return res.end(JSON.stringify(result));
   }
+
   try {
     await ready();
   } catch (err) {
