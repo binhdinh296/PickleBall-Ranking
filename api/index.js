@@ -35,7 +35,7 @@ async function ready() {
 
 module.exports = async (req, res) => {
   // Điểm kiểm tra hoặc kích hoạt đồng bộ khẩn cấp
-  if (req.url && req.url.startsWith('/api/sync-pickna')) {
+  if (req.url && (req.url.startsWith('/api/sync-pickna') || req.url.startsWith('/sync-pickna'))) {
     const force = req.url.includes('force=1');
     const result = await syncPicknaAthletes(force);
     res.setHeader('Content-Type', 'application/json');

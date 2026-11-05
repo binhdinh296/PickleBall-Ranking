@@ -1,21 +1,28 @@
-const fs = require('fs');
-const path = require('path');
 const db = require('../db');
 
 function getAthletesList() {
+  try {
+    const list = require('../data/pickna-athletes.json');
+    if (Array.isArray(list) && list.length > 0) return list;
+  } catch (err) {
+    console.error('[sync] Failed require pickna-athletes.json:', err.message);
+  }
+
+  const fs = require('fs');
+  const path = require('path');
   const candidates = [
     path.join(__dirname, '../data/pickna-athletes.json'),
     path.join(process.cwd(), 'src/data/pickna-athletes.json'),
     path.resolve('src/data/pickna-athletes.json'),
   ];
   for (const p of candidates) {
-    if (fs.existsSync(p)) {
-      try {
+    try {
+      if (fs.existsSync(p)) {
         const list = JSON.parse(fs.readFileSync(p, 'utf8'));
         if (Array.isArray(list) && list.length > 0) return list;
-      } catch (err) {
-        console.error('[sync] Failed parsing', p, err.message);
       }
+    } catch (err) {
+      console.error('[sync] Failed parsing', p, err.message);
     }
   }
   return [];
