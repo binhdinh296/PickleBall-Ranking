@@ -8,21 +8,27 @@ let app = null;
 let loading = null;
 let loadedAt = 0;
 let seedChecked = false;
+let lastSyncStatus = 'not_started';
+let lastSyncError = null;
 const SETTINGS_TTL = 30_000; // nhiều instance chạy song song → làm mới cấu hình CMS định kỳ
 
-async function ensureDbData() {
-  if (seedChecked) return;
+async function ensureDbData(force = false) {
+  if (seedChecked && !force) return;
   seedChecked = true;
   try {
     const athleteCount = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c || 0;
-    if (athleteCount < 500) {
-      console.log(`[runtime] athleteCount (${athleteCount}) < 500. Automatically seeding 971 Pickna athletes...`);
+    if (athleteCount < 500 || force) {
+      lastSyncStatus = `starting: athleteCount=${athleteCount}`;
       const { seed } = require('../scripts/seed');
       await seed({ force: true, log: (m) => console.log(`[seed] ${m}`) });
-      console.log('[runtime] Successfully seeded 971 Pickna athletes.');
+      const newCount = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c || 0;
+      lastSyncStatus = `done: newCount=${newCount}`;
+    } else {
+      lastSyncStatus = `skipped: athleteCount=${athleteCount}`;
     }
   } catch (err) {
-    console.error('[runtime] ensureDbData warning:', err.message);
+    lastSyncError = err.stack || err.message;
+    console.error('[runtime] ensureDbData error:', err);
     seedChecked = false;
   }
 }
@@ -43,6 +49,13 @@ async function ready() {
 }
 
 module.exports = async (req, res) => {
+  if (req.url === '/api/debug-sync') {
+    if (req.url.includes('force=1')) await ensureDbData(true);
+    let count = null;
+    try { count = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c; } catch (e) { count = e.message; }
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ lastSyncStatus, lastSyncError, athleteCount: count }));
+  }
   try {
     await ready();
   } catch (err) {

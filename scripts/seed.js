@@ -134,10 +134,18 @@ async function seed({ log = console.log, force = false } = {}) {
       return phone;
     };
 
-    const picknaFile = path.join(__dirname, '../src/data/pickna-athletes.json');
-    if (fs.existsSync(picknaFile)) {
-      log('Nạp 971 VĐV thực tế từ file Pickna (src/data/pickna-athletes.json)...');
-      const picknaList = JSON.parse(fs.readFileSync(picknaFile, 'utf8'));
+    let picknaList = null;
+    try {
+      picknaList = require('../src/data/pickna-athletes.json');
+    } catch {
+      try {
+        const pFile = path.join(__dirname, '../src/data/pickna-athletes.json');
+        if (fs.existsSync(pFile)) picknaList = JSON.parse(fs.readFileSync(pFile, 'utf8'));
+      } catch {}
+    }
+
+    if (Array.isArray(picknaList) && picknaList.length > 0) {
+      log(`Nạp ${picknaList.length} VĐV thực tế từ file Pickna...`);
       let featuredCount = 0;
       const CHUNK_SIZE = 50;
       for (let i = 0; i < picknaList.length; i += CHUNK_SIZE) {
