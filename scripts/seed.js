@@ -141,20 +141,16 @@ async function seed({ log = console.log, force = false } = {}) {
       let featuredCount = 0;
       for (let i = 0; i < picknaList.length; i++) {
         const p = picknaList[i];
-        const hasAvatar = p.avatar && p.avatar.trim().length > 0 && !p.avatar.includes('default');
-        const isFeatured = hasAvatar && featuredCount < 12;
+        const hasAvatar = Boolean(p.avatar && p.avatar.trim().length > 0 && !p.avatar.includes('default'));
+        const isFeatured = Boolean(hasAvatar && featuredCount < 12);
         if (isFeatured) featuredCount++;
         const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, points, peak_points, featured, avatar)
           VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING *`,
-          p.full_name, p.nickname, makePhone(), p.gender, p.hometown, p.club, p.points, p.peak_points, isFeatured, p.avatar);
-
-        await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'init', 'Khởi tạo từ hệ thống Pickna ranking', 'Ban tổ chức', now() - interval '60 days')",
-          a.id, Math.max(1800, p.points - 50), Math.max(1800, p.points - 50));
-        await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author, created_at) VALUES (?, ?, ?, 'adjust', 'Cập nhật xếp hạng', 'Ban tổ chức', now() - interval '5 days')",
-          a.id, p.points - 10, p.points);
+          p.full_name || '', p.nickname || null, makePhone(), p.gender || 'M', p.hometown || null, p.club || null, Number(p.points) || 0, Number(p.peak_points) || Number(p.points) || 0, isFeatured, p.avatar || null);
 
         athletes.push(a);
       }
+      log(`Đã nạp thành công ${athletes.length} VĐV.`);
     } else {
       // 3. Tạo 12 VĐV NỔI BẬT đại diện đủ 6 mức rank kèm ảnh chân dung thực tế
       for (const spec of FEATURED_SPEC) {
