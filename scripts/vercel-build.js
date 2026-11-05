@@ -57,6 +57,14 @@ function fail(msg) {
     await require('./seed').seed({ force: shouldForce, log: (m) => console.log(`✔ ${m}`) });
   }
 
+  // CSDL đã seed từ trước: đổi dữ liệu mẫu cũ (tên PICKLERANK, nhà tài trợ mang tên thương hiệu thật, giải demo ngoài vùng)
+  // sang bản PickNgheTinh. Chỉ thay giá trị còn đúng y bản mẫu cũ, không đụng nội dung đã chỉnh trong CMS.
+  try {
+    await require('./demo-data-sync').syncDemoData(db, (m) => console.log(`✔ ${m}`));
+  } catch (err) {
+    console.warn('⚠ Không thể đồng bộ dữ liệu mẫu:', err.message);
+  }
+
   // Đảm bảo các giải đấu và đối tác có banner static chuẩn trên Vercel (kể cả khi CSDL Neon cũ chưa seed lại)
   try {
     await db.run("UPDATE events SET banner = '/static/img/events/mua-thu-open-2026.svg' WHERE slug = 'mua-thu-open-2026' AND (banner IS NULL OR banner LIKE '/uploads/%')");
