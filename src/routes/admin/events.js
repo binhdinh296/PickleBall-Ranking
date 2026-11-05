@@ -344,27 +344,51 @@ router.post('/noi-dung/:id/xoa-nhanh', editor, wrap(async (req, res) => {
 // ---- Trọng tài: danh sách trận + nhập tỉ số tại sân ----
 router.all('/trong-tai', referee, wrap(async (req, res) => {
   if (req.method === 'POST') return res.redirect(303, '/admin/trong-tai');
-  const matches = await all(`SELECT m.*, d.name AS division, e.name AS event_name, ta.name AS team_a, tb.name AS team_b
+  const me = req.session.user;
+  // Trọng tài: chỉ thấy trận giao cho mình + trận chưa giao; BTV/Admin thấy tất cả kèm tên trọng tài
+  const onlyMine = me.role === 'referee';
+  const matches = await all(`SELECT m.*, d.name AS division, e.name AS event_name, ta.name AS team_a, tb.name AS team_b, u.display_name AS referee_name
     FROM matches m JOIN divisions d ON d.id = m.division_id JOIN events e ON e.id = d.event_id
     LEFT JOIN teams ta ON ta.id = m.team_a_id LEFT JOIN teams tb ON tb.id = m.team_b_id
+    LEFT JOIN users u ON u.id = m.referee_id AND u.active AND u.role = 'referee'
     WHERE e.end_date >= CURRENT_DATE - 1 AND m.status <> 'done' AND m.team_a_id IS NOT NULL AND m.team_b_id IS NOT NULL
-    ORDER BY CASE m.status WHEN 'live' THEN 0 ELSE 1 END, e.start_date, d.sort_order, m.round_order, m.position LIMIT 100`);
+      ${onlyMine ? 'AND (u.id IS NULL OR u.id = ?)' : ''}
+    ORDER BY CASE WHEN m.referee_id = ? THEN 0 ELSE 1 END, CASE m.status WHEN 'live' THEN 0 ELSE 1 END, e.start_date, d.sort_order, m.round_order, m.position LIMIT 100`,
+    ...(onlyMine ? [me.id, me.id] : [me.id]));
   res.render('admin/referee', { title: 'Trọng tài', matches });
 }));
 
 async function loadMatch(id) {
-  const m = await get(`SELECT m.*, d.name AS division, d.format, d.relay_step, d.event_id, ta.name AS team_a, tb.name AS team_b
-    FROM matches m JOIN divisions d ON d.id = m.division_id LEFT JOIN teams ta ON ta.id = m.team_a_id LEFT JOIN teams tb ON tb.id = m.team_b_id
+  const m = await get(`SELECT m.*, d.name AS division, d.format, d.relay_step, d.event_id, ta.name AS team_a, tb.name AS team_b,
+      u.display_name AS referee_name, u.id AS active_referee_id, (e.end_date < CURRENT_DATE - 1) AS event_ended
+    FROM matches m JOIN divisions d ON d.id = m.division_id JOIN events e ON e.id = d.event_id
+    LEFT JOIN teams ta ON ta.id = m.team_a_id LEFT JOIN teams tb ON tb.id = m.team_b_id
+    LEFT JOIN users u ON u.id = m.referee_id AND u.active AND u.role = 'referee'
     WHERE m.id = ?`, parseInt(id, 10) || 0);
   return m;
+}
+
+// Trọng tài chỉ được nhập tỉ số trận giao cho mình (hoặc chưa giao), khi trận chưa kết thúc và giải chưa bế mạc.
+// BTV/Admin không bị giới hạn (sửa sai sau trận).
+function refereeAccess(m, user) {
+  if (user.role !== 'referee') return { view: true, edit: true };
+  // Người được giao đã bị khóa/đổi vai trò → coi như chưa giao để trận không bị kẹt
+  if (m.active_referee_id && m.active_referee_id !== user.id) return { view: false, edit: false, reason: 'Trận này đã được giao cho trọng tài khác.' };
+  if (m.status === 'done') return { view: true, edit: false, reason: 'Trận đã kết thúc. Cần sửa tỉ số, hãy liên hệ ban tổ chức.' };
+  if (m.event_ended) return { view: true, edit: false, reason: 'Giải đã bế mạc, không thể nhập tỉ số.' };
+  return { view: true, edit: true };
 }
 
 router.get('/tran/:id', referee, wrap(async (req, res, next) => {
   const m = await loadMatch(req.params.id);
   if (!m) return next();
+  const access = refereeAccess(m, req.session.user);
+  if (!access.view) return res.status(403).render('admin/forbidden', { title: 'Không có quyền' });
   const teams = await bracket.loadTeams(m.division_id);
   const streams = await all('SELECT id, court, title, status, actual_start FROM live_streams WHERE event_id = ? ORDER BY sort_order, court', m.event_id);
-  res.render('admin/match', { title: `Trận ${m.code || ''} · ${m.division}`, m, teams, streams });
+  const referees = req.session.user.role === 'referee' ? []
+    : await all("SELECT id, display_name, username FROM users WHERE role = 'referee' AND active ORDER BY display_name");
+  res.render('admin/match', { title: `Trận ${m.code || ''} · ${m.division}`, m, teams, streams, referees, locked: access.edit ? null : access.reason });
 }));
 
 function readMatch(b, isEditor) {
@@ -388,6 +412,7 @@ function readMatch(b, isEditor) {
     if ('team_b_id' in b) data.team_b_id = intOrNull(b.team_b_id);
     if ('code' in b) data.code = String(b.code || '').trim().slice(0, 20) || null;
     if ('round_name' in b) data.round_name = String(b.round_name || '').trim().slice(0, 40) || 'Vòng';
+    if ('referee_id' in b) data.referee_id = intOrNull(b.referee_id);
   }
   return data;
 }
@@ -395,8 +420,17 @@ function readMatch(b, isEditor) {
 router.post('/tran/:id', referee, wrap(async (req, res, next) => {
   const m = await loadMatch(req.params.id);
   if (!m) return next();
+  const access = refereeAccess(m, req.session.user);
+  if (!access.edit) {
+    if (req.get('x-csrf-token') !== undefined) return res.status(403).json({ ok: false, error: access.reason });
+    if (!access.view) return res.status(403).render('admin/forbidden', { title: 'Không có quyền' });
+    req.flash('error', access.reason);
+    return res.redirect(303, `/admin/tran/${m.id}`);
+  }
   const isEditor = ['admin', 'editor'].includes(req.session.user.role);
   const data = readMatch(req.body, isEditor);
+  // Chỉ giao trận cho tài khoản trọng tài đang hoạt động
+  if (data.referee_id && !(await get("SELECT 1 FROM users WHERE id = ? AND role = 'referee' AND active", data.referee_id))) data.referee_id = null;
   // Bấm "Bắt đầu" lần đầu khi sân đang phát: tự ghi mốc giây trong video để xem lại
   if (data.status === 'live' && m.status !== 'live' && m.video_offset === null && !('video_offset' in req.body)) {
     const s = await get("SELECT * FROM live_streams WHERE id = ? AND status = 'live' AND actual_start IS NOT NULL",
@@ -405,6 +439,7 @@ router.post('/tran/:id', referee, wrap(async (req, res, next) => {
   }
   await bracket.updateMatch(m.id, data);
   if (data.status && data.status !== m.status) await audit(req, 'match_status', `match:${m.id}`, data.status);
+  if ('referee_id' in data && data.referee_id !== m.referee_id) await audit(req, 'match_referee', `match:${m.id}`, data.referee_id ? `user:${data.referee_id}` : 'bỏ giao');
   if (req.get('x-csrf-token') !== undefined) {
     const fresh = await loadMatch(m.id);
     return res.json({ ok: true, score_a: fresh.score_a, score_b: fresh.score_b, status: fresh.status, current_leg: fresh.current_leg });

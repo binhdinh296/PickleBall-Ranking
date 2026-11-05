@@ -136,7 +136,7 @@ function loserOf(m) {
 }
 
 const MATCH_FIELDS = ['team_a_id', 'team_b_id', 'score_a', 'score_b', 'status', 'players_a', 'players_b', 'legs', 'current_leg',
-  'court', 'code', 'round_name', 'live_stream_id', 'video_offset'];
+  'court', 'code', 'round_name', 'live_stream_id', 'video_offset', 'referee_id'];
 
 // Cập nhật trận, tự đẩy đội thắng sang trận kế tiếp (nhánh loại trực tiếp)
 async function updateMatch(matchId, data) {

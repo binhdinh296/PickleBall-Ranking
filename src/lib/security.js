@@ -93,7 +93,9 @@ function rateLimit({ windowMs, max, message = 'Bạn thao tác quá nhanh, vui l
 }
 
 // Ở dev hoặc khi bật devtools, bảng test (/dev) cần nhúng chính các trang của site vào khung
-const DEV_FRAMING = process.env.TEST_PANEL !== '0' && process.env.ENABLE_DEVTOOLS !== '0';
+// Chỉ nới khi bảng test thật sự bật (cùng điều kiện với src/routes/devtools.js)
+const DEV_FRAMING = process.env.TEST_PANEL !== '0' && process.env.ENABLE_DEVTOOLS !== '0'
+  && (process.env.ENABLE_DEVTOOLS === '1' || (process.env.NODE_ENV !== 'production' && !process.env.VERCEL));
 
 function securityHeaders(req, res, next) {
   const overlay = req.path.startsWith('/overlay/');

@@ -54,7 +54,8 @@ npm run dev
 - **Nút "DEV · Xem với vai trò" trên menu chính** (header website và thanh trên CMS): đổi vai trò ngay ở trang đang xem, không cần mở `/dev`. Chọn vai trò CMS sẽ vào trang mặc định của vai trò đó; chọn "Khách" sẽ đăng xuất và ở lại trang công khai đang xem. Nút này tuân theo cùng điều kiện bật/tắt với `/dev` bên dưới.
 - **2 khung xem song song**, mỗi khung chọn cỡ iPhone 390 / Android 360 / màn nhỏ 320 / tablet / desktop. Ví dụ: khung 1 cho trọng tài nhập tỉ số, khung 2 là trang xem live của khán giả.
 - **27 kịch bản test** chia theo vai trò, kèm các bước làm và dữ liệu mẫu (bấm để chép). Đánh dấu "Đạt" hoặc "Ghi lỗi", tiến độ lưu trên trình duyệt.
-- **Chỉ bật ở môi trường dev và chỉ mở được từ chính máy chạy server.** Khi `NODE_ENV=production` thì `/dev` trả 404 và trang không cho nhúng khung. Tắt hẳn ở dev bằng `TEST_PANEL=0`.
+- **Chỉ bật ở môi trường dev và chỉ mở được từ chính máy chạy server.** Khi `NODE_ENV=production` hoặc chạy trên Vercel thì `/dev` trả 404, nút DEV ẩn và trang không cho nhúng khung. Tắt hẳn ở dev bằng `TEST_PANEL=0`.
+- Bảng test đăng nhập **không cần mật khẩu** (kể cả quyền Quản trị viên). Chỉ đặt `ENABLE_DEVTOOLS=1` cho bản demo công khai **không có dữ liệu thật**.
 
 Chạy unit test:
 

@@ -29,6 +29,8 @@ function getPool() {
       connectionTimeoutMillis: 10_000,
       ssl: isRemote ? { rejectUnauthorized: false } : undefined,
     });
+    // Kết nối rảnh bị CSDL cắt (Neon tự đóng, Postgres khởi động lại…) không được làm sập cả tiến trình
+    pool.on('error', (err) => console.error('Kết nối CSDL rảnh bị đóng:', err.code || err.message));
   }
   return pool;
 }

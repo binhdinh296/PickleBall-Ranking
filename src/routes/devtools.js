@@ -15,15 +15,19 @@ const TEST_USERS = {
   referee: { username: 'test_referee', display: 'Test · Trọng tài' },
 };
 
+// BẢO MẬT: /dev/login/:role đăng nhập KHÔNG cần mật khẩu (kể cả quyền Quản trị viên).
+// Mặc định chỉ bật ở môi trường dev và chỉ cho máy đang chạy server.
+// Muốn bật cho một bản demo/staging công khai phải đặt rõ ENABLE_DEVTOOLS=1 — KHÔNG đặt trên site có dữ liệu thật.
+const explicitlyOn = () => process.env.ENABLE_DEVTOOLS === '1';
+
 function enabled() {
-  // Cho phép bật trên Vercel / môi trường test (tắt bằng TEST_PANEL=0 hoặc ENABLE_DEVTOOLS=0)
   if (process.env.TEST_PANEL === '0' || process.env.ENABLE_DEVTOOLS === '0') return false;
-  return true;
+  if (explicitlyOn()) return true;
+  return process.env.NODE_ENV !== 'production' && !process.env.VERCEL;
 }
 
 function isLocal(req) {
-  // Khi devtools được bật, cho phép sử dụng nút chuyển vai trò (kể cả trên Vercel/Cloud)
-  if (enabled()) return true;
+  if (explicitlyOn()) return true;
   const ip = String(req.socket.remoteAddress || '');
   return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
 }

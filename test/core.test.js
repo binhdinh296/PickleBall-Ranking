@@ -111,3 +111,48 @@ test('YouTube: ưu tiên RTMPS cho OBS', () => {
   assert.deepEqual(youtube.pickIngestion({ ingestionAddress: 'rtmp://a.rtmp.youtube.com/live2', streamName: 'k' }), { url: 'rtmp://a.rtmp.youtube.com/live2', key: 'k' });
   assert.deepEqual(youtube.pickIngestion(undefined), { url: null, key: null });
 });
+
+test('Mọi route POST đều nằm trong danh sách được giữ phương thức POST (không bị đổi sang GET)', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const { isPostAllowed } = require('../src/lib/post-guard');
+  const mounts = {
+    'src/routes/public.js': '', 'src/routes/live.js': '', 'src/routes/tournaments.js': '/giai-dau', 'src/routes/devtools.js': '/dev',
+  };
+  for (const f of fs.readdirSync(path.join(__dirname, '../src/routes/admin'))) mounts[`src/routes/admin/${f}`] = '/admin';
+  const missing = [];
+  for (const [file, base] of Object.entries(mounts)) {
+    const src = fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
+    for (const m of src.matchAll(/router\.post\('([^']+)'/g)) {
+      const sample = (base + m[1]).replace(/:[a-z_]+/g, '1');
+      if (!isPostAllowed(sample)) missing.push(`${base}${m[1]} (${file})`);
+    }
+  }
+  assert.deepEqual(missing, [], 'Thêm tiền tố vào src/lib/post-guard.js');
+});
+
+test('Bảng DEV (đăng nhập không mật khẩu): mặc định tắt trên production/Vercel, chỉ bật khi ENABLE_DEVTOOLS=1', () => {
+  const devtools = require('../src/routes/devtools');
+  const keys = ['NODE_ENV', 'VERCEL', 'ENABLE_DEVTOOLS', 'TEST_PANEL'];
+  const saved = Object.fromEntries(keys.map((k) => [k, process.env[k]]));
+  const set = (env) => { keys.forEach((k) => { delete process.env[k]; }); Object.assign(process.env, env); };
+  const remote = { socket: { remoteAddress: '203.0.113.9' } };
+  const local = { socket: { remoteAddress: '127.0.0.1' } };
+  try {
+    set({ NODE_ENV: 'development' });
+    assert.equal(devtools.enabled(), true);
+    assert.equal(devtools.isLocal(local), true);
+    assert.equal(devtools.isLocal(remote), false, 'máy khác không được đăng nhập nhanh');
+    set({ NODE_ENV: 'production' });
+    assert.equal(devtools.enabled(), false);
+    set({ VERCEL: '1' });
+    assert.equal(devtools.enabled(), false);
+    set({ VERCEL: '1', ENABLE_DEVTOOLS: '1' });
+    assert.equal(devtools.enabled(), true);
+    assert.equal(devtools.isLocal(remote), true);
+    set({ NODE_ENV: 'development', ENABLE_DEVTOOLS: '0' });
+    assert.equal(devtools.enabled(), false);
+  } finally {
+    set(Object.fromEntries(Object.entries(saved).filter(([, v]) => v !== undefined)));
+  }
+});

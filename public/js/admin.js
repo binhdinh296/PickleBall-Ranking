@@ -60,7 +60,7 @@
     $$('[data-set-status]', scorer).forEach(function (btn) {
       btn.addEventListener('click', function () {
         var st = btn.getAttribute('data-set-status');
-        if (st === 'done' && !window.confirm('Kết thúc trận với tỉ số hiện tại?')) return;
+        if (st === 'done' && !window.confirm('Kết thúc trận với tỉ số hiện tại? Sau khi kết thúc, trọng tài không sửa được tỉ số nữa.')) return;
         save({ status: st });
       });
     });

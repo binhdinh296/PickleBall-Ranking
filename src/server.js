@@ -100,21 +100,8 @@ function createApp() {
   app.use(csrf);
   if (IS_VERCEL) app.use(LIVE_PATHS, syncOnVisit);
 
-  // Phòng ngừa Vercel edge/proxy đổi redirect sang 307 (khiến trình duyệt gửi tiếp POST tới URL đích chỉ nhận GET)
-  app.use((req, res, next) => {
-    if (req.method === 'POST') {
-      const allowedPostPrefixes = [
-        '/dev/', '/admin/login', '/admin/logout', '/admin/doi-tac', '/admin/cau-hinh',
-        '/admin/nguoi-dung', '/admin/vdv', '/admin/giai-dau', '/admin/noi-dung',
-        '/admin/dang-ky', '/admin/livestream', '/admin/tran', '/admin/tai-khoan',
-        '/cham-trinh', '/api/', '/cron/'
-      ];
-      if (!allowedPostPrefixes.some((p) => req.path.startsWith(p)) && !req.path.includes('/dang-ky')) {
-        req.method = 'GET';
-      }
-    }
-    next();
-  });
+  // Phòng ngừa Vercel edge/proxy đổi redirect sang 307 (xem src/lib/post-guard.js)
+  app.use(require('./lib/post-guard').postGuard);
 
   app.use('/', require('./routes/public'));
   app.use('/', require('./routes/live'));
