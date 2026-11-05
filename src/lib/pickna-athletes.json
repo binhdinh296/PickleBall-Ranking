@@ -61,8 +61,8 @@
     "lock_points": 3275,
     "club": "Urane Vinh",
     "hometown": "Nghệ An",
-    "avatar": "https://pickna.vn/uploads/athletes/1779287355-6759.jpg",
-    "featured": true
+    "avatar": null,
+    "featured": false
   },
   {
     "pickna_id": 32,
@@ -166,7 +166,7 @@
     "club": "Nghi Sơn",
     "hometown": "Thanh Hoá",
     "avatar": "https://pickna.vn/uploads/athletes/b7ede9a8e349a9d1c262a15e64b8fdee.webp",
-    "featured": false
+    "featured": true
   },
   {
     "pickna_id": 34,

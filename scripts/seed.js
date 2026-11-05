@@ -148,7 +148,7 @@ async function seed({ log = console.log, force = false, athletes: customAthletes
         const placeholders = [];
         for (const p of chunk) {
           const hasAvatar = Boolean(p.avatar && p.avatar.trim().length > 0 && !p.avatar.includes('default'));
-          const isFeatured = Boolean(hasAvatar && featuredCount < 12);
+          const isFeatured = Boolean(p.featured !== false && hasAvatar && featuredCount < 12);
           if (isFeatured) featuredCount++;
           values.push(
             p.full_name || '',
