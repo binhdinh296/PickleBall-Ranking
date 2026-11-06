@@ -1,0 +1,2 @@
+ALTER TABLE registrations ALTER COLUMN points1 DROP NOT NULL;
+ALTER TABLE registrations ALTER COLUMN points2 DROP NOT NULL;

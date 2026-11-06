@@ -38,6 +38,13 @@ module.exports = async (req, res) => {
   if (req.url && (req.url.startsWith('/api/sync-pickna') || req.url.startsWith('/sync-pickna'))) {
     const force = req.url.includes('force=1');
     const result = await syncPicknaAthletes(force);
+    try {
+      const db = require('../src/db');
+      await db.migrate();
+      await require('../scripts/sync-tournaments').syncGaVangUom(db);
+    } catch (e) {
+      result.tournamentError = e.message;
+    }
     res.setHeader('Content-Type', 'application/json');
     return res.end(JSON.stringify(result));
   }

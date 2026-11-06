@@ -89,6 +89,14 @@ function fail(msg) {
     console.warn('⚠ Không thể cập nhật banner static:', err.message);
   }
 
+  // Đồng bộ giải đấu chuẩn bị tổ chức: Minigame Gà Vàng Ươm Lần 2 (kèm 31 đôi đăng ký và nhánh đấu)
+  try {
+    await require('./sync-tournaments').syncGaVangUom(db);
+    console.log('✔ Đồng bộ giải Minigame Gà Vàng Ươm Lần 2.');
+  } catch (err) {
+    console.warn('⚠ Không thể đồng bộ giải Gà Vàng Ươm Lần 2:', err.message);
+  }
+
   await db.close();
   process.exit(0);
 })().catch((err) => {

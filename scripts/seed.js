@@ -299,6 +299,60 @@ async function seed({ log = console.log, force = false, athletes: customAthletes
       VALUES ('giai-vo-dich-quoc-gia-2026', 'Giải Vô Địch Pickleball Nghệ Tĩnh 2026', 'Nhà thi đấu đa năng Hà Tĩnh', 'Đường Hà Huy Tập, Hà Tĩnh',
       ?, ?, false, false, false, 'Giải vô địch hai tỉnh Nghệ An – Hà Tĩnh quy tụ các tay vợt hàng đầu tranh cúp vô địch Nghệ Tĩnh.', '/static/img/events/giai-vo-dich-quoc-gia-2026.svg')`, addDays(45), addDays(48));
 
+    // 10. Giải 5: MINIGAME GIẢI PICKLEBALL GÀ VÀNG ƯƠM LẦN 2 (Sắp diễn ra 08/11/2026)
+    const ev5 = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, registration_open, featured, published, description, banner)
+      VALUES ('ga-vang-uom-lan-2', 'Minigame Giải Pickleball Gà Vàng Ươm Lần 2', 'Cụm 8 sân XF40', '82 Nguyễn Cảnh Hoan, Phường Vinh Hưng, Nghệ An',
+      '2026-11-08', '2026-11-08', false, true, true,
+      'Minigame Giải Pickleball Gà Vàng Ươm Lần 2 tổ chức tại Cụm 8 sân XF40 - 82 Nguyễn Cảnh Hoan, Phường Vinh Hưng, Nghệ An. Thông điệp: "Phải đẹp nhưng không hề yếu!" - "Bản lĩnh - Sức mạnh - Kỹ thuật lên ngôi". Đơn vị đồng hành: Picklecode, Nhà Hàng Sân Vàng, Zocker, XF40.',
+      '/static/img/events/giai-pickleball-ga-vang-uom-lan-2.webp') RETURNING id`);
+
+    const d5 = await get(`INSERT INTO divisions(event_id, name, subtitle, format, team_type, max_teams, gender_rule, prizes, sort_order, banner)
+      VALUES (?, 'Đôi nữ Gà Vàng Ươm', 'Quy mô 32 đôi · Chưa tính điểm trình', 'knockout', 'pair', 32, 'female', ?, 1, '/static/img/events/giai-pickleball-ga-vang-uom-lan-2.webp') RETURNING id`,
+      ev5.id, prizes('Cúp + Quà tài trợ', 'Huy chương Bạc + Quà tài trợ', 'Huy chương Đồng + Quà tài trợ'));
+
+    const rawPairs = [
+      { p1: 'Hải Linh', p2: 'Nguyễn Hậu', paid: true, note: 'Đã nạp' },
+      { p1: 'Oanh Nguyễn', p2: 'Hoài Nguyễn', paid: true, note: 'Đã nạp' },
+      { p1: 'Chipu', p2: 'Vân Trần', paid: true, note: 'Đã nạp' },
+      { p1: 'Kim Anh', p2: 'Kim Thư', paid: true, note: 'Đã nạp' },
+      { p1: 'Hoài Nguyễn', p2: 'Quỳnh Lam', paid: true, note: 'Đã nạp' },
+      { p1: 'Lan Hàng Xóm', p2: 'Jang Cư Mận', paid: true, note: 'Đã nạp' },
+      { p1: 'Tố Uyên', p2: 'Kiều Liên', paid: true, note: 'Đã nạp' },
+      { p1: 'Hà Nguyên', p2: 'Phương Nguyên', paid: false, note: 'Chờ nạp lệ phí' },
+      { p1: 'Mỹ Hạnh', p2: 'Khánh Huyền', paid: true, note: 'Đã nạp' },
+      { p1: 'Thanh Huyền', p2: 'Hoa Phú', paid: true, note: 'Đã nạp' },
+      { p1: 'Sakura', p2: 'Mộc Quỳnh', paid: false, note: 'Chờ nạp lệ phí' },
+      { p1: 'Hồng Sương', p2: 'Lương Phương', paid: true, note: 'Đã nạp' },
+      { p1: 'Linh Linh', p2: 'Kim Ngọc', paid: true, note: 'Đã nạp' },
+      { p1: 'Linh Miu', p2: 'Ngọc Ánh', paid: true, note: 'Đã nạp' },
+      { p1: 'Thanh Huyền', p2: 'Thơ Trần', paid: true, note: 'Đã nạp' },
+      { p1: 'Thanh Hường', p2: 'Lương Hân', paid: true, note: 'Đã nạp' },
+      { p1: 'Hoài Thu', p2: 'Hạnh Bún', paid: true, note: 'Đã nạp' },
+      { p1: 'Lê Na', p2: 'Hà Xôi', paid: true, note: 'Đã nạp (NTT)' },
+      { p1: 'Hồng Lam', p2: 'Trang Milo', paid: true, note: 'Đã nạp' },
+      { p1: 'Thảo Lê', p2: 'Thảo Võ', paid: true, note: 'Đã nạp' },
+      { p1: 'Minh Hường', p2: 'Nguyễn Mơ', paid: true, note: 'Đã nạp' },
+      { p1: 'Hồ Mến', p2: 'Hậu Lê', paid: true, note: 'Đã nạp' },
+      { p1: 'Beo Beo', p2: 'Uyên Uyển', paid: true, note: 'Đã nạp' },
+      { p1: 'Cẩm Trà', p2: 'Phương Trang', paid: true, note: 'Đã nạp' },
+      { p1: 'Tú Anh', p2: 'Mỹ Duyên', paid: true, note: 'Đã nạp' },
+      { p1: 'Hải Yến', p2: 'Nguyễn Hương', paid: true, note: 'Đã nạp' },
+      { p1: 'Thanh Lê', p2: 'Nga Nguyễn', paid: true, note: 'Đã nạp' },
+      { p1: 'Thùy Linh', p2: 'Hà Phương', paid: true, note: 'Đã nạp' },
+      { p1: 'Thuý Nga', p2: 'Thuý Mai', paid: true, note: 'Đã nạp' },
+      { p1: 'Ngọc Ánh', p2: 'Khánh Vy', paid: true, note: 'Đã nạp' },
+      { p1: 'Ngọc Ánh Trần', p2: 'Phương Nguyễn', paid: true, note: 'Đã nạp' }
+    ];
+
+    let pNum = 981000100;
+    for (const r of rawPairs) {
+      await run(`INSERT INTO registrations(division_id, athlete1_id, name1, phone1, points1, athlete2_id, name2, phone2, points2, phone_verified, status, admin_note)
+        VALUES (?, NULL, ?, ?, NULL, NULL, ?, ?, NULL, true, ?, ?)`,
+        d5.id, r.p1, '0' + (pNum++), r.p2, '0' + (pNum++), r.paid ? 'approved' : 'new', r.note);
+    }
+    await bracket.syncTeamsFromRegistrations(d5.id);
+    await bracket.generateKnockout(d5.id, { randomize: false });
+
     return { d1: d1.id, d2: d2.id, d4: d4.id, s1: s1.id, s2: s2.id, s3: s3.id, men, women };
   }).then(async (ids) => {
     const { d1, d2, d4, s1, s2, s3, men, women } = ids;

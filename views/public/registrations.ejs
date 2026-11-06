@@ -21,7 +21,7 @@
             <td data-label="STT" class="tnum"><%= i + 1 %></td>
             <td data-label="VĐV 1"><% if (r.athlete1_id) { %><a class="link" href="/vdv/<%= r.athlete1_id %>"><%= r.name1 %></a><% } else { %><%= r.name1 %><% } %></td>
             <td data-label="VĐV 2"><% if (r.athlete2_id) { %><a class="link" href="/vdv/<%= r.athlete2_id %>"><%= r.name2 %></a><% } else { %><%= r.name2 %><% } %></td>
-            <td data-label="Tổng trình" class="num"><strong><%= fmt.pts(r.points1 + r.points2) %></strong></td>
+            <td data-label="Tổng trình" class="num"><% if (r.points1 != null && r.points2 != null && (r.points1 > 0 || r.points2 > 0)) { %><strong><%= fmt.pts(r.points1 + r.points2) %></strong><% } else { %><span class="muted">—</span><% } %></td>
             <td data-label="Trạng thái"><span class="chip <%= r.status === 'approved' ? 'chip-ok' : 'chip-warn' %>"><%= fmt.REG_STATUS_LABEL[r.status] %></span></td>
           </tr>
           <% }) %>

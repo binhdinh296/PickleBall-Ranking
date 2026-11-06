@@ -12,7 +12,7 @@
   <div class="list-item" style="flex-wrap: wrap;">
     <span class="main" style="flex: 1 1 260px;">
       <strong>#<%= i + 1 %> · <%= r.name1 %> / <%= r.name2 %></strong>
-      <span class="sub"><%= r.phone1 %> (<%= fmt.pts(r.points1) %>) · <%= r.phone2 %> (<%= fmt.pts(r.points2) %>) · Tổng <strong><%= fmt.pts(r.points1 + r.points2) %></strong></span>
+      <span class="sub"><%= r.phone1 %><% if (r.points1) { %> (<%= fmt.pts(r.points1) %>)<% } %> · <%= r.phone2 %><% if (r.points2) { %> (<%= fmt.pts(r.points2) %>)<% } %><% if (r.points1 && r.points2) { %> · Tổng <strong><%= fmt.pts(r.points1 + r.points2) %></strong><% } else { %> · Tổng: <span class="muted">Chưa có trình</span><% } %></span>
       <span class="sub"><%= fmt.dateTimeVN(r.created_at) %><%= r.phone_verified ? ' · đã xác minh OTP' : '' %><%= r.admin_note ? ` · ${r.admin_note}` : '' %></span>
     </span>
     <span class="side">
