@@ -1,4 +1,5 @@
 <%# Nút chọn giao diện: 4 theme, có ô màu xem trước. Tham số: paletteIcon (SVG) %>
+<% if (locals.themes) { %>
 <div class="theme-menu" data-theme-menu>
   <button type="button" class="icon-btn" data-theme-btn aria-haspopup="true" aria-expanded="false" aria-controls="theme-pop" aria-label="Chọn giao diện" title="Chọn giao diện"><%- paletteIcon %></button>
   <div class="theme-pop" id="theme-pop" role="menu" aria-label="Giao diện" hidden>
@@ -12,3 +13,4 @@
     <% }) %>
   </div>
 </div>
+<% } %>

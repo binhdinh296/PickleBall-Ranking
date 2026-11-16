@@ -1,5 +1,5 @@
 <!doctype html>
-<% const _theme = themes.normalizeTheme(site.default_theme); %><html lang="vi" data-default-theme="<%= _theme %>" data-theme="<%= _theme %>"<%= _theme !== 'dark' ? ' data-flat' : '' %> style="--ball: <%= colors.ball %>; --court: <%= colors.court %>; --gold: <%= colors.gold %>;">
+<% const _theme = locals.themes ? themes.normalizeTheme(site.default_theme) : 'dark'; /* thiếu danh sách theme (server chưa khởi động lại) thì vẫn hiển thị được */ %><html lang="vi" data-default-theme="<%= _theme %>" data-theme="<%= _theme %>"<%= _theme !== 'dark' ? ' data-flat' : '' %> style="--ball: <%= colors.ball %>; --court: <%= colors.court %>; --gold: <%= colors.gold %>;">
 <head>
 <meta charset="utf-8">
 <meta name="referrer" content="no-referrer">
