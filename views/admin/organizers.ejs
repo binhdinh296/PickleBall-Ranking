@@ -1,0 +1,65 @@
+<%- include('_top') %>
+<%
+  const expired = (o) => o.expires_at && new Date(o.expires_at) < new Date();
+  const dateInput = (v) => v ? new Date(new Date(v).getTime() + 7 * 3600e3).toISOString().slice(0, 10) : '';
+%>
+<p class="muted small" style="max-width: 760px;">Mỗi đơn vị tổ chức nhận 2 link: <strong>link tạo giải</strong> (điền thông tin giải, dùng một lần) và <strong>link quản lý giải</strong> (sửa thông tin, nội dung thi đấu, duyệt đăng ký, nhánh đấu, nhập tỉ số, vinh danh). Mở link xong, đơn vị phải nhập mã OTP gửi về số điện thoại bên dưới. Giải do đơn vị tạo chỉ hiện trên website khi bạn bấm <strong>Duyệt &amp; công khai</strong>. Livestream vẫn do CMS quản lý.</p>
+
+<% if (!rows.length) { %><div class="empty">Chưa có đơn vị tổ chức nào. Tạo đơn vị đầu tiên ở form bên dưới.</div><% } else { %>
+<div class="list">
+  <% rows.forEach((o) => { %>
+  <div class="list-item" style="flex-wrap: wrap; align-items: flex-start;">
+    <span class="main" style="flex: 1 1 260px;">
+      <strong><%= o.name %></strong>
+      <span class="sub"><%= [o.contact_name, o.phone].filter(Boolean).join(' · ') %></span>
+      <span class="row tiny" style="--gap: 6px; margin-top: 6px;">
+        <% if (!o.active) { %><span class="chip chip-muted">Đã khoá</span><% } else if (expired(o)) { %><span class="chip chip-muted">Hết hạn</span><% } else { %><span class="chip chip-ok">Link đang dùng được</span><% } %>
+        <% if (!o.event_id) { %><span class="chip">Chưa tạo giải</span>
+        <% } else if (o.event_published) { %><span class="chip chip-ok">Giải đã công khai</span>
+        <% } else { %><span class="chip chip-warn">Giải chờ duyệt</span><% } %>
+        <% if (o.expires_at) { %><span class="chip">Hạn: <%= fmt.dateVN(o.expires_at) %></span><% } %>
+        <span class="chip"><%= o.last_login_at ? `Vào lần cuối ${fmt.dateTimeVN(o.last_login_at)}` : 'Chưa đăng nhập' %></span>
+      </span>
+      <% if (o.event_id) { %><span class="sub" style="margin-top: 6px;">Giải: <a class="link" href="/admin/giai-dau/<%= o.event_id %>"><%= o.event_name %></a><% if (o.event_published) { %> · <a class="link" href="/giai-dau/<%= o.event_slug %>" target="_blank" rel="noopener">xem trên web</a><% } %></span><% } %>
+      <% if (o.note) { %><span class="sub" style="margin-top: 4px;"><%= o.note %></span><% } %>
+    </span>
+    <span class="side">
+      <% if (o.event_id) { %>
+      <form class="inline-form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/duyet" data-confirm="<%= o.event_published ? 'Ẩn giải này khỏi website?' : 'Duyệt và hiện giải này trên website?' %>"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="published" value="<%= o.event_published ? '0' : '1' %>"><button class="btn btn-sm <%= o.event_published ? '' : 'btn-brand' %>" type="submit"><%= o.event_published ? 'Ẩn khỏi web' : 'Duyệt & công khai' %></button></form>
+      <% } %>
+      <form class="inline-form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/tao-lai-link" data-confirm="Tạo link mới cho <%= o.name %>? Hai link cũ sẽ hết hiệu lực ngay và đơn vị bị đăng xuất."><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm" type="submit">Tạo lại link</button></form>
+      <form class="inline-form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/khoa" data-confirm="<%= o.active ? `Khoá link của ${o.name}? Đơn vị sẽ bị đăng xuất.` : `Mở lại link cho ${o.name}?` %>"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="active" value="<%= o.active ? '0' : '1' %>"><button class="btn btn-sm" type="submit"><%= o.active ? 'Khoá' : 'Mở khoá' %></button></form>
+    </span>
+    <details style="flex-basis: 100%;"><summary class="link tiny" style="cursor: pointer;">Sửa thông tin đơn vị · xoá</summary>
+      <form class="form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/sua" style="margin-top: 10px; max-width: 720px;">
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+        <div class="form-grid two">
+          <div class="field"><label for="name-<%= o.id %>">Tên đơn vị *</label><input class="input" id="name-<%= o.id %>" name="name" required maxlength="150" value="<%= o.name %>"></div>
+          <div class="field"><label for="contact-<%= o.id %>">Người liên hệ</label><input class="input" id="contact-<%= o.id %>" name="contact_name" maxlength="100" value="<%= o.contact_name || '' %>"></div>
+          <div class="field"><label for="phone-<%= o.id %>">SĐT nhận OTP *</label><input class="input" id="phone-<%= o.id %>" name="phone" inputmode="tel" required value="<%= o.phone %>"><span class="hint">Đổi số sẽ đăng xuất đơn vị.</span></div>
+          <div class="field"><label for="exp-<%= o.id %>">Hết hạn link</label><input class="input" type="date" id="exp-<%= o.id %>" name="expires_at" value="<%= dateInput(o.expires_at) %>"><span class="hint">Để trống: không giới hạn.</span></div>
+          <div class="field span-2"><label for="note-<%= o.id %>">Ghi chú nội bộ</label><input class="input" id="note-<%= o.id %>" name="note" maxlength="1000" value="<%= o.note || '' %>"></div>
+        </div>
+        <button class="btn btn-sm" type="submit" style="align-self: flex-start;">Lưu</button>
+      </form>
+      <form method="post" action="/admin/ban-to-chuc/<%= o.id %>/xoa" data-confirm="Xoá đơn vị <%= o.name %>? Link sẽ hết hiệu lực. Giải đã tạo vẫn được giữ trong mục Giải đấu." style="margin-top: 8px;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xoá đơn vị</button></form>
+    </details>
+  </div>
+  <% }) %>
+</div>
+<% } %>
+
+<form class="card card-pad form" method="post" action="/admin/ban-to-chuc" style="max-width: 720px;">
+  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+  <h2 class="section-title">Thêm đơn vị tổ chức &amp; tạo link</h2>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+  <div class="form-grid two">
+    <div class="field"><label for="name">Tên đơn vị *</label><input class="input" id="name" name="name" required maxlength="150" placeholder="CLB Pickleball …" value="<%= values.name || '' %>"></div>
+    <div class="field"><label for="contact_name">Người liên hệ</label><input class="input" id="contact_name" name="contact_name" maxlength="100" value="<%= values.contact_name || '' %>"></div>
+    <div class="field"><label for="phone">SĐT nhận OTP *</label><input class="input" id="phone" name="phone" inputmode="tel" required value="<%= values.phone || '' %>"><span class="hint">Mỗi lần mở link, mã OTP gửi về số này.</span></div>
+    <div class="field"><label for="expires_at">Hết hạn link</label><input class="input" type="date" id="expires_at" name="expires_at" value="<%= values.expires_at || '' %>"><span class="hint">Nên đặt sau ngày bế mạc giải vài tuần.</span></div>
+    <div class="field span-2"><label for="note">Ghi chú nội bộ</label><input class="input" id="note" name="note" maxlength="1000" value="<%= values.note || '' %>"></div>
+  </div>
+  <button class="btn btn-brand" type="submit" style="align-self: flex-start;">Tạo đơn vị và 2 link</button>
+</form>
+<%- include('_bottom') %>

@@ -5,7 +5,7 @@ const { hmac, safeEqual } = require('./crypto');
 const phoneLib = require('./phone');
 const { IS_PROD } = require('./env');
 
-const PURPOSES = ['submission', 'registration', 'admin_login'];
+const PURPOSES = ['submission', 'registration', 'admin_login', 'organizer'];
 
 class OtpError extends Error {
   constructor(message, extra = {}) {
@@ -47,7 +47,7 @@ function codeHash(phone, purpose, code) {
 }
 
 function isEnabled(purpose) {
-  if (purpose === 'admin_login') return true;
+  if (purpose === 'admin_login' || purpose === 'organizer') return true; // đăng nhập luôn cần OTP
   return getSettings().otp_enabled === '1';
 }
 

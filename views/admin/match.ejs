@@ -1,5 +1,5 @@
 <%
-  const isEditor = ['admin', 'editor'].includes(user.role);
+  const isEditor = ['admin', 'editor', 'organizer'].includes(user.role);
   const lockedMsg = locals.locked || null; // trọng tài: trận đã xong / giải bế mạc → chỉ xem
   const dis = lockedMsg ? 'disabled' : '';
 %>
@@ -49,6 +49,7 @@
     <div class="field"><label for="team_b_id">Đội B</label><select class="input" id="team_b_id" name="team_b_id"><option value="">—</option><% teams.forEach((t) => { %><option value="<%= t.id %>" <%= m.team_b_id === t.id ? 'selected' : '' %>><%= t.name %></option><% }) %></select></div>
     <div class="field"><label for="code">Mã trận</label><input class="input" id="code" name="code" value="<%= m.code || '' %>"></div>
     <div class="field"><label for="round_name">Tên vòng</label><input class="input" id="round_name" name="round_name" value="<%= m.round_name %>"></div>
+    <% if (user.role !== 'organizer') { %>
     <div class="field span-2"><label for="referee_id">Trọng tài được giao</label>
       <select class="input" id="referee_id" name="referee_id">
         <option value="">Chưa giao (mọi trọng tài đều nhập được)</option>
@@ -56,6 +57,7 @@
       </select>
       <span class="hint">Khi đã giao, chỉ trọng tài này thấy và nhập được tỉ số trận. Tạo tài khoản trọng tài ở mục Người dùng.</span>
     </div>
+    <% } %>
     <% } %>
   </fieldset>
   <% if (m.legs && m.legs.length) { %>

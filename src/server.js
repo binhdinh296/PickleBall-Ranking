@@ -117,6 +117,7 @@ function createApp() {
   app.use('/', require('./routes/public'));
   app.use('/', require('./routes/live'));
   app.use('/giai-dau', require('./routes/tournaments'));
+  app.use('/btc', require('./routes/organizer')); // ban tổ chức: link + OTP
   app.use('/admin', require('./routes/admin'));
   app.use('/dev', devtools);
 

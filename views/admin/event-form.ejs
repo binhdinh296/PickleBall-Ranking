@@ -1,4 +1,6 @@
-<%- include('_top', { back: ev.id ? `/admin/giai-dau/${ev.id}` : '/admin/giai-dau' }) %>
+<% const org = user.role === 'organizer'; %>
+<%- include('_top', { back: ev.id ? `/admin/giai-dau/${ev.id}` : (org ? null : '/admin/giai-dau') }) %>
+<% if (org && !ev.id) { %><div class="alert alert-info" role="status" style="max-width: 860px;">Chào <strong><%= user.displayName %></strong>. Điền thông tin giải của đơn vị bạn. Sau khi tạo, giải ở trạng thái <strong>chờ duyệt</strong>: bạn vẫn thêm nội dung thi đấu, nhận đăng ký… bình thường; giải hiện công khai trên website khi quản trị viên duyệt.</div><% } %>
 <form class="card card-pad form" method="post" action="/admin/giai-dau/<%= ev.id ? `${ev.id}/sua` : 'moi' %>" enctype="multipart/form-data" data-once style="max-width: 860px;">
   <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
   <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
@@ -14,9 +16,9 @@
     <div class="field"><label for="regulation_pdf">Điều lệ (PDF)</label><input class="input" id="regulation_pdf" name="regulation_pdf" type="file" accept="application/pdf"><% if (ev.regulation_pdf) { %><a class="link small" href="<%= ev.regulation_pdf %>" target="_blank">Xem điều lệ hiện tại</a><% } %></div>
     <div class="field span-2"><label for="description">Mô tả</label><textarea class="input" id="description" name="description" maxlength="5000"><%= ev.description || '' %></textarea></div>
   </div>
-  <label class="check"><input type="checkbox" name="published" value="1" <%= ev.published ? 'checked' : '' %>><span><strong>Công khai</strong> – hiện trên website (bỏ chọn để lưu nháp, giải thử nghiệm)</span></label>
+  <% if (!org) { %><label class="check"><input type="checkbox" name="published" value="1" <%= ev.published ? 'checked' : '' %>><span><strong>Công khai</strong> – hiện trên website (bỏ chọn để lưu nháp, giải thử nghiệm)</span></label><% } else { %><p class="small muted">Trạng thái công khai: <strong><%= ev.published ? 'Đang hiện trên website' : 'Chờ quản trị viên duyệt' %></strong></p><% } %>
   <label class="check"><input type="checkbox" name="registration_open" value="1" <%= ev.registration_open ? 'checked' : '' %>><span>Mở đăng ký online</span></label>
-  <label class="check"><input type="checkbox" name="featured" value="1" <%= ev.featured ? 'checked' : '' %>><span>Ưu tiên hiện ở "Giải đấu nổi bật" trang chủ</span></label>
+  <% if (!org) { %><label class="check"><input type="checkbox" name="featured" value="1" <%= ev.featured ? 'checked' : '' %>><span>Ưu tiên hiện ở "Giải đấu nổi bật" trang chủ</span></label><% } %>
   <div class="form-actions"><button class="btn btn-brand" type="submit"><%= ev.id ? 'Lưu giải đấu' : 'Tạo giải đấu' %></button></div>
 </form>
 <% if (ev.id && user.role === 'admin') { %>

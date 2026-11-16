@@ -11,6 +11,7 @@ const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).cat
 const editor = requireRole('editor');
 const referee = requireRole('referee');
 const intOrNull = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : null; };
+const isOrganizer = (req) => req.session.user.role === 'organizer';
 
 async function loadEvent(id) {
   const ev = await get('SELECT * FROM events WHERE id = ?', parseInt(id, 10) || 0);
@@ -74,12 +75,25 @@ async function readEvent(req, existing) {
 router.post('/giai-dau/moi', editor, upload.any(), verifyCsrf, wrap(async (req, res) => {
   const { error, data } = await readEvent(req, null);
   if (error) return eventForm(res.status(400), data, error);
-  const row = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, banner, regulation_pdf, zalo_link, description,
-    registration_open, featured, published) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`,
-  data.slug, data.name, data.venue, data.address, data.start_date, data.end_date, data.banner || null, data.regulation_pdf || null,
-  data.zalo_link, data.description, data.registration_open, data.featured, data.published);
+  const me = req.session.user;
+  // Ban tổ chức: giải luôn ở dạng chờ duyệt (quản trị viên bật công khai), không tự đưa lên "nổi bật"
+  if (isOrganizer(req)) { data.published = false; data.featured = false; }
+  const row = await tx(async () => {
+    const ev = await get(`INSERT INTO events(slug, name, venue, address, start_date, end_date, banner, regulation_pdf, zalo_link, description,
+      registration_open, featured, published) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`,
+    data.slug, data.name, data.venue, data.address, data.start_date, data.end_date, data.banner || null, data.regulation_pdf || null,
+    data.zalo_link, data.description, data.registration_open, data.featured, data.published);
+    // Mỗi đơn vị chỉ tạo 1 giải: gắn giải vào đơn vị, nếu đã có giải (bấm 2 lần, 2 tab) thì huỷ cả giao dịch
+    if (isOrganizer(req) && !(await get('UPDATE organizers SET event_id = ? WHERE id = ? AND event_id IS NULL RETURNING id', ev.id, me.organizerId))) {
+      throw Object.assign(new Error('Đơn vị này đã tạo giải rồi.'), { expose: true, status: 409 });
+    }
+    return ev;
+  });
+  if (isOrganizer(req)) req.session.user = { ...me, eventId: row.id };
   await audit(req, 'event_create', `event:${row.id}`, data.name);
-  req.flash('success', 'Đã tạo giải. Tiếp theo: thêm nội dung thi đấu.');
+  req.flash('success', isOrganizer(req)
+    ? 'Đã tạo giải, đang chờ quản trị viên duyệt để hiện công khai. Tiếp theo: thêm nội dung thi đấu.'
+    : 'Đã tạo giải. Tiếp theo: thêm nội dung thi đấu.');
   res.redirect(`/admin/giai-dau/${row.id}`);
 }));
 
@@ -105,6 +119,7 @@ router.post('/giai-dau/:id/sua', editor, upload.any(), verifyCsrf, wrap(async (r
   if (!ev) return next();
   const { error, data } = await readEvent(req, ev);
   if (error) return eventForm(res.status(400), { ...ev, ...data }, error);
+  if (isOrganizer(req)) { data.published = ev.published; data.featured = ev.featured; } // công khai/nổi bật do quản trị viên quyết
   await run(`UPDATE events SET slug = ?, name = ?, venue = ?, address = ?, start_date = ?, end_date = ?, banner = COALESCE(?, banner),
     regulation_pdf = COALESCE(?, regulation_pdf), zalo_link = ?, description = ?, registration_open = ?, featured = ?, published = ? WHERE id = ?`,
   data.slug, data.name, data.venue, data.address, data.start_date, data.end_date, data.banner || null, data.regulation_pdf || null,
@@ -386,7 +401,7 @@ router.get('/tran/:id', referee, wrap(async (req, res, next) => {
   if (!access.view) return res.status(403).render('admin/forbidden', { title: 'Không có quyền' });
   const teams = await bracket.loadTeams(m.division_id);
   const streams = await all('SELECT id, court, title, status, actual_start FROM live_streams WHERE event_id = ? ORDER BY sort_order, court', m.event_id);
-  const referees = req.session.user.role === 'referee' ? []
+  const referees = ['referee', 'organizer'].includes(req.session.user.role) ? []
     : await all("SELECT id, display_name, username FROM users WHERE role = 'referee' AND active ORDER BY display_name");
   res.render('admin/match', { title: `Trận ${m.code || ''} · ${m.division}`, m, teams, streams, referees, locked: access.edit ? null : access.reason });
 }));
@@ -427,8 +442,9 @@ router.post('/tran/:id', referee, wrap(async (req, res, next) => {
     req.flash('error', access.reason);
     return res.redirect(303, `/admin/tran/${m.id}`);
   }
-  const isEditor = ['admin', 'editor'].includes(req.session.user.role);
+  const isEditor = ['admin', 'editor', 'organizer'].includes(req.session.user.role);
   const data = readMatch(req.body, isEditor);
+  if (isOrganizer(req)) delete data.referee_id; // giao trọng tài dùng tài khoản CMS của hệ thống: chỉ BTV/Admin
   // Chỉ giao trận cho tài khoản trọng tài đang hoạt động
   if (data.referee_id && !(await get("SELECT 1 FROM users WHERE id = ? AND role = 'referee' AND active", data.referee_id))) data.referee_id = null;
   // Bấm "Bắt đầu" lần đầu khi sân đang phát: tự ghi mốc giây trong video để xem lại

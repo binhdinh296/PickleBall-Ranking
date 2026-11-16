@@ -83,7 +83,7 @@ const SUB_STATUS_LABEL = { pending: 'Chờ duyệt', approved: 'Đã duyệt', r
 const MATCH_STATUS_LABEL = { scheduled: 'Chưa đấu', live: 'Đang đấu', done: 'Đã xong' };
 const LIVE_STATUS_LABEL = { scheduled: 'Sắp phát', live: 'Đang phát', ended: 'Đã kết thúc' };
 const GENDER_LABEL = { M: 'Nam', F: 'Nữ' };
-const ROLE_LABEL = { admin: 'Quản trị viên', editor: 'Biên tập viên', referee: 'Trọng tài' };
+const ROLE_LABEL = { admin: 'Quản trị viên', editor: 'Biên tập viên', referee: 'Trọng tài', organizer: 'Ban tổ chức' };
 const GENDER_RULE_LABEL = { any: 'Tự do', male: 'Nam', female: 'Nữ', mixed: 'Hỗn hợp (1 nam + 1 nữ)' };
 
 function slugify(s) {

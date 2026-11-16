@@ -6,7 +6,8 @@ const ALLOWED_POST_PREFIXES = [
   '/admin/login', '/admin/logout', '/admin/tai-khoan',
   '/admin/vdv', '/admin/don-cham-trinh',
   '/admin/giai-dau', '/admin/noi-dung', '/admin/dang-ky', '/admin/doi/', '/admin/tran', '/admin/trong-tai',
-  '/admin/livestream', '/admin/doi-tac', '/admin/cau-hinh', '/admin/nguoi-dung',
+  '/admin/livestream', '/admin/doi-tac', '/admin/cau-hinh', '/admin/nguoi-dung', '/admin/ban-to-chuc',
+  '/btc/', // ban tổ chức: gửi mã OTP, xác minh
 ];
 
 function isPostAllowed(path) {

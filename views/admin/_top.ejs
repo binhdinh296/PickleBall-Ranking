@@ -9,6 +9,11 @@
   <aside class="admin-side" id="admin-side" aria-label="Menu CMS">
     <div class="side-head"><%- include('../partials/logo') %><span class="stack" style="--gap: 0;"><strong class="brand-name" style="font-size: 15px;"><%= site.site_name %></strong><span class="tiny faint">CMS quản trị</span></span></div>
     <nav>
+      <% if (role === 'organizer') { %>
+      <span class="group">Ban tổ chức</span>
+      <% if (user.eventId) { %><a class="item" href="/admin/giai-dau/<%= user.eventId %>" <%- path.startsWith('/admin/giai-dau') || path.startsWith('/admin/noi-dung') || path.startsWith('/admin/tran') ? 'aria-current="page"' : '' %>><%- ip('trophy') %>Giải của tôi</a>
+      <% } else { %><a class="item" href="/admin/giai-dau/moi" aria-current="page"><%- ip('plus') %>Tạo giải</a><% } %>
+      <% } else { %>
       <% if (can('editor')) { %>
       <a class="item" href="/admin" <%- cur('/admin', true) %>><%- ip('dashboard') %>Tổng quan</a>
       <span class="group">Ranking</span>
@@ -16,6 +21,7 @@
       <a class="item" href="/admin/don-cham-trinh" <%- cur('/admin/don-cham-trinh') %>><%- ip('inbox') %>Đơn chấm trình<% if (locals.pendingSubmissions) { %><span class="badge"><%= pendingSubmissions %></span><% } %></a>
       <span class="group">Giải đấu</span>
       <a class="item" href="/admin/giai-dau" <%- path.startsWith('/admin/giai-dau') || path.startsWith('/admin/noi-dung') ? 'aria-current="page"' : '' %>><%- ip('trophy') %>Giải đấu<% if (locals.newRegistrations) { %><span class="badge"><%= newRegistrations %></span><% } %></a>
+      <% if (can('admin')) { %><a class="item" href="/admin/ban-to-chuc" <%- cur('/admin/ban-to-chuc') %>><%- ip('key') %>Ban tổ chức</a><% } %>
       <a class="item" href="/admin/livestream" <%- cur('/admin/livestream') %>><%- ip('live') %>Livestream</a>
       <% } %>
       <a class="item" href="/admin/trong-tai" <%- path.startsWith('/admin/trong-tai') || path.startsWith('/admin/tran') ? 'aria-current="page"' : '' %>><%- ip('whistle') %>Trọng tài · nhập tỉ số</a>
@@ -30,9 +36,10 @@
       <a class="item" href="/admin/nhat-ky" <%- cur('/admin/nhat-ky', true) %>><%- ip('history') %>Nhật ký thao tác</a>
       <a class="item" href="/admin/nhat-ky-otp" <%- cur('/admin/nhat-ky-otp') %>><%- ip('phone') %>Nhật ký OTP</a>
       <% } %>
+      <% } %>
     </nav>
     <div class="side-foot stack" style="--gap: 10px;">
-      <a class="row small" href="/admin/tai-khoan" style="--gap: 10px; flex-wrap: nowrap;"><span class="avatar" style="--s: 36px;"><span><%= fmt.initials(user.displayName) %></span></span><span class="stack" style="--gap: 0; min-width: 0;"><strong class="clip"><%= user.displayName %></strong><span class="tiny faint"><%= fmt.ROLE_LABEL[user.role] %></span></span></a>
+      <a class="row small" href="<%= role === 'organizer' ? '#' : '/admin/tai-khoan' %>" style="--gap: 10px; flex-wrap: nowrap;"><span class="avatar" style="--s: 36px;"><span><%= fmt.initials(user.displayName) %></span></span><span class="stack" style="--gap: 0; min-width: 0;"><strong class="clip"><%= user.displayName %></strong><span class="tiny faint"><%= fmt.ROLE_LABEL[user.role] %></span></span></a>
       <div class="row" style="--gap: 8px;">
         <a class="btn btn-sm grow" href="/" target="_blank" rel="noopener"><%- ip('external') %>Xem website</a>
         <form class="inline-form" method="post" action="/admin/logout"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm" type="submit" aria-label="Đăng xuất"><%- ip('logout') %></button></form>

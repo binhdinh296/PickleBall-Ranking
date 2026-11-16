@@ -2,6 +2,7 @@ const express = require('express');
 const { all, get, run } = require('../../db');
 const { verifyPassword, hashPassword, passwordProblem, requireLogin, rateLimit, audit } = require('../../lib/security');
 const fmt = require('../../lib/format');
+const organizers = require('../../lib/organizers');
 
 const router = express.Router();
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -53,13 +54,24 @@ router.post('/login', loginLimiter, wrap(async (req, res, nextFn) => {
 }));
 
 router.post('/logout', (req, res) => {
-  req.session.destroy(() => res.redirect(303, '/admin/login'));
+  const isOrganizer = req.session.user && req.session.user.role === 'organizer';
+  req.session.destroy(() => res.redirect(303, isOrganizer ? '/btc' : '/admin/login'));
 });
 
 router.use(requireLogin);
 
 // Nạp lại quyền từ CSDL để tài khoản bị khóa/đổi vai trò có hiệu lực ngay
 router.use(wrap(async (req, res, next) => {
+  // Ban tổ chức (vào bằng link + OTP): nạp lại đơn vị, hết hạn/bị khóa thì thoát; chỉ được vào trang giải của mình
+  if (req.session.user.role === 'organizer') {
+    const org = await get('SELECT * FROM organizers WHERE id = ?', req.session.user.organizerId);
+    if (!organizers.isUsable(org)) return req.session.destroy(() => res.redirect(303, '/btc'));
+    req.session.user = organizers.sessionUser(org);
+    res.locals.user = req.session.user;
+    res.locals.pendingSubmissions = 0;
+    res.locals.newRegistrations = 0;
+    return organizers.gate(req, res, next);
+  }
   const u = await get('SELECT id, username, display_name, role, active FROM users WHERE id = ?', req.session.user.id);
   if (!u || !u.active) return req.session.destroy(() => res.redirect(303, '/admin/login'));
   req.session.user = { id: u.id, username: u.username, displayName: u.display_name, role: u.role };
@@ -102,6 +114,7 @@ router.post('/tai-khoan', wrap(async (req, res) => {
 }));
 
 router.use('/', require('./athletes'));
+router.use('/', require('./organizers'));
 router.use('/', require('./events'));
 router.use('/', require('./live'));
 router.use('/', require('./system'));

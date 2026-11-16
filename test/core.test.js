@@ -117,7 +117,7 @@ test('Mọi route POST đều nằm trong danh sách được giữ phương th�
   const path = require('node:path');
   const { isPostAllowed } = require('../src/lib/post-guard');
   const mounts = {
-    'src/routes/public.js': '', 'src/routes/live.js': '', 'src/routes/tournaments.js': '/giai-dau', 'src/routes/devtools.js': '/dev',
+    'src/routes/public.js': '', 'src/routes/live.js': '', 'src/routes/tournaments.js': '/giai-dau', 'src/routes/devtools.js': '/dev', 'src/routes/organizer.js': '/btc',
   };
   for (const f of fs.readdirSync(path.join(__dirname, '../src/routes/admin'))) mounts[`src/routes/admin/${f}`] = '/admin';
   const missing = [];
@@ -155,4 +155,21 @@ test('Bảng DEV (đăng nhập không mật khẩu): mặc định tắt trên 
   } finally {
     set(Object.fromEntries(Object.entries(saved).filter(([, v]) => v !== undefined)));
   }
+});
+
+test('Ban tổ chức (link + OTP): chỉ vào được các trang quản lý giải, mọi trang khác bị chặn', () => {
+  const { RULES, TOKEN_RE, newToken, hashToken } = require('../src/lib/organizers');
+  const allowed = (p) => RULES.some((r) => r.re.test(p));
+  for (const p of ['/', '/giai-dau', '/giai-dau/moi', '/giai-dau/5', '/giai-dau/5/sua', '/giai-dau/5/noi-dung/moi', '/noi-dung/3/dang-ky',
+    '/noi-dung/3/dang-ky.csv', '/noi-dung/3/nhanh-dau', '/dang-ky/9/trang-thai', '/doi/2/xoa', '/tran/7', '/tran/7/xoa', '/api/athletes']) {
+    assert.ok(allowed(p), `phải cho phép ${p}`);
+  }
+  for (const p of ['/giai-dau/5/xoa', '/Giai-dau/5', '/giai-dau/5/', '/giai-dau/%35', '/vdv', '/nguoi-dung', '/cau-hinh', '/livestream', '/trong-tai',
+    '/tai-khoan', '/ban-to-chuc', '/nhat-ky', '/don-cham-trinh', '/doi-tac', '/noi-dung/3/khac', '/tran/7/sua']) {
+    assert.ok(!allowed(p), `phải chặn ${p}`);
+  }
+  const t = newToken();
+  assert.match(t, TOKEN_RE);
+  assert.notEqual(newToken(), t);
+  assert.notEqual(hashToken(t), t);
 });

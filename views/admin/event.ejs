@@ -1,14 +1,15 @@
-<%- include('_top', { back: '/admin/giai-dau' }) %>
+<% const org = user.role === 'organizer'; %>
+<%- include('_top', { back: org ? null : '/admin/giai-dau' }) %>
 <div class="card card-pad stack" style="--gap: 12px;">
   <div class="row" style="--gap: 8px;">
-    <span class="chip <%= ev.published ? 'chip-ok' : 'chip-muted' %>"><%= ev.published ? 'Công khai' : 'Nháp' %></span>
+    <span class="chip <%= ev.published ? 'chip-ok' : org ? 'chip-warn' : 'chip-muted' %>"><%= ev.published ? 'Công khai' : org ? 'Chờ duyệt' : 'Nháp' %></span>
     <span class="chip"><%= fmt.EVENT_STATUS_LABEL[ev.status] %></span>
     <span class="chip <%= ev.registration_open ? 'chip-ok' : 'chip-muted' %>"><%= ev.registration_open ? 'Đang mở đăng ký' : 'Đóng đăng ký' %></span>
   </div>
   <p class="muted small"><%= fmt.dateVN(ev.start_date) %> – <%= fmt.dateVN(ev.end_date) %> · <%= ev.venue || 'chưa nhập sân' %></p>
   <div class="row" style="--gap: 8px;">
     <a class="btn btn-sm" href="/admin/giai-dau/<%= ev.id %>/sua"><%- include('../partials/icon', { name: 'edit' }) %>Sửa thông tin</a>
-    <a class="btn btn-sm" href="/admin/livestream?giai=<%= ev.id %>"><%- include('../partials/icon', { name: 'live' }) %>Livestream</a>
+    <% if (!org) { %><a class="btn btn-sm" href="/admin/livestream?giai=<%= ev.id %>"><%- include('../partials/icon', { name: 'live' }) %>Livestream</a><% } %>
     <% if (ev.published) { %><a class="btn btn-sm" href="/giai-dau/<%= ev.slug %>" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'external' }) %>Xem trang giải</a><% } %>
   </div>
 </div>
