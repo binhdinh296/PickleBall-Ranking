@@ -1173,95 +1173,116 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; white-s
   .table-wrap:has(table.stack-mobile) { overflow-x: visible; }
 }
 
-/* ---------- Danh sách đăng ký giải đấu (1 dòng trên mobile) ---------- */
-.reg-mobile-list {
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--r-md);
-  border: 1px solid var(--line);
-  background: var(--card);
-  overflow: hidden;
+/* ---------- Bảng danh sách đăng ký giải đấu (1 table duy nhất, mỗi cặp 1 dòng trên mobile) ---------- */
+.table-reg {
   width: 100%;
+  border-collapse: collapse;
 }
-.reg-mobile-header {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) 38px 62px;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 10px;
-  background: color-mix(in oklab, var(--text) 3%, var(--card));
-  border-bottom: 1px solid var(--line);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-3);
-  letter-spacing: .06em;
+.table-reg th {
+  text-align: left;
+  font-size: 12px;
   text-transform: uppercase;
-  user-select: none;
-}
-.reg-mobile-row {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) 38px 62px;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 10px;
+  letter-spacing: .08em;
+  color: var(--text-3);
+  font-weight: 700;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--line);
-  font-size: 13.5px;
-  min-height: 40px;
-  transition: background .15s ease;
+  white-space: nowrap;
 }
-.reg-mobile-row:last-child {
+.table-reg td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.table-reg tr:last-child td {
   border-bottom: 0;
 }
-.reg-mobile-row:nth-child(even) {
-  background: color-mix(in oklab, var(--text) 1.5%, transparent);
+.table-reg tr:hover td {
+  background: color-mix(in oklab, var(--text) 2%, transparent);
 }
-.reg-mobile-row:active {
-  background: color-mix(in oklab, var(--text) 4%, transparent);
-}
-.reg-mobile-stt {
-  font-size: 12px;
-  font-weight: 700;
+.table-reg .col-stt {
+  width: 44px;
+  text-align: center;
   color: var(--text-3);
   font-variant-numeric: tabular-nums;
-  text-align: left;
+  font-weight: 600;
 }
-.reg-mobile-names {
-  display: block;
-  min-width: 0;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.table-reg .col-v1,
+.table-reg .col-v2 {
   font-weight: 600;
   color: var(--text);
-  line-height: 1.35;
 }
-.reg-mobile-names a {
+.table-reg .col-v1 a,
+.table-reg .col-v2 a {
   color: inherit;
   text-decoration: none;
 }
-.reg-mobile-names a:hover {
+.table-reg .col-v1 a:hover,
+.table-reg .col-v2 a:hover {
   color: var(--ink-court);
   text-decoration: underline;
 }
-.reg-mobile-sep {
-  color: var(--text-3);
-  font-weight: 400;
-  margin-inline: 3px;
-}
-.reg-mobile-pts {
-  font-size: 12px;
+.table-reg .col-pts {
+  text-align: center;
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  color: var(--text-2);
+}
+.table-reg .col-status {
   text-align: right;
   white-space: nowrap;
 }
-.reg-mobile-status {
-  text-align: right;
-  display: flex;
-  justify-content: flex-end;
+
+@media (max-width: 899px) {
+  .table-reg {
+    font-size: 13px;
+    table-layout: fixed;
+    width: 100%;
+  }
+  .table-reg th {
+    padding: 8px 4px;
+    font-size: 10.5px;
+    letter-spacing: .03em;
+  }
+  .table-reg td {
+    padding: 8px 4px;
+  }
+  .table-reg .col-stt {
+    width: 24px;
+    padding-left: 6px;
+    padding-right: 2px;
+    font-size: 11.5px;
+  }
+  .table-reg .col-v1 {
+    width: 32%;
+  }
+  .table-reg .col-v2 {
+    width: 32%;
+  }
+  .table-reg .col-v1 a,
+  .table-reg .col-v1 span,
+  .table-reg .col-v2 a,
+  .table-reg .col-v2 span {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .table-reg .col-pts {
+    width: 38px;
+    padding-inline: 2px;
+    font-size: 12px;
+    text-align: center;
+  }
+  .table-reg .col-status {
+    width: 66px;
+    padding-right: 6px;
+    padding-left: 2px;
+    text-align: right;
+  }
 }
+
 .chip-mini {
   display: inline-flex;
   align-items: center;
