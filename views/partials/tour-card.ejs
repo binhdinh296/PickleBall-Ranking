@@ -21,11 +21,32 @@
 <article class="tc tc--<%= status %> tc--panoramic" data-event-card data-name="<%= (e.name || '').toLowerCase() %>" data-venue="<%= (e.venue || '').toLowerCase() %>" data-status="<%= e.status %>">
   <a class="tc-cover<%= bannerImg ? '' : ' img-missing' %>" href="/giai-dau/<%= e.slug %>" tabindex="-1" aria-hidden="true">
     <% if (bannerImg) { %><img src="<%= bannerImg %>" alt="<%= e.name %>" data-fallback="" loading="lazy"><% } %>
-    <svg class="tc-lines" viewBox="0 0 440 200" preserveAspectRatio="none" aria-hidden="true">
-      <rect x="6" y="6" width="428" height="188"/>
-      <line x1="220" y1="0" x2="220" y2="200" class="tc-net"/>
-      <line x1="150" y1="6" x2="150" y2="194"/><line x1="290" y1="6" x2="290" y2="194"/>
-      <line x1="6" y1="100" x2="150" y2="100"/><line x1="290" y1="100" x2="434" y2="100"/>
+    <svg class="tc-lines" viewBox="0 0 440 220" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="court-glow-<%= e.id %>" cx="75%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#14B8A6" stop-opacity=".35"/>
+          <stop offset="60%" stop-color="#0A2540" stop-opacity=".15"/>
+          <stop offset="100%" stop-color="#06121E" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect width="440" height="220" fill="url(#court-glow-<%= e.id %>)"/>
+      <g stroke="rgba(255,255,255,0.22)" stroke-width="1.6" fill="none">
+        <rect x="18" y="16" width="404" height="188" rx="4"/>
+        <line x1="220" y1="16" x2="220" y2="204" stroke="rgba(255,255,255,0.45)" stroke-width="2.5" stroke-dasharray="3 3"/>
+        <line x1="140" y1="16" x2="140" y2="204"/>
+        <line x1="300" y1="16" x2="300" y2="204"/>
+        <line x1="18" y1="110" x2="140" y2="110"/>
+        <line x1="300" y1="110" x2="422" y2="110"/>
+      </g>
+      <g transform="translate(355, 68)">
+        <circle cx="0" cy="0" r="19" fill="#D4F53C"/>
+        <circle cx="-5" cy="-5" r="2.2" fill="#2E3C00" opacity=".5"/>
+        <circle cx="5" cy="-3" r="2.2" fill="#2E3C00" opacity=".5"/>
+        <circle cx="-1" cy="4" r="2.2" fill="#2E3C00" opacity=".5"/>
+        <circle cx="-8" cy="2" r="1.6" fill="#2E3C00" opacity=".4"/>
+        <circle cx="7" cy="5" r="1.6" fill="#2E3C00" opacity=".4"/>
+        <circle cx="0" cy="-9" r="1.6" fill="#2E3C00" opacity=".4"/>
+      </g>
     </svg>
     <span class="tc-flags">
       <span class="tc-flag is-<%= status %>"><% if (status === 'live') { %><span class="live-dot"></span><% } %><%= flagLabel %></span>
