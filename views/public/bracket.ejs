@@ -20,51 +20,108 @@
     </div>
 
     <% if (data.table) { %>
-    <div class="card card-pad stack" style="--gap: 14px;">
-      <h2 style="font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;">BẢNG XẾP HẠNG VÒNG TRÒN</h2>
-      <div class="row tiny" style="--gap: 6px;"><span class="chip">1. Trận thắng</span><span class="chip">2. Hiệu số tổng</span><span class="chip">3. Đối đầu / bảng phụ</span><span class="chip chip-muted">Vẫn bằng: bốc thăm</span></div>
-      <div class="table-wrap">
-        <table class="data stack-mobile">
-          <thead><tr><th>Hạng</th><th>Đội</th><th class="num">Trận</th><th class="num">Thắng</th><th class="num">Thua</th><th class="num">Ghi</th><th class="num">Thua</th><th class="num">Hiệu số</th><th>Căn cứ</th></tr></thead>
-          <tbody>
-            <% data.table.rows.forEach((r) => { const t = data.teamMap[r.id]; %>
-            <tr>
-              <td data-label="Hạng"><strong class="serif <%= r.rank === 1 ? 'gold-text' : '' %>" style="font-size: 20px;"><%= r.rank %></strong></td>
-              <td data-label="Đội"><strong><%= t.name %></strong><% if (t.members) { %><details style="margin-top: 4px;"><summary class="tiny faint" style="cursor: pointer;">Xem VĐV</summary><span class="tiny muted" style="white-space: pre-line;"><%= t.members %></span></details><% } %></td>
-              <td data-label="Trận" class="num"><%= r.played %></td>
-              <td data-label="Thắng" class="num"><%= r.wins %></td>
-              <td data-label="Thua" class="num"><%= r.losses %></td>
-              <td data-label="Điểm ghi" class="num"><%= r.pf %></td>
-              <td data-label="Điểm thua" class="num"><%= r.pa %></td>
-              <td data-label="Hiệu số" class="num"><strong><%= r.diff > 0 ? '+' : '' %><%= r.diff %></strong></td>
-              <td data-label="Căn cứ" class="tiny faint"><%= r.basis %></td>
-            </tr>
+    <section class="stage-section" aria-label="Bảng đấu vòng tròn">
+      <div class="stage-header-card stage-group-header">
+        <div class="stage-header-left">
+          <div class="stage-pill stage-pill-group">
+            <%- include('../partials/icon', { name: 'bracket' }) %>
+            <span>BẢNG ĐẤU · TÍNH ĐIỂM</span>
+          </div>
+          <h2 class="stage-header-title">BẢNG XẾP HẠNG VÒNG TRÒN</h2>
+        </div>
+        <div class="stage-criteria-pills">
+          <span class="crit-pill">1. Số trận thắng</span>
+          <span class="crit-pill">2. Hiệu số điểm</span>
+          <span class="crit-pill">3. Đối đầu / Bảng phụ</span>
+          <span class="crit-pill crit-pill-muted">Hòa: Bốc thăm</span>
+        </div>
+      </div>
+      <div class="card card-pad stack" style="--gap: 14px;">
+        <div class="table-wrap">
+          <table class="data stack-mobile standings-table">
+            <thead>
+              <tr>
+                <th style="width: 58px; text-align: center;">Hạng</th>
+                <th>Đội / Vận động viên</th>
+                <th class="num">Trận</th>
+                <th class="num">Thắng</th>
+                <th class="num">Thua</th>
+                <th class="num">Ghi</th>
+                <th class="num">Thua</th>
+                <th class="num">Hiệu số</th>
+                <th>Căn cứ xếp hạng</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% data.table.rows.forEach((r) => { const t = data.teamMap[r.id]; %>
+              <tr class="<%= r.rank === 1 ? 'is-leader' : r.rank <= 2 ? 'is-qualifier' : '' %>">
+                <td data-label="Hạng" style="text-align: center;">
+                  <span class="rank-badge rank-<%= r.rank %>"><%= r.rank %></span>
+                </td>
+                <td data-label="Đội">
+                  <strong class="team-name"><%= t.name %></strong>
+                  <% if (t.members) { %>
+                    <details style="margin-top: 4px;">
+                      <summary class="tiny faint" style="cursor: pointer;">Xem thành viên</summary>
+                      <span class="tiny muted" style="white-space: pre-line;"><%= t.members %></span>
+                    </details>
+                  <% } %>
+                </td>
+                <td data-label="Trận" class="num"><%= r.played %></td>
+                <td data-label="Thắng" class="num"><strong class="stat-win"><%= r.wins %></strong></td>
+                <td data-label="Thua" class="num"><%= r.losses %></td>
+                <td data-label="Điểm ghi" class="num"><%= r.pf %></td>
+                <td data-label="Điểm thua" class="num"><%= r.pa %></td>
+                <td data-label="Hiệu số" class="num"><strong class="<%= r.diff > 0 ? 'diff-pos' : r.diff < 0 ? 'diff-neg' : '' %>"><%= r.diff > 0 ? '+' : '' %><%= r.diff %></strong></td>
+                <td data-label="Căn cứ" class="tiny faint"><%= r.basis %></td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <% data.table.subTables.forEach((s) => { %>
+        <div class="card sub-table-card" style="padding: 12px 14px; border-radius: var(--r-md);">
+          <strong class="small" style="color: var(--court);">Bảng phụ <%= s.rows.length %> đội · <%= s.basis %></strong>
+          <p class="tiny faint" style="margin-top: 2px;">Cùng <%= s.wins %> trận thắng, hiệu số tổng <%= s.diff > 0 ? '+' : '' %><%= s.diff %>.</p>
+          <div class="stack" style="--gap: 6px; margin-top: 8px;">
+            <% s.rows.forEach((r) => { %>
+              <div class="row small" style="justify-content: space-between; border-bottom: 1px dashed var(--line); padding-bottom: 4px;">
+                <span><%= data.teamMap[r.id].name %></span>
+                <span class="tnum font-mono"><b><%= r.wins %></b> thắng · <b><%= r.diff > 0 ? '+' : '' %><%= r.diff %></b></span>
+              </div>
             <% }) %>
-          </tbody>
-        </table>
+          </div>
+        </div>
+        <% }) %>
       </div>
-      <% data.table.subTables.forEach((s) => { %>
-      <div class="card" style="padding: 14px; border-radius: var(--r-md);">
-        <strong class="small">Bảng phụ <%= s.rows.length %> đội · <%= s.basis %></strong>
-        <p class="tiny faint">Cùng <%= s.wins %> trận thắng, hiệu số tổng <%= s.diff > 0 ? '+' : '' %><%= s.diff %>.</p>
-        <% s.rows.forEach((r) => { %><div class="row small" style="justify-content: space-between;"><span><%= data.teamMap[r.id].name %></span><span class="tnum"><%= r.wins %> thắng · <%= r.diff > 0 ? '+' : '' %><%= r.diff %></span></div><% }) %>
-      </div>
-      <% }) %>
-    </div>
+    </section>
     <% } %>
 
     <% if (d.format === 'roundrobin') { %>
-    <h2 style="font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;">LỊCH THI ĐẤU THEO LƯỢT</h2>
-    <div class="stack" style="--gap: 18px;">
-      <% data.rounds.forEach((r) => { %>
-      <div class="stack" style="--gap: 10px;">
-        <span class="eyebrow" style="margin: 0;"><%= r.name %></span>
-        <div class="grid" style="--min: 280px; gap: 12px;">
-          <% r.matches.forEach((m) => { %><%- include('../partials/match-card', { m, teamMap: data.teamMap, streams: data.streams }) %><% }) %>
+    <section class="stage-section" aria-label="Lịch thi đấu theo lượt">
+      <div class="stage-header-card stage-schedule-header">
+        <div class="stage-header-left">
+          <div class="stage-pill stage-pill-schedule">
+            <%- include('../partials/icon', { name: 'time' }) %>
+            <span>LỊCH THI ĐẤU · THEO LƯỢT</span>
+          </div>
+          <h2 class="stage-header-title">DANH SÁCH CÁC LƯỢT ĐẤU</h2>
         </div>
       </div>
-      <% }) %>
-    </div>
+      <div class="stack" style="--gap: 18px;">
+        <% data.rounds.forEach((r) => { %>
+        <div class="stack" style="--gap: 10px;">
+          <div class="schedule-round-title">
+            <span class="schedule-round-pill"><%= r.name %></span>
+            <span class="tiny faint"><%= r.matches.length %> trận đấu</span>
+          </div>
+          <div class="grid" style="--min: 260px; gap: 10px;">
+            <% r.matches.forEach((m) => { %><%- include('../partials/match-card', { m, teamMap: data.teamMap, streams: data.streams }) %><% }) %>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+    </section>
     <% } else { %>
     <%
       // Ô còn trống ghi "Thắng T1" thay cho "—"; đường nối chỉ vẽ khi mỗi vòng đúng bằng nửa vòng trước (cây loại trực tiếp chuẩn)
@@ -80,25 +137,77 @@
         champ = aWin ? (fm.players_a || ta.name) : tb ? (fm.players_b || tb.name) : null;
       }
     %>
-    <p class="tiny faint hide-desktop">Vuốt ngang để xem các vòng tiếp theo →</p>
-    <div class="bracket-scroll">
-      <div class="bracket<%= tree ? ' is-tree' : '' %>">
-        <% data.rounds.forEach((r, ri) => { %>
-        <div class="round<%= ri === data.rounds.length - 1 ? ' is-final' : '' %>">
-          <div class="round-title"><%= r.name %><small><%= r.matches.length %> trận</small></div>
-          <div class="round-body">
-            <% r.matches.forEach((m) => { %><div class="slot"><%- include('../partials/match-card', { m, teamMap: data.teamMap, streams: data.streams, feeders }) %></div><% }) %>
+    <section class="stage-section" aria-label="Sơ đồ nhánh đấu loại trực tiếp">
+      <div class="stage-header-card stage-knockout-header">
+        <div class="stage-header-left">
+          <div class="stage-pill stage-pill-knockout">
+            <%- include('../partials/icon', { name: 'trophy' }) %>
+            <span>VÒNG ĐẤU · LOẠI TRỰC TIẾP</span>
+          </div>
+          <h2 class="stage-header-title">SƠ ĐỒ NHÁNH ĐẤU KNOCKOUT</h2>
+        </div>
+        <div class="bracket-toolbar">
+          <div class="bracket-nav-chips" id="bracketNav">
+            <button type="button" class="rnd-nav-btn active" data-target="all">Toàn cảnh</button>
+            <% data.rounds.forEach((r, ri) => {
+              const isFinal = ri === data.rounds.length - 1;
+              const isSemis = ri === data.rounds.length - 2 && data.rounds.length >= 3;
+              const isQuarters = ri === data.rounds.length - 3 && data.rounds.length >= 4;
+              let shortName = r.name;
+              if (isFinal) shortName = '🏆 Chung kết';
+              else if (isSemis) shortName = 'Bán kết';
+              else if (isQuarters) shortName = 'Tứ kết';
+            %>
+            <button type="button" class="rnd-nav-btn <%= isFinal ? 'is-final' : isSemis ? 'is-semis' : '' %>" data-target="rnd-col-<%= ri %>">
+              <%= shortName %>
+            </button>
+            <% }) %>
+            <% if (champ) { %>
+            <button type="button" class="rnd-nav-btn is-champ" data-target="rnd-col-champ">🥇 Vô địch</button>
+            <% } %>
+          </div>
+          <div class="bracket-view-actions">
+            <button type="button" class="btn-panoramic" id="btnTogglePanoramic" title="Thu nhỏ toàn cảnh">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+              <span>Thu nhỏ</span>
+            </button>
           </div>
         </div>
-        <% }) %>
-        <% if (champ) { %>
-        <div class="round round-champ">
-          <div class="round-title">Vô địch<small>Chung cuộc</small></div>
-          <div class="round-body"><div class="slot"><div class="champ-card"><%- include('../partials/icon', { name: 'trophy' }) %><span class="champ-label">Nhà vô địch</span><strong><%= champ %></strong></div></div></div>
-        </div>
-        <% } %>
       </div>
-    </div>
+
+      <div class="bracket-wrapper" id="bracketWrapper">
+        <div class="bracket-scroll" id="bracketScroll">
+          <div class="bracket<%= tree ? ' is-tree' : '' %>" id="bracketTree">
+            <% data.rounds.forEach((r, ri) => {
+              const isFinal = ri === data.rounds.length - 1;
+              const isSemis = ri === data.rounds.length - 2 && data.rounds.length >= 3;
+              const isQuarters = ri === data.rounds.length - 3 && data.rounds.length >= 4;
+              const roundClass = isFinal ? ' is-final round-final' : isSemis ? ' round-semis' : isQuarters ? ' round-quarters' : '';
+              let badgeText = r.name;
+              if (isFinal) badgeText = '🏆 CHUNG KẾT';
+              else if (isSemis) badgeText = 'BÁN KẾT';
+              else if (isQuarters) badgeText = 'TỨ KẾT';
+            %>
+            <div class="round<%= roundClass %>" id="rnd-col-<%= ri %>">
+              <div class="round-title">
+                <span class="round-badge"><%= badgeText %></span>
+                <small><%= r.matches.length %> trận</small>
+              </div>
+              <div class="round-body">
+                <% r.matches.forEach((m) => { %><div class="slot"><%- include('../partials/match-card', { m, teamMap: data.teamMap, streams: data.streams, feeders }) %></div><% }) %>
+              </div>
+            </div>
+            <% }) %>
+            <% if (champ) { %>
+            <div class="round round-champ" id="rnd-col-champ">
+              <div class="round-title"><span class="round-badge">🥇 VÔ ĐỊCH</span><small>Chung cuộc</small></div>
+              <div class="round-body"><div class="slot"><div class="champ-card"><%- include('../partials/icon', { name: 'trophy' }) %><span class="champ-label">Nhà vô địch</span><strong><%= champ %></strong></div></div></div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </section>
     <% } %>
     <% } %>
   </div>

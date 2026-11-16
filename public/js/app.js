@@ -384,4 +384,40 @@
       });
     });
   })();
+
+  // ---- Nhánh đấu: Điều hướng vòng & Thu nhỏ xem toàn cảnh ----
+  (function () {
+    var nav = $('#bracketNav');
+    var scroll = $('#bracketScroll');
+    var wrapper = $('#bracketWrapper');
+    var btnPan = $('#btnTogglePanoramic');
+    if (!nav || !scroll) return;
+
+    var buttons = $$('.rnd-nav-btn', nav);
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        buttons.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var targetId = btn.getAttribute('data-target');
+        if (targetId === 'all') {
+          scroll.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          var el = document.getElementById(targetId);
+          if (el) {
+            var offset = el.offsetLeft - scroll.offsetLeft - 16;
+            scroll.scrollTo({ left: Math.max(0, offset), behavior: 'smooth' });
+          }
+        }
+      });
+    });
+
+    if (btnPan && wrapper) {
+      btnPan.addEventListener('click', function () {
+        var isPan = wrapper.classList.toggle('bracket-panoramic');
+        btnPan.classList.toggle('active', isPan);
+        var label = $('span', btnPan);
+        if (label) label.textContent = isPan ? 'Phóng to' : 'Thu nhỏ';
+      });
+    }
+  })();
 })();
