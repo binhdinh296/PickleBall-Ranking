@@ -17,7 +17,16 @@ async function startEmbeddedPostgres() {
   const pg = new EmbeddedPostgres({ databaseDir: dir, user: 'postgres', password: cfg.password, port: cfg.port, persistent: true, onLog: () => {} });
   if (!fs.existsSync(path.join(dir, 'PG_VERSION'))) await pg.initialise();
   await pg.start();
-  await pg.createDatabase('pickleball').catch(() => {});
+  // Tự tạo CSDL nếu chưa có. Không dùng pg.createDatabase(): khi CSDL đã tồn tại, hàm đó bỏ quên kết nối đang mở,
+  // và mỗi lần tắt/khởi động lại (Ctrl+C, `node --watch`) kết nối đó in ra lỗi "terminating connection".
+  const admin = pg.getPgClient();
+  await admin.connect();
+  try {
+    const { rowCount } = await admin.query("SELECT 1 FROM pg_database WHERE datname = 'pickleball'");
+    if (!rowCount) await admin.query('CREATE DATABASE pickleball');
+  } finally {
+    await admin.end();
+  }
   process.env.DATABASE_URL = `postgres://postgres:${encodeURIComponent(cfg.password)}@127.0.0.1:${cfg.port}/pickleball`;
   console.log(`PostgreSQL nhúng đang chạy ở cổng ${cfg.port} (dữ liệu: ${path.relative(process.cwd(), dir)})`);
   const stop = async () => { await pg.stop().catch(() => {}); process.exit(0); };

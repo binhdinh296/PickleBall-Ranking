@@ -38,6 +38,7 @@ npm install
 npm run dev
 ```
 
+- **Tự khởi động lại:** `npm run dev` theo dõi thư mục `src/` và `scripts/`. Lưu file ở đó là server tự chạy lại sau 1–2 giây, không cần Ctrl+C. Template (`views/`) và file tĩnh (`public/`) vốn đã cập nhật ngay khi tải lại trang. Muốn chạy không theo dõi: `npm run dev:once`.
 - Website: <http://localhost:3000>
 - CMS: <http://localhost:3000/admin>
 - **Mật khẩu quản trị ban đầu** được ghi trong `data/initial-admin.txt` (chỉ máy bạn đọc được). Đăng nhập xong, đổi mật khẩu ở mục *Tài khoản của tôi* rồi xóa file này.
