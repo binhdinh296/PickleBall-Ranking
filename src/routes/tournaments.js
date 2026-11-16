@@ -64,6 +64,7 @@ async function loadEvent(req, res, next) {
   if (!ev) return next('route');
   ev.status = fmt.eventStatus(ev);
   ev.divisions = await all('SELECT * FROM divisions WHERE event_id = ? ORDER BY sort_order, id', ev.id);
+  ev.byOrganizer = !!(await get('SELECT 1 FROM organizers WHERE event_id = ?', ev.id));
   ev.streams = await all('SELECT * FROM live_streams WHERE event_id = ? ORDER BY sort_order, court, id', ev.id);
   req.event = ev;
   res.locals.event = ev;

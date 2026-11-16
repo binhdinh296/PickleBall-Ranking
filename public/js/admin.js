@@ -79,6 +79,25 @@
     });
   }
 
+  // ---- Tạo giải: thêm/bớt nội dung thi đấu (mỗi dòng có chỉ số riêng để gắn đúng ảnh tải lên) ----
+  var divs = $('[data-divs]');
+  if (divs) {
+    var divTpl = $('template', divs);
+    var nextIdx = parseInt(divs.getAttribute('data-next'), 10) || 0;
+    $('[data-div-add]', divs).addEventListener('click', function () {
+      var holder = document.createElement('div');
+      holder.innerHTML = divTpl.innerHTML.replace(/__i__/g, String(nextIdx++));
+      var row = holder.firstElementChild;
+      $('[data-div-rows]', divs).appendChild(row);
+      var first = $('input[name=div_name]', row);
+      if (first) first.focus();
+    });
+    divs.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-div-remove]');
+      if (b) b.closest('[data-div-row]').remove();
+    });
+  }
+
   // ---- Vinh danh: tìm VĐV để gắn hồ sơ ----
   $$('[data-athlete-search]').forEach(function (wrap) {
     var input = $('input[type=search]', wrap);

@@ -16,6 +16,29 @@
     <div class="field"><label for="regulation_pdf">Điều lệ (PDF)</label><input class="input" id="regulation_pdf" name="regulation_pdf" type="file" accept="application/pdf"><% if (ev.regulation_pdf) { %><a class="link small" href="<%= ev.regulation_pdf %>" target="_blank">Xem điều lệ hiện tại</a><% } %></div>
     <div class="field span-2"><label for="description">Mô tả</label><textarea class="input" id="description" name="description" maxlength="5000"><%= ev.description || '' %></textarea></div>
   </div>
+  <% if (!ev.id) {
+    const rows = (ev.newDivisions && ev.newDivisions.length) ? ev.newDivisions : [{ idx: '0' }];
+    const divRow = (r, i) => `
+      <div class="div-row" data-div-row>
+        <input type="hidden" name="div_idx" value="${i}">
+        <div class="form-grid two">
+          <div class="field span-2"><label for="div_name_${i}">Tên nội dung ${org ? '*' : ''}</label><input class="input" id="div_name_${i}" name="div_name" maxlength="100" placeholder="Đôi nam Newbie, Đôi nữ 3.2, Hỗn hợp 4.25…" value="${fmt.esc(r.name || '')}"></div>
+          <div class="field"><label for="div_gender_${i}">Giới tính</label><select class="input" id="div_gender_${i}" name="div_gender">${Object.entries(fmt.GENDER_RULE_LABEL).map(([k, l]) => `<option value="${k}" ${r.gender_rule === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+          <div class="field"><label for="div_max_teams_${i}">Số đôi tối đa</label><input class="input" id="div_max_teams_${i}" name="div_max_teams" inputmode="numeric" placeholder="Không giới hạn" value="${fmt.esc(r.max_teams || '')}"></div>
+          <div class="field"><label for="div_max_total_${i}">Tổng trình tối đa (2 VĐV)</label><input class="input tnum" id="div_max_total_${i}" name="div_max_total" inputmode="decimal" placeholder="vd. 4.250" value="${fmt.esc(r.max_total || '')}"></div>
+          <div class="field"><label for="div_max_player_${i}">Trình tối đa mỗi VĐV</label><input class="input tnum" id="div_max_player_${i}" name="div_max_player" inputmode="decimal" placeholder="Không giới hạn" value="${fmt.esc(r.max_player || '')}"></div>
+          <div class="field span-2"><label for="div_banner_${i}">Ảnh nút chọn nội dung (không bắt buộc)</label><input class="input" id="div_banner_${i}" name="div_banner_${i}" type="file" accept="image/jpeg,image/png,image/webp"><span class="hint">Ảnh VĐV bấm để chọn khi đăng ký. Không có ảnh thì hiện tên nội dung.</span></div>
+        </div>
+        <button class="btn btn-sm" type="button" data-div-remove>Bỏ nội dung này</button>
+      </div>`;
+  %>
+  <div class="stack" style="--gap: 12px;" data-divs data-next="<%= rows.length %>">
+    <div><span class="label">Nội dung thi đấu<%= org ? ' *' : '' %></span><p class="hint" style="margin-top: 4px;">Các nội dung VĐV chọn khi đăng ký. Sau khi tạo vẫn thêm, sửa, đặt giải thưởng được ở trang giải.</p></div>
+    <div class="stack" style="--gap: 12px;" data-div-rows><% rows.forEach((r, i) => { %><%- divRow(r, i) %><% }) %></div>
+    <template><%- divRow({}, '__i__') %></template>
+    <button class="btn btn-sm" type="button" data-div-add style="align-self: flex-start;"><%- include('../partials/icon', { name: 'plus' }) %>Thêm nội dung</button>
+  </div>
+  <% } %>
   <% if (!org) { %><label class="check"><input type="checkbox" name="published" value="1" <%= ev.published ? 'checked' : '' %>><span><strong>Công khai</strong> – hiện trên website (bỏ chọn để lưu nháp, giải thử nghiệm)</span></label><% } else { %><p class="small muted">Trạng thái công khai: <strong><%= ev.published ? 'Đang hiện trên website' : 'Chờ quản trị viên duyệt' %></strong></p><% } %>
   <label class="check"><input type="checkbox" name="registration_open" value="1" <%= ev.registration_open ? 'checked' : '' %>><span>Mở đăng ký online</span></label>
   <% if (!org) { %><label class="check"><input type="checkbox" name="featured" value="1" <%= ev.featured ? 'checked' : '' %>><span>Ưu tiên hiện ở "Giải đấu nổi bật" trang chủ</span></label><% } %>

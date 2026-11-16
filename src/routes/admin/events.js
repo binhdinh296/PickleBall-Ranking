@@ -72,9 +72,43 @@ async function readEvent(req, existing) {
   return { data };
 }
 
+// Nội dung thi đấu khai ngay trong form tạo giải (mỗi dòng: tên, giới tính, giới hạn trình, số đôi, ảnh nút chọn)
+async function readNewDivisions(req) {
+  const b = req.body;
+  const idxs = [].concat(b.div_idx || []);
+  const at = (k, i) => String([].concat(b[k] ?? [])[i] ?? '').trim();
+  const rows = [];
+  for (let i = 0; i < idxs.length; i++) {
+    const row = {
+      idx: /^\d{1,3}$/.test(String(idxs[i])) ? String(idxs[i]) : String(i),
+      name: at('div_name', i).slice(0, 100),
+      gender_rule: ['any', 'male', 'female', 'mixed'].includes(at('div_gender', i)) ? at('div_gender', i) : 'any',
+      max_total: at('div_max_total', i).slice(0, 10), max_player: at('div_max_player', i).slice(0, 10), max_teams: at('div_max_teams', i).slice(0, 5),
+    };
+    if (!row.name && !row.max_total && !row.max_player && !row.max_teams) continue; // dòng để trống: bỏ qua
+    rows.push(row);
+  }
+  for (const r of rows) {
+    if (!r.name) return { error: 'Mỗi nội dung thi đấu cần có tên (ví dụ "Đôi nam Newbie").', rows };
+    r.max_total_points = fmt.parsePoints(r.max_total);
+    r.max_player_points = fmt.parsePoints(r.max_player);
+    if ((r.max_total && r.max_total_points === null) || (r.max_player && r.max_player_points === null)) {
+      return { error: `Nội dung "${r.name}": trình độ không hợp lệ, ví dụ 5.000 hoặc 3.2.`, rows };
+    }
+    r.max_teams_n = intOrNull(r.max_teams);
+  }
+  if (isOrganizer(req) && !rows.length) return { error: 'Vui lòng thêm ít nhất 1 nội dung thi đấu để VĐV chọn khi đăng ký.', rows };
+  for (const r of rows) {
+    const f = fileOf(req, `div_banner_${r.idx}`);
+    if (f) r.banner = await saveImage(f.buffer, 'divisions', { width: 800, height: 400 });
+  }
+  return { rows };
+}
+
 router.post('/giai-dau/moi', editor, upload.any(), verifyCsrf, wrap(async (req, res) => {
   const { error, data } = await readEvent(req, null);
-  if (error) return eventForm(res.status(400), data, error);
+  const divs = await readNewDivisions(req);
+  if (error || divs.error) return eventForm(res.status(400), { ...data, newDivisions: divs.rows }, error || divs.error);
   const me = req.session.user;
   // Ban tổ chức: giải luôn ở dạng chờ duyệt (quản trị viên bật công khai), không tự đưa lên "nổi bật"
   if (isOrganizer(req)) { data.published = false; data.featured = false; }
@@ -87,13 +121,18 @@ router.post('/giai-dau/moi', editor, upload.any(), verifyCsrf, wrap(async (req, 
     if (isOrganizer(req) && !(await get('UPDATE organizers SET event_id = ? WHERE id = ? AND event_id IS NULL RETURNING id', ev.id, me.organizerId))) {
       throw Object.assign(new Error('Đơn vị này đã tạo giải rồi.'), { expose: true, status: 409 });
     }
+    for (const [i, r] of divs.rows.entries()) {
+      await run(`INSERT INTO divisions(event_id, name, banner, max_teams, max_total_points, max_player_points, gender_rule, sort_order)
+        VALUES (?,?,?,?,?,?,?,?)`, ev.id, r.name, r.banner || null, r.max_teams_n, r.max_total_points, r.max_player_points, r.gender_rule, i);
+    }
     return ev;
   });
   if (isOrganizer(req)) req.session.user = { ...me, eventId: row.id };
   await audit(req, 'event_create', `event:${row.id}`, data.name);
+  const next = divs.rows.length ? `Đã thêm ${divs.rows.length} nội dung thi đấu.` : 'Tiếp theo: thêm nội dung thi đấu.';
   req.flash('success', isOrganizer(req)
-    ? 'Đã tạo giải, đang chờ quản trị viên duyệt để hiện công khai. Tiếp theo: thêm nội dung thi đấu.'
-    : 'Đã tạo giải. Tiếp theo: thêm nội dung thi đấu.');
+    ? `Đã tạo giải, đang chờ quản trị viên duyệt để hiện công khai. ${next}`
+    : `Đã tạo giải. ${next}`);
   res.redirect(`/admin/giai-dau/${row.id}`);
 }));
 
