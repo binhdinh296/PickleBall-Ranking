@@ -4,14 +4,14 @@
   <div class="field">
     <label for="create-url">1. Link tạo giải đấu</label>
     <div class="copy-row"><input class="input" id="create-url" readonly value="<%= createUrl %>"><button type="button" class="btn btn-sm" data-copy="create-url">Chép</button></div>
-    <span class="hint">Đơn vị mở link, nhập OTP rồi điền thông tin giải. Dùng được tới khi giải được tạo.</span>
+    <span class="hint">Đơn vị mở link là vào form điền thông tin giải. Dùng được tới khi giải được tạo.</span>
   </div>
   <div class="field">
     <label for="manage-url">2. Link quản lý giải đấu</label>
     <div class="copy-row"><input class="input" id="manage-url" readonly value="<%= manageUrl %>"><button type="button" class="btn btn-sm" data-copy="manage-url">Chép</button></div>
     <span class="hint">Dùng lâu dài: sửa thông tin, nội dung thi đấu, duyệt đăng ký, nhánh đấu, nhập tỉ số, vinh danh.</span>
   </div>
-  <p class="small muted">Mỗi lần mở link, mã OTP được gửi về số <strong><%= org.phone %></strong>. Nên gửi link qua kênh riêng (Zalo/email trực tiếp với người phụ trách), không đăng lên nhóm chung.</p>
+  <p class="small muted">Ai có link là vào được trang quản lý giải này. Hãy gửi qua kênh riêng (Zalo/email trực tiếp với người phụ trách), không đăng lên nhóm chung. Nếu link bị lộ, bấm "Tạo lại link" hoặc "Khoá" ở danh sách đơn vị.</p>
   <a class="btn btn-sm" href="/admin/ban-to-chuc" style="align-self: flex-start;">Về danh sách đơn vị</a>
 </div>
 <%- include('_bottom') %>

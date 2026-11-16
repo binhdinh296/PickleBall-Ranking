@@ -1,5 +1,5 @@
 <%- include('_top') %>
-<% const purpose = { submission: 'Chấm trình', registration: 'Đăng ký giải', admin_login: 'Đăng nhập CMS', organizer: 'Ban tổ chức' }; %>
+<% const purpose = { submission: 'Chấm trình', registration: 'Đăng ký giải', admin_login: 'Đăng nhập CMS' }; %>
 <p class="small muted">Số điện thoại được che, mã OTP không bao giờ được lưu dạng đọc được.</p>
 <div class="kpis">
   <% daily.slice(0, 4).forEach((d) => { %><div class="kpi"><b><%= d.sent %></b><span><%= d.day %> · <%= d.verified %> xác minh</span></div><% }) %>

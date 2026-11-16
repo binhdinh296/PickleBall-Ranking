@@ -21,27 +21,6 @@
         <p class="small faint">Phiên làm việc tự kết thúc sau một thời gian không thao tác. Mở lại link được cấp để đăng nhập lại.</p>
         <% } %>
 
-      <% } else if (step === 'send') { %>
-        <p class="muted">Để bảo vệ giải của bạn, hệ thống gửi mã xác minh (OTP) gồm 6 số tới số điện thoại đã đăng ký của đơn vị: <strong style="color: var(--text);"><%= masked %></strong>.</p>
-        <form method="post" action="<%= reqPath %>/gui-ma" data-once>
-          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-          <button class="btn btn-brand btn-block" type="submit">Gửi mã OTP</button>
-        </form>
-        <p class="tiny faint">Không phải số của bạn? Liên hệ quản trị viên để cập nhật. Không chia sẻ link này cho người ngoài đơn vị.</p>
-
-      <% } else if (step === 'verify') { %>
-        <p class="muted">Nhập mã 6 số vừa gửi tới <strong style="color: var(--text);"><%= masked %></strong><% if (locals.ttl) { %> (hiệu lực <%= Math.round(ttl / 60) %> phút)<% } %>.</p>
-        <% if (locals.devCode) { %><div class="alert" role="status">Chế độ thử nghiệm – mã OTP: <strong class="tnum"><%= devCode %></strong></div><% } %>
-        <form class="form" method="post" action="<%= reqPath %>/xac-minh" data-once>
-          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-          <div class="field"><label for="code">Mã OTP</label>
-            <input class="input otp-input" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="••••••" required autofocus></div>
-          <button class="btn btn-brand btn-block" type="submit">Xác minh và vào trang quản lý</button>
-        </form>
-        <form method="post" action="<%= reqPath %>/gui-ma">
-          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-          <button class="btn btn-sm" type="submit">Gửi lại mã</button>
-        </form>
       <% } %>
     </div>
   </div>

@@ -3,7 +3,7 @@
   const expired = (o) => o.expires_at && new Date(o.expires_at) < new Date();
   const dateInput = (v) => v ? new Date(new Date(v).getTime() + 7 * 3600e3).toISOString().slice(0, 10) : '';
 %>
-<p class="muted small" style="max-width: 760px;">Mỗi đơn vị tổ chức nhận 2 link: <strong>link tạo giải</strong> (điền thông tin giải, dùng một lần) và <strong>link quản lý giải</strong> (sửa thông tin, nội dung thi đấu, duyệt đăng ký, nhánh đấu, nhập tỉ số, vinh danh). Mở link xong, đơn vị phải nhập mã OTP gửi về số điện thoại bên dưới. Giải do đơn vị tạo chỉ hiện trên website khi bạn bấm <strong>Duyệt &amp; công khai</strong>. Livestream vẫn do CMS quản lý.</p>
+<p class="muted small" style="max-width: 760px;">Mỗi đơn vị tổ chức nhận 2 link: <strong>link tạo giải</strong> (điền thông tin giải, dùng một lần) và <strong>link quản lý giải</strong> (sửa thông tin, nội dung thi đấu, duyệt đăng ký, nhánh đấu, nhập tỉ số, vinh danh). Ai có link là vào được trang quản lý giải đó, nên hãy gửi riêng cho người phụ trách; nếu link bị lộ, bấm <strong>Tạo lại link</strong> hoặc <strong>Khoá</strong>. Giải do đơn vị tạo chỉ hiện trên website khi bạn bấm <strong>Duyệt &amp; công khai</strong>. Livestream vẫn do CMS quản lý.</p>
 
 <% if (!rows.length) { %><div class="empty">Chưa có đơn vị tổ chức nào. Tạo đơn vị đầu tiên ở form bên dưới.</div><% } else { %>
 <div class="list">
@@ -36,7 +36,7 @@
         <div class="form-grid two">
           <div class="field"><label for="name-<%= o.id %>">Tên đơn vị *</label><input class="input" id="name-<%= o.id %>" name="name" required maxlength="150" value="<%= o.name %>"></div>
           <div class="field"><label for="contact-<%= o.id %>">Người liên hệ</label><input class="input" id="contact-<%= o.id %>" name="contact_name" maxlength="100" value="<%= o.contact_name || '' %>"></div>
-          <div class="field"><label for="phone-<%= o.id %>">SĐT nhận OTP *</label><input class="input" id="phone-<%= o.id %>" name="phone" inputmode="tel" required value="<%= o.phone %>"><span class="hint">Đổi số sẽ đăng xuất đơn vị.</span></div>
+          <div class="field"><label for="phone-<%= o.id %>">SĐT liên hệ</label><input class="input" id="phone-<%= o.id %>" name="phone" inputmode="tel" value="<%= o.phone || '' %>"></div>
           <div class="field"><label for="exp-<%= o.id %>">Hết hạn link</label><input class="input" type="date" id="exp-<%= o.id %>" name="expires_at" value="<%= dateInput(o.expires_at) %>"><span class="hint">Để trống: không giới hạn.</span></div>
           <div class="field span-2"><label for="note-<%= o.id %>">Ghi chú nội bộ</label><input class="input" id="note-<%= o.id %>" name="note" maxlength="1000" value="<%= o.note || '' %>"></div>
         </div>
@@ -56,7 +56,7 @@
   <div class="form-grid two">
     <div class="field"><label for="name">Tên đơn vị *</label><input class="input" id="name" name="name" required maxlength="150" placeholder="CLB Pickleball …" value="<%= values.name || '' %>"></div>
     <div class="field"><label for="contact_name">Người liên hệ</label><input class="input" id="contact_name" name="contact_name" maxlength="100" value="<%= values.contact_name || '' %>"></div>
-    <div class="field"><label for="phone">SĐT nhận OTP *</label><input class="input" id="phone" name="phone" inputmode="tel" required value="<%= values.phone || '' %>"><span class="hint">Mỗi lần mở link, mã OTP gửi về số này.</span></div>
+    <div class="field"><label for="phone">SĐT liên hệ</label><input class="input" id="phone" name="phone" inputmode="tel" value="<%= values.phone || '' %>"></div>
     <div class="field"><label for="expires_at">Hết hạn link</label><input class="input" type="date" id="expires_at" name="expires_at" value="<%= values.expires_at || '' %>"><span class="hint">Nên đặt sau ngày bế mạc giải vài tuần.</span></div>
     <div class="field span-2"><label for="note">Ghi chú nội bộ</label><input class="input" id="note" name="note" maxlength="1000" value="<%= values.note || '' %>"></div>
   </div>

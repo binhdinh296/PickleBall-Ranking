@@ -1,4 +1,4 @@
-// Đơn vị tổ chức (BTC): truy cập CMS bằng link riêng + OTP, chỉ trong phạm vi đúng 1 giải của mình.
+// Đơn vị tổ chức (BTC): truy cập CMS bằng link riêng (mã ngẫu nhiên 256 bit), chỉ trong phạm vi đúng 1 giải của mình.
 const crypto = require('crypto');
 const { get, run } = require('../db');
 const { hmac } = require('./crypto');

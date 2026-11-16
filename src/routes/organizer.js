@@ -1,8 +1,6 @@
-// Cổng ban tổ chức (BTC): mở link được cấp → nhận OTP về SĐT của đơn vị → vào trang quản lý giải (trong /admin, giới hạn đúng 1 giải).
+// Cổng ban tổ chức (BTC): mở link được cấp → vào trang quản lý giải (trong /admin, giới hạn đúng 1 giải).
 const express = require('express');
 const { get, run } = require('../db');
-const otp = require('../lib/otp');
-const phoneLib = require('../lib/phone');
 const organizers = require('../lib/organizers');
 const { rateLimit, audit } = require('../lib/security');
 
@@ -15,10 +13,8 @@ router.use((req, res, next) => {
   next();
 });
 
-// Giới hạn theo IP: mở link, gửi mã, nhập mã
+// Giới hạn số lần mở link theo IP
 const openLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, message: 'Bạn mở link quá nhiều lần, vui lòng thử lại sau.' });
-const sendLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, message: 'Bạn đã yêu cầu quá nhiều mã OTP, vui lòng thử lại sau.' });
-const verifyLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: 'Bạn nhập mã quá nhiều lần, vui lòng thử lại sau.' });
 
 const KIND_LABEL = { create: 'Link tạo giải đấu', manage: 'Link quản lý giải đấu' };
 
@@ -28,12 +24,6 @@ function page(res, status, data) {
 
 // Trang giới thiệu (cũng là trang đích sau khi đăng xuất / hết hạn)
 router.get('/', (req, res) => page(res, 200, {}));
-
-// Đường dẫn gốc của link đang mở (để form gửi mã / xác minh quay về đúng link)
-router.param('token', (req, res, next, token) => {
-  res.locals.reqPath = organizers.TOKEN_RE.test(token) ? `/btc/${token}` : '/btc';
-  next();
-});
 
 // Tìm đơn vị từ link; trả null nếu link sai/đã khoá/hết hạn (đã hiển thị trang báo)
 async function resolve(req, res) {
@@ -48,38 +38,13 @@ async function resolve(req, res) {
   return { ...found, ev };
 }
 
-router.get('/:token', openLimiter, wrap(async (req, res) => {
+// Mở link là vào thẳng trang quản lý giải (không cần OTP). Bù lại: link dài ngẫu nhiên, có hạn dùng, khoá/tạo lại được, ghi nhật ký.
+router.get('/:token', openLimiter, wrap(async (req, res, next) => {
   const r = await resolve(req, res);
   if (!r) return;
   // Đang trong phiên của chính đơn vị này: vào thẳng
   const me = req.session.user;
   if (me && me.role === 'organizer' && me.organizerId === r.org.id) return res.redirect(303, '/admin');
-  page(res, 200, { org: r.org, kind: r.kind, ev: r.ev, step: 'send', masked: phoneLib.mask(r.org.phone) });
-}));
-
-router.post('/:token/gui-ma', sendLimiter, wrap(async (req, res) => {
-  const r = await resolve(req, res);
-  if (!r) return;
-  const base = { org: r.org, kind: r.kind, ev: r.ev, masked: phoneLib.mask(r.org.phone) };
-  try {
-    const sent = await otp.send({ phone: r.org.phone, purpose: 'organizer', ip: req.ip });
-    page(res, 200, { ...base, step: 'verify', ttl: sent.ttl, devCode: sent.devCode });
-  } catch (err) {
-    if (!(err instanceof otp.OtpError)) throw err;
-    // Đang trong thời gian chờ gửi lại: vẫn cho nhập mã vừa nhận
-    page(res, 400, { ...base, step: err.retryAfter ? 'verify' : 'send', error: err.message });
-  }
-}));
-
-router.post('/:token/xac-minh', verifyLimiter, wrap(async (req, res, next) => {
-  const r = await resolve(req, res);
-  if (!r) return;
-  try {
-    await otp.verify({ phone: r.org.phone, purpose: 'organizer', code: req.body.code });
-  } catch (err) {
-    if (!(err instanceof otp.OtpError)) throw err;
-    return page(res, 400, { org: r.org, kind: r.kind, ev: r.ev, masked: phoneLib.mask(r.org.phone), step: 'verify', error: err.message });
-  }
   await run('UPDATE organizers SET last_login_at = now() WHERE id = ?', r.org.id);
   // Phiên mới (chống cố định phiên); thay cho phiên đang có trên trình duyệt này
   req.session.regenerate((err) => {

@@ -24,9 +24,10 @@ function readOrg(b) {
     note: String(b.note || '').trim().slice(0, 1000) || null,
     expires_at: String(b.expires_at || '').trim() || null,
   };
-  const ph = phoneLib.validate(b.phone);
-  if (!data.name) return { error: 'Vui lòng nhập tên đơn vị tổ chức.', data: { ...data, phone: b.phone } };
-  if (!ph.ok) return { error: `Số điện thoại nhận OTP không hợp lệ: ${ph.error}`, data: { ...data, phone: b.phone } };
+  const rawPhone = String(b.phone || '').trim();
+  const ph = rawPhone ? phoneLib.validate(rawPhone) : { ok: true, phone: null };
+  if (!data.name) return { error: 'Vui lòng nhập tên đơn vị tổ chức.', data: { ...data, phone: rawPhone } };
+  if (!ph.ok) return { error: `Số điện thoại liên hệ không hợp lệ: ${ph.error}`, data: { ...data, phone: rawPhone } };
   data.phone = ph.phone;
   if (data.expires_at && (!/^\d{4}-\d{2}-\d{2}$/.test(data.expires_at) || data.expires_at < fmt.today())) {
     return { error: 'Ngày hết hạn phải từ hôm nay trở đi (hoặc để trống nếu không giới hạn).', data };
@@ -84,7 +85,6 @@ router.post('/ban-to-chuc/:id/sua', admin, wrap(async (req, res, next) => {
   if (error) { req.flash('error', error); return res.redirect(303, BASE); }
   await run('UPDATE organizers SET name = ?, contact_name = ?, phone = ?, note = ?, expires_at = ? WHERE id = ?',
     data.name, data.contact_name, data.phone, data.note, data.expires_at ? `${data.expires_at} 23:59:59+07` : null, org.id);
-  if (data.phone !== org.phone) await organizers.endSessions(org.id); // đổi SĐT nhận OTP: buộc xác minh lại
   await audit(req, 'organizer_update', `organizer:${org.id}`);
   req.flash('success', `Đã lưu đơn vị "${data.name}".`);
   res.redirect(303, BASE);
