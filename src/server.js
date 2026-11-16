@@ -45,6 +45,23 @@ async function cronDaily(req, res) {
   res.json({ ok: true, youtubeChanged: changed });
 }
 
+// Biến dùng chung cho mọi view, không cần truy vấn CSDL (trang báo lỗi vẫn dùng được khi CSDL đang lỗi)
+function setBaseLocals(req, res) {
+  const sess = req.session || {};
+  res.locals.fmt = fmt;
+  res.locals.site = getSettings();
+  res.locals.colors = themeColors();
+  res.locals.path = req.path;
+  res.locals.user = sess.user || null;
+  // Bộ chọn "Xem với vai trò" trên menu: chỉ môi trường dev và chỉ khi mở từ chính máy chạy server
+  res.locals.roleSwitcher = devtools.enabled() && devtools.isLocal(req);
+  if (!('flash' in res.locals)) res.locals.flash = sess.flash || null;
+  res.locals.phonePrefixes = phone.clientConfig();
+  // csrf chạy sau middleware này; trang lỗi sinh ra trước đó vẫn cần biến để dựng thẻ meta
+  if (!('csrfToken' in res.locals)) res.locals.csrfToken = sess.csrf || '';
+  return res;
+}
+
 function createApp() {
   const app = express();
   app.set('view engine', 'ejs');
@@ -78,15 +95,7 @@ function createApp() {
   // Biến dùng chung cho mọi view (đặt trước CSRF để trang báo lỗi luôn hiển thị được)
   app.use(async (req, res, next) => {
     try {
-      res.locals.fmt = fmt;
-      res.locals.site = getSettings();
-      res.locals.colors = themeColors();
-      res.locals.path = req.path;
-      res.locals.user = req.session.user || null;
-      // Bộ chọn "Xem với vai trò" trên menu: chỉ môi trường dev và chỉ khi mở từ chính máy chạy server
-      res.locals.roleSwitcher = devtools.enabled() && devtools.isLocal(req);
-      res.locals.flash = req.session.flash || null;
-      res.locals.phonePrefixes = phone.clientConfig();
+      setBaseLocals(req, res);
       delete req.session.flash;
       req.flash = (type, message) => { req.session.flash = { type, message }; };
       if (!req.path.startsWith('/admin') && !req.path.startsWith('/api/') && !req.path.startsWith('/overlay/')) {
@@ -120,6 +129,8 @@ function createApp() {
     const message = exposed ? err.message : 'Đã có lỗi xảy ra, vui lòng thử lại.';
     const status = err.status || (exposed ? 400 : 500);
     if (req.path.startsWith('/api/') || req.get('x-csrf-token') !== undefined) return res.status(status).json({ ok: false, error: message });
+    // Lỗi có thể xảy ra trước middleware biến dùng chung (vd. CSDL mất kết nối khi đọc session): đặt lại để trang lỗi vẫn hiển thị
+    if (!res.locals.site) setBaseLocals(req, res);
     res.status(status).render('error', { title: 'Có lỗi xảy ra', message });
   });
   return app;
