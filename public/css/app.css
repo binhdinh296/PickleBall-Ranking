@@ -127,6 +127,7 @@ button { font: inherit; }
 .brand-mark { width: 36px; height: 36px; flex: none; }
 .brand-name { font-weight: 800; font-size: 17px; letter-spacing: 0.06em; line-height: 1.1; overflow-wrap: anywhere; }
 .brand-sub { display: block; font-size: 10px; letter-spacing: 0.2em; font-weight: 600; color: var(--text-3); margin-top: 4px; }
+@media (max-width: 599px) { .brand-sub { display: none; } }
 @media (max-width: 359px) { .hide-mobile-sm { display: none; } }
 .main-nav { display: none; gap: 4px; margin-left: 8px; }
 .main-nav a { padding: 10px 14px; border-radius: 999px; color: var(--text-2); font-weight: 500; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; }
@@ -1172,6 +1173,119 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; white-s
   .table-wrap:has(table.stack-mobile) { overflow-x: visible; }
 }
 
+/* ---------- Danh sách đăng ký giải đấu (1 dòng trên mobile) ---------- */
+.reg-mobile-list {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--card);
+  overflow: hidden;
+  width: 100%;
+}
+.reg-mobile-header {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 38px 62px;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 10px;
+  background: color-mix(in oklab, var(--text) 3%, var(--card));
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  user-select: none;
+}
+.reg-mobile-row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 38px 62px;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13.5px;
+  min-height: 40px;
+  transition: background .15s ease;
+}
+.reg-mobile-row:last-child {
+  border-bottom: 0;
+}
+.reg-mobile-row:nth-child(even) {
+  background: color-mix(in oklab, var(--text) 1.5%, transparent);
+}
+.reg-mobile-row:active {
+  background: color-mix(in oklab, var(--text) 4%, transparent);
+}
+.reg-mobile-stt {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+.reg-mobile-names {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+}
+.reg-mobile-names a {
+  color: inherit;
+  text-decoration: none;
+}
+.reg-mobile-names a:hover {
+  color: var(--ink-court);
+  text-decoration: underline;
+}
+.reg-mobile-sep {
+  color: var(--text-3);
+  font-weight: 400;
+  margin-inline: 3px;
+}
+.reg-mobile-pts {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text-2);
+  text-align: right;
+  white-space: nowrap;
+}
+.reg-mobile-status {
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+}
+.chip-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  line-height: 1.25;
+  white-space: nowrap;
+  letter-spacing: .02em;
+  border: 1px solid currentColor;
+}
+.chip-mini.chip-ok {
+  color: #34D399;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(52, 211, 153, 0.35);
+}
+.chip-mini.chip-warn {
+  color: #FBBF24;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
 /* ---------- Nhánh đấu ---------- */
 .bracket-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; padding-bottom: 12px; margin-inline: -16px; padding-inline: 16px; scroll-padding-inline: 16px; }
 @media (min-width: 900px) { .bracket-scroll { scroll-snap-type: none; margin-inline: 0; padding-inline: 0; } }
@@ -1386,6 +1500,7 @@ input[type="file"].input::file-selector-button { font: inherit; font-weight: 600
 .role-switch-btn:focus-visible { outline: 3px solid var(--ink-court); outline-offset: 2px; }
 .rs-dev { flex: none; padding: 3px 7px; border-radius: 999px; background: var(--warn); color: var(--bg); font-size: 10px; font-weight: 800; letter-spacing: .08em; }
 .rs-text { display: flex; flex-direction: column; line-height: 1.1; min-width: 0; }
+@media (max-width: 599px) { .rs-text { display: none; } .role-switch-btn { height: 36px; padding: 0 6px; } }
 .rs-caption { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
 .rs-text strong { font-size: 13.5px; white-space: nowrap; }
 .rs-caret { width: 16px; height: 16px; flex: none; color: var(--text-3); transition: transform .2s; }

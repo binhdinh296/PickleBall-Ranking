@@ -12,9 +12,50 @@
     <% } else if (!regs.length) { %><div class="empty">Chưa có đăng ký cho nội dung này.</div>
     <% } else { %>
     <p class="tiny faint" style="margin-bottom: 10px;"><%= regs.length %><%= d.max_teams ? `/${d.max_teams}` : '' %> <%= d.team_type === 'team' ? 'đội' : 'đôi' %> · <%= regs.filter((r) => r.status === 'approved').length %> đã duyệt</p>
-    <div class="table-wrap">
-      <table class="data stack-mobile">
-        <thead><tr><th>STT</th><th>Vận động viên 1</th><th>Vận động viên 2</th><th class="num">Tổng trình</th><th>Trạng thái</th></tr></thead>
+    <!-- Giao diện Mobile: Mỗi VĐV / cặp VĐV là đúng 1 dòng gọn gàng -->
+    <div class="reg-mobile-list hide-desktop">
+      <div class="reg-mobile-header">
+        <span class="reg-mobile-stt">STT</span>
+        <span class="reg-mobile-names">VẬN ĐỘNG VIÊN</span>
+        <span class="reg-mobile-pts">TRÌNH</span>
+        <span class="reg-mobile-status">TRẠNG THÁI</span>
+      </div>
+      <% regs.forEach((r, i) => { %>
+      <div class="reg-mobile-row">
+        <span class="reg-mobile-stt"><%= fmt.pad2(i + 1) %></span>
+        <span class="reg-mobile-names">
+          <% if (r.athlete1_id) { %><a class="link" href="/vdv/<%= r.athlete1_id %>"><%= r.name1 %></a><% } else { %><span><%= r.name1 %></span><% } %>
+          <% if (r.name2) { %>
+            <span class="reg-mobile-sep">/</span>
+            <% if (r.athlete2_id) { %><a class="link" href="/vdv/<%= r.athlete2_id %>"><%= r.name2 %></a><% } else { %><span><%= r.name2 %></span><% } %>
+          <% } %>
+        </span>
+        <span class="reg-mobile-pts">
+          <% if (r.points1 != null && r.points2 != null && (r.points1 > 0 || r.points2 > 0)) { %>
+            <strong><%= fmt.pts(r.points1 + r.points2) %></strong>
+          <% } else { %>
+            <span class="muted">—</span>
+          <% } %>
+        </span>
+        <span class="reg-mobile-status">
+          <span class="chip-mini <%= r.status === 'approved' ? 'chip-ok' : 'chip-warn' %>"><%= r.status === 'approved' ? 'Đã duyệt' : 'Chờ duyệt' %></span>
+        </span>
+      </div>
+      <% }) %>
+    </div>
+
+    <!-- Giao diện Desktop: Bảng chuẩn mở rộng -->
+    <div class="table-wrap hide-mobile">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Vận động viên 1</th>
+            <th>Vận động viên 2</th>
+            <th class="num">Tổng trình</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
         <tbody>
           <% regs.forEach((r, i) => { %>
           <tr>
