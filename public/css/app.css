@@ -45,7 +45,7 @@
 }
 
 /* ==========================================================================
-   NHÓM THEME PHẲNG (KHÔNG GRADIENT MÀU): Vàng sâm panh · Vang đỏ & Hồng đào · Tím đêm & Oải hương
+   NHÓM THEME PHẲNG (KHÔNG GRADIENT MÀU): Vàng sâm panh (tối) · Xanh dương nhạt · Xanh chuối (sáng)
    Mọi rule [data-flat] dùng chung các biến --f-*; mỗi theme chỉ khai báo bảng màu riêng.
    ========================================================================== */
 [data-flat] {
@@ -89,26 +89,34 @@
   --f-photo: saturate(.66) sepia(.22) brightness(.95) contrast(1.04); --f-photo-hero: saturate(.8) sepia(.1) contrast(1.04);
 }
 
-/* Vang đỏ & Hồng đào — nền đỏ rượu vang thẫm, nhấn hồng đào (cùng họ đỏ nên êm, sáng-tối tách bạch) */
-[data-theme="wine"] {
-  --f-bg: #150A0E; --f-bg-rgb: 21, 10, 14; --f-bg2: #1C0F14; --f-card: #24141A; --f-raised: #2E1A22; --f-raised-2: #3A2029; --f-raised-rgb: 58, 32, 41; --f-deep: #10070A;
-  --f-accent: #EE9A8E; --f-accent-rgb: 238, 154, 142; --f-accent-hi: #F6B9AF; --f-accent-2: #DB7D71; --f-accent-3: #BC6156; --f-accent-pale: #FBD9D3; --f-court: #A97C86;
-  --f-on: #2A0D12; --f-on-rgb: 42, 13, 18;
-  --f-text: #FAEEEE; --f-text-soft: #EBD5D7; --f-text2: #CFB3B7; --f-text3: #A2868C; --f-line-rgb: 246, 218, 222;
-  --f-stripe-a: #22121A; --f-stripe-b: #34202A; --f-female: #F2A9C0;
-  --f-live: #FF5A5F; --f-ok: #9CC78E; --f-warn: #F2C46B; --f-err: #FF7A6E;
-  --f-photo: saturate(.74) sepia(.1) brightness(.95) contrast(1.04); --f-photo-hero: saturate(.84) sepia(.06) contrast(1.04);
+/* ---- Hai theme NỀN SÁNG: chữ mực đậm trên nền sáng; [data-light] sửa các chỗ vốn viết cho nền tối ---- */
+[data-light] {
+  color-scheme: light;
+  --shadow: 0 18px 40px -26px rgba(var(--f-ink-rgb), 0.35);
+  --line: rgba(var(--f-line-rgb), 0.12);
+  --line-strong: rgba(var(--f-accent-rgb), 0.45);
 }
 
-/* Tím đêm & Oải hương — nền tím than, nhấn tím oải hương (đơn sắc, dịu và sang) */
-[data-theme="violet"] {
-  --f-bg: #130E21; --f-bg-rgb: 19, 14, 33; --f-bg2: #19132C; --f-card: #201936; --f-raised: #292143; --f-raised-2: #332A52; --f-raised-rgb: 51, 42, 82; --f-deep: #0E0A18;
-  --f-accent: #B9A8FF; --f-accent-rgb: 185, 168, 255; --f-accent-hi: #D0C5FF; --f-accent-2: #9D89F5; --f-accent-3: #806BDE; --f-accent-pale: #E6E0FF; --f-court: #8E87BD;
-  --f-on: #1A1238; --f-on-rgb: 26, 18, 56;
-  --f-text: #F4F2FC; --f-text-soft: #DDD8F2; --f-text2: #BBB4D8; --f-text3: #8C85AC; --f-line-rgb: 224, 218, 252;
-  --f-stripe-a: #1E1833; --f-stripe-b: #2C2548; --f-female: #F0A6D0;
-  --f-live: #FF5C7A; --f-ok: #8FD3B0; --f-warn: #F5C76E; --f-err: #FF7E8A;
-  --f-photo: saturate(.78) brightness(.96) contrast(1.05); --f-photo-hero: saturate(.86) contrast(1.04);
+/* Xanh dương nhạt — nền trắng ngả xanh trời, nhấn xanh dương; chữ xanh mực */
+[data-theme="sky"] {
+  --f-bg: #F2F7FC; --f-bg-rgb: 242, 247, 252; --f-bg2: #E7F0F9; --f-card: #FFFFFF; --f-raised: #DDEAF6; --f-raised-2: #CCDFF1; --f-raised-rgb: 204, 223, 241; --f-deep: #E4EEF8;
+  --f-accent: #2E7FD0; --f-accent-rgb: 46, 127, 208; --f-accent-hi: #1A62AD; --f-accent-2: #4C96E0; --f-accent-3: #1A62AD; --f-accent-pale: #17558F; --f-court: #6E9CC8;
+  --f-on: #FFFFFF; --f-on-rgb: 255, 255, 255;
+  --f-text: #10243A; --f-text-soft: #22384F; --f-text2: #4A5F76; --f-text3: #6C8198; --f-line-rgb: 16, 36, 58; --f-ink-rgb: 16, 36, 58;
+  --f-stripe-a: #D5E4F2; --f-stripe-b: #BFD4EA; --f-female: #C2557F;
+  --f-live: #DC3D47; --f-ok: #23935A; --f-warn: #B97A0B; --f-err: #CF3F3F;
+  --f-photo: saturate(.95) contrast(1.02); --f-photo-hero: saturate(.98) contrast(1.02);
+}
+
+/* Xanh chuối — nền kem ngả xanh lá non, nhấn xanh chuối; chữ xanh rêu đậm */
+[data-theme="banana"] {
+  --f-bg: #F6F8EC; --f-bg-rgb: 246, 248, 236; --f-bg2: #ECF2DA; --f-card: #FFFFFF; --f-raised: #E1EBC5; --f-raised-2: #D3E2AE; --f-raised-rgb: 211, 226, 174; --f-deep: #E9F0D5;
+  --f-accent: #8CC234; --f-accent-rgb: 140, 194, 52; --f-accent-hi: #4C7A12; --f-accent-2: #A3D255; --f-accent-3: #5C8F1A; --f-accent-pale: #436A10; --f-court: #8AA05F;
+  --f-on: #1B2808; --f-on-rgb: 27, 40, 8;
+  --f-text: #1B2410; --f-text-soft: #2D3A1C; --f-text2: #55613F; --f-text3: #778363; --f-line-rgb: 27, 36, 16; --f-ink-rgb: 27, 36, 16;
+  --f-stripe-a: #DFE9C6; --f-stripe-b: #C9DAA2; --f-female: #C2557F;
+  --f-live: #DC3D47; --f-ok: #2F8F44; --f-warn: #B97A0B; --f-err: #CF3F3F;
+  --f-photo: saturate(.95) contrast(1.02); --f-photo-hero: saturate(.98) contrast(1.02);
 }
 
 /* ---------- Nền tảng ---------- */
@@ -206,8 +214,8 @@ button { font: inherit; }
 .tsw::after { content: ''; position: absolute; inset: 9px; border-radius: 50%; background: var(--sw-ac); }
 .tsw-dark { --sw-bg: #0C1322; --sw-ac: #D4F53C; }
 .tsw-luxe { --sw-bg: #1B1814; --sw-ac: #DDB552; }
-.tsw-wine { --sw-bg: #2A141B; --sw-ac: #EE9A8E; }
-.tsw-violet { --sw-bg: #231B3D; --sw-ac: #B9A8FF; }
+.tsw-sky { --sw-bg: #E7F0F9; --sw-ac: #2E7FD0; }
+.tsw-banana { --sw-bg: #ECF2DA; --sw-ac: #8CC234; }
 [data-theme="dark"] .icon-sun, [data-flat] .icon-moon { display: block; }
 [data-theme="dark"] .icon-moon, [data-flat] .icon-sun { display: none; }
 
@@ -1979,3 +1987,21 @@ input[type="file"].input::file-selector-button { font: inherit; font-weight: 600
 [data-flat] span[aria-label][style*="#60A5FA"] { color: var(--f-accent-hi) !important; }
 [data-flat] span[aria-label][style*="#F472B6"] { color: var(--f-female) !important; }
 [data-flat] .ecard-ambient { display: none !important; }
+
+/* ==========================================================================
+   THEME NỀN SÁNG (Xanh dương nhạt · Xanh chuối): chữ vốn trắng trên mặt phẳng → chữ mực
+   ========================================================================== */
+[data-flat] .spec-sub.gold-sub { color: var(--f-accent-hi) !important; }
+[data-light] .tournament-tags .tournament-tag { background: rgba(var(--f-accent-rgb), .12) !important; border-color: rgba(var(--f-accent-rgb), .35) !important; }
+[data-light] .paddle-horizontal .h-player-name { color: var(--f-text) !important; }
+[data-light] .paddle-horizontal .h-pts-label, [data-light] .paddle-horizontal .h-player-sub { color: var(--f-text3) !important; }
+[data-light] .tournament-tag.more { background: rgba(var(--f-line-rgb), .05); border-color: rgba(var(--f-line-rgb), .14); }
+
+/* Bóng chữ vốn để nổi chữ trên nền tối → trên nền sáng thành quầng nhoè: bỏ hết */
+[data-light] body * { text-shadow: none !important; }
+/* Ô logo nhà tài trợ: nền trắng, viền mảnh */
+[data-light] .sp-tile { background: var(--f-card) !important; border-color: rgba(var(--f-line-rgb), .14) !important; }
+/* Chữ dùng trực tiếp màu nhấn (--ball/--gold/--court): trên nền sáng đổi sang mực đậm của màu nhấn để đủ tương phản */
+[data-light] :is(.ecard .event-tag, .qa-gold, .date-badge .db-month, .spec-label.gold-label, .h-points, .rm-foot, .tb-pts, .sb-row.lead .sb-score, .sb-cta,
+  .tx-title-sm, .ldc-quote-icon, .lpc-badge, .event-official-badge, .hero-sport .hero-features svg, .spec-icon) { color: var(--f-accent-hi) !important; }
+[data-light] :is(.ecard h3 a, .ecard .tournament-title a, .qa-link, .breadcrumb-back, .podium-names .p-link):hover { color: var(--f-accent-hi) !important; }

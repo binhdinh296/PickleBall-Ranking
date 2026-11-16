@@ -16,11 +16,14 @@
   }
   window.PR = { postJSON: postJSON, csrf: csrf };
 
-  // ---- Chọn giao diện: Midnight · Vàng sâm panh · Vang đỏ & Hồng đào · Tím đêm & Oải hương ----
+  // ---- Chọn giao diện: Midnight · Vàng sâm panh (nền tối) · Xanh dương nhạt · Xanh chuối (nền sáng) ----
+  var LIGHT_THEMES = ['sky', 'banana'];
   function applyTheme(t) {
     root.setAttribute('data-theme', t);
     if (t === 'dark') root.removeAttribute('data-flat');
     else root.setAttribute('data-flat', '');
+    if (LIGHT_THEMES.indexOf(t) > -1) root.setAttribute('data-light', '');
+    else root.removeAttribute('data-light');
     try { localStorage.setItem('theme', t); } catch (e) { /* bỏ qua */ }
     $$('[data-theme-opt]').forEach(function (o) { o.setAttribute('aria-checked', String(o.getAttribute('data-theme-opt') === t)); });
   }

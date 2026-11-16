@@ -749,3 +749,12 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
 [data-flat] .cta-inner { background: var(--f-bg2) !important; }
 [data-flat] .cta-inner .info-tile { background: var(--f-card) !important; box-shadow: none !important; }
 [data-flat] .cta-inner .step-num { background: transparent !important; border: 1px solid var(--f-accent) !important; color: var(--f-accent-hi) !important; text-shadow: none !important; box-shadow: none !important; }
+
+/* Bước "Bạn đang ở trình nào": tiêu đề bước theo màu chữ của theme */
+[data-flat] .cta-inner .step-content strong { color: var(--f-text); }
+/* THEME NỀN SÁNG: tên/điểm VĐV trên băng sáng của mặt vợt dùng chữ mực */
+[data-light] .paddle-caption { color: var(--f-text); }
+[data-light] .p-name { text-shadow: none; }
+[data-light] .p-pts small { color: var(--f-text3); }
+[data-light] .paddle .paddle-shade { background: linear-gradient(180deg, transparent 62%, rgba(var(--f-bg-rgb), .95) 62%) !important; }
+
