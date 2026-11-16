@@ -2,7 +2,7 @@
 <% const closed = !ev.registration_open || ev.status === 'ended'; %>
 <section class="page-head glow">
   <div class="container stack" style="--gap: 18px; max-width: 920px;">
-    <% if (!locals.lite) { %><%- include('../partials/event-nav', { current: 'register' }) %><% } %>
+    <%- include('../partials/event-nav', { current: 'register' }) %>
     <div><span class="eyebrow">ĐĂNG KÝ THI ĐẤU</span><h1 class="h1" style="font-size: clamp(26px, 6.5vw, 42px);"><%= ev.name %></h1></div>
   </div>
 </section>
@@ -13,8 +13,7 @@
       <span class="chip chip-brand">Đăng ký thành công</span>
       <h2 style="font-size: 24px; font-weight: 800;">Đã ghi nhận đăng ký <%= doneDivision.name %></h2>
       <p class="muted">Đăng ký ở trạng thái "Mới đăng ký" và chờ ban tổ chức duyệt.</p>
-      <% if (locals.lite) { %><div class="row" style="justify-content: center;"><a class="btn btn-brand" href="<%= formAction %>">Đăng ký thêm</a><a class="btn" href="/giai-dau/<%= ev.slug %>/danh-sach?d=<%= doneDivision.id %>">Xem danh sách đăng ký</a></div>
-      <% } else { %><div class="row" style="justify-content: center;"><a class="btn btn-brand" href="/giai-dau/<%= ev.slug %>/danh-sach?d=<%= doneDivision.id %>">Xem danh sách</a><a class="btn" href="/giai-dau/<%= ev.slug %>/dang-ky">Đăng ký thêm</a></div><% } %>
+      <div class="row" style="justify-content: center;"><a class="btn btn-brand" href="/giai-dau/<%= ev.slug %>/danh-sach?d=<%= doneDivision.id %>">Xem danh sách</a><a class="btn" href="/giai-dau/<%= ev.slug %>/dang-ky">Đăng ký thêm</a></div>
     </div>
     <% } else if (closed) { %>
     <div class="empty">Giải đã đóng đăng ký.</div>
@@ -65,5 +64,4 @@
     <% } %>
   </div>
 </section>
-<% if (locals.lite) { %><p class="tiny faint" style="text-align: center; padding: 0 16px 32px;">Đăng ký qua hệ thống <a class="link" href="/giai-dau/<%= ev.slug %>"><%= site.site_name %></a> · <a class="link" href="/chinh-sach-quyen-rieng-tu">Chính sách quyền riêng tư</a></p><% } %>
 <%- include('../partials/bottom') %>

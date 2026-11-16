@@ -18,6 +18,7 @@
 <% if (locals.cropper) { %><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"><% } %>
 <link rel="stylesheet" href="/static/css/app.css?v=<%= locals.assetV || "" %>">
 <% if (locals.pageScript) { %><link rel="stylesheet" href="/static/css/<%= pageScript %>.css?v=<%= locals.assetV || "" %>"><% } %>
+<% if (locals.pageStyle) { %><link rel="stylesheet" href="/static/css/<%= pageStyle %>.css?v=<%= locals.assetV || "" %>"><% } %>
 <% if (locals.admin) { %><link rel="stylesheet" href="/static/css/admin.css?v=<%= locals.assetV || "" %>"><% } %>
 <script src="/static/js/theme.js?v=<%= locals.assetV || "" %>"></script>
 </head>

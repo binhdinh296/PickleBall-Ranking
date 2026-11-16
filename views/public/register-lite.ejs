@@ -1,0 +1,83 @@
+<%- include('../partials/top') %>
+<%
+  // Trang đăng ký gọn cho link /<mã>/dangky: banner giải → thẻ trắng: 2 ô VĐV (xanh / đỏ) → nút chọn nội dung → xác nhận
+  const closed = !ev.registration_open || ev.status === 'ended';
+  const title = /^giải\b/i.test(ev.name.trim()) ? ev.name : `Giải ${ev.name}`;
+  // Tách từ cuối để làm nổi (vd. "Đôi nữ" + "3.2", "Đôi nam" + "Newbie")
+  const split = (name) => { const w = String(name).trim().split(/\s+/); const last = w.pop(); return { head: w.join(' '), tail: last }; };
+  const limit = (d) => [d.subtitle, d.max_total_points ? `Tổng ≤ ${fmt.pts(d.max_total_points)}` : null,
+    d.max_player_points ? `Mỗi VĐV ≤ ${fmt.pts(d.max_player_points)}` : null, d.gender_rule !== 'any' ? fmt.GENDER_RULE_LABEL[d.gender_rule] : null].filter(Boolean).join(' · ');
+  const icon = (n) => include('../partials/icon', { name: n });
+%>
+<div class="rl">
+  <% if (ev.banner) { %><div class="rl-banner"><img src="<%= ev.banner %>" alt="<%= ev.name %>"></div><% } %>
+  <div class="rl-card">
+    <h1 class="rl-title">Đăng ký <%= title %></h1>
+    <p class="rl-meta"><%= fmt.dateVN(ev.start_date) %><%= ev.end_date !== ev.start_date ? ` – ${fmt.dateVN(ev.end_date)}` : '' %><%= ev.venue ? ` · ${ev.venue}` : '' %></p>
+
+    <% if (done) { %>
+    <div class="rl-done" role="status">
+      <span class="rl-done-ico" aria-hidden="true">✓</span>
+      <h2>Đăng ký thành công</h2>
+      <p>Đã ghi nhận đăng ký nội dung <strong><%= doneDivision.name %></strong>. Ban tổ chức sẽ duyệt và liên hệ qua số điện thoại đã đăng ký.</p>
+      <div class="rl-done-actions"><a class="rl-submit" href="<%= formAction %>">Đăng ký thêm đôi khác</a><a class="rl-link" href="/giai-dau/<%= ev.slug %>/danh-sach?d=<%= doneDivision.id %>">Xem danh sách đăng ký</a></div>
+    </div>
+    <% } else if (closed) { %>
+    <div class="rl-empty">Giải đã đóng đăng ký.</div>
+    <% } else if (!ev.divisions.length) { %>
+    <div class="rl-empty">Giải chưa mở nội dung thi đấu.</div>
+    <% } else { %>
+    <form class="rl-form" method="post" action="<%= formAction %>" data-once novalidate>
+      <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+      <% if (error) { %><div class="rl-error" role="alert"><%= error %></div><% } %>
+
+      <div class="rl-players">
+        <% [1, 2].forEach((n) => { %>
+        <fieldset class="rl-player rl-p<%= n %>" data-lookup>
+          <legend class="rl-ptitle"><%- icon('users') %>Vận động viên <%= n %></legend>
+          <div class="rl-field">
+            <label for="full_name<%= n %>">Họ và tên</label>
+            <input class="rl-input" id="full_name<%= n %>" name="full_name<%= n %>" maxlength="80" required data-lookup-name autocomplete="<%= n === 1 ? 'name' : 'off' %>" placeholder="Ví dụ: <%= n === 1 ? 'Nguyễn Văn A' : 'Trần Thị B' %>" value="<%= values[`name${n}`] || '' %>">
+          </div>
+          <div class="rl-row">
+            <div class="rl-field">
+              <label for="phone<%= n %>">Số điện thoại</label>
+              <input class="rl-input" id="phone<%= n %>" name="phone<%= n %>" type="tel" inputmode="tel" autocomplete="<%= n === 1 ? 'tel' : 'off' %>" maxlength="16" required data-phone placeholder="09xx xxx xxx" value="<%= values[`phone${n}`] || '' %>">
+              <span class="rl-hint" data-phone-hint data-default=""></span>
+            </div>
+            <div class="rl-field">
+              <label for="trinh<%= n %>">Trình độ</label>
+              <input class="rl-input tnum" id="trinh<%= n %>" name="trinh<%= n %>" inputmode="decimal" required data-lookup-points placeholder="Ví dụ 3.500" value="<%= values[`trinh${n}`] || '' %>">
+            </div>
+          </div>
+          <span class="rl-hint" data-lookup-status aria-live="polite"></span>
+        </fieldset>
+        <% }) %>
+      </div>
+
+      <fieldset class="rl-divset">
+        <legend class="rl-sec">Nội dung đăng ký<small>(xin vui lòng lựa chọn)</small></legend>
+        <div class="rl-divs">
+          <% ev.divisions.forEach((d) => { const checked = String(values.division_id) === String(d.id) || (!values.division_id && ev.divisions.length === 1); const s = split(d.name); const lim = limit(d); %>
+          <label class="rl-div">
+            <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required>
+            <% if (d.banner) { %>
+            <span class="rl-badge rl-badge-img"><img src="<%= d.banner %>" alt="<%= d.name %>" loading="lazy"></span>
+            <% } else { %>
+            <span class="rl-badge"><span class="rl-badge-in"><% if (s.head) { %><span class="rl-bh"><%= s.head %></span><% } %><b class="rl-bt"><%= s.tail %></b></span></span>
+            <% } %>
+            <% if (lim) { %><small class="rl-lim"><%= lim %></small><% } %>
+          </label>
+          <% }) %>
+        </div>
+      </fieldset>
+
+      <% if (otpEnabled) { %><div class="rl-otp"><%- include('../partials/otp', { purpose: 'registration', phoneInput: 'phone1', who: 'VĐV 1' }) %></div><% } %>
+      <label class="rl-consent"><input type="checkbox" name="consent" value="1" required><span>Tôi xác nhận thông tin đúng và đồng ý cho ban tổ chức xử lý dữ liệu theo <a href="/chinh-sach-quyen-rieng-tu" target="_blank">chính sách quyền riêng tư</a>. Danh sách công khai chỉ hiện tên, không hiện số điện thoại.</span></label>
+      <button class="rl-submit" type="submit">Xác nhận đăng ký</button>
+    </form>
+    <% } %>
+  </div>
+  <p class="rl-foot">© <%= new Date().getFullYear() %> <a href="/giai-dau/<%= ev.slug %>"><%= site.site_name %></a> · <a href="/chinh-sach-quyen-rieng-tu">Chính sách quyền riêng tư</a></p>
+</div>
+<%- include('../partials/bottom') %>

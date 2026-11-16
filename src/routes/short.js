@@ -18,7 +18,7 @@ async function loadByCode(req, res, next) {
   if (!org) return next('route');
   const ev = org.event_id ? await get('SELECT * FROM events WHERE id = ? AND published', org.event_id) : null;
   if (!ev) {
-    return res.status(200).render('public/register-pending', { title: 'Đăng ký thi đấu', org, bare: true });
+    return res.status(200).render('public/register-pending', { title: 'Đăng ký thi đấu', org, bare: true, pageStyle: 'reglite' });
   }
   ev.status = fmt.eventStatus(ev);
   ev.divisions = await all('SELECT * FROM divisions WHERE event_id = ? ORDER BY sort_order, id', ev.id);

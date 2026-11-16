@@ -105,10 +105,11 @@ router.get('/:slug', wrap(loadEvent), wrap(async (req, res) => {
 // ---- Đăng ký thi đấu ----
 // opts.lite: trang đăng ký gọn (link ngắn /<mã>/dangky gửi cho người lạ) — cùng form, cùng cách kiểm tra
 function registerView(res, ev, extra, opts = {}) {
-  res.render('public/register', {
+  res.render(opts.lite ? 'public/register-lite' : 'public/register', {
     title: `Đăng ký – ${ev.name}`, ev, values: {}, error: null, done: false,
     otpEnabled: otp.isEnabled('registration'),
-    formAction: opts.formAction || `/giai-dau/${ev.slug}/dang-ky`, lite: !!opts.lite, bare: !!opts.lite, ...extra,
+    formAction: opts.formAction || `/giai-dau/${ev.slug}/dang-ky`,
+    ...(opts.lite ? { bare: true, pageStyle: 'reglite' } : {}), ...extra,
   });
 }
 
