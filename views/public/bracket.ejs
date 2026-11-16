@@ -66,17 +66,37 @@
       <% }) %>
     </div>
     <% } else { %>
+    <%
+      // Ô còn trống ghi "Thắng T1" thay cho "—"; đường nối chỉ vẽ khi mỗi vòng đúng bằng nửa vòng trước (cây loại trực tiếp chuẩn)
+      const feeders = {};
+      data.matches.forEach((x) => { if (x.next_match_id && x.next_slot) feeders[`${x.next_match_id}${x.next_slot}`] = x.code; });
+      const tree = data.rounds.length > 1 && data.rounds.every((r, i) => i === 0 || r.matches.length * 2 === data.rounds[i - 1].matches.length);
+      const last = data.rounds[data.rounds.length - 1];
+      const fm = last && last.matches.length === 1 ? last.matches[0] : null;
+      let champ = null;
+      if (fm && fm.status === 'done') {
+        const ta = fm.team_a_id ? data.teamMap[fm.team_a_id] : null, tb = fm.team_b_id ? data.teamMap[fm.team_b_id] : null;
+        const aWin = ta && (!tb || (fm.score_a ?? -1) > (fm.score_b ?? -1));
+        champ = aWin ? (fm.players_a || ta.name) : tb ? (fm.players_b || tb.name) : null;
+      }
+    %>
     <p class="tiny faint hide-desktop">Vuốt ngang để xem các vòng tiếp theo →</p>
     <div class="bracket-scroll">
-      <div class="bracket">
-        <% data.rounds.forEach((r) => { %>
-        <div class="round">
-          <div class="round-title"><%= r.name %></div>
+      <div class="bracket<%= tree ? ' is-tree' : '' %>">
+        <% data.rounds.forEach((r, ri) => { %>
+        <div class="round<%= ri === data.rounds.length - 1 ? ' is-final' : '' %>">
+          <div class="round-title"><%= r.name %><small><%= r.matches.length %> trận</small></div>
           <div class="round-body">
-            <% r.matches.forEach((m) => { %><%- include('../partials/match-card', { m, teamMap: data.teamMap, streams: data.streams }) %><% }) %>
+            <% r.matches.forEach((m) => { %><div class="slot"><%- include('../partials/match-card', { m, teamMap: data.teamMap, streams: data.streams, feeders }) %></div><% }) %>
           </div>
         </div>
         <% }) %>
+        <% if (champ) { %>
+        <div class="round round-champ">
+          <div class="round-title">Vô địch<small>Chung cuộc</small></div>
+          <div class="round-body"><div class="slot"><div class="champ-card"><%- include('../partials/icon', { name: 'trophy' }) %><span class="champ-label">Nhà vô địch</span><strong><%= champ %></strong></div></div></div>
+        </div>
+        <% } %>
       </div>
     </div>
     <% } %>

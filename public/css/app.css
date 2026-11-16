@@ -89,34 +89,26 @@
   --f-photo: saturate(.66) sepia(.22) brightness(.95) contrast(1.04); --f-photo-hero: saturate(.8) sepia(.1) contrast(1.04);
 }
 
-/* ---- Hai theme NỀN SÁNG: chữ mực đậm trên nền sáng; [data-light] sửa các chỗ vốn viết cho nền tối ---- */
-[data-light] {
-  color-scheme: light;
-  --shadow: 0 18px 40px -26px rgba(var(--f-ink-rgb), 0.35);
-  --line: rgba(var(--f-line-rgb), 0.12);
-  --line-strong: rgba(var(--f-accent-rgb), 0.45);
-}
-
-/* Xanh dương nhạt — nền trắng ngả xanh trời, nhấn xanh dương; chữ xanh mực */
+/* Xanh dương nhạt — nền than chì lạnh, nhấn xanh da trời nhạt; chữ trắng ngả xanh */
 [data-theme="sky"] {
-  --f-bg: #F2F7FC; --f-bg-rgb: 242, 247, 252; --f-bg2: #E7F0F9; --f-card: #FFFFFF; --f-raised: #DDEAF6; --f-raised-2: #CCDFF1; --f-raised-rgb: 204, 223, 241; --f-deep: #E4EEF8;
-  --f-accent: #2E7FD0; --f-accent-rgb: 46, 127, 208; --f-accent-hi: #1A62AD; --f-accent-2: #4C96E0; --f-accent-3: #1A62AD; --f-accent-pale: #17558F; --f-court: #6E9CC8;
-  --f-on: #FFFFFF; --f-on-rgb: 255, 255, 255;
-  --f-text: #10243A; --f-text-soft: #22384F; --f-text2: #4A5F76; --f-text3: #6C8198; --f-line-rgb: 16, 36, 58; --f-ink-rgb: 16, 36, 58;
-  --f-stripe-a: #D5E4F2; --f-stripe-b: #BFD4EA; --f-female: #C2557F;
-  --f-live: #DC3D47; --f-ok: #23935A; --f-warn: #B97A0B; --f-err: #CF3F3F;
-  --f-photo: saturate(.95) contrast(1.02); --f-photo-hero: saturate(.98) contrast(1.02);
+  --f-bg: #0B1118; --f-bg-rgb: 11, 17, 24; --f-bg2: #101820; --f-card: #141E28; --f-raised: #1A2633; --f-raised-2: #213040; --f-raised-rgb: 33, 48, 64; --f-deep: #080D13;
+  --f-accent: #7CC0F2; --f-accent-rgb: 124, 192, 242; --f-accent-hi: #A6D5F7; --f-accent-2: #5AA9E6; --f-accent-3: #3E8FD0; --f-accent-pale: #CFE8FB; --f-court: #6F93B3;
+  --f-on: #08131F; --f-on-rgb: 8, 19, 31;
+  --f-text: #EAF2FA; --f-text-soft: #D6E3F0; --f-text2: #A3B4C6; --f-text3: #7C8EA1; --f-line-rgb: 200, 220, 240;
+  --f-stripe-a: #16212C; --f-stripe-b: #1F2D3B; --f-female: #E3A3B8;
+  --f-live: #E5484D; --f-ok: #6CC08B; --f-warn: #E7B450; --f-err: #EE6B6B;
+  --f-photo: saturate(.82) contrast(1.04); --f-photo-hero: saturate(.9) contrast(1.04);
 }
 
-/* Xanh chuối — nền kem ngả xanh lá non, nhấn xanh chuối; chữ xanh rêu đậm */
+/* Xanh chuối — nền đen ngả rêu, nhấn xanh chuối; chữ trắng ngà ngả xanh */
 [data-theme="banana"] {
-  --f-bg: #F6F8EC; --f-bg-rgb: 246, 248, 236; --f-bg2: #ECF2DA; --f-card: #FFFFFF; --f-raised: #E1EBC5; --f-raised-2: #D3E2AE; --f-raised-rgb: 211, 226, 174; --f-deep: #E9F0D5;
-  --f-accent: #8CC234; --f-accent-rgb: 140, 194, 52; --f-accent-hi: #4C7A12; --f-accent-2: #A3D255; --f-accent-3: #5C8F1A; --f-accent-pale: #436A10; --f-court: #8AA05F;
-  --f-on: #1B2808; --f-on-rgb: 27, 40, 8;
-  --f-text: #1B2410; --f-text-soft: #2D3A1C; --f-text2: #55613F; --f-text3: #778363; --f-line-rgb: 27, 36, 16; --f-ink-rgb: 27, 36, 16;
-  --f-stripe-a: #DFE9C6; --f-stripe-b: #C9DAA2; --f-female: #C2557F;
-  --f-live: #DC3D47; --f-ok: #2F8F44; --f-warn: #B97A0B; --f-err: #CF3F3F;
-  --f-photo: saturate(.95) contrast(1.02); --f-photo-hero: saturate(.98) contrast(1.02);
+  --f-bg: #0E110A; --f-bg-rgb: 14, 17, 10; --f-bg2: #13170D; --f-card: #191E11; --f-raised: #212817; --f-raised-2: #2A331C; --f-raised-rgb: 42, 51, 28; --f-deep: #0A0C07;
+  --f-accent: #A4D046; --f-accent-rgb: 164, 208, 70; --f-accent-hi: #C2E27A; --f-accent-2: #8CBB2E; --f-accent-3: #6E9A1E; --f-accent-pale: #DDEFB5; --f-court: #8C9B6A;
+  --f-on: #141B07; --f-on-rgb: 20, 27, 7;
+  --f-text: #F1F4E8; --f-text-soft: #E1E8D0; --f-text2: #B3BC9F; --f-text3: #8A9477; --f-line-rgb: 225, 235, 200;
+  --f-stripe-a: #1C2213; --f-stripe-b: #273019; --f-female: #DDA3A0;
+  --f-live: #E0524B; --f-ok: #7FC77A; --f-warn: #E5B44C; --f-err: #E86A5E;
+  --f-photo: saturate(.8) contrast(1.04); --f-photo-hero: saturate(.9) contrast(1.04);
 }
 
 /* ---------- Nền tảng ---------- */
@@ -214,8 +206,8 @@ button { font: inherit; }
 .tsw::after { content: ''; position: absolute; inset: 9px; border-radius: 50%; background: var(--sw-ac); }
 .tsw-dark { --sw-bg: #0C1322; --sw-ac: #D4F53C; }
 .tsw-luxe { --sw-bg: #1B1814; --sw-ac: #DDB552; }
-.tsw-sky { --sw-bg: #E7F0F9; --sw-ac: #2E7FD0; }
-.tsw-banana { --sw-bg: #ECF2DA; --sw-ac: #8CC234; }
+.tsw-sky { --sw-bg: #141E28; --sw-ac: #7CC0F2; }
+.tsw-banana { --sw-bg: #191E11; --sw-ac: #A4D046; }
 [data-theme="dark"] .icon-sun, [data-flat] .icon-moon { display: block; }
 [data-theme="dark"] .icon-moon, [data-flat] .icon-sun { display: none; }
 
@@ -1663,28 +1655,75 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; white-s
   border-color: rgba(251, 191, 36, 0.35);
 }
 
-/* ---------- Nhánh đấu ---------- */
+/* ---------- Nhánh đấu ----------
+   Thẻ trận nổi hẳn trên nền (mặt sáng hơn, viền rõ), đội thắng có vạch + ô điểm màu nhấn,
+   đường nối giữa các vòng khi là cây loại trực tiếp chuẩn (.is-tree). Dùng biến chung nên đúng với cả 4 theme. */
 .bracket-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; padding-bottom: 12px; margin-inline: -16px; padding-inline: 16px; scroll-padding-inline: 16px; }
 @media (min-width: 900px) { .bracket-scroll { scroll-snap-type: none; margin-inline: 0; padding-inline: 0; } }
-.bracket { display: flex; gap: 14px; width: max-content; min-width: 100%; }
-.bracket .round { width: min(78vw, 260px); flex: none; display: flex; flex-direction: column; gap: 12px; scroll-snap-align: start; }
-.bracket .round-title { position: sticky; top: 0; text-align: center; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 8px; border-radius: var(--r-sm); background: var(--card-solid); border: 1px solid var(--line); }
-.bracket .round-body { display: flex; flex-direction: column; justify-content: space-around; gap: 12px; flex: 1; }
-.mcard { border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--card-solid); overflow: hidden; font-size: 14px; }
-.mcard.live { border-color: color-mix(in oklab, var(--live) 60%, transparent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--live) 18%, transparent); }
-.mcard .mhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 10px; font-size: 12px; font-weight: 700; color: var(--text-3); border-bottom: 1px solid var(--line); }
-.mcard .side { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 10px; }
-.mcard .side + .side { border-top: 1px solid var(--line); }
-.mcard .side .n { min-width: 0; overflow-wrap: anywhere; line-height: 1.35; }
-.mcard .side .s { font-weight: 800; font-variant-numeric: tabular-nums; min-width: 26px; text-align: right; }
-.mcard .side.win .n { font-weight: 700; color: var(--text); }
-.mcard .side.win .s { color: var(--ink-court); }
-.mcard .side.lose { color: var(--text-3); }
-.mcard .mfoot { display: flex; gap: 6px; padding: 6px 10px 8px; flex-wrap: wrap; }
+.bracket { --bk-gap: 34px; --bk-line: color-mix(in oklab, var(--text) 42%, transparent);
+  display: flex; gap: var(--bk-gap); width: max-content; min-width: 100%; }
+.bracket .round { width: min(80vw, 272px); flex: none; display: flex; flex-direction: column; gap: 14px; scroll-snap-align: start; }
+@media (min-width: 900px) { .bracket .round { flex: 1 0 236px; width: auto; max-width: 340px; } } /* ít vòng: cột giãn cho tên đội đủ một dòng */
+.bracket .round-title { position: sticky; top: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 8px;
+  border-radius: var(--r-sm); text-align: center; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--text);
+  background: color-mix(in oklab, var(--text) 8%, var(--card-solid)); border: 1px solid color-mix(in oklab, var(--text) 14%, transparent); }
+.bracket .round-title small { font-size: 11.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--text-3); }
+.bracket .round.is-final .round-title { background: var(--ball); border-color: var(--ball); color: var(--on-brand); }
+.bracket .round-champ .round-title { background: var(--gold); border-color: var(--gold); color: var(--on-brand); }
+.bracket :is(.is-final, .round-champ) .round-title small { color: color-mix(in oklab, var(--on-brand) 72%, transparent); }
+.bracket .round-body { display: flex; flex-direction: column; justify-content: space-around; gap: 14px; flex: 1; }
+.bracket .slot { position: relative; }
+
+/* Cây chuẩn: mọi ô trong một vòng cao bằng nhau (lưới 1fr), trận vòng sau nằm giữa 2 trận dẫn vào nó */
+.bracket.is-tree .round-body { display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: 1fr; justify-content: normal; gap: 0; }
+.bracket.is-tree .slot { display: flex; flex-direction: column; justify-content: center; padding-block: 9px; }
+.bracket.is-tree .round:not(.is-final):not(.round-champ) .slot::after {
+  content: ''; position: absolute; right: calc(var(--bk-gap) / -2); width: calc(var(--bk-gap) / 2);
+  border: 0 solid var(--bk-line); border-right-width: 2px; pointer-events: none; }
+.bracket.is-tree .round:not(.is-final):not(.round-champ) .slot:nth-child(odd)::after { top: 50%; bottom: 0; border-top-width: 2px; border-top-right-radius: 10px; }
+.bracket.is-tree .round:not(.is-final):not(.round-champ) .slot:nth-child(even)::after { top: 0; bottom: 50%; border-bottom-width: 2px; border-bottom-right-radius: 10px; }
+.bracket.is-tree .round + .round .slot::before {
+  content: ''; position: absolute; left: calc(var(--bk-gap) / -2); width: calc(var(--bk-gap) / 2); top: 50%;
+  border-top: 2px solid var(--bk-line); pointer-events: none; }
+.bracket.is-tree .is-final:has(+ .round-champ) .slot::after {
+  content: ''; position: absolute; right: calc(var(--bk-gap) / -2); width: calc(var(--bk-gap) / 2); top: 50%;
+  border-top: 2px solid var(--bk-line); pointer-events: none; }
+
+/* Thẻ trận */
+.mcard { position: relative; border-radius: var(--r-sm); overflow: hidden; font-size: 14.5px;
+  background: color-mix(in oklab, var(--text) 6%, var(--card-solid)); border: 1px solid color-mix(in oklab, var(--text) 16%, transparent);
+  box-shadow: 0 12px 26px -20px rgba(0, 0, 0, .8); }
+.mcard.live { border-color: color-mix(in oklab, var(--live) 70%, transparent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--live) 20%, transparent); }
+.mcard .mhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 10px 7px 12px; font-size: 12px; font-weight: 600; color: var(--text-2);
+  background: color-mix(in oklab, var(--text) 4%, transparent); border-bottom: 1px solid color-mix(in oklab, var(--text) 10%, transparent); }
+.mcard .mcode { display: inline-flex; align-items: center; gap: 7px; min-width: 0; }
+.mcard .mcode b { padding: 1px 7px; border-radius: 6px; font-weight: 800; letter-spacing: .02em; color: var(--ink-ball); background: color-mix(in oklab, var(--ball) 16%, transparent); }
+.mcard .mstate { color: var(--text-3); }
+.mcard .side { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 10px 9px 12px; color: var(--text); }
+.mcard .side + .side { border-top: 1px solid color-mix(in oklab, var(--text) 9%, transparent); }
+.mcard .side .n { min-width: 0; overflow-wrap: anywhere; line-height: 1.35; font-weight: 600; }
+.mcard .side .s { flex: none; min-width: 30px; height: 26px; padding-inline: 6px; display: inline-grid; place-items: center; border-radius: 7px;
+  font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text-2); }
+.mcard .side .s:empty { visibility: hidden; }
+.mcard .side.win { background: color-mix(in oklab, var(--ball) 10%, transparent); box-shadow: inset 3px 0 0 var(--ball); }
+.mcard .side.win .n { font-weight: 800; }
+.mcard .side.win .s { background: var(--ball); color: var(--on-brand); }
+.mcard .side.lose { color: var(--text-2); }
+.mcard .side.lose .n { font-weight: 500; }
+.mcard .side.lose .s { color: var(--text-3); }
+.mcard .tbd { font-style: normal; font-weight: 500; font-size: 13.5px; color: var(--text-3); }
+.mcard .mfoot { display: flex; gap: 6px; padding: 7px 12px 10px; flex-wrap: wrap; }
+
+/* Ô nhà vô địch sau trận chung kết */
+.champ-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 18px 14px; border-radius: var(--r-md); text-align: center;
+  background: color-mix(in oklab, var(--gold) 14%, var(--card-solid)); border: 1px solid color-mix(in oklab, var(--gold) 55%, transparent); }
+.champ-card svg { width: 30px; height: 30px; color: var(--ink-gold); }
+.champ-card .champ-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-2); }
+.champ-card strong { font-size: 16px; line-height: 1.35; color: var(--text); }
 .stat-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.stat-tile { padding: 14px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--card); }
+.stat-tile { padding: 14px; border-radius: var(--r-md); border: 1px solid color-mix(in oklab, var(--text) 13%, transparent); background: color-mix(in oklab, var(--text) 5%, var(--card-solid)); }
 .stat-tile b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
-.stat-tile span { font-size: 12.5px; color: var(--text-3); }
+.stat-tile span { font-size: 12.5px; color: var(--text-2); }
 .legs { display: flex; gap: 6px; flex-wrap: wrap; }
 .leg { font-size: 12px; padding: 3px 8px; border-radius: 8px; border: 1px solid var(--line); color: var(--text-2); }
 .leg.cur { border-color: var(--ink-court); color: var(--ink-court); font-weight: 700; }
@@ -1988,20 +2027,5 @@ input[type="file"].input::file-selector-button { font: inherit; font-weight: 600
 [data-flat] span[aria-label][style*="#F472B6"] { color: var(--f-female) !important; }
 [data-flat] .ecard-ambient { display: none !important; }
 
-/* ==========================================================================
-   THEME NỀN SÁNG (Xanh dương nhạt · Xanh chuối): chữ vốn trắng trên mặt phẳng → chữ mực
-   ========================================================================== */
 [data-flat] .spec-sub.gold-sub { color: var(--f-accent-hi) !important; }
-[data-light] .tournament-tags .tournament-tag { background: rgba(var(--f-accent-rgb), .12) !important; border-color: rgba(var(--f-accent-rgb), .35) !important; }
-[data-light] .paddle-horizontal .h-player-name { color: var(--f-text) !important; }
-[data-light] .paddle-horizontal .h-pts-label, [data-light] .paddle-horizontal .h-player-sub { color: var(--f-text3) !important; }
-[data-light] .tournament-tag.more { background: rgba(var(--f-line-rgb), .05); border-color: rgba(var(--f-line-rgb), .14); }
 
-/* Bóng chữ vốn để nổi chữ trên nền tối → trên nền sáng thành quầng nhoè: bỏ hết */
-[data-light] body * { text-shadow: none !important; }
-/* Ô logo nhà tài trợ: nền trắng, viền mảnh */
-[data-light] .sp-tile { background: var(--f-card) !important; border-color: rgba(var(--f-line-rgb), .14) !important; }
-/* Chữ dùng trực tiếp màu nhấn (--ball/--gold/--court): trên nền sáng đổi sang mực đậm của màu nhấn để đủ tương phản */
-[data-light] :is(.ecard .event-tag, .qa-gold, .date-badge .db-month, .spec-label.gold-label, .h-points, .rm-foot, .tb-pts, .sb-row.lead .sb-score, .sb-cta,
-  .tx-title-sm, .ldc-quote-icon, .lpc-badge, .event-official-badge, .hero-sport .hero-features svg, .spec-icon) { color: var(--f-accent-hi) !important; }
-[data-light] :is(.ecard h3 a, .ecard .tournament-title a, .qa-link, .breadcrumb-back, .podium-names .p-link):hover { color: var(--f-accent-hi) !important; }

@@ -6,11 +6,12 @@
   const bWin = done && tb && (!ta || (m.score_b ?? -1) > (m.score_a ?? -1));
   const bye = done && (!ta || !tb);
   const stream = m.live_stream_id ? streams[m.live_stream_id] : null;
+  const feeders = locals.feeders || {}; // mã trận dẫn vào từng ô (để ghi "Thắng T1")
 %>
 <div class="mcard <%= m.status === 'live' ? 'live' : '' %>">
-  <div class="mhead"><span><%= m.code || '' %><%= m.court ? ` · ${m.court}` : '' %></span><% if (m.status === 'live') { %><span class="chip chip-live" style="padding: 2px 8px;">ĐANG ĐẤU</span><% } else if (bye) { %><span>BYE</span><% } else if (done) { %><span class="chip chip-ok" style="padding: 2px 8px;">ĐÃ XONG</span><% } else { %><span>Chưa đấu</span><% } %></div>
-  <div class="side <%= aWin ? 'win' : bWin ? 'lose' : '' %>"><span class="n"><%= m.players_a || (ta ? ta.name : '—') %></span><span class="s"><%= bye ? '' : (m.score_a ?? '') %></span></div>
-  <div class="side <%= bWin ? 'win' : aWin ? 'lose' : '' %>"><span class="n"><%= m.players_b || (tb ? tb.name : (bye ? 'Miễn đấu' : '—')) %></span><span class="s"><%= bye ? '' : (m.score_b ?? '') %></span></div>
+  <div class="mhead"><span class="mcode"><% if (m.code) { %><b><%= m.code %></b><% } %><%= m.court || '' %></span><% if (m.status === 'live') { %><span class="chip chip-live" style="padding: 2px 8px;">ĐANG ĐẤU</span><% } else if (bye) { %><span class="mstate">BYE</span><% } else if (done) { %><span class="chip chip-ok" style="padding: 2px 8px;">ĐÃ XONG</span><% } else { %><span class="mstate">Chưa đấu</span><% } %></div>
+  <div class="side <%= aWin ? 'win' : bWin ? 'lose' : '' %>"><span class="n"><% if (m.players_a || ta) { %><%= m.players_a || ta.name %><% } else { %><em class="tbd"><%= feeders[`${m.id}a`] ? `Thắng ${feeders[`${m.id}a`]}` : 'Chờ xác định' %></em><% } %></span><span class="s"><%= bye ? '' : (m.score_a ?? '') %></span></div>
+  <div class="side <%= bWin ? 'win' : aWin ? 'lose' : '' %>"><span class="n"><% if (m.players_b || tb) { %><%= m.players_b || tb.name %><% } else if (bye) { %><em class="tbd">Miễn đấu</em><% } else { %><em class="tbd"><%= feeders[`${m.id}b`] ? `Thắng ${feeders[`${m.id}b`]}` : 'Chờ xác định' %></em><% } %></span><span class="s"><%= bye ? '' : (m.score_b ?? '') %></span></div>
   <% if (m.legs && m.legs.length) { %><div class="mfoot legs"><% m.legs.forEach((p, i) => { %><span class="leg <%= m.current_leg === i + 1 && m.status === 'live' ? 'cur' : '' %>">Chặng <%= i + 1 %><%= p ? ` · ${p}` : '' %> · <%= (d.relay_step || 11) * (i + 1) %></span><% }) %></div><% } %>
   <% if (stream && stream.youtube_video_id && (m.status === 'live' || (done && m.video_offset !== null))) { %>
   <div class="mfoot">

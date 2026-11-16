@@ -56,6 +56,7 @@
 
 <h2 class="section-title">3. Trận đấu (<%= matches.length %>) · bấm "Nhập tỉ số" để cập nhật</h2>
 <% if (!matches.length) { %><div class="empty">Chưa có trận nào.</div><% } else { %>
+<% const feeders = {}; matches.forEach((x) => { if (x.next_match_id && x.next_slot) feeders[`${x.next_match_id}${x.next_slot}`] = x.code; }); %>
 <div class="bracket-scroll admin-bracket">
   <div class="bracket">
     <% rounds.forEach((r) => { %>
@@ -64,7 +65,7 @@
       <div class="round-body">
         <% r.matches.forEach((m) => { %>
         <div>
-          <%- include('../partials/match-card', { m, teamMap, streams: streamsMap, d, ev }) %>
+          <%- include('../partials/match-card', { m, teamMap, streams: streamsMap, d, ev, feeders }) %>
           <a class="btn btn-sm btn-block" style="margin-top: 6px;" href="/admin/tran/<%= m.id %>">Nhập tỉ số</a>
         </div>
         <% }) %>

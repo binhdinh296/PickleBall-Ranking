@@ -109,10 +109,3 @@
 [data-flat] .sx-photo::after { background: linear-gradient(180deg, transparent 52%, rgba(var(--f-bg-rgb), .86) 52%); border-bottom: 0; } /* băng đặc cắt cứng */
 [data-flat] .sx-eyebrow { color: var(--f-accent-hi); }
 [data-flat] .sx-title { color: var(--f-text); text-shadow: none; }
-/* THEME NỀN SÁNG: băng dưới ảnh dùng màu mực đậm để chữ trắng trên ảnh vẫn rõ */
-[data-light] .sx-photo::after { background: linear-gradient(180deg, transparent 52%, rgba(var(--f-ink-rgb), .86) 52%); }
-[data-light] .sx-visual { color: #FFFFFF; }
-[data-light] .sx-eyebrow { color: rgba(255, 255, 255, .82); }
-[data-light] .sx-title { color: #FFFFFF; }
-[data-light] .sx-title em { color: var(--f-accent-2); }
-

@@ -2,11 +2,10 @@
 const THEMES = [
   { id: 'dark', name: 'Midnight', desc: 'Nền tối · navy, xanh chanh' },
   { id: 'luxe', name: 'Vàng sâm panh', desc: 'Nền tối · đen huyền, vàng' },
-  { id: 'sky', name: 'Xanh dương nhạt', desc: 'Nền sáng · trắng xanh trời', light: true },
-  { id: 'banana', name: 'Xanh chuối', desc: 'Nền sáng · kem, xanh chuối', light: true },
+  { id: 'sky', name: 'Xanh dương nhạt', desc: 'Nền tối · than chì, xanh trời' },
+  { id: 'banana', name: 'Xanh chuối', desc: 'Nền tối · đen rêu, xanh chuối' },
 ];
 const IDS = THEMES.map((t) => t.id);
-const isLight = (id) => THEMES.some((t) => t.id === id && t.light);
 
 // Chuẩn hoá giá trị lưu trong CSDL: 'blue' (theme cũ) → 'luxe'; giá trị lạ → 'dark'
 function normalizeTheme(v) {
@@ -14,4 +13,4 @@ function normalizeTheme(v) {
   return IDS.includes(v) ? v : 'dark';
 }
 
-module.exports = { THEMES, IDS, isLight, normalizeTheme };
+module.exports = { THEMES, IDS, normalizeTheme };

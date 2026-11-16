@@ -4,7 +4,6 @@
   root.classList.add('js'); // CSS biết JS đang chạy (vd. khối sân hero được dời xuống dưới trên mobile)
   // 'dark' = Midnight; các theme còn lại thuộc nhóm theme phẳng [data-flat]
   var THEMES = ['dark', 'luxe', 'sky', 'banana'];
-  var LIGHT = ['sky', 'banana']; // theme nền sáng: thêm [data-light]
   var saved = null;
   var param = location.search.match(/[?&]theme=(dark|luxe|sky|banana|blue)\b/);
   if (param) {
@@ -29,6 +28,4 @@
   // Màu thương hiệu của theme phẳng nằm trong CSS (!important) nên không cần ghi đè màu CMS trên thẻ html
   if (theme === 'dark') root.removeAttribute('data-flat');
   else root.setAttribute('data-flat', '');
-  if (LIGHT.indexOf(theme) > -1) root.setAttribute('data-light', '');
-  else root.removeAttribute('data-light');
 })();
