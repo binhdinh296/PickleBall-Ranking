@@ -363,6 +363,7 @@
 
 /* ---------- Chuyển động ---------- */
 @keyframes tx-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes tx-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes tx-kenburns { from { transform: scale(1.08); } to { transform: scale(1); } }
 @keyframes tx-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 @media (prefers-reduced-motion: reduce) {
@@ -370,3 +371,49 @@
   .tc, .tc-cover img, .tc-cta-ball { transition: none; }
   .tc:hover, .tc:hover .tc-cover img { transform: none; }
 }
+
+/* ==========================================================================
+   THEME LUXE (Đen huyền & Vàng sâm panh) — trang /giai-dau, PHẲNG, KHÔNG GRADIENT
+   ========================================================================== */
+[data-theme="luxe"] .tx-hero { background: #0F0E0C; color: #F4EFE6; }
+[data-theme="luxe"] .tx-hero-media img { -webkit-mask-image: none; mask-image: none; filter: saturate(.82) contrast(1.04); }
+[data-theme="luxe"] .tx-hero-media::after { background: rgba(15, 14, 12, .62); }
+@media (max-width: 899px) {
+  [data-theme="luxe"] .tx-hero-media img { border-bottom: 1px solid rgba(221, 181, 82, .45); }
+  [data-theme="luxe"] .tx-hero-media::after { height: 340px; bottom: auto; }
+}
+@media (min-width: 1100px) {
+  /* Ảnh cắt chéo sắc nét + nét vàng mảnh, giống hero trang chủ */
+  [data-theme="luxe"] .tx-hero-media img { -webkit-clip-path: polygon(9% 0, 100% 0, 100% 100%, 0 100%); clip-path: polygon(9% 0, 100% 0, 100% 100%, 0 100%);
+    animation: tx-fade .9s ease both; } /* bỏ zoom để mép chéo luôn khớp nét vàng */
+  [data-theme="luxe"] .tx-hero-media::after { left: 34%; width: 66%; background: rgba(15, 14, 12, .16);
+    -webkit-clip-path: polygon(9% 0, 100% 0, 100% 100%, 0 100%); clip-path: polygon(9% 0, 100% 0, 100% 100%, 0 100%); }
+  [data-theme="luxe"] .tx-hero-media::before { content: ''; position: absolute; z-index: 1; top: 0; bottom: 0; left: calc(34% - 2px); width: 66%; background: #DDB552;
+    -webkit-clip-path: polygon(9% 0, calc(9% + 2px) 0, 2px 100%, 0 100%); clip-path: polygon(9% 0, calc(9% + 2px) 0, 2px 100%, 0 100%); } /* nét vàng đặc bám mép ảnh */
+}
+[data-theme="luxe"] .tx-eyebrow { background: #1B1814; border-color: rgba(221, 181, 82, .38); -webkit-backdrop-filter: none; backdrop-filter: none; color: #E6DCCB; }
+[data-theme="luxe"] .tx-eyebrow-ball, [data-theme="luxe"] .tx-net::before { box-shadow: none; }
+[data-theme="luxe"] .tx-title-sm { color: #EBCB7C; text-shadow: none; }
+[data-theme="luxe"] .tx-title-xl { color: #F4EFE6; text-shadow: none; }
+
+[data-theme="luxe"] .tx-board { background: rgba(232, 220, 200, .10); border-color: rgba(221, 181, 82, .38); box-shadow: none; }
+[data-theme="luxe"] .tx-cell, [data-theme="luxe"] .tx-cell.is-prize { background: #15130F; -webkit-backdrop-filter: none; backdrop-filter: none; }
+[data-theme="luxe"] .tx-cell.is-prize { background: #1B1814; }
+[data-theme="luxe"] .tx-cell-label { color: #958B7C; }
+[data-theme="luxe"] .tx-led, [data-theme="luxe"] .tx-cell.is-prize .tx-led { color: #EBCB7C; text-shadow: none; }
+[data-theme="luxe"] .tx-cell.is-live .tx-led { color: #E06B5F; text-shadow: none; }
+
+[data-theme="luxe"] .tx-net::after { background: none; -webkit-mask-image: none; mask-image: none; height: 0; border-top: 1px solid rgba(221, 181, 82, .38); }
+
+[data-theme="luxe"] .tc { box-shadow: none; }
+[data-theme="luxe"] .tc:hover { box-shadow: none; border-color: rgba(221, 181, 82, .45); }
+[data-theme="luxe"] .tc-cover, [data-theme="luxe"] .tc-cover.img-missing { background: #221E18; }
+[data-theme="luxe"] .tc-cover.img-missing .tc-lines { stroke: rgba(221, 181, 82, .55); }
+[data-theme="luxe"] .tc-flag { box-shadow: none; }
+[data-theme="luxe"] .tc-flag.is-ended, [data-theme="luxe"] .tc-flag.is-courts { background: rgba(15, 14, 12, .88); color: #E6DCCB; -webkit-backdrop-filter: none; backdrop-filter: none; }
+[data-theme="luxe"] .tc-flag.is-courts { color: #E06B5F; }
+[data-theme="luxe"] .tc-kicker-dot { box-shadow: none; }
+[data-theme="luxe"] .tc-cta { background: #DDB552; color: #14110C; }
+[data-theme="luxe"] .tc-cta:hover { background: #EBCB7C; color: #14110C; filter: none; }
+[data-theme="luxe"] .tc-cta-ball { background: #14110C; color: #EBCB7C; }
+[data-theme="luxe"] .tx-empty-ball { background: radial-gradient(circle, rgba(20, 17, 12, .35) 0 2.4px, transparent 3px) 0 0 / 12px 12px, #DDB552; }

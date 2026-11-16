@@ -45,7 +45,7 @@
       <% if (locals.back) { %><a class="icon-btn" href="<%= back %>" aria-label="Quay lại"><%- ip('back') %></a><% } %>
       <h1><%= title %></h1>
       <% if (locals.roleSwitcher) { %><%- include('../partials/role-switcher') %><% } %>
-      <button type="button" class="icon-btn" data-theme-toggle aria-label="Đổi giao diện Dark / Xanh dương" title="Đổi giao diện Dark / Xanh dương"><span class="icon-theme-dark"><%- ip('palette') %></span><span class="icon-theme-blue"><%- ip('moon') %></span></button>
+      <button type="button" class="icon-btn" data-theme-toggle aria-label="Đổi giao diện Midnight / Vàng sâm panh" title="Đổi giao diện Midnight / Vàng sâm panh"><span class="icon-theme-dark"><%- ip('palette') %></span><span class="icon-theme-luxe"><%- ip('moon') %></span></button>
     </header>
     <div class="admin-content">
       <% if (flash) { %><div class="alert alert-<%= flash.type %>" role="status"><%= flash.message %></div><% } %>

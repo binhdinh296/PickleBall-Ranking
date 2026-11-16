@@ -16,17 +16,17 @@
   }
   window.PR = { postJSON: postJSON, csrf: csrf };
 
-  // ---- Đổi giao diện tối (Midnight / Xanh dương) ----
+  // ---- Đổi giao diện tối (Midnight / Đen huyền & Vàng sâm panh) ----
   $$('[data-theme-toggle]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var cur = root.getAttribute('data-theme');
-      var next = cur === 'blue' ? 'dark' : 'blue';
+      var next = cur === 'luxe' ? 'dark' : 'luxe';
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('theme', next); } catch (e) { /* bỏ qua */ }
-      if (next === 'blue') {
-        root.style.setProperty('--ball', '#3B82F6');
-        root.style.setProperty('--court', '#2563EB');
-        root.style.setProperty('--gold', '#60A5FA');
+      if (next === 'luxe') {
+        root.style.setProperty('--ball', '#DDB552');
+        root.style.setProperty('--court', '#9C8A6B');
+        root.style.setProperty('--gold', '#DDB552');
       } else {
         if (window._origColors) {
           if (window._origColors.ball) root.style.setProperty('--ball', window._origColors.ball);
@@ -38,7 +38,7 @@
           root.style.removeProperty('--gold');
         }
       }
-      btn.setAttribute('aria-label', next === 'blue' ? 'Chuyển sang giao diện Đen' : 'Chuyển sang giao diện Xanh dương');
+      btn.setAttribute('aria-label', next === 'luxe' ? 'Chuyển sang giao diện Midnight' : 'Chuyển sang giao diện Vàng sâm panh');
     });
   });
 

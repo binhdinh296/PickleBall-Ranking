@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="vi" data-default-theme="<%= site.default_theme === 'blue' ? 'blue' : 'dark' %>" data-theme="<%= site.default_theme === 'blue' ? 'blue' : 'dark' %>" style="--ball: <%= colors.ball %>; --court: <%= colors.court %>; --gold: <%= colors.gold %>;">
+<html lang="vi" data-default-theme="<%= ['luxe', 'blue'].includes(site.default_theme) ? 'luxe' : 'dark' %>" data-theme="<%= ['luxe', 'blue'].includes(site.default_theme) ? 'luxe' : 'dark' %>" style="--ball: <%= colors.ball %>; --court: <%= colors.court %>; --gold: <%= colors.gold %>;">
 <head>
 <meta charset="utf-8">
 <meta name="referrer" content="no-referrer">
@@ -43,9 +43,9 @@
     </nav>
     <div class="header-actions">
       <% if (locals.roleSwitcher) { %><%- include('role-switcher') %><% } %>
-      <button type="button" class="icon-btn" data-theme-toggle aria-label="Đổi giao diện Dark / Xanh dương" title="Đổi giao diện Dark / Xanh dương">
+      <button type="button" class="icon-btn" data-theme-toggle aria-label="Đổi giao diện Midnight / Vàng sâm panh" title="Đổi giao diện Midnight / Vàng sâm panh">
         <span class="icon-theme-dark"><%- include('icon', { name: 'palette' }) %></span>
-        <span class="icon-theme-blue"><%- include('icon', { name: 'moon' }) %></span>
+        <span class="icon-theme-luxe"><%- include('icon', { name: 'moon' }) %></span>
       </button>
       <a href="/giai-dau" class="btn btn-brand btn-sm hide-mobile">Đăng ký giải</a>
     </div>
