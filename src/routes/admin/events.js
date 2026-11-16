@@ -105,7 +105,10 @@ router.get('/giai-dau/:id', editor, wrap(async (req, res, next) => {
       (SELECT COUNT(*) FROM matches m WHERE m.division_id = ?) AS matches FROM registrations WHERE division_id = ?`, d.id, d.id);
     Object.assign(d, { newRegs: c.new, approvedRegs: c.approved, matchCount: c.matches });
   }
-  res.render('admin/event', { title: ev.name, ev });
+  // Giải của đơn vị tổ chức: hiện link đăng ký ngắn /<mã>/dangky để chia sẻ cho VĐV
+  const org = await get('SELECT code FROM organizers WHERE event_id = ? AND code IS NOT NULL', ev.id);
+  const shortRegUrl = org ? `${req.protocol}://${req.get('host')}/${org.code}/dangky` : null;
+  res.render('admin/event', { title: ev.name, ev, shortRegUrl });
 }));
 
 router.get('/giai-dau/:id/sua', editor, wrap(async (req, res, next) => {

@@ -1,11 +1,9 @@
 <%- include('../partials/top') %>
-<%
-  const KIND = { create: 'Tạo giải đấu', manage: 'Quản lý giải đấu' };
-%>
+
 <section class="page-head glow">
   <div class="container stack" style="--gap: 10px; max-width: 560px;">
     <span class="eyebrow">KHU VỰC BAN TỔ CHỨC</span>
-    <h1 class="h1" style="font-size: clamp(24px, 6vw, 34px);"><%= org ? KIND[kind] : 'Ban tổ chức giải' %></h1>
+    <h1 class="h1" style="font-size: clamp(24px, 6vw, 34px);">Ban tổ chức giải</h1>
     <% if (org) { %><p class="muted">Đơn vị: <strong style="color: var(--text);"><%= org.name %></strong><% if (ev) { %> · Giải: <strong style="color: var(--text);"><%= ev.name %></strong><% } %></p><% } %>
   </div>
 </section>
@@ -17,7 +15,7 @@
 
       <% if (step === 'info') { %>
         <% if (!org) { %>
-        <p class="muted">Đây là khu vực dành cho đơn vị tổ chức giải. Hãy mở đúng <strong>link tạo giải</strong> hoặc <strong>link quản lý giải</strong> mà quản trị viên <%= site.site_name %> đã gửi cho bạn.</p>
+        <p class="muted">Đây là khu vực dành cho đơn vị tổ chức giải. Hãy mở đúng <strong>link quản trị giải</strong> mà quản trị viên <%= site.site_name %> đã gửi cho bạn.</p>
         <p class="small faint">Phiên làm việc tự kết thúc sau một thời gian không thao tác. Mở lại link được cấp để đăng nhập lại.</p>
         <% } %>
 

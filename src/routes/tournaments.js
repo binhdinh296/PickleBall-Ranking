@@ -102,10 +102,12 @@ router.get('/:slug', wrap(loadEvent), wrap(async (req, res) => {
 }));
 
 // ---- Đăng ký thi đấu ----
-function registerView(res, ev, extra) {
+// opts.lite: trang đăng ký gọn (link ngắn /<mã>/dangky gửi cho người lạ) — cùng form, cùng cách kiểm tra
+function registerView(res, ev, extra, opts = {}) {
   res.render('public/register', {
     title: `Đăng ký – ${ev.name}`, ev, values: {}, error: null, done: false,
-    otpEnabled: otp.isEnabled('registration'), ...extra,
+    otpEnabled: otp.isEnabled('registration'),
+    formAction: opts.formAction || `/giai-dau/${ev.slug}/dang-ky`, lite: !!opts.lite, bare: !!opts.lite, ...extra,
   });
 }
 
@@ -113,15 +115,16 @@ router.get('/:slug/dang-ky', wrap(loadEvent), (req, res) => registerView(res, re
 
 const regLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Bạn đã gửi quá nhiều lần, vui lòng thử lại sau 15 phút.' });
 
-router.post('/:slug/dang-ky', regLimiter, wrap(loadEvent), wrap(async (req, res) => {
-  const ev = req.event;
+router.post('/:slug/dang-ky', regLimiter, wrap(loadEvent), wrap((req, res) => submitRegistration(req, res, req.event)));
+
+async function submitRegistration(req, res, ev, opts = {}) {
   const b = req.body;
   const values = {
     division_id: b.division_id,
     name1: String(b.full_name1 || '').trim().slice(0, 80), phone1: String(b.phone1 || '').trim().slice(0, 20), trinh1: String(b.trinh1 || '').trim().slice(0, 10),
     name2: String(b.full_name2 || '').trim().slice(0, 80), phone2: String(b.phone2 || '').trim().slice(0, 20), trinh2: String(b.trinh2 || '').trim().slice(0, 10),
   };
-  const fail = (error) => { res.status(400); registerView(res, ev, { values, error }); };
+  const fail = (error) => { res.status(400); registerView(res, ev, { values, error }, opts); };
   if (!ev.registration_open || ev.status === 'ended') return fail('Giải đã đóng đăng ký.');
   const d = ev.divisions.find((x) => x.id === parseInt(values.division_id, 10));
   if (!d) return fail('Vui lòng chọn nội dung thi đấu.');
@@ -171,8 +174,8 @@ router.post('/:slug/dang-ky', regLimiter, wrap(loadEvent), wrap(async (req, res)
     return null;
   });
   if (err) return fail(err);
-  registerView(res, ev, { done: true, doneDivision: d });
-}));
+  registerView(res, ev, { done: true, doneDivision: d }, opts);
+}
 
 router.get('/:slug/danh-sach', wrap(loadEvent), wrap(async (req, res) => {
   const ev = req.event;
@@ -223,3 +226,6 @@ router.get('/:slug/truc-tiep', wrap(loadEvent), wrap(async (req, res) => {
 }));
 
 module.exports = router;
+module.exports.registerView = registerView;
+module.exports.submitRegistration = submitRegistration;
+module.exports.regLimiter = regLimiter;

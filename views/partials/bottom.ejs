@@ -1,5 +1,5 @@
 </main>
-<% if (!locals.admin) { %>
+<% if (!locals.admin && !locals.bare) { %>
 <footer class="site-footer">
   <div class="container">
     <% if (locals.partners && partners.length && path !== '/doi-tac') { %>

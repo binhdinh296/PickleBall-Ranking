@@ -8,13 +8,29 @@ const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/; // 32 byte ngẫu nhiên, base64url
 const newToken = () => crypto.randomBytes(32).toString('base64url');
 const hashToken = (token) => hmac(`organizer-link|${token}`);
 
-// Tìm đơn vị theo mã trong link. kind: 'create' (link tạo giải) | 'manage' (link quản lý)
+// Tìm đơn vị theo mã trong link quản lý
 async function findByToken(token) {
   if (!TOKEN_RE.test(String(token || ''))) return null;
-  const h = hashToken(token);
-  const org = await get('SELECT * FROM organizers WHERE create_token_hash = ? OR manage_token_hash = ?', h, h);
-  if (!org) return null;
-  return { org, kind: org.create_token_hash === h ? 'create' : 'manage' };
+  return get('SELECT * FROM organizers WHERE manage_token_hash = ?', hashToken(token));
+}
+
+// ---- Mã ngắn cho link đăng ký công khai /<mã>/dangky ----
+const CODE_RE = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
+// Không trùng các đường dẫn gốc của website
+const RESERVED_CODES = new Set(['admin', 'btc', 'dev', 'static', 'uploads', 'api', 'cron', 'overlay', 'giai-dau', 'xep-hang', 'vdv',
+  'cham-trinh', 'truc-tiep', 'doi-tac', 'chinh-sach-quyen-rieng-tu', 'favicon.ico', 'robots.txt', 'sitemap.xml']);
+
+function normalizeCode(v) {
+  return String(v || '').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
+    .replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
+function codeProblem(code) {
+  if (!code) return 'Vui lòng nhập mã giải cho link đăng ký (vd. hmopen).';
+  if (!CODE_RE.test(code)) return 'Mã giải chỉ gồm chữ thường không dấu, số và dấu gạch ngang, tối đa 40 ký tự.';
+  if (RESERVED_CODES.has(code)) return `Mã "${code}" trùng với một trang có sẵn của website, hãy chọn mã khác.`;
+  return null;
 }
 
 const isUsable = (org) => !!org && org.active && (!org.expires_at || new Date(org.expires_at) > new Date());
@@ -24,12 +40,11 @@ function sessionUser(org) {
   return { id: null, organizerId: org.id, eventId: org.event_id, username: `btc-${org.id}`, displayName: org.name, role: 'organizer' };
 }
 
-// Tạo (hoặc tạo lại) cặp link: link cũ hết hiệu lực ngay
-async function issueTokens(orgId) {
-  const create = newToken();
+// Tạo (hoặc tạo lại) link quản lý: link cũ hết hiệu lực ngay
+async function issueToken(orgId) {
   const manage = newToken();
-  await run('UPDATE organizers SET create_token_hash = ?, manage_token_hash = ? WHERE id = ?', hashToken(create), hashToken(manage), orgId);
-  return { create, manage };
+  await run('UPDATE organizers SET manage_token_hash = ? WHERE id = ?', hashToken(manage), orgId);
+  return manage;
 }
 
 // Đăng xuất mọi phiên BTC của đơn vị (khi khóa, tạo lại link, xoá)
@@ -76,4 +91,7 @@ async function gate(req, res, next) {
   return next();
 }
 
-module.exports = { RULES, TOKEN_RE, newToken, hashToken, findByToken, isUsable, sessionUser, issueTokens, endSessions, gate };
+module.exports = {
+  RULES, TOKEN_RE, CODE_RE, RESERVED_CODES, newToken, hashToken, findByToken, normalizeCode, codeProblem,
+  isUsable, sessionUser, issueToken, endSessions, gate,
+};

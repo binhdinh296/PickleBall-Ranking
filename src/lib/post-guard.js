@@ -10,8 +10,8 @@ const ALLOWED_POST_PREFIXES = [
 ];
 
 function isPostAllowed(path) {
-  // /giai-dau/:slug/dang-ky (đăng ký thi đấu công khai)
-  return ALLOWED_POST_PREFIXES.some((p) => path.startsWith(p)) || path.includes('/dang-ky');
+  // /giai-dau/:slug/dang-ky (đăng ký thi đấu công khai), /<mã>/dangky (link đăng ký ngắn)
+  return ALLOWED_POST_PREFIXES.some((p) => path.startsWith(p)) || path.includes('/dang-ky') || /^\/[a-z0-9-]+\/dangky$/.test(path);
 }
 
 function postGuard(req, res, next) {

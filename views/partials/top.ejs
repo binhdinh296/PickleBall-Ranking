@@ -21,9 +21,9 @@
 <% if (locals.admin) { %><link rel="stylesheet" href="/static/css/admin.css?v=<%= locals.assetV || "" %>"><% } %>
 <script src="/static/js/theme.js?v=<%= locals.assetV || "" %>"></script>
 </head>
-<body<% if (locals.admin) { %> class="admin-body"<% } %>>
+<body<% if (locals.admin) { %> class="admin-body"<% } else if (locals.bare) { %> class="bare-body"<% } %>>
 <a class="sr-only" href="#main">Bỏ qua đến nội dung</a>
-<% if (!locals.admin) { %>
+<% if (!locals.admin && !locals.bare) { %>
 <header class="site-header">
   <div class="container bar">
     <a href="/" class="brand" aria-label="<%= site.site_name %> – Trang chủ">

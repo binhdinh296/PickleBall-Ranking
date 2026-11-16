@@ -16,8 +16,6 @@ router.use((req, res, next) => {
 // Giới hạn số lần mở link theo IP
 const openLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, message: 'Bạn mở link quá nhiều lần, vui lòng thử lại sau.' });
 
-const KIND_LABEL = { create: 'Link tạo giải đấu', manage: 'Link quản lý giải đấu' };
-
 function page(res, status, data) {
   res.status(status).render('organizer/access', { title: 'Ban tổ chức', org: null, kind: null, ev: null, step: 'info', error: null, info: null, ...data });
 }
@@ -27,18 +25,13 @@ router.get('/', (req, res) => page(res, 200, {}));
 
 // Tìm đơn vị từ link; trả null nếu link sai/đã khoá/hết hạn (đã hiển thị trang báo)
 async function resolve(req, res) {
-  const found = await organizers.findByToken(req.params.token);
-  if (!found) { page(res, 404, { error: 'Link không hợp lệ hoặc đã được thay bằng link mới. Vui lòng liên hệ quản trị viên để nhận link đúng.' }); return null; }
-  if (!organizers.isUsable(found.org)) { page(res, 403, { error: 'Link này đã bị khoá hoặc hết hạn. Vui lòng liên hệ quản trị viên.' }); return null; }
-  const ev = found.org.event_id ? await get('SELECT id, name, published FROM events WHERE id = ?', found.org.event_id) : null;
-  if (found.kind === 'create' && ev) {
-    page(res, 200, { org: found.org, kind: found.kind, ev, info: 'Đơn vị của bạn đã tạo giải. Để sửa thông tin, duyệt đăng ký, làm nhánh đấu… hãy dùng link quản lý giải đấu.' });
-    return null;
-  }
-  return { ...found, ev };
+  const org = await organizers.findByToken(req.params.token);
+  if (!org) { page(res, 404, { error: 'Link không hợp lệ hoặc đã được thay bằng link mới. Vui lòng liên hệ quản trị viên để nhận link đúng.' }); return null; }
+  if (!organizers.isUsable(org)) { page(res, 403, { error: 'Link này đã bị khoá hoặc hết hạn. Vui lòng liên hệ quản trị viên.' }); return null; }
+  return { org };
 }
 
-// Mở link là vào thẳng trang quản lý giải (không cần OTP). Bù lại: link dài ngẫu nhiên, có hạn dùng, khoá/tạo lại được, ghi nhật ký.
+// Mở link là vào thẳng: chưa có giải → form tạo giải, đã có → trang quản lý giải (không cần OTP). Bù lại: link dài ngẫu nhiên, có hạn dùng, khoá/tạo lại được, ghi nhật ký.
 router.get('/:token', openLimiter, wrap(async (req, res, next) => {
   const r = await resolve(req, res);
   if (!r) return;
@@ -50,10 +43,9 @@ router.get('/:token', openLimiter, wrap(async (req, res, next) => {
   req.session.regenerate((err) => {
     if (err) return next(err);
     req.session.user = organizers.sessionUser(r.org);
-    audit(req, 'organizer_login', `organizer:${r.org.id}`, KIND_LABEL[r.kind]);
+    audit(req, 'organizer_login', `organizer:${r.org.id}`);
     req.session.save(() => res.redirect(303, '/admin'));
   });
 }));
 
 module.exports = router;
-module.exports.KIND_LABEL = KIND_LABEL;

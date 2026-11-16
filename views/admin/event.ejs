@@ -12,6 +12,13 @@
     <% if (!org) { %><a class="btn btn-sm" href="/admin/livestream?giai=<%= ev.id %>"><%- include('../partials/icon', { name: 'live' }) %>Livestream</a><% } %>
     <% if (ev.published) { %><a class="btn btn-sm" href="/giai-dau/<%= ev.slug %>" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'external' }) %>Xem trang giải</a><% } %>
   </div>
+  <% if (locals.shortRegUrl) { %>
+  <div class="field" style="max-width: 620px;">
+    <label for="short-reg-url">Link đăng ký cho vận động viên</label>
+    <div class="copy-row"><input class="input" id="short-reg-url" readonly value="<%= shortRegUrl %>"><button type="button" class="btn btn-sm" data-copy="short-reg-url">Chép</button></div>
+    <span class="hint"><%= ev.published ? 'Gửi link này vào nhóm Zalo/Facebook để VĐV tự đăng ký. Đăng ký mới hiện ở nút "Đăng ký" của từng nội dung.' : 'Link nhận đăng ký sau khi quản trị viên duyệt công khai giải. Trước đó người mở link sẽ thấy "chưa mở đăng ký".' %></span>
+  </div>
+  <% } %>
 </div>
 <div class="row" style="justify-content: space-between;"><h2 class="section-title">Nội dung thi đấu</h2><a class="btn btn-brand btn-sm" href="/admin/giai-dau/<%= ev.id %>/noi-dung/moi"><%- include('../partials/icon', { name: 'plus' }) %>Thêm nội dung</a></div>
 <% if (!ev.divisions.length) { %><div class="empty">Chưa có nội dung. Thêm nội dung (ví dụ "Đôi nam newbie", "Hỗn hợp 5.3") để mở đăng ký.</div><% } %>

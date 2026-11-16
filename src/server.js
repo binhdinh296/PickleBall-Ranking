@@ -120,6 +120,7 @@ function createApp() {
   app.use('/btc', require('./routes/organizer')); // ban tổ chức: link + OTP
   app.use('/admin', require('./routes/admin'));
   app.use('/dev', devtools);
+  app.use('/', require('./routes/short')); // link đăng ký ngắn /<mã>/dangky (để cuối: không che route có sẵn)
 
   app.use((req, res) => res.status(404).render('error', { title: 'Không tìm thấy trang', message: 'Trang bạn tìm không tồn tại hoặc đã bị gỡ.' }));
 

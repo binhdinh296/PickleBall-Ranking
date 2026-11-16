@@ -1,17 +1,16 @@
 <%- include('_top') %>
-<div class="card card-pad stack" style="--gap: 16px; max-width: 760px;">
-  <div class="alert alert-warning" role="status"><strong>Chép và gửi 2 link này cho <%= org.name %> ngay bây giờ.</strong> Vì lý do bảo mật, hệ thống không lưu link gốc nên sẽ không hiện lại. Nếu làm mất, bấm "Tạo lại link" (link cũ sẽ hết hiệu lực).</div>
+<div class="card card-pad stack" style="--gap: 18px; max-width: 760px;">
   <div class="field">
-    <label for="create-url">1. Link tạo giải đấu</label>
-    <div class="copy-row"><input class="input" id="create-url" readonly value="<%= createUrl %>"><button type="button" class="btn btn-sm" data-copy="create-url">Chép</button></div>
-    <span class="hint">Đơn vị mở link là vào form điền thông tin giải. Dùng được tới khi giải được tạo.</span>
+    <label for="register-url">1. Link đăng ký cho vận động viên <span class="chip chip-ok" style="margin-left: 6px;">Công khai</span></label>
+    <div class="copy-row"><input class="input" id="register-url" readonly value="<%= registerUrl %>"><button type="button" class="btn btn-sm" data-copy="register-url">Chép</button></div>
+    <span class="hint">Gửi rộng rãi cho VĐV (nhóm Zalo, Facebook…). Trang chỉ có form đăng ký; hoạt động khi giải đã được tạo và bạn đã duyệt công khai. Link này luôn xem lại được ở danh sách đơn vị.</span>
   </div>
   <div class="field">
-    <label for="manage-url">2. Link quản lý giải đấu</label>
+    <label for="manage-url">2. Link quản trị giải cho đơn vị tổ chức <span class="chip chip-warn" style="margin-left: 6px;">Bí mật</span></label>
     <div class="copy-row"><input class="input" id="manage-url" readonly value="<%= manageUrl %>"><button type="button" class="btn btn-sm" data-copy="manage-url">Chép</button></div>
-    <span class="hint">Dùng lâu dài: sửa thông tin, nội dung thi đấu, duyệt đăng ký, nhánh đấu, nhập tỉ số, vinh danh.</span>
+    <span class="hint">Gửi riêng cho người phụ trách của <%= org.name %>. Mở lần đầu: điền thông tin tạo giải. Sau đó: sửa thông tin, nội dung thi đấu, duyệt đăng ký, nhánh đấu, nhập tỉ số, vinh danh.</span>
   </div>
-  <p class="small muted">Ai có link là vào được trang quản lý giải này. Hãy gửi qua kênh riêng (Zalo/email trực tiếp với người phụ trách), không đăng lên nhóm chung. Nếu link bị lộ, bấm "Tạo lại link" hoặc "Khoá" ở danh sách đơn vị.</p>
+  <div class="alert alert-warning" role="status"><strong>Chép link quản trị ngay bây giờ.</strong> Ai có link này là vào được trang quản trị giải, nên hệ thống không lưu link gốc và sẽ không hiện lại. Nếu làm mất hoặc nghi bị lộ, bấm "Tạo lại link quản trị" (link cũ hết hiệu lực ngay).</div>
   <a class="btn btn-sm" href="/admin/ban-to-chuc" style="align-self: flex-start;">Về danh sách đơn vị</a>
 </div>
 <%- include('_bottom') %>

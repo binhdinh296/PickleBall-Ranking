@@ -117,7 +117,7 @@ test('Mọi route POST đều nằm trong danh sách được giữ phương th�
   const path = require('node:path');
   const { isPostAllowed } = require('../src/lib/post-guard');
   const mounts = {
-    'src/routes/public.js': '', 'src/routes/live.js': '', 'src/routes/tournaments.js': '/giai-dau', 'src/routes/devtools.js': '/dev', 'src/routes/organizer.js': '/btc',
+    'src/routes/public.js': '', 'src/routes/live.js': '', 'src/routes/tournaments.js': '/giai-dau', 'src/routes/devtools.js': '/dev', 'src/routes/organizer.js': '/btc', 'src/routes/short.js': '',
   };
   for (const f of fs.readdirSync(path.join(__dirname, '../src/routes/admin'))) mounts[`src/routes/admin/${f}`] = '/admin';
   const missing = [];
@@ -168,6 +168,13 @@ test('Ban tổ chức (link + OTP): chỉ vào được các trang quản lý gi
     '/tai-khoan', '/ban-to-chuc', '/nhat-ky', '/don-cham-trinh', '/doi-tac', '/noi-dung/3/khac', '/tran/7/sua']) {
     assert.ok(!allowed(p), `phải chặn ${p}`);
   }
+  const { normalizeCode, codeProblem } = require('../src/lib/organizers');
+  assert.equal(normalizeCode('HM Open'), 'hm-open');
+  assert.equal(normalizeCode('Giải Đông Xuân 2026'), 'giai-dong-xuan-2026');
+  assert.equal(codeProblem('hmopen'), null);
+  assert.ok(codeProblem('admin'), 'mã trùng trang có sẵn phải bị từ chối');
+  assert.ok(codeProblem(''), 'mã rỗng phải bị từ chối');
+  assert.ok(require('../src/lib/post-guard').isPostAllowed('/hmopen/dangky'));
   const t = newToken();
   assert.match(t, TOKEN_RE);
   assert.notEqual(newToken(), t);

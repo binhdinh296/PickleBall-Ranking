@@ -1,4 +1,6 @@
-// CMS › Ban tổ chức: quản trị viên tạo đơn vị tổ chức và cấp 2 link (tạo giải, quản lý giải) để đơn vị tự làm.
+// CMS › Ban tổ chức: quản trị viên tạo đơn vị tổ chức, nhận 2 link:
+// - link đăng ký cho VĐV (công khai): /<mã>/dangky
+// - link quản trị giải (bí mật): /btc/<mã ngẫu nhiên> — đơn vị dùng để tạo giải rồi quản lý giải
 const express = require('express');
 const { all, get, run } = require('../../db');
 const fmt = require('../../lib/format');
@@ -17,9 +19,10 @@ async function loadOrg(id) {
     FROM organizers o LEFT JOIN events e ON e.id = o.event_id WHERE o.id = ?`, parseInt(id, 10) || 0);
 }
 
-function readOrg(b) {
+async function readOrg(b, existingId) {
   const data = {
     name: String(b.name || '').trim().slice(0, 150),
+    code: organizers.normalizeCode(b.code),
     contact_name: String(b.contact_name || '').trim().slice(0, 100) || null,
     note: String(b.note || '').trim().slice(0, 1000) || null,
     expires_at: String(b.expires_at || '').trim() || null,
@@ -27,6 +30,11 @@ function readOrg(b) {
   const rawPhone = String(b.phone || '').trim();
   const ph = rawPhone ? phoneLib.validate(rawPhone) : { ok: true, phone: null };
   if (!data.name) return { error: 'Vui lòng nhập tên đơn vị tổ chức.', data: { ...data, phone: rawPhone } };
+  const codeErr = organizers.codeProblem(data.code);
+  if (codeErr) return { error: codeErr, data: { ...data, phone: rawPhone } };
+  if (await get('SELECT 1 FROM organizers WHERE code = ? AND id <> ?', data.code, existingId || 0)) {
+    return { error: `Mã "${data.code}" đã được dùng cho đơn vị khác.`, data: { ...data, phone: rawPhone } };
+  }
   if (!ph.ok) return { error: `Số điện thoại liên hệ không hợp lệ: ${ph.error}`, data: { ...data, phone: rawPhone } };
   data.phone = ph.phone;
   if (data.expires_at && (!/^\d{4}-\d{2}-\d{2}$/.test(data.expires_at) || data.expires_at < fmt.today())) {
@@ -36,8 +44,8 @@ function readOrg(b) {
 }
 
 // Link chỉ hiện một lần (CSDL chỉ giữ bản băm): giữ tạm trong phiên của quản trị viên, chuyển sang trang xem (tải lại trang không tạo link mới)
-function showLinks(req, res, org, tokens) {
-  req.session.organizerLinks = { orgId: org.id, ...tokens };
+function showLinks(req, res, org, manage) {
+  req.session.organizerLinks = { orgId: org.id, manage };
   req.session.save(() => res.redirect(303, `${BASE}/${org.id}/link`));
 }
 
@@ -53,51 +61,51 @@ router.get('/ban-to-chuc/:id/link', admin, wrap(async (req, res, next) => {
   const origin = `${req.protocol}://${req.get('host')}`;
   res.render('admin/organizer-links', {
     title: `Link cho ${org.name}`, back: BASE, org,
-    createUrl: `${origin}/btc/${t.create}`, manageUrl: `${origin}/btc/${t.manage}`,
+    registerUrl: `${origin}/${org.code}/dangky`, manageUrl: `${origin}/btc/${t.manage}`,
   });
 }));
 
 router.get('/ban-to-chuc', admin, wrap(async (req, res) => {
   const rows = await all(`SELECT o.*, e.name AS event_name, e.slug AS event_slug, e.published AS event_published, e.start_date
     FROM organizers o LEFT JOIN events e ON e.id = o.event_id ORDER BY o.created_at DESC`);
-  res.render('admin/organizers', { title: 'Ban tổ chức', rows, error: null, values: {} });
+  res.render('admin/organizers', { title: 'Ban tổ chức', rows, error: null, values: {}, origin: `${req.protocol}://${req.get('host')}` });
 }));
 
 router.post('/ban-to-chuc', admin, wrap(async (req, res) => {
-  const { error, data } = readOrg(req.body);
+  const { error, data } = await readOrg(req.body);
   if (error) {
     const rows = await all(`SELECT o.*, e.name AS event_name, e.slug AS event_slug, e.published AS event_published, e.start_date
       FROM organizers o LEFT JOIN events e ON e.id = o.event_id ORDER BY o.created_at DESC`);
-    return res.status(400).render('admin/organizers', { title: 'Ban tổ chức', rows, error, values: data });
+    return res.status(400).render('admin/organizers', { title: 'Ban tổ chức', rows, error, values: data, origin: `${req.protocol}://${req.get('host')}` });
   }
-  const org = await get(`INSERT INTO organizers(name, contact_name, phone, note, expires_at, created_by)
-    VALUES (?,?,?,?,?,?) RETURNING *`, data.name, data.contact_name, data.phone, data.note,
+  const org = await get(`INSERT INTO organizers(name, code, contact_name, phone, note, expires_at, created_by)
+    VALUES (?,?,?,?,?,?,?) RETURNING *`, data.name, data.code, data.contact_name, data.phone, data.note,
   data.expires_at ? `${data.expires_at} 23:59:59+07` : null, req.session.user.id);
-  const tokens = await organizers.issueTokens(org.id);
+  const manage = await organizers.issueToken(org.id);
   await audit(req, 'organizer_create', `organizer:${org.id}`, data.name);
-  showLinks(req, res, org, tokens);
+  showLinks(req, res, org, manage);
 }));
 
 router.post('/ban-to-chuc/:id/sua', admin, wrap(async (req, res, next) => {
   const org = await loadOrg(req.params.id);
   if (!org) return next();
-  const { error, data } = readOrg(req.body);
+  const { error, data } = await readOrg(req.body, org.id);
   if (error) { req.flash('error', error); return res.redirect(303, BASE); }
-  await run('UPDATE organizers SET name = ?, contact_name = ?, phone = ?, note = ?, expires_at = ? WHERE id = ?',
-    data.name, data.contact_name, data.phone, data.note, data.expires_at ? `${data.expires_at} 23:59:59+07` : null, org.id);
+  await run('UPDATE organizers SET name = ?, code = ?, contact_name = ?, phone = ?, note = ?, expires_at = ? WHERE id = ?',
+    data.name, data.code, data.contact_name, data.phone, data.note, data.expires_at ? `${data.expires_at} 23:59:59+07` : null, org.id);
   await audit(req, 'organizer_update', `organizer:${org.id}`);
   req.flash('success', `Đã lưu đơn vị "${data.name}".`);
   res.redirect(303, BASE);
 }));
 
-// Tạo lại cặp link: link cũ hết hiệu lực ngay, đơn vị bị đăng xuất
+// Tạo lại link quản trị: link cũ hết hiệu lực ngay, đơn vị bị đăng xuất (link đăng ký VĐV giữ nguyên)
 router.post('/ban-to-chuc/:id/tao-lai-link', admin, wrap(async (req, res, next) => {
   const org = await loadOrg(req.params.id);
   if (!org) return next();
-  const tokens = await organizers.issueTokens(org.id);
+  const manage = await organizers.issueToken(org.id);
   await organizers.endSessions(org.id);
   await audit(req, 'organizer_relink', `organizer:${org.id}`);
-  showLinks(req, res, org, tokens);
+  showLinks(req, res, org, manage);
 }));
 
 router.post('/ban-to-chuc/:id/khoa', admin, wrap(async (req, res, next) => {
