@@ -724,7 +724,9 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
   box-shadow: 0 0 0 2px var(--f-bg), 0 0 0 3px var(--f-accent), 0 8px 16px -8px rgba(0, 0, 0, .8) !important; }
 [data-flat] .paddle .paddle-ball span { color: var(--f-on) !important; text-shadow: none !important; }
 [data-flat] .paddle .p-bar { background: var(--f-accent) !important; box-shadow: none !important; }
-[data-flat] .p-pts { color: var(--f-accent-hi) !important; }
+[data-flat] .p-name { color: var(--f-text) !important; font-weight: 800 !important; text-shadow: 0 1px 4px rgba(0, 0, 0, .8) !important; }
+[data-flat] .p-pts { color: var(--f-accent-hi) !important; font-weight: 800 !important; text-shadow: 0 1px 4px rgba(0, 0, 0, .8) !important; }
+[data-flat] .p-pts small { color: var(--f-text-soft) !important; }
 [data-flat] .paddle-throat, [data-flat] .paddle-cap { background: var(--f-accent) !important; }
 [data-flat] .paddle-handle { background: repeating-linear-gradient(-38deg, var(--f-stripe-a) 0 8px, var(--f-stripe-b) 8px 10px) !important; box-shadow: inset 0 0 0 1px rgba(var(--f-line-rgb), .08) !important; }
 [data-flat] .paddle-info { background: var(--f-bg2) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }

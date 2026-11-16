@@ -54,8 +54,8 @@
   --bg-2: var(--f-bg2);
   --card: var(--f-card);
   --card-solid: var(--f-card);
-  --line: rgba(var(--f-line-rgb), 0.10);
-  --line-strong: rgba(var(--f-accent-rgb), 0.38);
+  --line: rgba(var(--f-line-rgb), 0.14);
+  --line-strong: rgba(var(--f-accent-rgb), 0.42);
   --text: var(--f-text);
   --text-2: var(--f-text2);
   --text-3: var(--f-text3);
@@ -78,37 +78,37 @@
   --grad-brand: var(--f-accent);
 }
 
-/* Đen huyền & Vàng sâm panh — nền đen ấm, nhấn vàng */
+/* Đen huyền & Vàng sâm panh — nền đen ấm obsidian, thẻ nổi khối, chữ sáng ngà, nhấn vàng sâm panh */
 [data-theme="luxe"] {
-  --f-bg: #0F0E0C; --f-bg-rgb: 15, 14, 12; --f-bg2: #15130F; --f-card: #1B1814; --f-raised: #221E18; --f-raised-2: #2A2419; --f-raised-rgb: 42, 36, 25; --f-deep: #0C0B09;
-  --f-accent: #DDB552; --f-accent-rgb: 221, 181, 82; --f-accent-hi: #EBCB7C; --f-accent-2: #C49B3E; --f-accent-3: #A9842F; --f-accent-pale: #F1DDA6; --f-court: #9C8A6B;
+  --f-bg: #151411; --f-bg-rgb: 21, 20, 17; --f-bg2: #1C1A16; --f-card: #24211B; --f-raised: #2E2A23; --f-raised-2: #38342B; --f-raised-rgb: 56, 52, 43; --f-deep: #0F0E0B;
+  --f-accent: #E5BE57; --f-accent-rgb: 229, 190, 87; --f-accent-hi: #F5D98B; --f-accent-2: #C89E3A; --f-accent-3: #AC8429; --f-accent-pale: #FBF1D5; --f-court: #A89574;
   --f-on: #14110C; --f-on-rgb: 20, 17, 12;
-  --f-text: #F4EFE6; --f-text-soft: #E6DCCB; --f-text2: #BFB5A6; --f-text3: #958B7C; --f-line-rgb: 232, 220, 200;
-  --f-stripe-a: #1F1B16; --f-stripe-b: #2C2620; --f-female: #D9A39C;
-  --f-live: #D9534F; --f-ok: #8FBF7A; --f-warn: #E0B04F; --f-err: #E06B5F;
-  --f-photo: saturate(.66) sepia(.22) brightness(.95) contrast(1.04); --f-photo-hero: saturate(.8) sepia(.1) contrast(1.04);
+  --f-text: #FAF6EF; --f-text-soft: #EDE4D5; --f-text2: #D1C4B0; --f-text3: #B0A08A; --f-line-rgb: 245, 230, 205;
+  --f-stripe-a: #26221B; --f-stripe-b: #332D24; --f-female: #E2ADA6;
+  --f-live: #E05A56; --f-ok: #94C77E; --f-warn: #E5B655; --f-err: #E67266;
+  --f-photo: saturate(.75) sepia(.16) brightness(1.02) contrast(1.04); --f-photo-hero: saturate(.88) sepia(.08) brightness(1.02) contrast(1.04);
 }
 
-/* Xanh dương nhạt — nền than chì lạnh, nhấn xanh da trời nhạt; chữ trắng ngả xanh */
+/* Xanh dương nhạt — nền than chì đại dương sâu, thẻ nổi màu slate xanh, nhấn xanh trời dịu mát, chữ sáng trắng xanh */
 [data-theme="sky"] {
-  --f-bg: #0B1118; --f-bg-rgb: 11, 17, 24; --f-bg2: #101820; --f-card: #141E28; --f-raised: #1A2633; --f-raised-2: #213040; --f-raised-rgb: 33, 48, 64; --f-deep: #080D13;
-  --f-accent: #7CC0F2; --f-accent-rgb: 124, 192, 242; --f-accent-hi: #A6D5F7; --f-accent-2: #5AA9E6; --f-accent-3: #3E8FD0; --f-accent-pale: #CFE8FB; --f-court: #6F93B3;
+  --f-bg: #101722; --f-bg-rgb: 16, 23, 34; --f-bg2: #16202E; --f-card: #1D2A3C; --f-raised: #26374E; --f-raised-2: #304461; --f-raised-rgb: 48, 68, 97; --f-deep: #0C111A;
+  --f-accent: #65BAF7; --f-accent-rgb: 101, 186, 247; --f-accent-hi: #9CD4FB; --f-accent-2: #3C9DE6; --f-accent-3: #2884CC; --f-accent-pale: #DAEFFD; --f-court: #77A5CE;
   --f-on: #08131F; --f-on-rgb: 8, 19, 31;
-  --f-text: #EAF2FA; --f-text-soft: #D6E3F0; --f-text2: #A3B4C6; --f-text3: #7C8EA1; --f-line-rgb: 200, 220, 240;
-  --f-stripe-a: #16212C; --f-stripe-b: #1F2D3B; --f-female: #E3A3B8;
-  --f-live: #E5484D; --f-ok: #6CC08B; --f-warn: #E7B450; --f-err: #EE6B6B;
-  --f-photo: saturate(.82) contrast(1.04); --f-photo-hero: saturate(.9) contrast(1.04);
+  --f-text: #F2F7FC; --f-text-soft: #E0ECF8; --f-text2: #BACFE4; --f-text3: #92AECB; --f-line-rgb: 215, 235, 255;
+  --f-stripe-a: #1F2C3D; --f-stripe-b: #2A3A4F; --f-female: #E8ADC0;
+  --f-live: #E85055; --f-ok: #72C791; --f-warn: #EBB957; --f-err: #F07373;
+  --f-photo: saturate(.88) brightness(1.02) contrast(1.04); --f-photo-hero: saturate(.95) brightness(1.02) contrast(1.04);
 }
 
-/* Xanh chuối — nền đen ngả rêu, nhấn xanh chuối; chữ trắng ngà ngả xanh */
+/* Xanh chuối — nền rêu sẫm sạch sẽ, thẻ nổi xanh rêu đậm, nhấn xanh chuối thể thao năng động, chữ sáng ngà dịu */
 [data-theme="banana"] {
-  --f-bg: #0E110A; --f-bg-rgb: 14, 17, 10; --f-bg2: #13170D; --f-card: #191E11; --f-raised: #212817; --f-raised-2: #2A331C; --f-raised-rgb: 42, 51, 28; --f-deep: #0A0C07;
-  --f-accent: #A4D046; --f-accent-rgb: 164, 208, 70; --f-accent-hi: #C2E27A; --f-accent-2: #8CBB2E; --f-accent-3: #6E9A1E; --f-accent-pale: #DDEFB5; --f-court: #8C9B6A;
+  --f-bg: #13190E; --f-bg-rgb: 19, 25, 14; --f-bg2: #1A2213; --f-card: #232E1A; --f-raised: #2D3B22; --f-raised-2: #384A2B; --f-raised-rgb: 56, 74, 43; --f-deep: #0E120A;
+  --f-accent: #B2E046; --f-accent-rgb: 178, 224, 70; --f-accent-hi: #CEF077; --f-accent-2: #90C22B; --f-accent-3: #75A21D; --f-accent-pale: #E8F8C4; --f-court: #92A86E;
   --f-on: #141B07; --f-on-rgb: 20, 27, 7;
-  --f-text: #F1F4E8; --f-text-soft: #E1E8D0; --f-text2: #B3BC9F; --f-text3: #8A9477; --f-line-rgb: 225, 235, 200;
-  --f-stripe-a: #1C2213; --f-stripe-b: #273019; --f-female: #DDA3A0;
-  --f-live: #E0524B; --f-ok: #7FC77A; --f-warn: #E5B44C; --f-err: #E86A5E;
-  --f-photo: saturate(.8) contrast(1.04); --f-photo-hero: saturate(.9) contrast(1.04);
+  --f-text: #F5F8EE; --f-text-soft: #E6EEDB; --f-text2: #C5D6B2; --f-text3: #9FB588; --f-line-rgb: 235, 245, 215;
+  --f-stripe-a: #24301A; --f-stripe-b: #304023; --f-female: #E2ADA9;
+  --f-live: #E55750; --f-ok: #85CE80; --f-warn: #EAB953; --f-err: #EB7165;
+  --f-photo: saturate(.86) brightness(1.02) contrast(1.04); --f-photo-hero: saturate(.95) brightness(1.02) contrast(1.04);
 }
 
 /* ---------- Nền tảng ---------- */
@@ -198,16 +198,16 @@ button { font: inherit; }
 .theme-opt[aria-checked="true"] { border-color: var(--line-strong); }
 .theme-opt-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .theme-opt-text strong { font-size: 14px; font-weight: 700; line-height: 1.25; }
-.theme-opt-text small { font-size: 12px; color: var(--text-3); line-height: 1.25; }
+.theme-opt-text small { font-size: 12px; color: var(--text-2); line-height: 1.25; }
 .theme-opt-check { width: 18px; height: 18px; flex: none; color: var(--ink-ball); visibility: hidden; }
 .theme-opt[aria-checked="true"] .theme-opt-check { visibility: visible; }
 /* Ô màu xem trước: nền theme + chấm màu nhấn (phẳng) */
-.tsw { position: relative; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--sw-bg); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18); }
-.tsw::after { content: ''; position: absolute; inset: 9px; border-radius: 50%; background: var(--sw-ac); }
+.tsw { position: relative; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--sw-bg); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25), 0 2px 6px rgba(0, 0, 0, .4); }
+.tsw::after { content: ''; position: absolute; inset: 8px; border-radius: 50%; background: var(--sw-ac); }
 .tsw-dark { --sw-bg: #0C1322; --sw-ac: #D4F53C; }
-.tsw-luxe { --sw-bg: #1B1814; --sw-ac: #DDB552; }
-.tsw-sky { --sw-bg: #141E28; --sw-ac: #7CC0F2; }
-.tsw-banana { --sw-bg: #191E11; --sw-ac: #A4D046; }
+.tsw-luxe { --sw-bg: #24211B; --sw-ac: #E5BE57; }
+.tsw-sky { --sw-bg: #1D2A3C; --sw-ac: #65BAF7; }
+.tsw-banana { --sw-bg: #232E1A; --sw-ac: #B2E046; }
 [data-theme="dark"] .icon-sun, [data-flat] .icon-moon { display: block; }
 [data-theme="dark"] .icon-moon, [data-flat] .icon-sun { display: none; }
 

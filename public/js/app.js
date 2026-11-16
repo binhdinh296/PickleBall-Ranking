@@ -30,6 +30,7 @@
     var opts = $$('[data-theme-opt]', menu);
     var cur = root.getAttribute('data-theme');
     opts.forEach(function (o) { o.setAttribute('aria-checked', String(o.getAttribute('data-theme-opt') === cur)); });
+    if (new URLSearchParams(location.search).get('themeMenu') === '1') { pop.hidden = false; btn.setAttribute('aria-expanded', 'true'); }
     function open() {
       pop.hidden = false;
       btn.setAttribute('aria-expanded', 'true');
