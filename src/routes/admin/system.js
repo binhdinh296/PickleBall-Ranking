@@ -58,7 +58,7 @@ router.post('/cau-hinh', admin, wrap(async (req, res) => {
   }
   const fail = (error) => res.status(400).render('admin/settings', { title: 'Cấu hình', s: { ...getSettings(), ...values }, error, providers: otp.providerNames, defaultPrefixes: phoneLib.prefixesText() });
   for (const k of ['color_ball', 'color_court', 'color_gold']) if (!isHex(values[k])) return fail('Màu phải ở dạng #RRGGBB.');
-  if (!['dark', 'light'].includes(values.default_theme)) values.default_theme = 'dark';
+  if (!['dark', 'blue'].includes(values.default_theme)) values.default_theme = 'dark';
   if (!otp.providerNames.includes(values.otp_provider)) return fail('Nhà cung cấp OTP không hợp lệ.');
   for (const k of ['facebook_url', 'youtube_url', 'zalo_group_url', 'privacy_url']) {
     if (values[k] && !/^https?:\/\//.test(values[k])) return fail('Các link mạng xã hội/chính sách phải bắt đầu bằng http:// hoặc https://');

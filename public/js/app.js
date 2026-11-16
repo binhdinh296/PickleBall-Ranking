@@ -16,13 +16,14 @@
   }
   window.PR = { postJSON: postJSON, csrf: csrf };
 
-  // ---- Đổi giao diện tối/sáng ----
+  // ---- Đổi giao diện tối (Midnight / Xanh dương) ----
   $$('[data-theme-toggle]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      var cur = root.getAttribute('data-theme');
+      var next = cur === 'blue' ? 'dark' : 'blue';
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('theme', next); } catch (e) { /* bỏ qua */ }
-      btn.setAttribute('aria-label', next === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
+      btn.setAttribute('aria-label', next === 'blue' ? 'Chuyển sang giao diện Đen' : 'Chuyển sang giao diện Xanh dương');
     });
   });
 

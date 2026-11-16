@@ -9,7 +9,7 @@
       <%- f('site_name', 'Tên website') %>
       <%- f('site_tagline', 'Dòng phụ dưới logo') %>
       <%- f('hero_eyebrow', 'Nhãn trên tiêu đề trang chủ') %>
-      <div class="field"><label for="default_theme">Giao diện mặc định</label><select class="input" id="default_theme" name="default_theme"><option value="dark" <%= s.default_theme !== 'light' ? 'selected' : '' %>>Tối</option><option value="light" <%= s.default_theme === 'light' ? 'selected' : '' %>>Sáng</option></select></div>
+      <div class="field"><label for="default_theme">Giao diện mặc định</label><select class="input" id="default_theme" name="default_theme"><option value="dark" <%= s.default_theme !== 'blue' ? 'selected' : '' %>>Tối (Midnight Court)</option><option value="blue" <%= s.default_theme === 'blue' ? 'selected' : '' %>>Xanh dương (Dark Blue)</option></select></div>
       <div class="field span-2"><label for="hero_title">Tiêu đề trang chủ</label><textarea class="input" id="hero_title" name="hero_title" rows="2" style="min-height: 74px;"><%= s.hero_title %></textarea><span class="hint">Chữ "dink" tự in nghiêng; 2 chữ cuối tô gradient.</span></div>
       <div class="field span-2"><label for="hero_text">Mô tả trang chủ</label><textarea class="input" id="hero_text" name="hero_text"><%= s.hero_text %></textarea></div>
       <div class="field"><label for="color_ball">Màu bóng (nhấn chính)</label><input class="input" type="color" id="color_ball" name="color_ball" value="<%= s.color_ball %>" style="padding: 4px;"></div>

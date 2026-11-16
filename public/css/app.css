@@ -44,29 +44,34 @@
   --err: #F87171;
 }
 
-[data-theme="light"] {
-  color-scheme: light;
-  --bg: #F6F4EE;
-  --bg-2: #ECE8DE;
-  --card: #FFFFFF;
-  --card-solid: #FFFFFF;
-  --line: rgba(12, 18, 32, 0.10);
-  --line-strong: rgba(12, 18, 32, 0.22);
-  --text: #0B1120;
-  --text-2: #3E485C;
-  --text-3: #596377;
-  --ink-ball: color-mix(in oklab, var(--ball) 42%, #0B1120);
-  --ink-court: color-mix(in oklab, var(--court) 60%, #0B1120); /* ≥ 4.5:1 trên nền sáng */
-  --ink-gold: color-mix(in oklab, var(--gold) 42%, #3A2500);
-  --glow-a: color-mix(in oklab, var(--court) 16%, transparent);
-  --glow-b: color-mix(in oklab, var(--ball) 24%, transparent);
-  --court-fill: color-mix(in oklab, var(--court) 78%, #0A3B37);
-  --shadow: 0 30px 60px -35px rgba(30, 40, 60, 0.35);
-  --input-bg: #FFFFFF;
-  --live: #C81E2C;
-  --ok: #15803D;
-  --warn: #B45309;
-  --err: #B91C1C;
+[data-theme="blue"] {
+  color-scheme: dark;
+  --bg: #090E1A;
+  --bg-2: #0E1626;
+  --card: #131E33;
+  --card-solid: #131E33;
+  --line: rgba(59, 130, 246, 0.16);
+  --line-strong: rgba(96, 165, 250, 0.32);
+  --text: #F8FAFC;
+  --text-2: #94A3B8;
+  --text-3: #64748B;
+  --ball: #3B82F6;
+  --court: #2563EB;
+  --gold: #60A5FA;
+  --on-brand: #FFFFFF;
+  --ink-ball: #60A5FA;
+  --ink-court: #3B82F6;
+  --ink-gold: #93C5FD;
+  --glow-a: transparent;
+  --glow-b: transparent;
+  --court-fill: #1E3A8A;
+  --shadow: 0 20px 40px -15px rgba(2, 6, 23, 0.7);
+  --input-bg: #0E1626;
+  --live: #EF4444;
+  --ok: #38BDF8;
+  --warn: #FBBF24;
+  --err: #F87171;
+  --grad-brand: #2563EB;
 }
 
 /* ---------- Nền tảng ---------- */
@@ -141,8 +146,10 @@ button { font: inherit; }
   background: var(--card); color: var(--text); border: 1px solid var(--line-strong); cursor: pointer;
 }
 .icon-btn svg { display: block; width: 20px; height: 20px; }
-[data-theme="dark"] .icon-sun, [data-theme="light"] .icon-moon { display: block; }
-[data-theme="dark"] .icon-moon, [data-theme="light"] .icon-sun { display: none; }
+[data-theme="dark"] .icon-theme-dark, [data-theme="blue"] .icon-theme-blue { display: block; }
+[data-theme="dark"] .icon-theme-blue, [data-theme="blue"] .icon-theme-dark { display: none; }
+[data-theme="dark"] .icon-sun, [data-theme="blue"] .icon-moon { display: block; }
+[data-theme="dark"] .icon-moon, [data-theme="blue"] .icon-sun { display: none; }
 
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--live); flex: none; box-shadow: 0 0 0 0 color-mix(in oklab, var(--live) 60%, transparent); animation: pulse 1.8s infinite; }
 @keyframes pulse { 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
@@ -478,9 +485,7 @@ button { font: inherit; }
   background: repeating-linear-gradient(-38deg, #141B2B 0 8px, #2A3550 8px 10px), #141B2B;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08), 0 14px 24px -14px rgba(0, 0, 0, .8);
 }
-[data-theme="light"] .paddle-handle {
-  background: repeating-linear-gradient(-38deg, #2B3448 0 8px, #46506A 8px 10px), #2B3448;
-}
+
 .paddle-cap {
   position: absolute;
   left: -8%;
@@ -726,25 +731,7 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08), 0 4px 8px -2px rgba(0, 0, 0, .8);
   flex: none;
 }
-[data-theme="light"] .paddle-horizontal .paddle-handle {
-  background: repeating-linear-gradient(-45deg, #2B3448 0 4px, #46506A 4px 6px), #2B3448;
-}
 
-/* Nắp chuôi vợt (Butt Cap) */
-.paddle-horizontal .paddle-cap {
-  position: absolute;
-  right: -3px;
-  top: -1.5px;
-  bottom: -1.5px;
-  width: 4px;
-  border-radius: 1px 2px 2px 1px;
-  background: var(--edge);
-  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.5);
-}
-
-/* Theme light override */
-[data-theme="light"] .paddle-horizontal .h-player-name { color: #FFFFFF; }
-[data-theme="light"] .paddle-horizontal .h-player-sub { color: #CBD5E1; }
 
 @media (max-width: 640px) {
   .paddle-horizontal .paddle-head {
@@ -1128,31 +1115,191 @@ button { font: inherit; }
 .lpc-action { margin-top: 4px; }
 
 /* ==========================================================================
-   Tương thích Chế độ sáng (Light Theme Luxury Overrides)
+   THEME BLUE: Concept màu chủ đạo Xanh Dương, KHÔNG GRADIENT
    ========================================================================== */
-[data-theme="light"] .ecard { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.12); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08); }
-[data-theme="light"] .tournament-tags .tournament-tag { background: rgba(230, 194, 122, 0.22); border-color: rgba(184, 134, 11, 0.35); color: #785307; }
-[data-theme="light"] .date-badge { background: rgba(255, 255, 255, 0.94); border-color: rgba(12, 18, 32, 0.14); box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.12); }
-[data-theme="light"] .date-badge .db-month { color: #8A5A12; }
-[data-theme="light"] .date-badge .db-day { color: #0B1120; }
-[data-theme="light"] .prize-pill { background: linear-gradient(90deg, rgba(230, 194, 122, 0.25) 0%, rgba(20, 184, 166, 0.12) 100%); border-color: rgba(184, 134, 11, 0.35); }
-[data-theme="light"] .prize-pill .pp-amount { color: #8A5A12; }
-[data-theme="light"] .spec-card { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.12); box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.06); }
-[data-theme="light"] .spec-card-gold { background: linear-gradient(135deg, rgba(255, 244, 220, 0.95) 0%, #FFFFFF 100%); border-color: #D4A843; }
-[data-theme="light"] .spec-gold-val { color: #8A5A12; }
-[data-theme="light"] .btn-vip { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.14); color: var(--text); }
-[data-theme="light"] .lux-desc-card { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.12); }
-[data-theme="light"] .royal-podium-card { background: #FFFFFF; border-color: rgba(184, 134, 11, 0.35); box-shadow: 0 16px 40px -15px rgba(0, 0, 0, 0.08); }
-[data-theme="light"] .podium-card-header h3 { color: #0B1120; }
-[data-theme="light"] .podium-1st .podium-pedestal { background: linear-gradient(180deg, rgba(255, 226, 130, 0.65) 0%, rgba(255, 255, 255, 0.9) 100%); }
-[data-theme="light"] .podium-2nd .podium-pedestal { background: linear-gradient(180deg, rgba(226, 232, 240, 0.6) 0%, rgba(255, 255, 255, 0.9) 100%); }
-[data-theme="light"] .podium-3rd .podium-pedestal { background: linear-gradient(180deg, rgba(245, 210, 180, 0.5) 0%, rgba(255, 255, 255, 0.9) 100%); }
-[data-theme="light"] .lux-prize-card { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.12); box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.06); }
-[data-theme="light"] .lpc-row { background: #F8FAFC; border-color: rgba(12, 18, 32, 0.08); }
-[data-theme="light"] .is-gold-row { background: rgba(255, 243, 214, 0.7); border-color: rgba(212, 168, 67, 0.5); }
-[data-theme="light"] .is-gold-row .gold-text { color: #8A5A12; }
-[data-theme="light"] .podium-nav-btn { background: #FFFFFF; border-color: rgba(12, 18, 32, 0.12); color: var(--text-2); }
-[data-theme="light"] .podium-nav-btn.is-active { background: linear-gradient(135deg, #c9971a, #ffdf74 55%, #b8860b); color: #17120a; }
+[data-theme="blue"] .grad-text {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  color: #60A5FA !important;
+}
+[data-theme="blue"] .gold-text {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  color: #93C5FD !important;
+}
+[data-theme="blue"] .glow {
+  background: var(--bg) !important;
+}
+[data-theme="blue"] .btn-brand {
+  background: #2563EB !important;
+  color: #FFFFFF !important;
+  border-color: #3B82F6 !important;
+  box-shadow: none !important;
+}
+[data-theme="blue"] .btn-brand:hover {
+  background: #1D4ED8 !important;
+}
+[data-theme="blue"] .court-card {
+  background: #0E1626 !important;
+  border-color: var(--line) !important;
+  box-shadow: none !important;
+}
+[data-theme="blue"] .player {
+  background: #0E1626 !important;
+  border-color: var(--line) !important;
+}
+[data-theme="blue"] .gold-frame {
+  background: #1D4ED8 !important;
+  padding: 1px !important;
+}
+[data-theme="blue"] .gold-frame > .pcard {
+  background: #131E33 !important;
+}
+[data-theme="blue"] .avatar.gold {
+  background: #2563EB !important;
+  color: #FFFFFF !important;
+}
+[data-theme="blue"] .avatar.silver {
+  background: #3B82F6 !important;
+  color: #FFFFFF !important;
+}
+[data-theme="blue"] .avatar.bronze {
+  background: #1D4ED8 !important;
+  color: #FFFFFF !important;
+}
+[data-theme="blue"] .chip-gold {
+  background: rgba(37, 99, 235, 0.2) !important;
+  color: #93C5FD !important;
+  border-color: rgba(96, 165, 250, 0.35) !important;
+}
+[data-theme="blue"] .chip-ok,
+[data-theme="blue"] .chip-mini.chip-ok {
+  background: rgba(37, 99, 235, 0.16) !important;
+  color: #60A5FA !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+[data-theme="blue"] .site-header {
+  background: #090E1A !important;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15) !important;
+}
+[data-theme="blue"] .tabbar {
+  background: #090E1A !important;
+  border-top: 1px solid rgba(59, 130, 246, 0.15) !important;
+}
+[data-theme="blue"] .tabbar a.is-active {
+  color: #60A5FA !important;
+}
+[data-theme="blue"] .tabbar a.is-active::after {
+  background: #3B82F6 !important;
+}
+[data-theme="blue"] .main-nav a[aria-current="page"] {
+  color: #60A5FA !important;
+  border-bottom-color: #3B82F6 !important;
+}
+[data-theme="blue"] .page-tabs a.is-active {
+  background: #2563EB !important;
+  color: #FFFFFF !important;
+  border-color: #3B82F6 !important;
+}
+[data-theme="blue"] .hero-card,
+[data-theme="blue"] .hero-photo {
+  background: #0E1626 !important;
+  box-shadow: none !important;
+}
+[data-theme="blue"] .hero-media,
+[data-theme="blue"] .hero-media::after,
+[data-theme="blue"] .hero-photo .hero-bg,
+[data-theme="blue"] .hero-photo .hero-media::after {
+  background: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+[data-theme="blue"] .paddle .p-bar {
+  background: #2563EB !important;
+  box-shadow: none !important;
+}
+[data-theme="blue"] .ecard {
+  background: #131E33 !important;
+  border-color: var(--line) !important;
+  box-shadow: none !important;
+}
+[data-theme="blue"] .tournament-tags .tournament-tag {
+  background: rgba(37, 99, 235, 0.18) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  color: #93C5FD !important;
+}
+[data-theme="blue"] .date-badge {
+  background: #0E1626 !important;
+  border-color: var(--line-strong) !important;
+  box-shadow: none !important;
+}
+[data-theme="blue"] .date-badge .db-month {
+  color: #60A5FA !important;
+}
+[data-theme="blue"] .date-badge .db-day {
+  color: #F8FAFC !important;
+}
+[data-theme="blue"] .prize-pill {
+  background: #0E1626 !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+[data-theme="blue"] .prize-pill .pp-amount {
+  color: #60A5FA !important;
+}
+[data-theme="blue"] .spec-card,
+[data-theme="blue"] .spec-card-gold,
+[data-theme="blue"] .lux-desc-card,
+[data-theme="blue"] .royal-podium-card,
+[data-theme="blue"] .lux-prize-card {
+  background: #131E33 !important;
+  border-color: var(--line) !important;
+  box-shadow: none !important;
+}
+[data-theme="blue"] .spec-gold-val {
+  color: #60A5FA !important;
+}
+[data-theme="blue"] .podium-1st .podium-pedestal {
+  background: #1D4ED8 !important;
+}
+[data-theme="blue"] .podium-2nd .podium-pedestal {
+  background: #1E3A8A !important;
+}
+[data-theme="blue"] .podium-3rd .podium-pedestal {
+  background: #172554 !important;
+}
+[data-theme="blue"] .podium-nav-btn {
+  background: #0E1626 !important;
+  border-color: var(--line) !important;
+  color: var(--text-2) !important;
+}
+[data-theme="blue"] .podium-nav-btn.is-active {
+  background: #2563EB !important;
+  color: #FFFFFF !important;
+}
+[data-theme="blue"] .tc-cover,
+[data-theme="blue"] .tc-cover.img-missing {
+  background: #0E1626 !important;
+}
+[data-theme="blue"] .tx-cell.is-prize {
+  background: #131E33 !important;
+}
+[data-theme="blue"] .paddle-horizontal .paddle-head::before {
+  background: #2563EB !important;
+  filter: none !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4) !important;
+  animation: none !important;
+}
+[data-theme="blue"] .paddle-horizontal .paddle-head::after {
+  display: none !important;
+}
+[data-theme="blue"] .paddle-horizontal .paddle-face {
+  background: #131E33 !important;
+}
+[data-theme="blue"] .paddle-horizontal .paddle-head {
+  background: #2563EB !important;
+}
 
 /* ---------- Bảng (tự đổi thành thẻ trên mobile) ---------- */
 .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--card); }
@@ -1433,8 +1580,8 @@ input[type="file"].input::file-selector-button { font: inherit; font-weight: 600
 .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--text-3); }
 .partner { height: 72px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--card); display: flex; align-items: center; justify-content: center; padding: 10px; font-size: 13px; font-weight: 600; color: var(--text-3); text-align: center; overflow: hidden; }
 .partner img { max-height: 100%; width: auto; object-fit: contain; }
-[data-theme="dark"] .partner img { filter: saturate(.8) brightness(.95); }
-[data-theme="dark"] .partner:hover img { filter: none; }
+[data-theme="dark"] .partner img, [data-theme="blue"] .partner img { filter: saturate(.8) brightness(.95); }
+[data-theme="dark"] .partner:hover img, [data-theme="blue"] .partner:hover img { filter: none; }
 
 /* ---------- Nhà tài trợ: dải bảng quảng cáo kiểu sân vận động ---------- */
 .sponsors { --sp-gold: color-mix(in oklab, var(--gold) 70%, transparent); display: flex; flex-direction: column; align-items: center; gap: 18px; margin-bottom: 44px; }
