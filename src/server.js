@@ -6,6 +6,7 @@ const { all, get } = require('./db');
 const fmt = require('./lib/format');
 const phone = require('./lib/phone');
 const { getSettings, loadSettings, themeColors } = require('./lib/settings');
+const themes = require('./lib/themes');
 const { PgStore, purgeExpired, csrf, securityHeaders } = require('./lib/security');
 const { UPLOAD_DIR } = require('./lib/upload');
 const youtube = require('./lib/youtube');
@@ -51,6 +52,7 @@ function createApp() {
   // Sau proxy của Vercel (hoặc Nginx/Cloudflare khi đặt TRUST_PROXY=1): lấy đúng IP người dùng và nhận HTTPS cho cookie Secure
   app.set('trust proxy', IS_VERCEL || process.env.TRUST_PROXY === '1' ? 1 : false);
   app.locals.assetV = ASSET_V;
+  app.locals.themes = themes; // danh sách giao diện cho header & CMS
   app.disable('x-powered-by');
 
   app.use(securityHeaders);

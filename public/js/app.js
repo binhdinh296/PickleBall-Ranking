@@ -16,30 +16,45 @@
   }
   window.PR = { postJSON: postJSON, csrf: csrf };
 
-  // ---- Đổi giao diện tối (Midnight / Đen huyền & Vàng sâm panh) ----
-  $$('[data-theme-toggle]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var cur = root.getAttribute('data-theme');
-      var next = cur === 'luxe' ? 'dark' : 'luxe';
-      root.setAttribute('data-theme', next);
-      try { localStorage.setItem('theme', next); } catch (e) { /* bỏ qua */ }
-      if (next === 'luxe') {
-        root.style.setProperty('--ball', '#DDB552');
-        root.style.setProperty('--court', '#9C8A6B');
-        root.style.setProperty('--gold', '#DDB552');
-      } else {
-        if (window._origColors) {
-          if (window._origColors.ball) root.style.setProperty('--ball', window._origColors.ball);
-          if (window._origColors.court) root.style.setProperty('--court', window._origColors.court);
-          if (window._origColors.gold) root.style.setProperty('--gold', window._origColors.gold);
-        } else {
-          root.style.removeProperty('--ball');
-          root.style.removeProperty('--court');
-          root.style.removeProperty('--gold');
-        }
-      }
-      btn.setAttribute('aria-label', next === 'luxe' ? 'Chuyển sang giao diện Midnight' : 'Chuyển sang giao diện Vàng sâm panh');
+  // ---- Chọn giao diện: Midnight · Vàng sâm panh · Vang đỏ & Hồng đào · Tím đêm & Oải hương ----
+  function applyTheme(t) {
+    root.setAttribute('data-theme', t);
+    if (t === 'dark') root.removeAttribute('data-flat');
+    else root.setAttribute('data-flat', '');
+    try { localStorage.setItem('theme', t); } catch (e) { /* bỏ qua */ }
+    $$('[data-theme-opt]').forEach(function (o) { o.setAttribute('aria-checked', String(o.getAttribute('data-theme-opt') === t)); });
+  }
+  $$('[data-theme-menu]').forEach(function (menu) {
+    var btn = $('[data-theme-btn]', menu);
+    var pop = $('.theme-pop', menu);
+    var opts = $$('[data-theme-opt]', menu);
+    var cur = root.getAttribute('data-theme');
+    opts.forEach(function (o) { o.setAttribute('aria-checked', String(o.getAttribute('data-theme-opt') === cur)); });
+    function open() {
+      pop.hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+      var sel = $('[aria-checked="true"]', menu) || opts[0];
+      if (sel) sel.focus();
+    }
+    function close(focusBtn) {
+      if (pop.hidden) return;
+      pop.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+      if (focusBtn) btn.focus();
+    }
+    btn.addEventListener('click', function () { if (pop.hidden) open(); else close(); });
+    opts.forEach(function (o, i) {
+      o.addEventListener('click', function () { applyTheme(o.getAttribute('data-theme-opt')); close(true); });
+      o.addEventListener('keydown', function (e) {
+        var n = opts.length;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); opts[(i + (e.key === 'ArrowDown' ? 1 : n - 1)) % n].focus(); }
+        else if (e.key === 'Home') { e.preventDefault(); opts[0].focus(); }
+        else if (e.key === 'End') { e.preventDefault(); opts[n - 1].focus(); }
+      });
     });
+    menu.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(true); });
+    document.addEventListener('click', function (e) { if (!menu.contains(e.target)) close(); });
+    menu.addEventListener('focusout', function (e) { if (e.relatedTarget && !menu.contains(e.relatedTarget)) close(); });
   });
 
   // ---- Ô chọn: hiển thị lựa chọn bằng chữ xuống dòng được (select gốc vẫn nhận thao tác) ----

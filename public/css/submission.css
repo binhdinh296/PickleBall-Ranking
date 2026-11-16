@@ -104,8 +104,8 @@
 @media (prefers-reduced-motion: reduce) { .sx-photo img { animation: none; } }
 
 /* THEME LUXE (Đen huyền & Vàng sâm panh) — trang Chấm trình: phẳng, không gradient */
-[data-theme="luxe"] .sx-visual { background: #15130F; color: #F4EFE6; box-shadow: none; border: 1px solid rgba(221, 181, 82, .38); }
-[data-theme="luxe"] .sx-photo img { filter: saturate(.82) contrast(1.04); }
-[data-theme="luxe"] .sx-photo::after { background: linear-gradient(180deg, transparent 52%, rgba(15, 14, 12, .86) 52%); border-bottom: 0; } /* băng đặc cắt cứng */
-[data-theme="luxe"] .sx-eyebrow { color: #EBCB7C; }
-[data-theme="luxe"] .sx-title { color: #F4EFE6; text-shadow: none; }
+[data-flat] .sx-visual { background: var(--f-bg2); color: var(--f-text); box-shadow: none; border: 1px solid rgba(var(--f-accent-rgb), .38); }
+[data-flat] .sx-photo img { filter: var(--f-photo-hero); }
+[data-flat] .sx-photo::after { background: linear-gradient(180deg, transparent 52%, rgba(var(--f-bg-rgb), .86) 52%); border-bottom: 0; } /* băng đặc cắt cứng */
+[data-flat] .sx-eyebrow { color: var(--f-accent-hi); }
+[data-flat] .sx-title { color: var(--f-text); text-shadow: none; }

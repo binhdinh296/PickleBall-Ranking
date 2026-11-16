@@ -678,74 +678,74 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
    THEME LUXE (Đen huyền & Vàng sâm panh) — trang chủ, PHẲNG, KHÔNG GRADIENT
    Hero nền đen ấm, ảnh cắt chéo sắc nét + nét kẻ vàng; vợt viền vàng sâm panh đặc, băng tên nền đen.
    ========================================================================== */
-[data-theme="luxe"] .hero-photo { --hp-deep: #0F0E0C; --hp-base: #0F0E0C; --hp-near: #0F0E0C; background: #0F0E0C !important; }
-[data-theme="luxe"] .hero-photo::before { background: #0F0E0C !important; -webkit-mask-image: none !important; mask-image: none !important; }
-[data-theme="luxe"] .hero-photo .hero-bg { background: none !important; }
-[data-theme="luxe"] .hero-photo .he-svg, [data-theme="luxe"] .hero-photo .he-balls { display: none !important; }
-[data-theme="luxe"] .hero-photo .hero-media { -webkit-mask-image: none !important; mask-image: none !important; }
-[data-theme="luxe"] .hero-photo .hero-media::after { background: rgba(15, 14, 12, .18) !important; } /* lớp phủ phẳng, làm dịu ảnh */
-[data-theme="luxe"] .hero-media img { filter: saturate(.8) sepia(.1) contrast(1.04); } /* ảnh ngả nhẹ tông ấm cho hợp nền */
+[data-flat] .hero-photo { --hp-deep: var(--f-bg); --hp-base: var(--f-bg); --hp-near: var(--f-bg); background: var(--f-bg) !important; }
+[data-flat] .hero-photo::before { background: var(--f-bg) !important; -webkit-mask-image: none !important; mask-image: none !important; }
+[data-flat] .hero-photo .hero-bg { background: none !important; }
+[data-flat] .hero-photo .he-svg, [data-flat] .hero-photo .he-balls { display: none !important; }
+[data-flat] .hero-photo .hero-media { -webkit-mask-image: none !important; mask-image: none !important; }
+[data-flat] .hero-photo .hero-media::after { background: rgba(var(--f-bg-rgb), .18) !important; } /* lớp phủ phẳng, làm dịu ảnh */
+[data-flat] .hero-media img { filter: var(--f-photo-hero); } /* ảnh ngả nhẹ tông ấm cho hợp nền */
 /* Mép ảnh hoà mềm vào nền đen (mặt nạ trong suốt), thay cho vết cắt chéo cứng + nét vàng */
 @media (min-width: 960px) {
-  [data-theme="luxe"] .hero-photo .hero-media { -webkit-clip-path: none !important; clip-path: none !important;
+  [data-flat] .hero-photo .hero-media { -webkit-clip-path: none !important; clip-path: none !important;
     -webkit-mask-image: linear-gradient(108deg, transparent 0%, rgba(0, 0, 0, .06) 8%, rgba(0, 0, 0, .22) 17%, rgba(0, 0, 0, .5) 27%, rgba(0, 0, 0, .8) 37%, #000 48%), linear-gradient(90deg, transparent, #000 14%), linear-gradient(180deg, #000 76%, transparent) !important;
             mask-image: linear-gradient(108deg, transparent 0%, rgba(0, 0, 0, .06) 8%, rgba(0, 0, 0, .22) 17%, rgba(0, 0, 0, .5) 27%, rgba(0, 0, 0, .8) 37%, #000 48%), linear-gradient(90deg, transparent, #000 14%), linear-gradient(180deg, #000 76%, transparent) !important;
     -webkit-mask-composite: source-in, source-in; mask-composite: intersect, intersect; }
-  [data-theme="luxe"] .hero-slash { display: none !important; }
+  [data-flat] .hero-slash { display: none !important; }
 }
 @media (max-width: 959px) {
-  [data-theme="luxe"] .hero-photo .hero-media { -webkit-clip-path: none !important; clip-path: none !important;
+  [data-flat] .hero-photo .hero-media { -webkit-clip-path: none !important; clip-path: none !important;
     -webkit-mask-image: linear-gradient(180deg, #000 58%, transparent) !important; mask-image: linear-gradient(180deg, #000 58%, transparent) !important; }
 }
 /* Nét kẻ đặc 2px chạy đúng theo mép cắt chéo (cắt cứng, không chuyển màu) */
-[data-theme="luxe"] .hero-slash { filter: none !important; box-shadow: none !important; -webkit-mask-image: none !important; mask-image: none !important;
-  background: linear-gradient(to bottom right, transparent calc(50% - 1px), #DDB552 calc(50% - 1px), #DDB552 calc(50% + 1px), transparent calc(50% + 1px)) !important; }
-[data-theme="luxe"] .hero-sport .hero-tag { background: #1B1814 !important; border: 1px solid rgba(221, 181, 82, .38) !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-[data-theme="luxe"] .hero-sport .hero-tag .chip-brand { background: #DDB552 !important; color: #14110C !important; box-shadow: none !important; }
-[data-theme="luxe"] .hero-sport .hero-tag .clip { color: #E6DCCB !important; }
-[data-theme="luxe"] .hero .hero-title { color: #F4EFE6 !important; text-shadow: none !important; }
-[data-theme="luxe"] .hero-energy .hero-copy, [data-theme="luxe"] .hero-energy .hero-lead, [data-theme="luxe"] .hero-energy .hero-features { text-shadow: none !important; }
-[data-theme="luxe"] .hero-energy .hero-lead, [data-theme="luxe"] .hero-energy .hero-features { color: #BFB5A6 !important; }
-[data-theme="luxe"] .hero-sport .hero-features svg { color: #DDB552 !important; }
-[data-theme="luxe"] .hero-sport .btn-brand.btn-sport { background: #DDB552 !important; color: #14110C !important; border-color: #DDB552 !important; box-shadow: none !important; }
-[data-theme="luxe"] .hero-sport .btn-brand.btn-sport:hover { background: #EBCB7C !important; }
-[data-theme="luxe"] .hero-sport .btn.btn-sport:not(.btn-brand) { background: transparent !important; border-color: rgba(232, 220, 200, .28) !important; color: #F4EFE6 !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+[data-flat] .hero-slash { filter: none !important; box-shadow: none !important; -webkit-mask-image: none !important; mask-image: none !important;
+  background: linear-gradient(to bottom right, transparent calc(50% - 1px), var(--f-accent) calc(50% - 1px), var(--f-accent) calc(50% + 1px), transparent calc(50% + 1px)) !important; }
+[data-flat] .hero-sport .hero-tag { background: var(--f-card) !important; border: 1px solid rgba(var(--f-accent-rgb), .38) !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+[data-flat] .hero-sport .hero-tag .chip-brand { background: var(--f-accent) !important; color: var(--f-on) !important; box-shadow: none !important; }
+[data-flat] .hero-sport .hero-tag .clip { color: var(--f-text-soft) !important; }
+[data-flat] .hero .hero-title { color: var(--f-text) !important; text-shadow: none !important; }
+[data-flat] .hero-energy .hero-copy, [data-flat] .hero-energy .hero-lead, [data-flat] .hero-energy .hero-features { text-shadow: none !important; }
+[data-flat] .hero-energy .hero-lead, [data-flat] .hero-energy .hero-features { color: var(--f-text2) !important; }
+[data-flat] .hero-sport .hero-features svg { color: var(--f-accent) !important; }
+[data-flat] .hero-sport .btn-brand.btn-sport { background: var(--f-accent) !important; color: var(--f-on) !important; border-color: var(--f-accent) !important; box-shadow: none !important; }
+[data-flat] .hero-sport .btn-brand.btn-sport:hover { background: var(--f-accent-hi) !important; }
+[data-flat] .hero-sport .btn.btn-sport:not(.btn-brand) { background: transparent !important; border-color: rgba(var(--f-line-rgb), .28) !important; color: var(--f-text) !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 
 /* VĐV nổi bật */
-[data-theme="luxe"] .paddles-section { background: none !important; }
-[data-theme="luxe"] .paddle, [data-theme="luxe"] .paddle-horizontal {
-  --m-hi: #DDB552; --m-mid: #DDB552; --m-lo: #9A7A33; --edge: #DDB552; --glow: transparent;
-  --b-mid: #DDB552; --b-lo: #DDB552; --b-ink: #14110C; --t-glow: #EBCB7C; --t-ink: #EBCB7C; }
-[data-theme="luxe"] .paddle .paddle-head { box-shadow: 0 22px 40px -26px rgba(0, 0, 0, .9) !important; filter: none !important; }
-[data-theme="luxe"] .paddle .paddle-shade { background: linear-gradient(180deg, transparent 62%, rgba(15, 14, 12, .9) 62%) !important; /* băng đặc (cắt cứng) */
-  box-shadow: inset 0 0 0 1px rgba(15, 14, 12, .6) !important; }
-[data-theme="luxe"] .paddle-lines { display: none !important; }
-[data-theme="luxe"] .paddle .paddle-ball { background: radial-gradient(circle, rgba(20, 17, 12, .35) 2.2px, transparent 2.6px) 0 0 / 11px 11px, #DDB552 !important;
-  box-shadow: 0 0 0 2px #0F0E0C, 0 0 0 3px #DDB552, 0 8px 16px -8px rgba(0, 0, 0, .8) !important; }
-[data-theme="luxe"] .paddle .paddle-ball span { color: #14110C !important; text-shadow: none !important; }
-[data-theme="luxe"] .paddle .p-bar { background: #DDB552 !important; box-shadow: none !important; }
-[data-theme="luxe"] .p-pts { color: #EBCB7C !important; }
-[data-theme="luxe"] .paddle-throat, [data-theme="luxe"] .paddle-cap { background: #DDB552 !important; }
-[data-theme="luxe"] .paddle-handle { background: repeating-linear-gradient(-38deg, #1F1B16 0 8px, #2C2620 8px 10px) !important; box-shadow: inset 0 0 0 1px rgba(232, 220, 200, .08) !important; }
-[data-theme="luxe"] .paddle-info { background: #15130F !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+[data-flat] .paddles-section { background: none !important; }
+[data-flat] .paddle, [data-flat] .paddle-horizontal {
+  --m-hi: var(--f-accent); --m-mid: var(--f-accent); --m-lo: var(--f-accent-3); --edge: var(--f-accent); --glow: transparent;
+  --b-mid: var(--f-accent); --b-lo: var(--f-accent); --b-ink: var(--f-on); --t-glow: var(--f-accent-hi); --t-ink: var(--f-accent-hi); }
+[data-flat] .paddle .paddle-head { box-shadow: 0 22px 40px -26px rgba(0, 0, 0, .9) !important; filter: none !important; }
+[data-flat] .paddle .paddle-shade { background: linear-gradient(180deg, transparent 62%, rgba(var(--f-bg-rgb), .9) 62%) !important; /* băng đặc (cắt cứng) */
+  box-shadow: inset 0 0 0 1px rgba(var(--f-bg-rgb), .6) !important; }
+[data-flat] .paddle-lines { display: none !important; }
+[data-flat] .paddle .paddle-ball { background: radial-gradient(circle, rgba(var(--f-on-rgb), .35) 2.2px, transparent 2.6px) 0 0 / 11px 11px, var(--f-accent) !important;
+  box-shadow: 0 0 0 2px var(--f-bg), 0 0 0 3px var(--f-accent), 0 8px 16px -8px rgba(0, 0, 0, .8) !important; }
+[data-flat] .paddle .paddle-ball span { color: var(--f-on) !important; text-shadow: none !important; }
+[data-flat] .paddle .p-bar { background: var(--f-accent) !important; box-shadow: none !important; }
+[data-flat] .p-pts { color: var(--f-accent-hi) !important; }
+[data-flat] .paddle-throat, [data-flat] .paddle-cap { background: var(--f-accent) !important; }
+[data-flat] .paddle-handle { background: repeating-linear-gradient(-38deg, var(--f-stripe-a) 0 8px, var(--f-stripe-b) 8px 10px) !important; box-shadow: inset 0 0 0 1px rgba(var(--f-line-rgb), .08) !important; }
+[data-flat] .paddle-info { background: var(--f-bg2) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 /* Slide hài hoà: viền vàng mảnh, ảnh VĐV ngả cùng tông ấm, mép phải mờ dần (mặt nạ trong suốt, không phải dải màu) */
-[data-theme="luxe"] .paddle .paddle-head { padding: 3px !important; }
-[data-theme="luxe"] .paddle .paddle-face { inset: 3px !important; }
-[data-theme="luxe"] .paddle .paddle-face img { filter: saturate(.66) sepia(.22) brightness(.95) contrast(1.04); }
-[data-theme="luxe"] .paddle:hover .paddle-face img, [data-theme="luxe"] .paddle:focus-within .paddle-face img, [data-theme="luxe"] .paddle.is-open .paddle-face img { filter: blur(2px) saturate(.66) sepia(.22) brightness(.8); }
+[data-flat] .paddle .paddle-head { padding: 3px !important; }
+[data-flat] .paddle .paddle-face { inset: 3px !important; }
+[data-flat] .paddle .paddle-face img { filter: var(--f-photo); }
+[data-flat] .paddle:hover .paddle-face img, [data-flat] .paddle:focus-within .paddle-face img, [data-flat] .paddle.is-open .paddle-face img { filter: blur(2px) var(--f-photo) brightness(.84); }
 @media (hover: none) {
-  [data-theme="luxe"] .paddle:hover:not(.is-open):not(:focus-within) .paddle-face img { filter: saturate(.66) sepia(.22) brightness(.95) contrast(1.04); }
+  [data-flat] .paddle:hover:not(.is-open):not(:focus-within) .paddle-face img { filter: var(--f-photo); }
 }
-[data-theme="luxe"] .paddle-throat { width: 26%; height: 14px; }
-[data-theme="luxe"] .paddle-handle { width: 16%; }
-[data-theme="luxe"] .paddle-cap { height: 8px; left: -4%; right: -4%; }
-[data-theme="luxe"] .pg-progress { background: rgba(232, 220, 200, .10) !important; }
-[data-theme="luxe"] .pg-progress i { background: #DDB552 !important; box-shadow: none !important; }
-[data-theme="luxe"] .ball-dot { background: rgba(232, 220, 200, .16) !important; box-shadow: none !important; }
-[data-theme="luxe"] .ball-dot.is-active { background: #DDB552 !important; box-shadow: none !important; }
+[data-flat] .paddle-throat { width: 26%; height: 14px; }
+[data-flat] .paddle-handle { width: 16%; }
+[data-flat] .paddle-cap { height: 8px; left: -4%; right: -4%; }
+[data-flat] .pg-progress { background: rgba(var(--f-line-rgb), .10) !important; }
+[data-flat] .pg-progress i { background: var(--f-accent) !important; box-shadow: none !important; }
+[data-flat] .ball-dot { background: rgba(var(--f-line-rgb), .16) !important; box-shadow: none !important; }
+[data-flat] .ball-dot.is-active { background: var(--f-accent) !important; box-shadow: none !important; }
 
 /* Khối kêu gọi chấm trình */
-[data-theme="luxe"] .cta-frame { background: rgba(221, 181, 82, .38) !important; padding: 1px !important; }
-[data-theme="luxe"] .cta-inner { background: #15130F !important; }
-[data-theme="luxe"] .cta-inner .info-tile { background: #1B1814 !important; box-shadow: none !important; }
-[data-theme="luxe"] .cta-inner .step-num { background: transparent !important; border: 1px solid #DDB552 !important; color: #EBCB7C !important; text-shadow: none !important; box-shadow: none !important; }
+[data-flat] .cta-frame { background: rgba(var(--f-accent-rgb), .38) !important; padding: 1px !important; }
+[data-flat] .cta-inner { background: var(--f-bg2) !important; }
+[data-flat] .cta-inner .info-tile { background: var(--f-card) !important; box-shadow: none !important; }
+[data-flat] .cta-inner .step-num { background: transparent !important; border: 1px solid var(--f-accent) !important; color: var(--f-accent-hi) !important; text-shadow: none !important; box-shadow: none !important; }

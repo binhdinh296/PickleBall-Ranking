@@ -1,4 +1,5 @@
 const express = require('express');
+const { normalizeTheme } = require('../../lib/themes');
 const { all, get, run } = require('../../db');
 const phoneLib = require('../../lib/phone');
 const otp = require('../../lib/otp');
@@ -58,8 +59,7 @@ router.post('/cau-hinh', admin, wrap(async (req, res) => {
   }
   const fail = (error) => res.status(400).render('admin/settings', { title: 'Cấu hình', s: { ...getSettings(), ...values }, error, providers: otp.providerNames, defaultPrefixes: phoneLib.prefixesText() });
   for (const k of ['color_ball', 'color_court', 'color_gold']) if (!isHex(values[k])) return fail('Màu phải ở dạng #RRGGBB.');
-  if (values.default_theme === 'blue') values.default_theme = 'luxe'; // theme xanh dương cũ → theme mới
-  if (!['dark', 'luxe'].includes(values.default_theme)) values.default_theme = 'dark';
+  if ('default_theme' in values) values.default_theme = normalizeTheme(values.default_theme); // 'blue' cũ → 'luxe', giá trị lạ → 'dark'
   if (!otp.providerNames.includes(values.otp_provider)) return fail('Nhà cung cấp OTP không hợp lệ.');
   for (const k of ['facebook_url', 'youtube_url', 'zalo_group_url', 'privacy_url']) {
     if (values[k] && !/^https?:\/\//.test(values[k])) return fail('Các link mạng xã hội/chính sách phải bắt đầu bằng http:// hoặc https://');
