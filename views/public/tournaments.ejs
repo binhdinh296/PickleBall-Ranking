@@ -1,113 +1,73 @@
 <%- include('../partials/top', { pageScript: 'tournaments' }) %>
 <%
   const tabs = [
+    ['all', 'Tất cả', groups.all.length],
     ['ongoing', 'Đang diễn ra', groups.ongoing.length],
     ['upcoming', 'Sắp diễn ra', groups.upcoming.length],
-    ['ended', 'Đã kết thúc', groups.ended.length],
-    ['all', 'Tất cả', groups.all.length]
+    ['ended', 'Đã kết thúc', groups.ended.length]
   ];
   const currentTabObj = tabs.find((t) => t[0] === tab) || tabs[0];
   const currentEvents = groups[tab] || [];
-  // Giải tâm điểm: ưu tiên giải đang diễn ra, nếu không thì giải đầu tiên của mục đang xem
-  const featured = currentEvents.find((e) => e.status === 'ongoing') || currentEvents[0] || null;
-  const others = currentEvents.filter((e) => e !== featured);
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
-  const season = today.slice(0, 4);
-  const pad2 = (n) => String(n).padStart(2, '0');
-  const prizeTotal = String(stats.totalPrizes || '').replace(/\s*đ$/, '');
 %>
 
-<div class="tx">
-  <!-- ===== Hero: ảnh cúp vô địch + trận đấu ===== -->
-  <section class="tx-hero">
-    <div class="tx-hero-media" aria-hidden="true">
-      <img src="/static/img/tournaments-hero.webp?v=<%= locals.assetV || "" %>"
-        srcset="/static/img/tournaments-hero-sm.webp?v=<%= locals.assetV || "" %> 1200w, /static/img/tournaments-hero.webp?v=<%= locals.assetV || "" %> 2000w"
-        sizes="(max-width: 899px) 1100px, (min-width: 1100px) 66vw, 100vw" width="2000" height="750" alt="" fetchpriority="high" decoding="async">
+<section class="page-head glow" style="padding-block: 22px 18px;">
+  <div class="container stack" style="--gap: 12px;">
+    <div class="row" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <span class="eyebrow" style="margin: 0;"><span class="brand-dot"></span>HỆ THỐNG GIẢI ĐẤU</span>
+      <span class="tiny faint"><%= site.site_name %> Championship Tour</span>
     </div>
-
-    <div class="container tx-hero-inner">
-      <div class="tx-hero-copy">
-        <span class="tx-eyebrow"><span class="tx-eyebrow-ball"></span><%= site.site_name %> Championship Tour · Mùa giải <%= season %></span>
-        <h1 class="tx-title">
-          <span class="tx-title-sm">Hệ thống</span>
-          <span class="tx-title-xl">Giải đấu</span>
-        </h1>
-      </div>
-
-      <!-- Bảng tỉ số (desktop rộng: nằm cột trái, chừa cột phải cho cúp) -->
-      <div class="tx-board" role="list" aria-label="Thống kê giải đấu">
-        <div class="tx-cell is-live" role="listitem">
-          <span class="tx-cell-label"><span class="live-dot"></span>Đang diễn ra</span>
-          <strong class="tx-led tnum"><%= pad2(stats.ongoing) %></strong>
-        </div>
-        <div class="tx-cell" role="listitem">
-          <span class="tx-cell-label">Sắp khởi tranh</span>
-          <strong class="tx-led tnum"><%= pad2(stats.upcoming) %></strong>
-        </div>
-        <div class="tx-cell" role="listitem">
-          <span class="tx-cell-label">Đã bế mạc</span>
-          <strong class="tx-led tnum"><%= pad2(stats.ended) %></strong>
-        </div>
-        <div class="tx-cell" role="listitem">
-          <span class="tx-cell-label">Đội đăng ký</span>
-          <strong class="tx-led tnum"><%= pad2(stats.totalTeams || 0) %></strong>
-        </div>
-        <div class="tx-cell is-prize" role="listitem">
-          <span class="tx-cell-label">Tổng quỹ thưởng</span>
-          <strong class="tx-led tnum"><%= prizeTotal %><small>đ</small></strong>
-        </div>
+    <div class="row" style="justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px;">
+      <div>
+        <h1 class="h1" style="font-size: clamp(26px, 5.5vw, 36px); margin: 0; line-height: 1.15;">Giải Đấu Pickleball</h1>
+        <p class="muted small" style="margin-top: 4px;">Theo dõi lịch thi đấu, sơ đồ nhánh đấu và kết quả các giải đấu</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ===== Bộ lọc + tìm kiếm ===== -->
-  <section class="tx-main" id="danh-sach-giai">
-    <div class="container">
-      <div class="tx-controls">
-        <nav class="tx-tabs" aria-label="Lọc giải đấu">
-          <% tabs.forEach(([k, label, count]) => { %>
-            <a class="tx-tab<%= tab === k ? ' is-active' : '' %>" href="/giai-dau?tab=<%= k %>#danh-sach-giai"<% if (tab === k) { %> aria-current="page"<% } %>>
-              <span><%= label %></span><b class="tnum"><%= count %></b>
-            </a>
-          <% }) %>
-        </nav>
-        <label class="tx-search">
-          <%- include('../partials/icon', { name: 'search' }) %>
-          <span class="sr-only">Tìm giải đấu</span>
-          <input type="search" id="tourSearchInput" placeholder="Tìm tên giải, cụm sân, địa điểm…" autocomplete="off" spellcheck="false">
-        </label>
-      </div>
+<section class="tx-main" id="danh-sach-giai" style="padding-top: 14px;">
+  <div class="container stack" style="--gap: 18px;">
+    <!-- Thanh điều khiển: Tab lọc trạng thái + Tìm kiếm -->
+    <div class="tx-controls">
+      <nav class="tx-tabs" aria-label="Lọc giải đấu">
+        <% tabs.forEach(([k, label, count]) => { %>
+          <a class="tx-tab<%= tab === k ? ' is-active' : '' %>" href="/giai-dau?tab=<%= k %>#danh-sach-giai"<% if (tab === k) { %> aria-current="page"<% } %>>
+            <span><%= label %></span><b class="tnum"><%= count %></b>
+          </a>
+        <% }) %>
+      </nav>
+      <label class="tx-search">
+        <%- include('../partials/icon', { name: 'search' }) %>
+        <span class="sr-only">Tìm giải đấu</span>
+        <input type="search" id="tourSearchInput" placeholder="Tìm tên giải, cụm sân, địa điểm…" autocomplete="off" spellcheck="false">
+      </label>
+    </div>
 
-      <div id="searchEmptyMessage" class="tx-empty" style="display: none;">
+    <!-- Thông báo khi tìm kiếm không có kết quả -->
+    <div id="searchEmptyMessage" class="tx-empty" style="display: none;">
+      <span class="tx-empty-ball" aria-hidden="true"></span>
+      <p>Không tìm thấy giải đấu nào khớp với từ khóa.</p>
+      <button type="button" class="btn btn-sm btn-lux-outline" data-search-clear>Xóa tìm kiếm</button>
+    </div>
+
+    <!-- Danh sách toàn cảnh giải đấu -->
+    <% if (!currentEvents.length) { %>
+      <div class="tx-empty">
         <span class="tx-empty-ball" aria-hidden="true"></span>
-        <p><strong>Bóng ra ngoài!</strong> Không có giải nào khớp từ khóa.</p>
-        <button type="button" class="btn btn-sm btn-lux-outline" data-search-clear>Xóa tìm kiếm</button>
+        <p>Hiện chưa có giải đấu nào trong mục <strong><%= currentTabObj[1] %></strong>.</p>
+        <a class="btn btn-sm btn-brand" href="/giai-dau?tab=all#danh-sach-giai">Xem tất cả giải đấu</a>
+      </div>
+    <% } else { %>
+      <div class="tx-grid" id="tournamentGrid">
+        <% currentEvents.forEach((e) => { %><%- include('../partials/tour-card', { e, today }) %><% }) %>
       </div>
 
-      <% if (!currentEvents.length) { %>
-        <div class="tx-empty">
-          <span class="tx-empty-ball" aria-hidden="true"></span>
-          <p>Hiện chưa có giải nào trong mục <strong><%= currentTabObj[1] %></strong>.</p>
-          <a class="btn btn-sm btn-brand" href="/giai-dau?tab=all#danh-sach-giai">Xem tất cả giải đấu</a>
-        </div>
-      <% } else { %>
-        <div class="tx-net" data-net-for="featured"><span>Tâm điểm</span></div>
-        <%- include('../partials/tour-card', { e: featured, featured: true, today }) %>
-
-        <% if (others.length) { %>
-          <div class="tx-net" data-net-for="grid"><span><%= tab === 'all' ? 'Tất cả giải đấu' : currentTabObj[1] %></span><b class="tnum"><%= others.length %></b></div>
-          <div class="tx-grid" id="tournamentGrid">
-            <% others.forEach((e) => { %><%- include('../partials/tour-card', { e, featured: false, today }) %><% }) %>
-          </div>
-          <%# Không có JS thì hiện đủ danh sách; tournaments.js thu gọn còn 9 giải và bật nút này %>
-          <div class="tx-more" data-load-more-wrap hidden>
-            <button type="button" class="tx-more-btn" data-load-more aria-controls="tournamentGrid">Xem thêm <b class="tnum" data-load-more-count></b> giải</button>
-          </div>
-        <% } %>
-      <% } %>
-    </div>
-  </section>
-</div>
+      <div class="tx-more" data-load-more-wrap hidden>
+        <button type="button" class="tx-more-btn" data-load-more aria-controls="tournamentGrid">Xem thêm <b class="tnum" data-load-more-count></b> giải</button>
+      </div>
+    <% } %>
+  </div>
+</section>
 
 <%- include('../partials/bottom', { pageScript: 'tournaments' }) %>

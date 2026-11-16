@@ -40,8 +40,7 @@ router.get('/', wrap(async (req, res) => {
 
   groups.upcoming.reverse();
 
-  const tab = ['all', 'ongoing', 'upcoming', 'ended'].includes(req.query.tab) ? req.query.tab
-    : groups.ongoing.length ? 'ongoing' : groups.upcoming.length ? 'upcoming' : 'ended';
+  const tab = ['all', 'ongoing', 'upcoming', 'ended'].includes(req.query.tab) ? req.query.tab : 'all';
 
   res.render('public/tournaments', {
     title: 'Hệ thống giải đấu',
