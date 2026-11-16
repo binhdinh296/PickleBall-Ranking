@@ -140,7 +140,6 @@ router.post('/cham-trinh', submitLimiter, upload.any(), verifyCsrf, wrap(async (
   if (!values.full_name || !values.hometown || !values.club) return fail('Vui lòng nhập đầy đủ họ tên, quê quán và câu lạc bộ.');
   if (!ph.ok) return fail(ph.error);
   if (pointsVal === null || pointsVal < floor) return fail(`Điểm trình tối thiểu cho VĐV ${fmt.GENDER_LABEL[values.gender]} là ${fmt.pts(floor)}.`);
-  if (b.consent !== '1') return fail('Bạn cần đồng ý với chính sách xử lý dữ liệu cá nhân.');
   if (await get('SELECT 1 FROM athletes WHERE phone = ?', ph.phone)) return fail('Số điện thoại này đã có trong hệ thống VĐV. Liên hệ ban tổ chức nếu cần điều chỉnh.');
   if (await get("SELECT 1 FROM submissions WHERE phone = ? AND status = 'pending'", ph.phone)) return fail('Số điện thoại này đã có đơn đang chờ duyệt.');
   if (!b.cropped_avatar_data) return fail('Bạn cần chọn ảnh và bấm "Áp dụng" trước khi gửi đơn.');

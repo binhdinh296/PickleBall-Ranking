@@ -420,4 +420,31 @@
       });
     }
   })();
+
+  // ---- Đăng ký qua link ngắn: ô chọn trình chỉ hiện các mức trong khoảng của nội dung đang chọn ----
+  $$('[data-level-form]').forEach(function (form) {
+    var selects = $$('[data-level-select]', form);
+    if (!selects.length) return;
+    var levels = $$('option', selects[0]).map(function (o) { return { v: o.value, t: o.textContent }; });
+    function apply() {
+      var picked = $('input[name=division_id]:checked', form);
+      var min = (picked && parseInt(picked.getAttribute('data-min'), 10)) || 0;
+      var max = (picked && parseInt(picked.getAttribute('data-max'), 10)) || Infinity;
+      selects.forEach(function (sel) {
+        var cur = sel.value;
+        sel.innerHTML = '';
+        levels.forEach(function (o) {
+          var v = parseInt(o.v, 10);
+          if (o.v && (v < min || v > max)) return;
+          var opt = document.createElement('option');
+          opt.value = o.v; opt.textContent = o.t;
+          if (o.v === cur) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        if (sel.value !== cur) sel.value = '';
+      });
+    }
+    $$('input[name=division_id]', form).forEach(function (r) { r.addEventListener('change', apply); });
+    apply();
+  });
 })();

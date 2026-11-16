@@ -5,8 +5,11 @@
   const title = /^giải\b/i.test(ev.name.trim()) ? ev.name : `Giải ${ev.name}`;
   // Tách từ cuối để làm nổi (vd. "Đôi nữ" + "3.2", "Đôi nam" + "Newbie")
   const split = (name) => { const w = String(name).trim().split(/\s+/); const last = w.pop(); return { head: w.join(' '), tail: last }; };
-  const limit = (d) => [d.subtitle, d.max_total_points ? `Tổng ≤ ${fmt.pts(d.max_total_points)}` : null,
-    d.max_player_points ? `Mỗi VĐV ≤ ${fmt.pts(d.max_player_points)}` : null, d.gender_rule !== 'any' ? fmt.GENDER_RULE_LABEL[d.gender_rule] : null].filter(Boolean).join(' · ');
+  const lv = (v) => (fmt.LEVELS.includes(v) ? fmt.levelLabel(v) : fmt.pts(v));
+  const range = (d) => (d.min_player_points && d.max_player_points ? `Trình ${lv(d.min_player_points)}–${lv(d.max_player_points)}`
+    : d.min_player_points ? `Trình từ ${lv(d.min_player_points)}` : d.max_player_points ? `Trình đến ${lv(d.max_player_points)}` : null);
+  const limit = (d) => [d.subtitle, range(d), d.max_total_points ? `Tổng ≤ ${fmt.numShort(d.max_total_points)}` : null,
+    d.gender_rule !== 'any' ? fmt.GENDER_RULE_LABEL[d.gender_rule] : null].filter(Boolean).join(' · ');
   const icon = (n) => include('../partials/icon', { name: n });
 %>
 <div class="rl">
@@ -27,17 +30,17 @@
     <% } else if (!ev.divisions.length) { %>
     <div class="rl-empty">Giải chưa mở nội dung thi đấu.</div>
     <% } else { %>
-    <form class="rl-form" method="post" action="<%= formAction %>" data-once novalidate>
+    <form class="rl-form" method="post" action="<%= formAction %>" data-once novalidate data-level-form>
       <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
       <% if (error) { %><div class="rl-error" role="alert"><%= error %></div><% } %>
 
       <div class="rl-players">
         <% [1, 2].forEach((n) => { %>
-        <fieldset class="rl-player rl-p<%= n %>" data-lookup>
+        <fieldset class="rl-player rl-p<%= n %>">
           <legend class="rl-ptitle"><%- icon('users') %>Vận động viên <%= n %></legend>
           <div class="rl-field">
             <label for="full_name<%= n %>">Họ và tên</label>
-            <input class="rl-input" id="full_name<%= n %>" name="full_name<%= n %>" maxlength="80" required data-lookup-name autocomplete="<%= n === 1 ? 'name' : 'off' %>" placeholder="Ví dụ: <%= n === 1 ? 'Nguyễn Văn A' : 'Trần Thị B' %>" value="<%= values[`name${n}`] || '' %>">
+            <input class="rl-input" id="full_name<%= n %>" name="full_name<%= n %>" maxlength="80" required autocomplete="<%= n === 1 ? 'name' : 'off' %>" placeholder="Ví dụ: <%= n === 1 ? 'Nguyễn Văn A' : 'Trần Thị B' %>" value="<%= values[`name${n}`] || '' %>">
           </div>
           <div class="rl-row">
             <div class="rl-field">
@@ -47,10 +50,12 @@
             </div>
             <div class="rl-field">
               <label for="trinh<%= n %>">Trình độ</label>
-              <input class="rl-input tnum" id="trinh<%= n %>" name="trinh<%= n %>" inputmode="decimal" required data-lookup-points placeholder="Ví dụ 3.500" value="<%= values[`trinh${n}`] || '' %>">
+              <select class="rl-input tnum" id="trinh<%= n %>" name="trinh<%= n %>" required data-level-select>
+                <option value="">Chọn trình</option>
+                <% fmt.LEVELS.forEach((v) => { %><option value="<%= v %>" <%= String(values[`trinh${n}`]) === String(v) ? 'selected' : '' %>><%= fmt.levelLabel(v) %></option><% }) %>
+              </select>
             </div>
           </div>
-          <span class="rl-hint" data-lookup-status aria-live="polite"></span>
         </fieldset>
         <% }) %>
       </div>
@@ -60,7 +65,7 @@
         <div class="rl-divs">
           <% ev.divisions.forEach((d) => { const checked = String(values.division_id) === String(d.id) || (!values.division_id && ev.divisions.length === 1); const s = split(d.name); const lim = limit(d); %>
           <label class="rl-div">
-            <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required>
+            <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required data-min="<%= d.min_player_points || '' %>" data-max="<%= d.max_player_points || '' %>">
             <% if (d.banner) { %>
             <span class="rl-badge rl-badge-img"><img src="<%= d.banner %>" alt="<%= d.name %>" loading="lazy"></span>
             <% } else { %>
@@ -73,7 +78,6 @@
       </fieldset>
 
       <% if (otpEnabled) { %><div class="rl-otp"><%- include('../partials/otp', { purpose: 'registration', phoneInput: 'phone1', who: 'VĐV 1' }) %></div><% } %>
-      <label class="rl-consent"><input type="checkbox" name="consent" value="1" required><span>Tôi xác nhận thông tin đúng và đồng ý cho ban tổ chức xử lý dữ liệu theo <a href="/chinh-sach-quyen-rieng-tu" target="_blank">chính sách quyền riêng tư</a>. Danh sách công khai chỉ hiện tên, không hiện số điện thoại.</span></label>
       <button class="rl-submit" type="submit">Xác nhận đăng ký</button>
     </form>
     <% } %>

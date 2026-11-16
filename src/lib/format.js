@@ -109,6 +109,19 @@ function pad2(n) {
   return String(n).padStart(2, '0');
 }
 
+// ---- Thang trình độ khi đăng ký giải: 1.0, 1.5 … 5.0, 5.5+ (lưu theo phần nghìn như điểm: 1000 … 5500) ----
+const LEVELS = [1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500];
+const levelLabel = (v) => (v >= 5500 ? '5.5+' : (v / 1000).toFixed(1));
+// Giá trị từ ô chọn trình ("3000" hoặc "3.0") → số phần nghìn; không thuộc thang → null
+function parseLevel(v) {
+  const s = String(v ?? '').trim();
+  if (!s) return null;
+  const n = /^\d{4}$/.test(s) ? parseInt(s, 10) : parsePoints(s.replace('+', ''));
+  return LEVELS.includes(n) ? n : null;
+}
+// Số gọn cho giới hạn tổng trình: 6500 → "6.5", 6250 → "6.25", 7000 → "7.0"
+const numShort = (v) => { const n = Number((v / 1000).toFixed(3)); return Number.isInteger(n) ? n.toFixed(1) : String(n); };
+
 // Thoát ký tự HTML cho chuỗi chèn bằng <%- %> (vd. tiêu đề trang chủ lấy từ CMS)
 function esc(v) {
   return String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -118,4 +131,5 @@ module.exports = {
   pts, signedPts, parsePoints, money, dateVN, dateTimeVN, toLocalInput, fromLocalInput, today, eventStatus, duration,
   EVENT_STATUS_LABEL, REG_STATUS_LABEL, SUB_STATUS_LABEL, MATCH_STATUS_LABEL, LIVE_STATUS_LABEL, GENDER_LABEL,
   ROLE_LABEL, GENDER_RULE_LABEL, slugify, initials, displayName, pad2, esc,
+  LEVELS, levelLabel, parseLevel, numShort,
 };

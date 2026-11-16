@@ -21,7 +21,7 @@
         <ul class="sx-facts">
           <li><span>Nam</span><b class="tnum">từ <%= floorM %></b></li>
           <li><span>Nữ</span><b class="tnum">từ <%= floorF %></b></li>
-          <li><span>Xác minh</span><b><%= otpEnabled ? 'Mã OTP' : 'Số di động' %></b></li>
+          <li><span>Ảnh đại diện</span><b>Bắt buộc</b></li>
         </ul>
       </div>
     </aside>
@@ -80,7 +80,6 @@
           <div class="sx-step-body">
             <%- include('../partials/avatar-crop', { required: true }) %>
             <% if (otpEnabled) { %><%- include('../partials/otp', { purpose: 'submission', phoneInput: 'phone' }) %><% } %>
-            <label class="check"><input type="checkbox" name="consent" value="1" required><span>Tôi đồng ý cho ban tổ chức xử lý họ tên, số điện thoại và ảnh để xét duyệt và hiển thị trên bảng xếp hạng, theo <a class="link" href="/chinh-sach-quyen-rieng-tu" target="_blank" rel="noopener">chính sách quyền riêng tư</a>.</span></label>
           </div>
         </fieldset>
 

@@ -36,12 +36,13 @@
 .kpi b { font-size: 28px; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .kpi span { font-size: 13px; color: var(--text-3); }
 .list { border-radius: var(--r-md); border: 1px solid var(--line); background: var(--card); overflow: hidden; }
-.list-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); min-width: 0; }
+.list-item { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); min-width: 0; }
 .list-item:last-child { border-bottom: 0; }
-.list-item .main { flex: 1; min-width: 0; }
+/* Phần nội dung luôn giữ ít nhất ~180px; cột chip/nút bên phải tự xuống dòng thay vì bóp tên thành từng chữ */
+.list-item .main { flex: 1 1 180px; min-width: 0; }
 .list-item .main strong { display: block; overflow-wrap: anywhere; line-height: 1.35; }
 .list-item .main .sub { font-size: 13px; color: var(--text-3); overflow-wrap: anywhere; }
-.list-item .side { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.list-item .side { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
 .inline-form { display: inline; }
 .inline-form button { cursor: pointer; }
 .section-title { font-size: 17px; font-weight: 800; }
@@ -56,8 +57,9 @@
 .div-row { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--card); }
 .div-row [data-div-remove] { align-self: flex-start; }
 .secret { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px !important; }
-.copy-row { display: flex; gap: 8px; }
-.copy-row .input { flex: 1; min-width: 0; }
+@media (max-width: 640px) { .secret { font-size: 16px !important; } } /* iPhone tự phóng to khi chữ ô nhập < 16px */
+.copy-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.copy-row .input { flex: 1 1 200px; min-width: 0; }
 
 /* Nhập tỉ số tại sân (tối ưu cho điện thoại cầm dọc) */
 .scorer { display: flex; flex-direction: column; gap: 14px; }
@@ -86,3 +88,11 @@
 .partner-edit-head { display: flex; gap: 12px; flex-wrap: wrap; }
 .partner-edit-head .partner { width: 120px; flex: none; }
 .partner-edit-head .stack { flex: 1 1 200px; }
+
+/* ---- Điện thoại: dễ chạm, đủ chữ ---- */
+summary.link { display: inline-flex; align-items: center; min-height: 36px; }
+@media (max-width: 640px) {
+  .kpi { padding: 12px; }
+  .kpi b { font-size: clamp(20px, 6vw, 28px); }
+  .kpis[style*="repeat(3"] .kpi b { font-size: clamp(18px, 5.4vw, 26px); }
+}

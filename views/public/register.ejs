@@ -58,7 +58,6 @@
         <% }) %>
       </div>
       <% if (otpEnabled) { %><%- include('../partials/otp', { purpose: 'registration', phoneInput: 'phone1', who: 'VĐV 1' }) %><% } %>
-      <label class="check"><input type="checkbox" name="consent" value="1" required><span>Tôi xác nhận thông tin đúng và đồng ý cho ban tổ chức xử lý dữ liệu theo <a class="link" href="/chinh-sach-quyen-rieng-tu" target="_blank">chính sách quyền riêng tư</a>. Danh sách công khai chỉ hiện tên, không hiện số điện thoại.</span></label>
       <button class="btn btn-brand btn-lg btn-block" type="submit">Gửi đăng ký</button>
     </form>
     <% } %>

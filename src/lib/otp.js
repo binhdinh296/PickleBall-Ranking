@@ -46,9 +46,10 @@ function codeHash(phone, purpose, code) {
   return hmac(`${phone}|${purpose}|${code}`);
 }
 
+// Form công khai (chấm trình, đăng ký giải) không yêu cầu OTP: tắt hẳn để API gửi mã không bị dùng gửi tin rác.
+// Chỉ còn mục đích đăng nhập CMS (nếu dùng) luôn bật.
 function isEnabled(purpose) {
-  if (purpose === 'admin_login') return true;
-  return getSettings().otp_enabled === '1';
+  return purpose === 'admin_login';
 }
 
 async function send({ phone: rawPhone, purpose, ip }) {

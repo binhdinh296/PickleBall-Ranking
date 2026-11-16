@@ -7,6 +7,8 @@ const bracket = require('../lib/bracket');
 const { rateLimit } = require('../lib/security');
 
 const router = express.Router();
+// Đăng ký thi đấu không cần OTP (VĐV điền form là gửi được); OTP vẫn áp dụng cho đơn chấm trình theo cấu hình
+const REGISTRATION_OTP = false;
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 router.get('/', wrap(async (req, res) => {
@@ -107,7 +109,7 @@ router.get('/:slug', wrap(loadEvent), wrap(async (req, res) => {
 function registerView(res, ev, extra, opts = {}) {
   res.render(opts.lite ? 'public/register-lite' : 'public/register', {
     title: `Đăng ký – ${ev.name}`, ev, values: {}, error: null, done: false,
-    otpEnabled: otp.isEnabled('registration'),
+    otpEnabled: REGISTRATION_OTP,
     formAction: opts.formAction || `/giai-dau/${ev.slug}/dang-ky`,
     ...(opts.lite ? { bare: true, pageStyle: 'reglite' } : {}), ...extra,
   });
@@ -136,24 +138,39 @@ async function submitRegistration(req, res, ev, opts = {}) {
   if (!p1.ok) return fail(`VĐV 1: ${p1.error}`);
   if (!p2.ok) return fail(`VĐV 2: ${p2.error}`);
   if (p1.phone === p2.phone) return fail('Hai vận động viên không được dùng chung số điện thoại.');
-  if (b.consent !== '1') return fail('Bạn cần đồng ý với chính sách xử lý dữ liệu cá nhân.');
 
-  // Có hồ sơ trong hệ thống thì dùng điểm hệ thống, không dùng điểm tự khai
   const a1 = await get('SELECT * FROM athletes WHERE phone = ?', p1.phone);
   const a2 = await get('SELECT * FROM athletes WHERE phone = ?', p2.phone);
-  const pts1 = a1 ? a1.points : fmt.parsePoints(values.trinh1);
-  const pts2 = a2 ? a2.points : fmt.parsePoints(values.trinh2);
-  if (pts1 === null || pts2 === null) return fail('Vui lòng nhập trình độ hợp lệ, ví dụ 3.500.');
-  if (d.max_player_points && (pts1 > d.max_player_points || pts2 > d.max_player_points)) {
-    return fail(`Trình mỗi VĐV không vượt quá ${fmt.pts(d.max_player_points)}.`);
+  let pts1;
+  let pts2;
+  if (opts.lite) {
+    // Link đăng ký của đơn vị tổ chức: VĐV chọn trình theo thang 1.0 … 5.5+ của giải
+    pts1 = fmt.parseLevel(values.trinh1);
+    pts2 = fmt.parseLevel(values.trinh2);
+    if (pts1 === null || pts2 === null) return fail('Vui lòng chọn trình độ cho cả 2 vận động viên.');
+  } else {
+    // Có hồ sơ trong hệ thống thì dùng điểm hệ thống, không dùng điểm tự khai
+    pts1 = a1 ? a1.points : fmt.parsePoints(values.trinh1);
+    pts2 = a2 ? a2.points : fmt.parsePoints(values.trinh2);
+    if (pts1 === null || pts2 === null) return fail('Vui lòng nhập trình độ hợp lệ, ví dụ 3.500.');
   }
-  if (d.max_total_points && pts1 + pts2 > d.max_total_points) return fail(`Tổng trình 2 VĐV (${fmt.pts(pts1 + pts2)}) vượt mức ${fmt.pts(d.max_total_points)}.`);
+  const lv = (v) => (opts.lite && fmt.LEVELS.includes(v) ? fmt.levelLabel(v) : fmt.pts(v));
+  if (d.min_player_points && (pts1 < d.min_player_points || pts2 < d.min_player_points)) {
+    return fail(`Nội dung ${d.name}: trình mỗi VĐV tối thiểu ${lv(d.min_player_points)}.`);
+  }
+  if (d.max_player_points && (pts1 > d.max_player_points || pts2 > d.max_player_points)) {
+    return fail(`Nội dung ${d.name}: trình mỗi VĐV không vượt quá ${lv(d.max_player_points)}.`);
+  }
+  if (d.max_total_points && pts1 + pts2 > d.max_total_points) {
+    const t = (v) => (opts.lite ? fmt.numShort(v) : fmt.pts(v));
+    return fail(`Tổng trình 2 VĐV (${t(pts1 + pts2)}) vượt mức ${t(d.max_total_points)}.`);
+  }
   if (d.gender_rule !== 'any' && a1 && a2) {
     const gs = [a1.gender, a2.gender].sort().join('');
     const ok = { male: gs === 'MM', female: gs === 'FF', mixed: gs === 'FM' }[d.gender_rule];
     if (!ok) return fail(`Nội dung này yêu cầu: ${fmt.GENDER_RULE_LABEL[d.gender_rule]}.`);
   }
-  if (otp.isEnabled('registration')) {
+  if (REGISTRATION_OTP) {
     try {
       await otp.verify({ phone: p1.phone, purpose: 'registration', code: b.otp_code });
     } catch (err) {
@@ -172,7 +189,7 @@ async function submitRegistration(req, res, ev, opts = {}) {
     }
     await run(`INSERT INTO registrations(division_id, athlete1_id, name1, phone1, points1, athlete2_id, name2, phone2, points2, phone_verified)
       VALUES (?,?,?,?,?,?,?,?,?,?)`, d.id, a1 ? a1.id : null, values.name1, p1.phone, pts1, a2 ? a2.id : null, values.name2, p2.phone, pts2,
-    otp.isEnabled('registration'));
+    REGISTRATION_OTP);
     return null;
   });
   if (err) return fail(err);

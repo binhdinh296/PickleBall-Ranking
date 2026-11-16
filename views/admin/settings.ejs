@@ -36,7 +36,7 @@
   </div>
   <div class="sub-card">
     <h2 class="section-title">Số điện thoại & OTP</h2>
-    <label class="check"><input type="checkbox" name="otp_enabled" value="1" <%= s.otp_enabled === '1' ? 'checked' : '' %>><span>Bắt buộc xác minh OTP khi gửi đơn chấm trình và đăng ký giải</span></label>
+    <p class="small muted">Form công khai (tự chấm trình, đăng ký giải) không yêu cầu OTP. Cấu hình nhà cung cấp bên dưới chỉ dùng khi cần gửi mã xác minh.</p>
     <div class="form-grid three">
       <div class="field"><label for="otp_provider">Nhà cung cấp gửi tin</label><select class="input" id="otp_provider" name="otp_provider"><% providers.forEach((p) => { %><option value="<%= p %>" <%= s.otp_provider === p ? 'selected' : '' %>><%= p === 'mock' ? 'Giả lập (chỉ để thử nghiệm)' : p === 'esms' ? 'eSMS.vn (SMS brandname)' : p %></option><% }) %></select></div>
       <%- f('otp_brandname', 'Brandname đã đăng ký') %>

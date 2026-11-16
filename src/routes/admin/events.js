@@ -12,6 +12,9 @@ const editor = requireRole('editor');
 const referee = requireRole('referee');
 const intOrNull = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : null; };
 const isOrganizer = (req) => req.session.user.role === 'organizer';
+// Ô chọn trình (thang 1.0 … 5.5+); giữ được giá trị cũ ngoài thang (vd. 3200) nếu không đổi
+const levelOrPoints = (v) => fmt.parseLevel(v) ?? (/^\d{3,5}$/.test(String(v ?? '').trim()) ? parseInt(v, 10) : null);
+const levelRangeError = (min, max) => (min && max && min > max ? 'Trình tối thiểu không được lớn hơn trình tối đa.' : null);
 
 async function loadEvent(id) {
   const ev = await get('SELECT * FROM events WHERE id = ?', parseInt(id, 10) || 0);
@@ -83,18 +86,19 @@ async function readNewDivisions(req) {
       idx: /^\d{1,3}$/.test(String(idxs[i])) ? String(idxs[i]) : String(i),
       name: at('div_name', i).slice(0, 100),
       gender_rule: ['any', 'male', 'female', 'mixed'].includes(at('div_gender', i)) ? at('div_gender', i) : 'any',
-      max_total: at('div_max_total', i).slice(0, 10), max_player: at('div_max_player', i).slice(0, 10), max_teams: at('div_max_teams', i).slice(0, 5),
+      max_total: at('div_max_total', i).slice(0, 10), min_player: at('div_min_player', i).slice(0, 6), max_player: at('div_max_player', i).slice(0, 6), max_teams: at('div_max_teams', i).slice(0, 5),
     };
-    if (!row.name && !row.max_total && !row.max_player && !row.max_teams) continue; // dòng để trống: bỏ qua
+    if (!row.name && !row.max_total && !row.min_player && !row.max_player && !row.max_teams) continue; // dòng để trống: bỏ qua
     rows.push(row);
   }
   for (const r of rows) {
     if (!r.name) return { error: 'Mỗi nội dung thi đấu cần có tên (ví dụ "Đôi nam Newbie").', rows };
     r.max_total_points = fmt.parsePoints(r.max_total);
-    r.max_player_points = fmt.parsePoints(r.max_player);
-    if ((r.max_total && r.max_total_points === null) || (r.max_player && r.max_player_points === null)) {
-      return { error: `Nội dung "${r.name}": trình độ không hợp lệ, ví dụ 5.000 hoặc 3.2.`, rows };
-    }
+    r.min_player_points = fmt.parseLevel(r.min_player);
+    r.max_player_points = fmt.parseLevel(r.max_player);
+    if (r.max_total && r.max_total_points === null) return { error: `Nội dung "${r.name}": tổng trình không hợp lệ, ví dụ 6.5 hoặc 6.500.`, rows };
+    const rangeErr = levelRangeError(r.min_player_points, r.max_player_points);
+    if (rangeErr) return { error: `Nội dung "${r.name}": ${rangeErr.toLowerCase()}`, rows };
     r.max_teams_n = intOrNull(r.max_teams);
   }
   if (isOrganizer(req) && !rows.length) return { error: 'Vui lòng thêm ít nhất 1 nội dung thi đấu để VĐV chọn khi đăng ký.', rows };
@@ -122,8 +126,8 @@ router.post('/giai-dau/moi', editor, upload.any(), verifyCsrf, wrap(async (req, 
       throw Object.assign(new Error('Đơn vị này đã tạo giải rồi.'), { expose: true, status: 409 });
     }
     for (const [i, r] of divs.rows.entries()) {
-      await run(`INSERT INTO divisions(event_id, name, banner, max_teams, max_total_points, max_player_points, gender_rule, sort_order)
-        VALUES (?,?,?,?,?,?,?,?)`, ev.id, r.name, r.banner || null, r.max_teams_n, r.max_total_points, r.max_player_points, r.gender_rule, i);
+      await run(`INSERT INTO divisions(event_id, name, banner, max_teams, max_total_points, min_player_points, max_player_points, gender_rule, sort_order)
+        VALUES (?,?,?,?,?,?,?,?,?)`, ev.id, r.name, r.banner || null, r.max_teams_n, r.max_total_points, r.min_player_points, r.max_player_points, r.gender_rule, i);
     }
     return ev;
   });
@@ -201,7 +205,8 @@ async function readDivision(req) {
     format: b.format === 'roundrobin' ? 'roundrobin' : 'knockout',
     max_teams: intOrNull(b.max_teams),
     max_total_points: fmt.parsePoints(b.max_total_points),
-    max_player_points: fmt.parsePoints(b.max_player_points),
+    min_player_points: levelOrPoints(b.min_player_points),
+    max_player_points: levelOrPoints(b.max_player_points),
     gender_rule: ['any', 'male', 'female', 'mixed'].includes(b.gender_rule) ? b.gender_rule : 'any',
     prizes: JSON.stringify(readPrizes(b)),
     relay_legs: Math.max(0, Math.min(15, intOrNull(b.relay_legs) || 0)),
@@ -209,6 +214,8 @@ async function readDivision(req) {
     sort_order: intOrNull(b.sort_order) || 0,
   };
   if (!data.name) return { error: 'Vui lòng nhập tên nội dung.', data };
+  const rangeErr = levelRangeError(data.min_player_points, data.max_player_points);
+  if (rangeErr) return { error: rangeErr, data };
   const banner = fileOf(req, 'banner');
   if (banner) data.banner = await saveImage(banner.buffer, 'divisions', { width: 800, height: 400 });
   return { data };
@@ -225,10 +232,10 @@ router.post('/giai-dau/:id/noi-dung/moi', editor, upload.any(), verifyCsrf, wrap
   if (!ev) return next();
   const { error, data } = await readDivision(req);
   if (error) return divisionForm(res.status(400), ev, { ...data, prizes: JSON.parse(data.prizes) }, error);
-  await run(`INSERT INTO divisions(event_id, name, subtitle, banner, team_type, format, max_teams, max_total_points, max_player_points,
-    gender_rule, prizes, relay_legs, relay_step, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+  await run(`INSERT INTO divisions(event_id, name, subtitle, banner, team_type, format, max_teams, max_total_points, min_player_points, max_player_points,
+    gender_rule, prizes, relay_legs, relay_step, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
   ev.id, data.name, data.subtitle, data.banner || null, data.team_type, data.format, data.max_teams, data.max_total_points,
-  data.max_player_points, data.gender_rule, data.prizes, data.relay_legs, data.relay_step, data.sort_order);
+  data.min_player_points, data.max_player_points, data.gender_rule, data.prizes, data.relay_legs, data.relay_step, data.sort_order);
   req.flash('success', 'Đã thêm nội dung thi đấu.');
   res.redirect(`/admin/giai-dau/${ev.id}`);
 }));
@@ -245,8 +252,8 @@ router.post('/noi-dung/:id/sua', editor, upload.any(), verifyCsrf, wrap(async (r
   const { error, data } = await readDivision(req);
   if (error) return divisionForm(res.status(400), d.event, { ...d, ...data, prizes: JSON.parse(data.prizes) }, error);
   await run(`UPDATE divisions SET name = ?, subtitle = ?, banner = COALESCE(?, banner), team_type = ?, format = ?, max_teams = ?,
-    max_total_points = ?, max_player_points = ?, gender_rule = ?, prizes = ?, relay_legs = ?, relay_step = ?, sort_order = ? WHERE id = ?`,
-  data.name, data.subtitle, data.banner || null, data.team_type, data.format, data.max_teams, data.max_total_points, data.max_player_points,
+    max_total_points = ?, min_player_points = ?, max_player_points = ?, gender_rule = ?, prizes = ?, relay_legs = ?, relay_step = ?, sort_order = ? WHERE id = ?`,
+  data.name, data.subtitle, data.banner || null, data.team_type, data.format, data.max_teams, data.max_total_points, data.min_player_points, data.max_player_points,
   data.gender_rule, data.prizes, data.relay_legs, data.relay_step, data.sort_order, d.id);
   if (data.banner && d.banner) removeUpload(d.banner);
   req.flash('success', 'Đã lưu nội dung thi đấu.');

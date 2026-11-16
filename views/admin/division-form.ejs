@@ -1,4 +1,6 @@
 <%- include('_top', { back: `/admin/giai-dau/${ev.id}` }) %>
+<% const levelOpts = (cur, emptyLabel) => { const c = parseInt(cur, 10) || null; const vals = [...new Set([...fmt.LEVELS, ...(c && !fmt.LEVELS.includes(c) ? [c] : [])])].sort((a, b) => a - b);
+  return `<option value="">${emptyLabel}</option>` + vals.map((v) => `<option value="${v}" ${v === c ? 'selected' : ''}>${fmt.LEVELS.includes(v) ? fmt.levelLabel(v) : fmt.pts(v)}</option>`).join(''); }; %>
 <form class="card card-pad form" method="post" action="<%= d.id ? `/admin/noi-dung/${d.id}/sua` : `/admin/giai-dau/${ev.id}/noi-dung/moi` %>" enctype="multipart/form-data" data-once style="max-width: 860px;">
   <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
   <p class="muted small">Giải: <strong><%= ev.name %></strong></p>
@@ -11,7 +13,8 @@
     <div class="field"><label for="max_teams">Số đôi/đội tối đa</label><input class="input" id="max_teams" name="max_teams" inputmode="numeric" value="<%= d.max_teams || '' %>"></div>
     <div class="field"><label for="gender_rule">Quy định giới tính</label><select class="input" id="gender_rule" name="gender_rule"><% Object.entries(fmt.GENDER_RULE_LABEL).forEach(([k, l]) => { %><option value="<%= k %>" <%= d.gender_rule === k ? 'selected' : '' %>><%= l %></option><% }) %></select></div>
     <div class="field"><label for="max_total_points">Tổng trình tối đa (2 VĐV)</label><input class="input tnum" id="max_total_points" name="max_total_points" inputmode="decimal" value="<%= d.max_total_points ? fmt.pts(d.max_total_points) : '' %>" placeholder="5.300"></div>
-    <div class="field"><label for="max_player_points">Trình tối đa mỗi VĐV</label><input class="input tnum" id="max_player_points" name="max_player_points" inputmode="decimal" value="<%= d.max_player_points ? fmt.pts(d.max_player_points) : '' %>" placeholder="2.900"></div>
+    <div class="field"><label for="min_player_points">Trình tối thiểu mỗi VĐV</label><select class="input" id="min_player_points" name="min_player_points"><%- levelOpts(d.min_player_points, 'Không giới hạn') %></select></div>
+    <div class="field"><label for="max_player_points">Trình tối đa mỗi VĐV</label><select class="input" id="max_player_points" name="max_player_points"><%- levelOpts(d.max_player_points, 'Không giới hạn') %></select><span class="hint">Thang 1.0 · 1.5 … 5.0 · 5.5+. Form đăng ký chỉ cho chọn trình trong khoảng này.</span></div>
     <div class="field"><label for="relay_legs">Số chặng tiếp sức</label><input class="input" id="relay_legs" name="relay_legs" inputmode="numeric" value="<%= d.relay_legs || 0 %>"><span class="hint">0 = không dùng tiếp sức.</span></div>
     <div class="field"><label for="relay_step">Điểm mỗi chặng</label><input class="input" id="relay_step" name="relay_step" inputmode="numeric" value="<%= d.relay_step || 11 %>"><span class="hint">Ví dụ 11 → các mốc 11-22-33-44-55.</span></div>
     <div class="field"><label for="banner">Ảnh banner nội dung</label><input class="input" id="banner" name="banner" type="file" accept="image/jpeg,image/png,image/webp"><% if (d.banner) { %><img src="<%= d.banner %>" alt="" style="max-height: 80px; width: auto; margin-top: 6px;"><% } %></div>
