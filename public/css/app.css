@@ -46,27 +46,27 @@
 
 [data-theme="blue"] {
   color-scheme: dark;
-  --bg: #090E1A;
-  --bg-2: #0E1626;
-  --card: #131E33;
-  --card-solid: #131E33;
-  --line: rgba(59, 130, 246, 0.16);
-  --line-strong: rgba(96, 165, 250, 0.32);
+  --bg: #0B1120;
+  --bg-2: #0F172A;
+  --card: #162032;
+  --card-solid: #162032;
+  --line: rgba(148, 163, 184, 0.14);
+  --line-strong: rgba(96, 165, 250, 0.3);
   --text: #F8FAFC;
   --text-2: #94A3B8;
   --text-3: #64748B;
-  --ball: #3B82F6;
-  --court: #2563EB;
-  --gold: #60A5FA;
+  --ball: #3B82F6 !important;
+  --court: #2563EB !important;
+  --gold: #60A5FA !important;
   --on-brand: #FFFFFF;
-  --ink-ball: #60A5FA;
-  --ink-court: #3B82F6;
-  --ink-gold: #93C5FD;
+  --ink-ball: #38BDF8 !important;
+  --ink-court: #60A5FA !important;
+  --ink-gold: #93C5FD !important;
   --glow-a: transparent;
   --glow-b: transparent;
   --court-fill: #1E3A8A;
-  --shadow: 0 20px 40px -15px rgba(2, 6, 23, 0.7);
-  --input-bg: #0E1626;
+  --shadow: 0 16px 36px -12px rgba(2, 6, 23, 0.6);
+  --input-bg: #0F172A;
   --live: #EF4444;
   --ok: #38BDF8;
   --warn: #FBBF24;
@@ -1117,11 +1117,44 @@ button { font: inherit; }
 /* ==========================================================================
    THEME BLUE: Concept màu chủ đạo Xanh Dương, KHÔNG GRADIENT
    ========================================================================== */
+/* ==========================================================================
+   THEME BLUE: Concept màu chủ đạo Xanh Dương, KHÔNG GRADIENT
+   Thiết kế cao cấp: Phối màu chuẩn xác giữa Background, Text, Border, Logo, Icon
+   ========================================================================== */
+
+/* Logo & Nhận diện thương hiệu */
+[data-theme="blue"] .brand-mark circle:first-of-type {
+  fill: #2563EB !important;
+}
+[data-theme="blue"] .brand-mark g {
+  fill: #0B1120 !important;
+  opacity: 0.9 !important;
+}
+[data-theme="blue"] .brand-name {
+  color: #F8FAFC !important;
+}
+[data-theme="blue"] .brand-name .grad-text {
+  color: #38BDF8 !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+[data-theme="blue"] .brand-sub {
+  color: #64748B !important;
+}
+
+/* Kiểu chữ & Tiêu đề */
+[data-theme="blue"] h1,
+[data-theme="blue"] h2,
+[data-theme="blue"] h3,
+[data-theme="blue"] h4 {
+  color: #F8FAFC;
+}
 [data-theme="blue"] .grad-text {
   background: none !important;
   -webkit-background-clip: unset !important;
   background-clip: unset !important;
-  color: #60A5FA !important;
+  color: #38BDF8 !important;
 }
 [data-theme="blue"] .gold-text {
   background: none !important;
@@ -1129,33 +1162,205 @@ button { font: inherit; }
   background-clip: unset !important;
   color: #93C5FD !important;
 }
+[data-theme="blue"] .eyebrow {
+  color: #38BDF8 !important;
+  letter-spacing: 0.08em;
+}
+[data-theme="blue"] a.link {
+  color: #60A5FA;
+}
+[data-theme="blue"] a.link:hover {
+  color: #93C5FD;
+}
+
+/* Nền khối & quầng sáng */
 [data-theme="blue"] .glow {
   background: var(--bg) !important;
 }
+[data-theme="blue"] .card,
+[data-theme="blue"] .ecard,
+[data-theme="blue"] .spec-card,
+[data-theme="blue"] .spec-card-gold,
+[data-theme="blue"] .lux-desc-card,
+[data-theme="blue"] .royal-podium-card,
+[data-theme="blue"] .lux-prize-card {
+  background: #162032 !important;
+  border: 1px solid rgba(148, 163, 184, 0.14) !important;
+  box-shadow: none !important;
+}
+[data-theme="blue"] .court-card,
+[data-theme="blue"] .player {
+  background: #162032 !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+  box-shadow: none !important;
+}
+
+/* Nút bấm */
 [data-theme="blue"] .btn-brand {
   background: #2563EB !important;
   color: #FFFFFF !important;
-  border-color: #3B82F6 !important;
+  border: 1px solid #3B82F6 !important;
   box-shadow: none !important;
 }
 [data-theme="blue"] .btn-brand:hover {
   background: #1D4ED8 !important;
+  border-color: #60A5FA !important;
 }
-[data-theme="blue"] .court-card {
-  background: #0E1626 !important;
-  border-color: var(--line) !important;
+[data-theme="blue"] .btn-ghost {
+  background: #162032 !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  color: #F8FAFC !important;
+}
+[data-theme="blue"] .btn-ghost:hover {
+  background: #1E293B !important;
+  border-color: #3B82F6 !important;
+  color: #38BDF8 !important;
+}
+
+/* Thanh điều hướng chính & Header */
+[data-theme="blue"] .site-header {
+  background: #0B1120 !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+[data-theme="blue"] .main-nav a {
+  color: #94A3B8 !important;
+}
+[data-theme="blue"] .main-nav a:hover {
+  color: #F8FAFC !important;
+}
+[data-theme="blue"] .main-nav a[aria-current="page"] {
+  color: #38BDF8 !important;
+  border-bottom: 2px solid #3B82F6 !important;
+}
+[data-theme="blue"] .tabbar {
+  background: #0B1120 !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+[data-theme="blue"] .tabbar a {
+  color: #64748B !important;
+}
+[data-theme="blue"] .tabbar a:hover {
+  color: #94A3B8 !important;
+}
+[data-theme="blue"] .tabbar a.is-active {
+  color: #38BDF8 !important;
+}
+[data-theme="blue"] .tabbar a.is-active::after {
+  background: #2563EB !important;
+}
+[data-theme="blue"] .page-tabs a {
+  background: #162032 !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+  color: #94A3B8 !important;
+}
+[data-theme="blue"] .page-tabs a:hover {
+  color: #F8FAFC !important;
+  border-color: #3B82F6 !important;
+}
+[data-theme="blue"] .page-tabs a.is-active {
+  background: #2563EB !important;
+  color: #FFFFFF !important;
+  border-color: #3B82F6 !important;
+}
+
+/* Icon Buttons & Vai trò */
+[data-theme="blue"] .icon-btn {
+  background: #162032 !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  color: #94A3B8 !important;
+}
+[data-theme="blue"] .icon-btn:hover {
+  background: #1E293B !important;
+  border-color: #3B82F6 !important;
+  color: #38BDF8 !important;
+}
+[data-theme="blue"] .role-switch-btn {
+  background: #162032 !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  color: #F8FAFC !important;
+}
+[data-theme="blue"] .role-switch-btn .rs-badge {
+  background: #2563EB !important;
+  color: #FFFFFF !important;
+}
+
+/* Ô nhập liệu & Tìm kiếm */
+[data-theme="blue"] .input {
+  background: #0F172A !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  color: #F8FAFC !important;
+}
+[data-theme="blue"] .input:focus {
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
+  outline: none !important;
+}
+[data-theme="blue"] .input::placeholder {
+  color: #64748B !important;
+}
+[data-theme="blue"] .select-face {
+  background: #0F172A !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  color: #F8FAFC !important;
+}
+
+/* Chips & Nhãn trạng thái */
+[data-theme="blue"] .chip {
+  background: #162032 !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  color: #94A3B8 !important;
+}
+[data-theme="blue"] .chip-ok,
+[data-theme="blue"] .chip-mini.chip-ok {
+  background: rgba(37, 99, 235, 0.16) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  color: #60A5FA !important;
+}
+[data-theme="blue"] .chip-warn,
+[data-theme="blue"] .chip-mini.chip-warn {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #FBBF24 !important;
+}
+[data-theme="blue"] .chip-gold {
+  background: rgba(30, 58, 138, 0.35) !important;
+  border-color: rgba(96, 165, 250, 0.4) !important;
+  color: #93C5FD !important;
+}
+[data-theme="blue"] .tournament-tags .tournament-tag {
+  background: rgba(37, 99, 235, 0.18) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  color: #93C5FD !important;
+}
+[data-theme="blue"] .date-badge {
+  background: #0F172A !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
   box-shadow: none !important;
 }
-[data-theme="blue"] .player {
-  background: #0E1626 !important;
-  border-color: var(--line) !important;
+[data-theme="blue"] .date-badge .db-month {
+  color: #38BDF8 !important;
 }
+[data-theme="blue"] .date-badge .db-day {
+  color: #F8FAFC !important;
+}
+[data-theme="blue"] .prize-pill {
+  background: #0F172A !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+[data-theme="blue"] .prize-pill .pp-amount {
+  color: #38BDF8 !important;
+}
+[data-theme="blue"] .spec-gold-val {
+  color: #38BDF8 !important;
+}
+
+/* Khung vàng & Huy chương */
 [data-theme="blue"] .gold-frame {
-  background: #1D4ED8 !important;
+  background: #2563EB !important;
   padding: 1px !important;
 }
 [data-theme="blue"] .gold-frame > .pcard {
-  background: #131E33 !important;
+  background: #162032 !important;
 }
 [data-theme="blue"] .avatar.gold {
   background: #2563EB !important;
@@ -1169,97 +1374,8 @@ button { font: inherit; }
   background: #1D4ED8 !important;
   color: #FFFFFF !important;
 }
-[data-theme="blue"] .chip-gold {
-  background: rgba(37, 99, 235, 0.2) !important;
-  color: #93C5FD !important;
-  border-color: rgba(96, 165, 250, 0.35) !important;
-}
-[data-theme="blue"] .chip-ok,
-[data-theme="blue"] .chip-mini.chip-ok {
-  background: rgba(37, 99, 235, 0.16) !important;
-  color: #60A5FA !important;
-  border-color: rgba(59, 130, 246, 0.4) !important;
-}
-[data-theme="blue"] .site-header {
-  background: #090E1A !important;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.15) !important;
-}
-[data-theme="blue"] .tabbar {
-  background: #090E1A !important;
-  border-top: 1px solid rgba(59, 130, 246, 0.15) !important;
-}
-[data-theme="blue"] .tabbar a.is-active {
-  color: #60A5FA !important;
-}
-[data-theme="blue"] .tabbar a.is-active::after {
-  background: #3B82F6 !important;
-}
-[data-theme="blue"] .main-nav a[aria-current="page"] {
-  color: #60A5FA !important;
-  border-bottom-color: #3B82F6 !important;
-}
-[data-theme="blue"] .page-tabs a.is-active {
-  background: #2563EB !important;
-  color: #FFFFFF !important;
-  border-color: #3B82F6 !important;
-}
-[data-theme="blue"] .hero-card,
-[data-theme="blue"] .hero-photo {
-  background: #0E1626 !important;
-  box-shadow: none !important;
-}
-[data-theme="blue"] .hero-media,
-[data-theme="blue"] .hero-media::after,
-[data-theme="blue"] .hero-photo .hero-bg,
-[data-theme="blue"] .hero-photo .hero-media::after {
-  background: none !important;
-  -webkit-mask-image: none !important;
-  mask-image: none !important;
-}
-[data-theme="blue"] .paddle .p-bar {
-  background: #2563EB !important;
-  box-shadow: none !important;
-}
-[data-theme="blue"] .ecard {
-  background: #131E33 !important;
-  border-color: var(--line) !important;
-  box-shadow: none !important;
-}
-[data-theme="blue"] .tournament-tags .tournament-tag {
-  background: rgba(37, 99, 235, 0.18) !important;
-  border-color: rgba(59, 130, 246, 0.35) !important;
-  color: #93C5FD !important;
-}
-[data-theme="blue"] .date-badge {
-  background: #0E1626 !important;
-  border-color: var(--line-strong) !important;
-  box-shadow: none !important;
-}
-[data-theme="blue"] .date-badge .db-month {
-  color: #60A5FA !important;
-}
-[data-theme="blue"] .date-badge .db-day {
-  color: #F8FAFC !important;
-}
-[data-theme="blue"] .prize-pill {
-  background: #0E1626 !important;
-  border-color: rgba(59, 130, 246, 0.3) !important;
-}
-[data-theme="blue"] .prize-pill .pp-amount {
-  color: #60A5FA !important;
-}
-[data-theme="blue"] .spec-card,
-[data-theme="blue"] .spec-card-gold,
-[data-theme="blue"] .lux-desc-card,
-[data-theme="blue"] .royal-podium-card,
-[data-theme="blue"] .lux-prize-card {
-  background: #131E33 !important;
-  border-color: var(--line) !important;
-  box-shadow: none !important;
-}
-[data-theme="blue"] .spec-gold-val {
-  color: #60A5FA !important;
-}
+
+/* Bục giải đấu & Thẻ giải */
 [data-theme="blue"] .podium-1st .podium-pedestal {
   background: #1D4ED8 !important;
 }
@@ -1270,8 +1386,8 @@ button { font: inherit; }
   background: #172554 !important;
 }
 [data-theme="blue"] .podium-nav-btn {
-  background: #0E1626 !important;
-  border-color: var(--line) !important;
+  background: #0F172A !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
   color: var(--text-2) !important;
 }
 [data-theme="blue"] .podium-nav-btn.is-active {
@@ -1280,10 +1396,16 @@ button { font: inherit; }
 }
 [data-theme="blue"] .tc-cover,
 [data-theme="blue"] .tc-cover.img-missing {
-  background: #0E1626 !important;
+  background: #0F172A !important;
 }
 [data-theme="blue"] .tx-cell.is-prize {
-  background: #131E33 !important;
+  background: #162032 !important;
+}
+
+/* Vợt & Top 1 */
+[data-theme="blue"] .paddle .p-bar {
+  background: #2563EB !important;
+  box-shadow: none !important;
 }
 [data-theme="blue"] .paddle-horizontal .paddle-head::before {
   background: #2563EB !important;
@@ -1295,9 +1417,30 @@ button { font: inherit; }
   display: none !important;
 }
 [data-theme="blue"] .paddle-horizontal .paddle-face {
-  background: #131E33 !important;
+  background: #162032 !important;
 }
 [data-theme="blue"] .paddle-horizontal .paddle-head {
+  background: #2563EB !important;
+}
+
+/* Bảng dữ liệu */
+[data-theme="blue"] .table-wrap {
+  background: #162032 !important;
+  border: 1px solid rgba(148, 163, 184, 0.14) !important;
+}
+[data-theme="blue"] .table-reg th,
+[data-theme="blue"] table.data th {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
+  color: #64748B !important;
+}
+[data-theme="blue"] .table-reg td,
+[data-theme="blue"] table.data td {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1) !important;
+}
+[data-theme="blue"] .table-reg tr:hover td,
+[data-theme="blue"] table.data tr:hover td {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
   background: #2563EB !important;
 }
 

@@ -673,3 +673,36 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
 }
 /* Vạch nhỏ dưới tên VĐV: điểm nhấn xanh chanh (viền vợt giờ là xanh ngọc lục bảo trầm nên không dùng --edge) */
 .paddle .p-bar { background: linear-gradient(90deg, var(--ball), var(--court)); box-shadow: 0 0 10px color-mix(in oklab, var(--ball) 45%, transparent); }
+
+/* ==========================================================================
+   THEME BLUE: Hero hoàn toàn theo concept xanh dương phẳng, không gradient
+   ========================================================================== */
+[data-theme="blue"] .hero-photo {
+  --hp-deep: #0B1120;
+  --hp-base: #0F172A;
+  --hp-near: #162032;
+  background: #0F172A !important;
+}
+[data-theme="blue"] .hero-photo::before {
+  background: #0F172A !important;
+}
+[data-theme="blue"] .hero-photo .hero-bg {
+  background: none !important;
+}
+[data-theme="blue"] .hero-photo .hero-media::after {
+  background: linear-gradient(90deg, #0F172A 0%, rgba(15, 23, 42, 0.4) 30%, transparent 60%) !important;
+}
+[data-theme="blue"] .hero-slash {
+  background: #2563EB !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+[data-theme="blue"] .hero-tag {
+  background: rgba(37, 99, 235, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  color: #93C5FD !important;
+}
+[data-theme="blue"] .pg-progress i {
+  background: #2563EB !important;
+  box-shadow: none !important;
+}

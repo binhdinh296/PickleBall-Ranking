@@ -23,6 +23,21 @@
       var next = cur === 'blue' ? 'dark' : 'blue';
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('theme', next); } catch (e) { /* bỏ qua */ }
+      if (next === 'blue') {
+        root.style.setProperty('--ball', '#3B82F6');
+        root.style.setProperty('--court', '#2563EB');
+        root.style.setProperty('--gold', '#60A5FA');
+      } else {
+        if (window._origColors) {
+          if (window._origColors.ball) root.style.setProperty('--ball', window._origColors.ball);
+          if (window._origColors.court) root.style.setProperty('--court', window._origColors.court);
+          if (window._origColors.gold) root.style.setProperty('--gold', window._origColors.gold);
+        } else {
+          root.style.removeProperty('--ball');
+          root.style.removeProperty('--court');
+          root.style.removeProperty('--gold');
+        }
+      }
       btn.setAttribute('aria-label', next === 'blue' ? 'Chuyển sang giao diện Đen' : 'Chuyển sang giao diện Xanh dương');
     });
   });

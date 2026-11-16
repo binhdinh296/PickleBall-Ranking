@@ -18,4 +18,17 @@
   var defaultTheme = root.getAttribute('data-default-theme') || 'dark';
   var theme = saved === 'blue' || saved === 'dark' ? saved : (defaultTheme === 'blue' ? 'blue' : 'dark');
   root.setAttribute('data-theme', theme);
+
+  if (!window._origColors) {
+    window._origColors = {
+      ball: root.style.getPropertyValue('--ball'),
+      court: root.style.getPropertyValue('--court'),
+      gold: root.style.getPropertyValue('--gold')
+    };
+  }
+  if (theme === 'blue') {
+    root.style.setProperty('--ball', '#3B82F6');
+    root.style.setProperty('--court', '#2563EB');
+    root.style.setProperty('--gold', '#60A5FA');
+  }
 })();
