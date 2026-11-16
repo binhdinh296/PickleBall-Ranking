@@ -44,7 +44,6 @@ const TABLES = [
   'submissions',
   'partners',
   'point_history',
-  'otp_requests',
   'audit_logs',
 ];
 

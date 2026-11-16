@@ -122,7 +122,7 @@ function securityHeaders(req, res, next) {
 }
 
 // ---- Phân quyền CMS ----
-// organizer (ban tổ chức qua link + OTP) ngang biên tập viên NHƯNG chỉ trong giải của mình:
+// organizer (ban tổ chức qua link quản trị riêng) ngang biên tập viên NHƯNG chỉ trong giải của mình:
 // lib/organizers.gate chặn mọi đường dẫn khác trước khi tới các route.
 const ROLE_RANK = { referee: 1, organizer: 2, editor: 2, admin: 3 };
 

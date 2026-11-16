@@ -2,7 +2,6 @@ const express = require('express');
 const { all, get, run } = require('../db');
 const fmt = require('../lib/format');
 const phoneLib = require('../lib/phone');
-const otp = require('../lib/otp');
 const { num, getSettings } = require('../lib/settings');
 const points = require('../lib/points');
 const { upload, saveAvatar } = require('../lib/upload');
@@ -111,7 +110,7 @@ router.get('/vdv/:id', wrap(async (req, res, next) => {
 
 function submissionView(res, extra) {
   res.render('public/submission', {
-    title: 'Tự chấm trình', values: {}, error: null, done: false, otpEnabled: otp.isEnabled('submission'),
+    title: 'Tự chấm trình', values: {}, error: null, done: false,
     floors: { M: points.genderFloor('M'), F: points.genderFloor('F') }, ...extra,
   });
 }
@@ -144,15 +143,6 @@ router.post('/cham-trinh', submitLimiter, upload.any(), verifyCsrf, wrap(async (
   if (await get("SELECT 1 FROM submissions WHERE phone = ? AND status = 'pending'", ph.phone)) return fail('Số điện thoại này đã có đơn đang chờ duyệt.');
   if (!b.cropped_avatar_data) return fail('Bạn cần chọn ảnh và bấm "Áp dụng" trước khi gửi đơn.');
 
-  const otpOn = otp.isEnabled('submission');
-  if (otpOn) {
-    try {
-      await otp.verify({ phone: ph.phone, purpose: 'submission', code: b.otp_code });
-    } catch (err) {
-      if (err instanceof otp.OtpError) return fail(err.message);
-      throw err;
-    }
-  }
   let avatar;
   try {
     avatar = await saveAvatar({ dataUrl: b.cropped_avatar_data });
@@ -160,8 +150,8 @@ router.post('/cham-trinh', submitLimiter, upload.any(), verifyCsrf, wrap(async (
     if (err.expose) return fail(err.message);
     throw err;
   }
-  await run(`INSERT INTO submissions(full_name, nickname, phone, phone_verified, gender, points, hometown, club, description, avatar)
-    VALUES (?,?,?,?,?,?,?,?,?,?)`, values.full_name, values.nickname || null, ph.phone, otpOn, values.gender, pointsVal,
+  await run(`INSERT INTO submissions(full_name, nickname, phone, gender, points, hometown, club, description, avatar)
+    VALUES (?,?,?,?,?,?,?,?,?)`, values.full_name, values.nickname || null, ph.phone, values.gender, pointsVal,
   values.hometown, values.club, values.description || null, avatar);
   submissionView(res, { done: true });
 }));
@@ -184,20 +174,6 @@ router.get('/api/athlete-lookup', lookupLimiter, wrap(async (req, res) => {
   const a = await get('SELECT full_name, nickname, points, gender FROM athletes WHERE phone = ? AND visible', ph.phone);
   if (!a) return res.json({ found: false, valid: true, carrier: ph.carrier });
   res.json({ found: true, valid: true, carrier: ph.carrier, name: fmt.displayName(a), points: fmt.pts(a.points), gender: a.gender });
-}));
-
-const otpIpLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, message: 'Bạn đã yêu cầu quá nhiều mã OTP, vui lòng thử lại sau.' });
-router.post('/api/otp/send', otpIpLimiter, wrap(async (req, res) => {
-  const purpose = ['submission', 'registration'].includes(req.body.purpose) ? req.body.purpose : null;
-  if (!purpose) return res.status(400).json({ ok: false, error: 'Yêu cầu không hợp lệ.' });
-  if (!otp.isEnabled(purpose)) return res.json({ ok: true, disabled: true });
-  try {
-    const r = await otp.send({ phone: req.body.phone, purpose, ip: req.ip });
-    res.json({ ok: true, phone: phoneLib.mask(r.phone), cooldown: r.cooldown, ttl: r.ttl, devCode: r.devCode });
-  } catch (err) {
-    if (err instanceof otp.OtpError) return res.status(400).json({ ok: false, error: err.message, retryAfter: err.retryAfter });
-    throw err;
-  }
 }));
 
 module.exports = router;

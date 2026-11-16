@@ -2,13 +2,10 @@ const express = require('express');
 const { all, get, run, tx } = require('../db');
 const fmt = require('../lib/format');
 const phoneLib = require('../lib/phone');
-const otp = require('../lib/otp');
 const bracket = require('../lib/bracket');
 const { rateLimit } = require('../lib/security');
 
 const router = express.Router();
-// Đăng ký thi đấu không cần OTP (VĐV điền form là gửi được); OTP vẫn áp dụng cho đơn chấm trình theo cấu hình
-const REGISTRATION_OTP = false;
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 router.get('/', wrap(async (req, res) => {
@@ -109,7 +106,6 @@ router.get('/:slug', wrap(loadEvent), wrap(async (req, res) => {
 function registerView(res, ev, extra, opts = {}) {
   res.render(opts.lite ? 'public/register-lite' : 'public/register', {
     title: `Đăng ký – ${ev.name}`, ev, values: {}, error: null, done: false,
-    otpEnabled: REGISTRATION_OTP,
     formAction: opts.formAction || `/giai-dau/${ev.slug}/dang-ky`,
     ...(opts.lite ? { bare: true, pageStyle: 'reglite' } : {}), ...extra,
   });
@@ -170,14 +166,6 @@ async function submitRegistration(req, res, ev, opts = {}) {
     const ok = { male: gs === 'MM', female: gs === 'FF', mixed: gs === 'FM' }[d.gender_rule];
     if (!ok) return fail(`Nội dung này yêu cầu: ${fmt.GENDER_RULE_LABEL[d.gender_rule]}.`);
   }
-  if (REGISTRATION_OTP) {
-    try {
-      await otp.verify({ phone: p1.phone, purpose: 'registration', code: b.otp_code });
-    } catch (err) {
-      if (err instanceof otp.OtpError) return fail(err.message);
-      throw err;
-    }
-  }
   const err = await tx(async () => {
     await run('SELECT pg_advisory_xact_lock(?)', d.id);
     const dup = await get(`SELECT 1 FROM registrations WHERE division_id = ? AND status <> 'rejected'
@@ -187,9 +175,8 @@ async function submitRegistration(req, res, ev, opts = {}) {
       const count = (await get("SELECT COUNT(*) AS c FROM registrations WHERE division_id = ? AND status <> 'rejected'", d.id)).c;
       if (count >= d.max_teams) return `Nội dung ${d.name} đã đủ ${d.max_teams} đôi.`;
     }
-    await run(`INSERT INTO registrations(division_id, athlete1_id, name1, phone1, points1, athlete2_id, name2, phone2, points2, phone_verified)
-      VALUES (?,?,?,?,?,?,?,?,?,?)`, d.id, a1 ? a1.id : null, values.name1, p1.phone, pts1, a2 ? a2.id : null, values.name2, p2.phone, pts2,
-    REGISTRATION_OTP);
+    await run(`INSERT INTO registrations(division_id, athlete1_id, name1, phone1, points1, athlete2_id, name2, phone2, points2)
+      VALUES (?,?,?,?,?,?,?,?,?)`, d.id, a1 ? a1.id : null, values.name1, p1.phone, pts1, a2 ? a2.id : null, values.name2, p2.phone, pts2);
     return null;
   });
   if (err) return fail(err);

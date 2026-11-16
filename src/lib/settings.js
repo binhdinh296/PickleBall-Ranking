@@ -27,13 +27,6 @@ const DEFAULTS = {
   lock_margin: '100',
   featured_count: '12',
   phone_prefixes: phone.prefixesText(),
-  otp_enabled: '1',
-  otp_provider: 'mock',
-  otp_brandname: '',
-  otp_ttl_seconds: '300',
-  otp_cooldown_seconds: '60',
-  otp_daily_limit: '5',
-  otp_max_attempts: '5',
   privacy_url: '',
 };
 

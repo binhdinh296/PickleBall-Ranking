@@ -79,7 +79,6 @@
           <legend><span class="sx-step-no">3</span>Ảnh &amp; xác nhận</legend>
           <div class="sx-step-body">
             <%- include('../partials/avatar-crop', { required: true }) %>
-            <% if (otpEnabled) { %><%- include('../partials/otp', { purpose: 'submission', phoneInput: 'phone' }) %><% } %>
           </div>
         </fieldset>
 

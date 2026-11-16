@@ -80,8 +80,7 @@ select.rl-input option { color: var(--text); background: var(--card-solid); }
 .rl-div input:focus-visible + .rl-badge { outline: 3px solid var(--ink-ball); outline-offset: 4px; }
 .rl-divs:has(input:checked) .rl-div input:not(:checked) + .rl-badge { opacity: .7; }
 
-/* ---- OTP, đồng ý, nút xác nhận ---- */
-.rl-otp { margin-top: 22px; }
+/* ---- Nút xác nhận ---- */
 .rl-submit {
   display: block; width: 100%; margin-top: 18px; padding: 15px 18px; border: 0; border-radius: 12px;
   background: var(--ball); color: var(--on-brand); font: inherit; font-size: 16px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; text-align: center;

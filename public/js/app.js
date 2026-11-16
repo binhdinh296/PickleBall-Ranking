@@ -125,51 +125,6 @@
     if (input.value) update(true);
   });
 
-  // ---- Gửi OTP ----
-  $$('[data-otp]').forEach(function (box) {
-    var btn = $('[data-otp-send]', box);
-    var msg = $('[data-otp-msg]', box);
-    var phoneInput = document.getElementById(box.getAttribute('data-phone-input'));
-    var purpose = box.getAttribute('data-otp');
-    var timer = null;
-    function countdown(sec) {
-      clearInterval(timer);
-      btn.disabled = true;
-      var left = sec;
-      btn.textContent = 'Gửi lại sau ' + left + 's';
-      timer = setInterval(function () {
-        left -= 1;
-        if (left <= 0) { clearInterval(timer); btn.disabled = false; btn.textContent = 'Gửi lại mã'; return; }
-        btn.textContent = 'Gửi lại sau ' + left + 's';
-      }, 1000);
-    }
-    btn.addEventListener('click', function () {
-      var r = checkPhone(phoneInput && phoneInput.value);
-      msg.classList.remove('ok', 'err');
-      if (!r.ok) { msg.textContent = r.error || 'Nhập số điện thoại trước khi gửi mã.'; msg.classList.add('err'); if (phoneInput) phoneInput.focus(); return; }
-      btn.disabled = true;
-      btn.textContent = 'Đang gửi…';
-      postJSON('/api/otp/send', { phone: r.phone, purpose: purpose }).then(function (res) {
-        if (res.ok) {
-          msg.textContent = 'Đã gửi mã tới ' + res.phone + '. Mã có hiệu lực ' + Math.round((res.ttl || 300) / 60) + ' phút.' + (res.devCode ? ' (Chế độ thử nghiệm, mã: ' + res.devCode + ')' : '');
-          msg.classList.add('ok');
-          countdown(res.cooldown || 60);
-          var code = $('[data-otp-code]', box);
-          if (code) code.focus();
-        } else {
-          msg.textContent = res.error || 'Không gửi được mã.';
-          msg.classList.add('err');
-          if (res.retryAfter) countdown(res.retryAfter); else { btn.disabled = false; btn.textContent = 'Gửi mã OTP'; }
-        }
-      }).catch(function () {
-        msg.textContent = 'Lỗi kết nối, vui lòng thử lại.';
-        msg.classList.add('err');
-        btn.disabled = false;
-        btn.textContent = 'Gửi mã OTP';
-      });
-    });
-  });
-
   // ---- Tra cứu VĐV theo SĐT khi đăng ký giải ----
   $$('[data-lookup]').forEach(function (box) {
     var phone = $('input[data-phone]', box);

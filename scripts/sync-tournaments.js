@@ -117,8 +117,8 @@ async function syncGaVangUom(db) {
       await db.run(`INSERT INTO registrations(
         division_id, athlete1_id, name1, phone1, points1,
         athlete2_id, name2, phone2, points2,
-        phone_verified, status, admin_note
-      ) VALUES (?, NULL, ?, ?, NULL, NULL, ?, ?, NULL, true, ?, ?)`,
+        status, admin_note
+      ) VALUES (?, NULL, ?, ?, NULL, NULL, ?, ?, NULL, ?, ?)`,
         div.id, r.p1, phone1, r.p2, phone2, status, r.note
       );
     }

@@ -12,11 +12,11 @@ Website xếp hạng vận động viên (VĐV) và quản lý giải đấu Pic
 
 | Phân hệ | Tính năng |
 | --- | --- |
-| Ranking | Trang chủ (bảng vàng, giải nổi bật, đang live) · Bảng xếp hạng (lọc Nam/Nữ, tìm kiếm, phân trang) · Hồ sơ VĐV (điểm hiện tại / cao nhất / Lock, biểu đồ, lịch sử điểm, thành tích, lịch sử thi đấu kèm link xem lại) · Tự chấm trình (cắt ảnh 300×300, xác minh OTP) |
-| Giải đấu | Danh sách theo trạng thái · Trang giải (giải thưởng, điều lệ PDF, nhóm Zalo, bảng vinh danh) · Đăng ký đôi (tự điền theo SĐT, kiểm tra tổng trình/giới tính/số đôi, OTP) · Danh sách đăng ký (không lộ SĐT) · Nhánh đấu loại trực tiếp (có bye, tự đẩy đội thắng) · Vòng tròn đồng đội tiếp sức (xếp hạng thắng → hiệu số → đối đầu/bảng phụ) |
+| Ranking | Trang chủ (bảng vàng, giải nổi bật, đang live) · Bảng xếp hạng (lọc Nam/Nữ, tìm kiếm, phân trang) · Hồ sơ VĐV (điểm hiện tại / cao nhất / Lock, biểu đồ, lịch sử điểm, thành tích, lịch sử thi đấu kèm link xem lại) · Tự chấm trình (cắt ảnh 300×300, ảnh đại diện bắt buộc) |
+| Giải đấu | Danh sách theo trạng thái · Trang giải (giải thưởng, điều lệ PDF, nhóm Zalo, bảng vinh danh) · Đăng ký đôi (tự điền theo SĐT, kiểm tra tổng trình/giới tính/số đôi) · Danh sách đăng ký (không lộ SĐT) · Nhánh đấu loại trực tiếp (có bye, tự đẩy đội thắng) · Vòng tròn đồng đội tiếp sức (xếp hạng thắng → hiệu số → đối đầu/bảng phụ) |
 | Livestream | Kết nối kênh YouTube bằng OAuth · Tạo buổi phát theo sân (tự lưu video lên kênh khi kết thúc) · Stream key RTMP cho OBS (chỉ quản trị viên xem, có ghi nhật ký) · Trang xem trực tiếp trên web + tỉ số cập nhật · Lớp tỉ số trong suốt cho OBS · Xem lại từng trận đúng mốc thời gian |
-| CMS | Tổng quan · VĐV & điều chỉnh điểm (tôn trọng Lock) · Duyệt đơn chấm trình · Giải / nội dung / đăng ký (xuất CSV) · Bốc thăm, nhánh đấu, nhập tỉ số trên điện thoại · Vinh danh (gợi ý tự động) · Livestream · Đối tác · Cấu hình (màu thương hiệu, OTP, đầu số) · Tài khoản & phân quyền · Nhật ký thao tác · Nhật ký OTP |
-| Dịch vụ chung | Kiểm tra SĐT di động Việt Nam theo đầu số nhà mạng (sửa được trong CMS) · Gửi/xác minh OTP (giả lập hoặc eSMS) · Upload ảnh an toàn (mã hóa lại WebP, xóa metadata/GPS) |
+| CMS | Tổng quan · VĐV & điều chỉnh điểm (tôn trọng Lock) · Duyệt đơn chấm trình · Giải / nội dung / đăng ký (xuất CSV) · Bốc thăm, nhánh đấu, nhập tỉ số trên điện thoại · Vinh danh (gợi ý tự động) · Livestream · Đối tác · Cấu hình (màu thương hiệu, đầu số) · Tài khoản & phân quyền · Nhật ký thao tác |
+| Dịch vụ chung | Kiểm tra SĐT di động Việt Nam theo đầu số nhà mạng (sửa được trong CMS) · Upload ảnh an toàn (mã hóa lại WebP, xóa metadata/GPS) |
 
 **Vai trò trong CMS:**
 
@@ -42,7 +42,7 @@ npm run dev
 - Website: <http://localhost:3000>
 - CMS: <http://localhost:3000/admin>
 - **Mật khẩu quản trị ban đầu** được ghi trong `data/initial-admin.txt` (chỉ máy bạn đọc được). Đăng nhập xong, đổi mật khẩu ở mục *Tài khoản của tôi* rồi xóa file này.
-- OTP đang ở chế độ **giả lập**: mã hiện ngay trên form để thử, không gửi tin nhắn thật.
+- Hệ thống dùng nội bộ: form công khai (chấm trình, đăng ký giải) không dùng OTP.
 - Xóa thư mục `data/` để làm lại từ đầu với dữ liệu mẫu mới.
 - **Ảnh mẫu:** dữ liệu mẫu có sẵn avatar VĐV, banner giải, banner nội dung, logo đối tác. Đây là ảnh minh họa cách điệu do `scripts/fake-images.js` vẽ (SVG → WebP), không phải ảnh người thật. Các lệnh:
   - Điền ảnh cho mục còn trống: `npm run fake-images`
@@ -73,12 +73,12 @@ src/
   server.js            Khởi tạo Express, bảo mật, session
   db.js                Kết nối PostgreSQL, giao dịch, migration
   migrations/          File SQL đánh số
-  lib/                 phone (SĐT VN), otp, youtube, points (điểm/Lock), bracket (nhánh đấu),
+  lib/                 phone (SĐT VN), youtube, points (điểm/Lock), bracket (nhánh đấu),
                        upload (ảnh: ổ đĩa hoặc Vercel Blob), env (nhận biết production/Vercel), security (CSRF, phân quyền, rate limit), settings, format, crypto
   routes/              public, tournaments, live (API tỉ số, overlay), admin/*
 views/                 EJS: public/*, admin/*, partials/*
 public/css             app.css (token màu + layout mobile-first), admin.css, overlay.css
-public/js              theme.js, app.js (SĐT, OTP, cắt ảnh, tự cập nhật), admin.js (nhập tỉ số…), overlay.js
+public/js              theme.js, app.js (SĐT, cắt ảnh, tự cập nhật), admin.js (nhập tỉ số…), overlay.js
 scripts/               dev.js (Postgres nhúng), migrate.js, seed.js, vercel-build.js, fake-images.js
 test/                  Unit test (node:test)
 ```
@@ -148,18 +148,16 @@ Vercel chạy code dạng serverless: không có ổ đĩa ghi được và khô
    | `APP_URL` | Địa chỉ website, ví dụ `https://pickle-ball-ranking.vercel.app` |
    | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Tài khoản CMS đầu tiên (mật khẩu ≥ 10 ký tự, có chữ và số) |
    | `SEED_DEMO=1` | *Tùy chọn, chỉ cho bản demo:* nạp dữ liệu mẫu hư cấu khi CSDL trống |
-   | `ALLOW_MOCK_OTP=1`, `DEMO_SHOW_OTP=1` | *Tùy chọn, chỉ cho bản demo:* chưa có SMS thật thì dùng OTP giả lập và hiện mã ngay trên form |
    | `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET` | Khi kết nối YouTube (xem mục dưới) |
-   | `ESMS_API_KEY`, `ESMS_SECRET_KEY` | Khi gửi OTP qua SMS thật |
 
 4. **Deployments → Redeploy**. Log build phải có dòng `✔ Migration xong.` và `✔ Đã tạo tài khoản quản trị …`. Nếu thiếu biến, build dừng và báo rõ thiếu biến nào.
-5. Đăng nhập `/admin`, đổi mật khẩu, rồi **xóa `ADMIN_PASSWORD`** khỏi Vercel. Bản demo: xóa luôn `SEED_DEMO`, `ALLOW_MOCK_OTP`, `DEMO_SHOW_OTP` trước khi có người dùng thật.
+5. Đăng nhập `/admin`, đổi mật khẩu, rồi **xóa `ADMIN_PASSWORD`** khỏi Vercel. Bản demo: xóa luôn `SEED_DEMO` trước khi có người dùng thật.
 
 ### Giới hạn khi chạy trên Vercel
 
 - File tải lên tối đa **4 MB** (Vercel giới hạn 4,5 MB cho mỗi request).
 - Gói Hobby chỉ cho cron chạy 1 lần/ngày, nên trạng thái buổi live tạo qua YouTube API được cập nhật khi có người mở trang live, không theo từng phút như server thường.
-- Giới hạn tần suất gửi OTP/đăng nhập tính theo từng instance; chặn chính vẫn nằm ở CSDL (tối đa mã/SĐT/ngày, khóa tài khoản sau 5 lần sai).
+- Giới hạn tần suất đăng nhập/gửi form tính theo từng instance; chặn chính vẫn nằm ở CSDL (khóa tài khoản sau 5 lần sai).
 - Bảng test `/dev` và nút "Xem với vai trò" luôn tắt trên Vercel.
 - Lỗi khởi động (sai `DATABASE_URL`…) hiện trang "Hệ thống tạm thời chưa sẵn sàng"; chi tiết xem ở **Deployments → chọn bản deploy → Logs**.
 
@@ -185,20 +183,6 @@ Lưu ý:
 - Chỉ dùng chế độ **Công khai** hoặc **Không công khai**: video *Riêng tư* không phát được trên website.
 - Trình phát nhúng cần trình duyệt gửi địa chỉ trang (Referer); website đã đặt sẵn `Referrer-Policy: strict-origin-when-cross-origin`. Đừng đổi sang `no-referrer`, nếu không YouTube sẽ báo *Error 153*.
 
-## OTP qua SMS
-
-- Mặc định là **giả lập**. Trên production, chế độ giả lập bị chặn trừ khi đặt `ALLOW_MOCK_OTP=1`.
-- Để gửi thật qua **eSMS.vn**:
-  1. Đăng ký brandname với nhà mạng (cần thời gian duyệt).
-  2. Đặt `ESMS_API_KEY` và `ESMS_SECRET_KEY` trong `.env`.
-  3. Chọn nhà cung cấp và nhập brandname trong CMS › Cấu hình.
-- **Cần đối chiếu tham số API trong `src/lib/otp.js` với tài liệu tài khoản eSMS của bạn trước khi chạy thật.**
-- Muốn thêm nhà cung cấp khác (Zalo ZNS, SpeedSMS…), thêm một hàm vào `providers` trong `src/lib/otp.js`.
-- Cơ chế bảo vệ:
-  - Mã 6 số, hết hạn 5 phút, sai tối đa 5 lần.
-  - Gửi lại sau 60 giây, tối đa 5 mã/SĐT/24 giờ, giới hạn theo IP.
-  - Mã chỉ lưu dạng băm, SĐT trong log được che.
-
 ## Bảo mật & tuân thủ
 
 - **Mật khẩu & phiên:** băm bằng scrypt; khóa 15 phút sau 5 lần đăng nhập sai; phiên lưu trong PostgreSQL, cookie `HttpOnly`/`SameSite`/`Secure`.
@@ -210,10 +194,10 @@ Lưu ý:
   - SĐT không hiển thị công khai.
   - Có cờ ẩn hồ sơ VĐV.
   - Trang chính sách tại `/chinh-sach-quyen-rieng-tu` **là bản nháp, cần bộ phận Pháp chế duyệt** trước khi công bố.
-- **Không commit** `.env` và `data/`. Nếu lộ khóa (`APP_SECRET`, `ESMS_*`, `YOUTUBE_CLIENT_SECRET`, stream key): đổi ngay và báo đội ISMS/Security.
+- **Không commit** `.env` và `data/`. Nếu lộ khóa (`APP_SECRET`, `YOUTUBE_CLIENT_SECRET`, stream key): đổi ngay và báo đội ISMS/Security.
 
 ## Chưa có trong phiên bản này
 
 - Tự sinh vòng *Playoff "cơ hội thứ 2"* (hiện tạo tay bằng *Thêm trận thủ công*).
 - Tự cộng/trừ điểm theo kết quả trận (hiện điều chỉnh tay, có ghi lịch sử).
-- Thanh toán lệ phí online, captcha chống spam, lưu ảnh trên S3/CDN, nhập VĐV từ Excel, OTP đăng nhập CMS.
+- Thanh toán lệ phí online, captcha chống spam, lưu ảnh trên S3/CDN, nhập VĐV từ Excel.

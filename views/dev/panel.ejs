@@ -9,9 +9,9 @@
       { id: 'g-home', t: 'Trang chủ & đổi giao diện', steps: ['Xem bảng vàng, giải nổi bật, thẻ trận đang live', 'Bấm nút mặt trời/mặt trăng để đổi sáng ↔ tối', 'Thanh tab dưới cùng chuyển trang được'], url: '/' },
       { id: 'g-rank', t: 'Bảng xếp hạng', steps: ['Lọc "VĐV Nữ"', 'Tìm "Cửa Lò" hoặc "Smash"', 'Chuyển trang 2, 3'], url: '/xep-hang' },
       { id: 'g-profile', t: 'Hồ sơ VĐV', steps: ['Xem 3 ô điểm: hiện tại, cao nhất, Lock', 'Biểu đồ diễn biến điểm', 'Mở/đóng các mục Thành tích, Lịch sử'], url: top ? `/vdv/${top.id}` : '/xep-hang' },
-      { id: 'g-sub-bad', t: 'Chấm trình: SĐT sai', steps: ['Nhập SĐT sai đầu số → báo lỗi ngay khi gõ', 'Nhập 9 số → nhắc "Cần đủ 10 chữ số"', 'Bấm "Gửi mã OTP" khi SĐT sai → bị chặn'], data: [['SĐT sai đầu số', '0101234567'], ['Thiếu số', '091234567'], ['Có +84', '+84 912 345 678']], url: '/cham-trinh' },
-      { id: 'g-sub-ok', t: 'Chấm trình: gửi đơn thành công', steps: ['Nhập thông tin, điểm ≥ 2.500 (nam) / 2.000 (nữ)', 'Chọn ảnh → kéo/xoay → "Áp dụng"', 'Bấm "Gửi mã OTP": mã thử nghiệm hiện ngay dưới ô', 'Nhập sai mã 1 lần → báo còn lượt; nhập đúng → gửi thành công', 'Gửi lại cùng SĐT → bị chặn vì đã có đơn chờ'], data: [['SĐT mới', '0399 888 777'], ['Điểm', '2.750']], url: '/cham-trinh' },
-      { id: 'g-reg', t: 'Đăng ký giải', steps: ['Chọn nội dung bằng banner', 'Nhập SĐT VĐV đã có hồ sơ → tự điền tên & điểm (khóa sửa)', 'Nhập trình vượt tổng mức → bị chặn khi gửi', 'Gửi OTP cho VĐV 1, nhập mã → đăng ký thành công'], data: sample ? [['SĐT VĐV có sẵn', sample.phone], ['SĐT VĐV 2 mới', '0777 123 456']] : [], url: `/giai-dau/${ev}/dang-ky` },
+      { id: 'g-sub-bad', t: 'Chấm trình: SĐT sai', steps: ['Nhập SĐT sai đầu số → báo lỗi ngay khi gõ', 'Nhập 9 số → nhắc "Cần đủ 10 chữ số"', 'Bấm "Gửi đơn chấm trình" khi SĐT sai → báo lỗi'], data: [['SĐT sai đầu số', '0101234567'], ['Thiếu số', '091234567'], ['Có +84', '+84 912 345 678']], url: '/cham-trinh' },
+      { id: 'g-sub-ok', t: 'Chấm trình: gửi đơn thành công', steps: ['Nhập thông tin, điểm ≥ 2.500 (nam) / 2.000 (nữ)', 'Gửi khi chưa chọn ảnh → bị chặn (ảnh đại diện bắt buộc)', 'Chọn ảnh → kéo/xoay → "Áp dụng" → gửi thành công', 'Gửi lại cùng SĐT → bị chặn vì đã có đơn chờ'], data: [['SĐT mới', '0399 888 777'], ['Điểm', '2.750']], url: '/cham-trinh' },
+      { id: 'g-reg', t: 'Đăng ký giải', steps: ['Chọn nội dung bằng banner', 'Nhập SĐT VĐV đã có hồ sơ → tự điền tên & điểm (khóa sửa)', 'Nhập trình vượt tổng mức → bị chặn khi gửi', 'Nhập đúng → đăng ký thành công'], data: sample ? [['SĐT VĐV có sẵn', sample.phone], ['SĐT VĐV 2 mới', '0777 123 456']] : [], url: `/giai-dau/${ev}/dang-ky` },
       { id: 'g-list', t: 'Danh sách đăng ký', steps: ['Đăng ký vừa gửi hiện "Mới đăng ký"', 'Không hiện số điện thoại', 'Bảng thành thẻ dọc trên điện thoại'], url: `/giai-dau/${ev}/danh-sach` },
       { id: 'g-bracket', t: 'Nhánh đấu loại trực tiếp', steps: ['Vuốt ngang qua các vòng trên điện thoại', 'Trận đang đấu có viền đỏ + nút "Xem live"', 'Trận đã xong có nút "Xem lại"'], url: `/giai-dau/${lev}/nhanh-dau` },
       { id: 'g-relay', t: 'Vòng tròn tiếp sức & vinh danh', steps: ['Bảng xếp hạng có cột "Căn cứ" và bảng phụ đối đầu', 'Mở trang giải xem bục vinh danh'], url: `/giai-dau/${rev}/nhanh-dau`, url2: `/giai-dau/${rev}` },
@@ -27,7 +27,7 @@
       { id: 'a-honor', t: 'Vinh danh', steps: ['"Lấy tự động từ nhánh đấu"', 'Gắn hồ sơ VĐV bằng ô tìm kiếm', 'Lưu → trang giải hiện bục vinh danh'], url: '/admin/giai-dau' },
       { id: 'a-live', t: 'Livestream', steps: ['Tạo buổi phát: "Dán link có sẵn" với link YouTube bất kỳ', 'Đổi trạng thái "Đang phát" → khung 2 hiện trình phát', 'Copy link lớp tỉ số OBS', '"Kết thúc buổi phát" → trang công khai chuyển sang xem lại'], data: [['Link YouTube thử', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ']], url: '/admin/livestream', url2: `/giai-dau/${lev}/truc-tiep` },
       { id: 'a-brand', t: 'Đổi màu thương hiệu', steps: ['Cấu hình → đổi 3 màu bóng/sân/vàng → Lưu', 'Khung 2: tải lại trang chủ, toàn bộ gradient đổi theo', 'Đổi lại màu gốc: #D4F53C · #14B8A6 · #E6C27A'], url: '/admin/cau-hinh', url2: '/' },
-      { id: 'a-otp', t: 'Cấu hình OTP & đầu số', steps: ['Tắt "Bắt buộc OTP" → form chấm trình không còn ô OTP', 'Bật lại', 'Xem Nhật ký OTP: SĐT được che'], url: '/admin/cau-hinh', url2: '/cham-trinh' },
+      { id: 'a-phone', t: 'Cấu hình đầu số', steps: ['Thêm/bớt đầu số trong CMS › Cấu hình', 'Mở form chấm trình, nhập SĐT có đầu số đó → kiểm tra báo hợp lệ/không hợp lệ'], url: '/admin/cau-hinh', url2: '/cham-trinh' },
       { id: 'a-users', t: 'Tài khoản & nhật ký', steps: ['Tạo tài khoản mới (mật khẩu ≥ 10 ký tự, có chữ và số)', 'Khóa / mở khóa, đổi vai trò', 'Nhật ký thao tác ghi đủ các việc vừa làm'], url: '/admin/nguoi-dung', url2: '/admin/nhat-ky' },
     ] },
     { key: 'editor', label: 'Biên tập viên', role: 'editor', items: [
@@ -107,7 +107,6 @@
       <summary class="small">Lưu ý & dọn dẹp</summary>
       <div class="fold-body stack small muted" style="--gap: 8px;">
         <p>2 khung dùng chung phiên đăng nhập. Trang công khai vẫn xem bình thường khi đang đăng nhập CMS.</p>
-        <p>OTP đang ở chế độ giả lập: mã hiện ngay trên form. Mỗi SĐT phải chờ 60 giây mới gửi lại được, tối đa 5 mã/24 giờ, nên hãy đổi SĐT khi test nhiều lần.</p>
         <p>Tài khoản test (test_admin, test_editor, test_referee) có mật khẩu ngẫu nhiên, chỉ vào được qua bảng này. Bảng tự tắt khi <code>NODE_ENV=production</code>.</p>
         <p>Muốn làm lại dữ liệu mẫu: dừng server, xóa thư mục <code>data/</code>, chạy lại <code>npm run dev</code>.</p>
         <form method="post" action="/dev/accounts/xoa" data-confirm="Xóa các tài khoản test_*?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-danger" type="submit">Xóa tài khoản test</button></form>

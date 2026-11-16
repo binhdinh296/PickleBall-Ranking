@@ -62,7 +62,7 @@ router.use(requireLogin);
 
 // Nạp lại quyền từ CSDL để tài khoản bị khóa/đổi vai trò có hiệu lực ngay
 router.use(wrap(async (req, res, next) => {
-  // Ban tổ chức (vào bằng link + OTP): nạp lại đơn vị, hết hạn/bị khóa thì thoát; chỉ được vào trang giải của mình
+  // Ban tổ chức (vào bằng link quản trị riêng): nạp lại đơn vị, hết hạn/bị khóa thì thoát; chỉ được vào trang giải của mình
   if (req.session.user.role === 'organizer') {
     const org = await get('SELECT * FROM organizers WHERE id = ?', req.session.user.organizerId);
     if (!organizers.isUsable(org)) return req.session.destroy(() => res.redirect(303, '/btc'));

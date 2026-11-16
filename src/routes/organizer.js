@@ -31,7 +31,7 @@ async function resolve(req, res) {
   return { org };
 }
 
-// Mở link là vào thẳng: chưa có giải → form tạo giải, đã có → trang quản lý giải (không cần OTP). Bù lại: link dài ngẫu nhiên, có hạn dùng, khoá/tạo lại được, ghi nhật ký.
+// Mở link là vào thẳng: chưa có giải → form tạo giải, đã có → trang quản lý giải. Bù lại: link dài ngẫu nhiên, có hạn dùng, khoá/tạo lại được, ghi nhật ký.
 router.get('/:token', openLimiter, wrap(async (req, res, next) => {
   const r = await resolve(req, res);
   if (!r) return;

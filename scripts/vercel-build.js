@@ -44,8 +44,7 @@ function fail(msg) {
     if (!shouldForce) {
       try {
         const athleteCount = (await db.get("SELECT COUNT(*) AS c FROM athletes"))?.c || 0;
-        const otpCount = (await db.get("SELECT COUNT(*) AS c FROM otp_requests"))?.c || 0;
-        if (athleteCount < 500 || otpCount === 0) {
+        if (athleteCount < 500) {
           console.log(`⚡ Phát hiện CSDL Neon chưa có đủ VĐV Pickna (hiện có ${athleteCount}/971). Tự động nạp dữ liệu chuẩn...`);
           shouldForce = true;
         }

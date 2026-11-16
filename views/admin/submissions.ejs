@@ -10,7 +10,7 @@
       <span class="avatar" style="--s: 64px;"><% if (s.avatar) { %><img src="<%= s.avatar %>" alt=""><% } else { %><span><%= fmt.initials(s.full_name) %></span><% } %></span>
       <div style="min-width: 0;"><strong style="overflow-wrap: anywhere;"><%= s.full_name %></strong><% if (s.nickname) { %> <span class="muted small">(<%= s.nickname %>)</span><% } %><br><span class="small muted"><%= fmt.GENDER_LABEL[s.gender] %> · <%= s.club %> · <%= s.hometown %></span></div>
     </div>
-    <div class="row small" style="--gap: 8px;"><span class="chip"><%= s.phone %></span><% if (s.phone_verified) { %><span class="chip chip-ok">Đã xác minh OTP</span><% } %><span class="chip">Tự chấm <%= fmt.pts(s.points) %></span></div>
+    <div class="row small" style="--gap: 8px;"><span class="chip"><%= s.phone %></span><span class="chip">Tự chấm <%= fmt.pts(s.points) %></span></div>
     <% if (s.description) { %><p class="small muted" style="white-space: pre-line;"><%= s.description %></p><% } %>
     <span class="tiny faint">Gửi lúc <%= fmt.dateTimeVN(s.created_at) %><%= s.reviewed_by ? ` · ${fmt.SUB_STATUS_LABEL[s.status]} bởi ${s.reviewed_by}` : '' %><%= s.admin_note ? ` · ${s.admin_note}` : '' %></span>
     <% if (s.status === 'pending') { %>

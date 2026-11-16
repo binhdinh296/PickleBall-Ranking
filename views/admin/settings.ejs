@@ -35,17 +35,7 @@
     </div>
   </div>
   <div class="sub-card">
-    <h2 class="section-title">Số điện thoại & OTP</h2>
-    <p class="small muted">Form công khai (tự chấm trình, đăng ký giải) không yêu cầu OTP. Cấu hình nhà cung cấp bên dưới chỉ dùng khi cần gửi mã xác minh.</p>
-    <div class="form-grid three">
-      <div class="field"><label for="otp_provider">Nhà cung cấp gửi tin</label><select class="input" id="otp_provider" name="otp_provider"><% providers.forEach((p) => { %><option value="<%= p %>" <%= s.otp_provider === p ? 'selected' : '' %>><%= p === 'mock' ? 'Giả lập (chỉ để thử nghiệm)' : p === 'esms' ? 'eSMS.vn (SMS brandname)' : p %></option><% }) %></select></div>
-      <%- f('otp_brandname', 'Brandname đã đăng ký') %>
-      <%- f('otp_ttl_seconds', 'Hiệu lực mã (giây)', 'inputmode="numeric"') %>
-      <%- f('otp_cooldown_seconds', 'Chờ gửi lại (giây)', 'inputmode="numeric"') %>
-      <%- f('otp_daily_limit', 'Tối đa mã/SĐT/24 giờ', 'inputmode="numeric"') %>
-      <%- f('otp_max_attempts', 'Số lần nhập sai tối đa', 'inputmode="numeric"') %>
-    </div>
-    <span class="hint">Khóa API của nhà cung cấp đặt trong file .env trên server (ESMS_API_KEY, ESMS_SECRET_KEY), không nhập ở đây.</span>
+    <h2 class="section-title">Số điện thoại</h2>
     <div class="field"><label for="phone_prefixes">Đầu số di động hợp lệ (mỗi dòng: Nhà mạng: đầu số, …)</label><textarea class="input secret" id="phone_prefixes" name="phone_prefixes" style="min-height: 180px;"><%= s.phone_prefixes %></textarea><details><summary class="link tiny" style="cursor: pointer;">Danh sách mặc định</summary><pre class="tiny faint" style="white-space: pre-wrap;"><%= defaultPrefixes %></pre></details></div>
   </div>
   <div class="form-actions"><button class="btn btn-brand" type="submit">Lưu cấu hình</button></div>

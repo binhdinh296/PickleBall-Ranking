@@ -2,7 +2,6 @@ const express = require('express');
 const { normalizeTheme } = require('../../lib/themes');
 const { all, get, run } = require('../../db');
 const phoneLib = require('../../lib/phone');
-const otp = require('../../lib/otp');
 const { DEFAULTS, getSettings, saveSettings, isHex } = require('../../lib/settings');
 const { upload, saveImage, removeUpload, fileOf } = require('../../lib/upload');
 const { verifyCsrf, requireRole, audit, hashPassword, passwordProblem } = require('../../lib/security');
@@ -48,24 +47,21 @@ router.post('/doi-tac/:id/xoa', editor, wrap(async (req, res) => {
 
 // ---- Cấu hình ----
 router.get('/cau-hinh', admin, (req, res) => {
-  res.render('admin/settings', { title: 'Cấu hình', s: getSettings(), error: null, providers: otp.providerNames, defaultPrefixes: phoneLib.prefixesText() });
+  res.render('admin/settings', { title: 'Cấu hình', s: getSettings(), error: null, defaultPrefixes: phoneLib.prefixesText() });
 });
 
 router.post('/cau-hinh', admin, wrap(async (req, res) => {
   const values = {};
   for (const key of Object.keys(DEFAULTS)) {
-    if (key === 'otp_enabled') values[key] = req.body.otp_enabled === '1' ? '1' : '0';
-    else if (key in req.body) values[key] = String(req.body[key]).slice(0, 3000);
+    if (key in req.body) values[key] = String(req.body[key]).slice(0, 3000);
   }
-  const fail = (error) => res.status(400).render('admin/settings', { title: 'Cấu hình', s: { ...getSettings(), ...values }, error, providers: otp.providerNames, defaultPrefixes: phoneLib.prefixesText() });
+  const fail = (error) => res.status(400).render('admin/settings', { title: 'Cấu hình', s: { ...getSettings(), ...values }, error, defaultPrefixes: phoneLib.prefixesText() });
   for (const k of ['color_ball', 'color_court', 'color_gold']) if (!isHex(values[k])) return fail('Màu phải ở dạng #RRGGBB.');
   if ('default_theme' in values) values.default_theme = normalizeTheme(values.default_theme); // 'blue' cũ → 'luxe', giá trị lạ → 'dark'
-  if (!otp.providerNames.includes(values.otp_provider)) return fail('Nhà cung cấp OTP không hợp lệ.');
   for (const k of ['facebook_url', 'youtube_url', 'zalo_group_url', 'privacy_url']) {
     if (values[k] && !/^https?:\/\//.test(values[k])) return fail('Các link mạng xã hội/chính sách phải bắt đầu bằng http:// hoặc https://');
   }
-  for (const k of ['min_points_male', 'min_points_female', 'newbie_exit_male', 'newbie_exit_female', 'lock_margin', 'featured_count',
-    'otp_ttl_seconds', 'otp_cooldown_seconds', 'otp_daily_limit', 'otp_max_attempts']) {
+  for (const k of ['min_points_male', 'min_points_female', 'newbie_exit_male', 'newbie_exit_female', 'lock_margin', 'featured_count']) {
     if (!/^\d{1,6}$/.test(String(values[k] || '').trim())) return fail('Các ngưỡng số phải là số nguyên dương.');
   }
   await saveSettings(values);
@@ -125,14 +121,6 @@ router.post('/nguoi-dung/:id', admin, wrap(async (req, res) => {
 router.get('/nhat-ky', admin, wrap(async (req, res) => {
   const rows = await all('SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 300');
   res.render('admin/audit', { title: 'Nhật ký thao tác', rows });
-}));
-
-router.get('/nhat-ky-otp', admin, wrap(async (req, res) => {
-  const rows = await all('SELECT id, phone, purpose, provider, provider_status, attempts, verified_at, used_at, created_at FROM otp_requests ORDER BY created_at DESC LIMIT 300');
-  rows.forEach((r) => { r.phone = phoneLib.mask(r.phone); });
-  const daily = await all(`SELECT to_char(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'DD/MM') AS day, COUNT(*) AS sent,
-    COUNT(verified_at) AS verified FROM otp_requests WHERE created_at > now() - interval '14 days' GROUP BY 1 ORDER BY MIN(created_at) DESC`);
-  res.render('admin/otp-log', { title: 'Nhật ký OTP', rows, daily });
 }));
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { IS_PROD } = require('./env');
 
-// Khóa ứng dụng dùng để mã hóa token YouTube, stream key và băm OTP
+// Khóa ứng dụng dùng để mã hóa token YouTube, stream key và băm mã link ban tổ chức
 function appKey() {
   const secret = process.env.APP_SECRET;
   if (!secret || secret.length < 32) {

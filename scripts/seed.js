@@ -77,7 +77,7 @@ async function seed({ log = console.log, force = false, athletes: customAthletes
   const athleteCount = (await get('SELECT COUNT(*) AS c FROM athletes')).c;
   if (force) {
     log('Đang dọn sạch dữ liệu cũ để nạp lại toàn bộ dữ liệu mẫu full tính năng...');
-    await run('TRUNCATE matches, honors, teams, registrations, live_streams, divisions, events, submissions, point_history, athletes, partners, otp_requests, audit_logs CASCADE');
+    await run('TRUNCATE matches, honors, teams, registrations, live_streams, divisions, events, submissions, point_history, athletes, partners, audit_logs CASCADE');
   } else if (athleteCount > 0) {
     log(`CSDL đã có sẵn ${athleteCount} VĐV, bỏ qua dữ liệu mẫu. (Dùng npm run seed -- --force nếu muốn nạp lại từ đầu).`);
     return;
@@ -95,9 +95,6 @@ async function seed({ log = console.log, force = false, athletes: customAthletes
     ['court_color', '#14B8A6'],
     ['gold_color', '#E6C27A'],
     ['featured_count', '12'],
-    ['otp_provider', 'mock'],
-    ['require_otp_submission', '1'],
-    ['require_otp_registration', '1']
   ];
   for (const [k, v] of defaultSettings) {
     await run('INSERT INTO settings(key, value) VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value', k, v);
@@ -229,14 +226,14 @@ async function seed({ log = console.log, force = false, athletes: customAthletes
     ];
 
     for (const s of subs) {
-      await run(`INSERT INTO submissions(full_name, nickname, phone, phone_verified, gender, points, hometown, club, description, status, reviewed_by, reviewed_at, admin_note, created_at)
-        VALUES (?, ?, ?, true, ?, ?, ?, ?, ?, ?, ?, ${s.reviewer ? 'now() - interval \'1 day\'' : 'NULL'}, ?, now() - interval '${s.createdAgo}')`,
+      await run(`INSERT INTO submissions(full_name, nickname, phone, gender, points, hometown, club, description, status, reviewed_by, reviewed_at, admin_note, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ${s.reviewer ? 'now() - interval \'1 day\'' : 'NULL'}, ?, now() - interval '${s.createdAgo}')`,
         s.name, s.nick, s.phone, s.gender, s.pts, s.town, s.club, s.desc, s.status, s.reviewer || null, s.note || null);
     }
 
     const prizes = (a, b, c) => JSON.stringify([{ label: 'Vô địch', amount: a }, { label: 'Á quân', amount: b }, { label: '02 Giải ba', amount: c }]);
     const reg = async (divisionId, a, b, status = 'approved', note = null) => run(`INSERT INTO registrations(division_id, athlete1_id, name1, phone1, points1,
-      athlete2_id, name2, phone2, points2, phone_verified, status, admin_note) VALUES (?,?,?,?,?,?,?,?,?, true, ?, ?)`,
+      athlete2_id, name2, phone2, points2, status, admin_note) VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
     divisionId, a.id, a.nickname || a.full_name, a.phone, a.points, b.id, b.nickname || b.full_name, b.phone, b.points, status, note);
 
     // 6. Giải 1: ĐANG DIỄN RA (Có livestream, nhánh knockout kịch tính)
@@ -346,8 +343,8 @@ async function seed({ log = console.log, force = false, athletes: customAthletes
 
     let pNum = 981000100;
     for (const r of rawPairs) {
-      await run(`INSERT INTO registrations(division_id, athlete1_id, name1, phone1, points1, athlete2_id, name2, phone2, points2, phone_verified, status, admin_note)
-        VALUES (?, NULL, ?, ?, NULL, NULL, ?, ?, NULL, true, ?, ?)`,
+      await run(`INSERT INTO registrations(division_id, athlete1_id, name1, phone1, points1, athlete2_id, name2, phone2, points2, status, admin_note)
+        VALUES (?, NULL, ?, ?, NULL, NULL, ?, ?, NULL, ?, ?)`,
         d5.id, r.p1, '0' + (pNum++), r.p2, '0' + (pNum++), r.paid ? 'approved' : 'new', r.note);
     }
     await bracket.syncTeamsFromRegistrations(d5.id);
@@ -439,33 +436,7 @@ async function seed({ log = console.log, force = false, athletes: customAthletes
     await run('INSERT INTO partners(name, url, sort_order, visible, logo) VALUES (?, ?, ?, ?, ?)', s.name, s.url, s.sort, s.visible, s.logo);
   }
 
-  // 12. Nhật ký OTP (OTP Logs) - Giúp trang /admin/nhat-ky-otp hiển thị đầy đủ KPI 14 ngày và bảng danh sách
-  const otpSamples = [
-    { phone: '0912345670', purpose: 'submission', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '2 hours' },
-    { phone: '0987654320', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 1, verified: true, ago: '5 hours' },
-    { phone: '0903112233', purpose: 'submission', provider: 'eSMS', status: 'delivered', attempts: 0, verified: true, ago: '1 day' },
-    { phone: '0933445566', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '1 day' },
-    { phone: '0966778899', purpose: 'admin_login', provider: 'Mock', status: 'success', attempts: 0, verified: true, ago: '2 days' },
-    { phone: '0988001122', purpose: 'submission', provider: 'SpeedSMS', status: 'delivered', attempts: 2, verified: true, ago: '2 days' },
-    { phone: '0911223344', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '3 days' },
-    { phone: '0944556677', purpose: 'submission', provider: 'eSMS', status: 'sent', attempts: 3, verified: false, ago: '3 days' },
-    { phone: '0977889900', purpose: 'submission', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '4 days' },
-    { phone: '0933887766', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '5 days' },
-    { phone: '0909123456', purpose: 'submission', provider: 'Twilio', status: 'delivered', attempts: 0, verified: true, ago: '6 days' },
-    { phone: '0987111222', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 1, verified: true, ago: '7 days' },
-    { phone: '0918333444', purpose: 'submission', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '8 days' },
-    { phone: '0968555666', purpose: 'registration', provider: 'eSMS', status: 'delivered', attempts: 0, verified: true, ago: '9 days' },
-    { phone: '0942777888', purpose: 'submission', provider: 'SpeedSMS', status: 'expired', attempts: 0, verified: false, ago: '10 days' },
-    { phone: '0908999000', purpose: 'registration', provider: 'SpeedSMS', status: 'delivered', attempts: 0, verified: true, ago: '11 days' },
-  ];
-  for (const o of otpSamples) {
-    const verifiedAt = o.verified ? `now() - interval '${o.ago}' + interval '45 seconds'` : 'NULL';
-    await run(`INSERT INTO otp_requests(phone, purpose, code_hash, provider, provider_status, attempts, verified_at, expires_at, ip, created_at)
-      VALUES (?, ?, 'hash_sample', ?, ?, ?, ${verifiedAt}, now() - interval '${o.ago}' + interval '5 minutes', '113.161.42.10', now() - interval '${o.ago}')`,
-      o.phone, o.purpose, o.provider, o.status, o.attempts);
-  }
-
-  // 13. Nhật ký thao tác (Audit Logs) - Giúp trang /admin/nhat-ky hiển thị lịch sử quản trị chi tiết
+  // 12. Nhật ký thao tác (Audit Logs) - Giúp trang /admin/nhat-ky hiển thị lịch sử quản trị chi tiết
   const auditSamples = [
     { user: 'admin', action: 'update_settings', target: 'settings', detail: 'Cập nhật cấu hình màu sắc giao diện và số VĐV nổi bật', ago: '1 hour' },
     { user: 'trandinh', action: 'update_match_score', target: 'match:99', detail: 'Cập nhật tỉ số Bán kết 2: 8 - 6', ago: '2 hours' },
@@ -498,7 +469,6 @@ async function seed({ log = console.log, force = false, athletes: customAthletes
   const eventCountFinal = (await get('SELECT COUNT(*) AS c FROM events')).c;
   const matchCountFinal = (await get('SELECT COUNT(*) AS c FROM matches')).c;
   const subCountFinal = (await get('SELECT COUNT(*) AS c FROM submissions')).c;
-  const otpCountFinal = (await get('SELECT COUNT(*) AS c FROM otp_requests')).c;
   const auditCountFinal = (await get('SELECT COUNT(*) AS c FROM audit_logs')).c;
 
   log(`✔ ĐÃ NẠP TOÀN BỘ DỮ LIỆU FULL TÍNH NĂNG THÀNH CÔNG:`);
@@ -507,7 +477,6 @@ async function seed({ log = console.log, force = false, athletes: customAthletes
   log(`  • ${matchCountFinal} Trận đấu (Nhánh Knockout, Vòng tròn tiếp sức, Trận live kèm video YouTube)`);
   log(`  • ${subCountFinal} Đơn chấm trình (đầy đủ các tab: Chờ duyệt, Đã duyệt, Đã từ chối)`);
   log(`  • Bảng vinh danh & Thành tích thi đấu đã liên kết hồ sơ VĐV`);
-  log(`  • ${otpCountFinal} Bản ghi nhật ký OTP (kèm KPI thống kê 14 ngày)`);
   log(`  • ${auditCountFinal} Bản ghi nhật ký quản trị CMS`);
 }
 

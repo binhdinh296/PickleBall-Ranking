@@ -157,7 +157,7 @@ test('Bảng DEV (đăng nhập không mật khẩu): mặc định tắt trên 
   }
 });
 
-test('Ban tổ chức (link + OTP): chỉ vào được các trang quản lý giải, mọi trang khác bị chặn', () => {
+test('Ban tổ chức (link quản trị riêng): chỉ vào được các trang quản lý giải, mọi trang khác bị chặn', () => {
   const { RULES, TOKEN_RE, newToken, hashToken } = require('../src/lib/organizers');
   const allowed = (p) => RULES.some((r) => r.re.test(p));
   for (const p of ['/', '/giai-dau', '/giai-dau/moi', '/giai-dau/5', '/giai-dau/5/sua', '/giai-dau/5/noi-dung/moi', '/noi-dung/3/dang-ky',
