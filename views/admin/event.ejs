@@ -1,55 +1,122 @@
 <% const org = user.role === 'organizer'; %>
 <%- include('_top', { back: org ? null : '/admin/giai-dau' }) %>
-<div class="card card-pad stack" style="--gap: 14px;">
-  <div class="row" style="--gap: 8px;">
-    <span class="chip <%= ev.published ? 'chip-ok' : org ? 'chip-warn' : 'chip-muted' %>"><%= ev.published ? 'Công khai' : org ? 'Chờ duyệt' : 'Nháp' %></span>
-    <span class="chip"><%= fmt.EVENT_STATUS_LABEL[ev.status] %></span>
-    <span class="chip <%= ev.registration_open ? 'chip-ok' : 'chip-muted' %>"><%= ev.registration_open ? 'Đang mở đăng ký' : 'Đóng đăng ký' %></span>
+
+<!-- 1. BẢNG ĐIỀU HÀNH TỔNG QUAN GIẢI ĐẤU (COMMAND CENTER) -->
+<div class="card card-pad stack" style="--gap: 12px; margin-bottom: 16px;">
+  <!-- Dòng tiêu đề + Chip trạng thái + Toolbar -->
+  <div class="row" style="justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+    <div class="stack" style="--gap: 4px;">
+      <div class="row" style="--gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span class="chip <%= ev.published ? 'chip-ok' : org ? 'chip-warn' : 'chip-muted' %>" style="font-size: 11px;">
+          <%= ev.published ? 'Công khai' : org ? 'Chờ duyệt' : 'Bản nháp' %>
+        </span>
+        <span class="chip" style="font-size: 11px;"><%= fmt.EVENT_STATUS_LABEL[ev.status] %></span>
+        <span class="chip <%= ev.registration_open ? 'chip-ok' : 'chip-muted' %>" style="font-size: 11px;">
+          <%= ev.registration_open ? 'Đang mở đăng ký' : 'Đóng đăng ký' %>
+        </span>
+      </div>
+      <p class="small muted" style="margin: 0;">
+        <%- include('../partials/icon', { name: 'trophy' }) %>
+        <strong><%= fmt.dateVN(ev.start_date) %> – <%= fmt.dateVN(ev.end_date) %></strong> · Sân: <b><%= ev.venue || 'Chưa nhập địa điểm' %></b>
+      </p>
+    </div>
+
+    <!-- Toolbar hành động nhanh -->
+    <div class="row" style="--gap: 6px; flex-wrap: wrap;">
+      <a class="btn btn-sm" href="/admin/giai-dau/<%= ev.id %>/sua">
+        <%- include('../partials/icon', { name: 'edit' }) %>Sửa giải
+      </a>
+      <% if (!org) { %>
+        <a class="btn btn-sm" href="/admin/livestream?giai=<%= ev.id %>">
+          <%- include('../partials/icon', { name: 'live' }) %>Livestream
+        </a>
+      <% } %>
+      <% if (ev.published) { %>
+        <a class="btn btn-sm" href="/giai-dau/<%= ev.slug %>" target="_blank" rel="noopener">
+          <%- include('../partials/icon', { name: 'external' }) %>Xem web
+        </a>
+      <% } %>
+      <% if (user.role === 'admin') { %>
+        <form class="inline-form" method="post" action="/admin/giai-dau/<%= ev.id %>/xoa" data-confirm="Xoá giải &quot;<%= ev.name %>&quot; cùng toàn bộ nội dung, đăng ký, nhánh đấu và vinh danh?">
+          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+          <button class="btn btn-sm btn-danger" type="submit" title="Xóa giải">
+            <%- include('../partials/icon', { name: 'close' }) %>Xoá
+          </button>
+        </form>
+      <% } %>
+    </div>
   </div>
-  <p class="muted small" style="margin: 0;"><%= fmt.dateVN(ev.start_date) %> – <%= fmt.dateVN(ev.end_date) %> · <%= ev.venue || 'Chưa nhập địa điểm sân' %></p>
-  <div class="row" style="--gap: 8px; flex-wrap: wrap;">
-    <a class="btn btn-sm" href="/admin/giai-dau/<%= ev.id %>/sua"><%- include('../partials/icon', { name: 'edit' }) %>Sửa thông tin</a>
-    <% if (!org) { %><a class="btn btn-sm" href="/admin/livestream?giai=<%= ev.id %>"><%- include('../partials/icon', { name: 'live' }) %>Livestream</a><% } %>
-    <% if (ev.published) { %><a class="btn btn-sm" href="/giai-dau/<%= ev.slug %>" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'external' }) %>Xem trang giải ngoài web</a><% } %>
-    <% if (user.role === 'admin') { %><form class="inline-form" method="post" action="/admin/giai-dau/<%= ev.id %>/xoa" data-confirm="Xoá giải &quot;<%= ev.name %>&quot; cùng toàn bộ nội dung, đăng ký, nhánh đấu, vinh danh và buổi phát? Không thể hoàn tác."><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-danger" type="submit"><%- include('../partials/icon', { name: 'close' }) %>Xoá giải</button></form><% } %>
-  </div>
+
+  <!-- Link đăng ký VĐV (gọn gàng, tối ưu diện tích) -->
   <% if (locals.shortRegUrl) { %>
-  <div class="field" style="max-width: 620px;">
-    <label for="short-reg-url">Link đăng ký cho vận động viên</label>
-    <div class="copy-row"><input class="input" id="short-reg-url" readonly value="<%= shortRegUrl %>"><button type="button" class="btn btn-sm" data-copy="short-reg-url">Chép link</button></div>
-    <span class="hint"><%= ev.published ? 'Gửi link này vào nhóm Zalo/Facebook để VĐV tự đăng ký. Danh sách đăng ký mới sẽ hiện ở nút "Đăng ký & VĐV" bên dưới.' : 'Link nhận đăng ký sau khi quản trị viên duyệt công khai giải. Trước đó người mở link sẽ thấy "chưa mở đăng ký".' %></span>
+  <div class="card card-pad" style="background: var(--surface-2, rgba(255,255,255,0.02)); border: 1px dashed var(--line); padding: 8px 12px;">
+    <div class="row" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <span class="small" style="color: var(--text-dim, #888);">
+        <strong>Link đăng ký VĐV:</strong> Gửi link này vào nhóm Zalo/Facebook để vận động viên tự đăng ký.
+      </span>
+      <div class="copy-row" style="max-width: 380px; flex: 1 1 240px;">
+        <input class="input tnum small" id="short-reg-url" readonly value="<%= shortRegUrl %>" style="height: 32px; font-size: 12px;">
+        <button type="button" class="btn btn-sm" data-copy="short-reg-url">Chép link</button>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Hàng thẻ thống kê nhanh (KPI Summary Tiles) -->
+  <% if (locals.stats) { %>
+  <div class="kpis" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-top: 4px;">
+    <div class="kpi" style="padding: 10px;">
+      <b><%= stats.divisions %></b>
+      <span style="font-size: 11px;">Nội dung thi đấu</span>
+    </div>
+    <div class="kpi" style="padding: 10px;">
+      <b style="color: var(--ok, #10b981);"><%= stats.approvedRegs %> đôi</b>
+      <span style="font-size: 11px;"><%= stats.newRegs ? `${stats.newRegs} đơn chờ duyệt!` : 'Đã duyệt' %></span>
+    </div>
+    <div class="kpi" style="padding: 10px;">
+      <b style="color: var(--accent, #f59e0b);"><%= stats.totalMatches %></b>
+      <span style="font-size: 11px;">Trận đấu (<%= stats.doneMatches %> xong, <%= stats.liveMatches %> live)</span>
+    </div>
+    <div class="kpi" style="padding: 10px;">
+      <b><%= stats.streams %></b>
+      <span style="font-size: 11px;">Luồng phát Live</span>
+    </div>
   </div>
   <% } %>
 </div>
 
-<div class="card card-pad" style="background: var(--surface-2, rgba(255,255,255,0.03)); border-left: 3px solid var(--accent, #f59e0b);">
-  <strong style="font-size: 13px; display: block; margin-bottom: 4px;">Quy trình tổ chức 4 bước:</strong>
-  <div class="row small muted" style="--gap: 12px; flex-wrap: wrap;">
-    <span><strong>1.</strong> Thu & Duyệt đơn VĐV (nút <em>Đăng ký</em>)</span>
-    <span>→</span>
-    <span><strong>2.</strong> Bốc thăm xếp cặp & chia bảng (nút <em>Nhánh đấu</em>)</span>
-    <span>→</span>
+<!-- 2. THANH QUY TRÌNH TỔ CHỨC 4 BƯỚC (STEPPER THU GỌN) -->
+<div class="card card-pad" style="background: var(--surface-2, rgba(255,255,255,0.02)); border-left: 3px solid var(--accent, #f59e0b); padding: 8px 14px; margin-bottom: 16px;">
+  <div class="row small muted" style="--gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+    <span><strong style="color: var(--text);">Quy trình tổ chức:</strong></span>
+    <span><strong>1.</strong> Thu & Duyệt VĐV (nút <em>Đăng ký</em>)</span>
+    <span>➔</span>
+    <span><strong>2.</strong> Bốc thăm nhánh đấu (nút <em>Nhánh đấu</em>)</span>
+    <span>➔</span>
     <span><strong>3.</strong> Trọng tài nhập điểm trực tiếp</span>
-    <span>→</span>
-    <span><strong>4.</strong> Vinh danh & Trao cúp (nút <em>Vinh danh</em>)</span>
+    <span>➔</span>
+    <span><strong>4.</strong> Trao cúp Vinh danh (nút <em>Vinh danh</em>)</span>
   </div>
 </div>
 
-<div class="row" style="justify-content: space-between; align-items: center; margin-top: 8px;">
+<!-- 3. BẢNG ĐIỀU HÀNH NỘI DUNG THI ĐẤU (MISSION CONTROL) -->
+<div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
   <h2 class="section-title" style="margin: 0;">Nội dung thi đấu (<%= ev.divisions.length %>)</h2>
-  <a class="btn btn-brand btn-sm" href="/admin/giai-dau/<%= ev.id %>/noi-dung/moi"><%- include('../partials/icon', { name: 'plus' }) %>Thêm nội dung thi đấu</a>
+  <a class="btn btn-brand btn-sm" href="/admin/giai-dau/<%= ev.id %>/noi-dung/moi">
+    <%- include('../partials/icon', { name: 'plus' }) %>Thêm nội dung thi đấu mới
+  </a>
 </div>
 
 <% if (!ev.divisions.length) { %>
-  <div class="empty">Chưa có nội dung nào. Bấm <strong>"+ Thêm nội dung thi đấu"</strong> ở trên (ví dụ: "Đôi nam 5.5", "Đôi nam nữ hỗn hợp") để mở nhận đăng ký và tạo nhánh đấu.</div>
+  <div class="empty">Chưa có nội dung thi đấu nào. Bấm <strong>"+ Thêm nội dung thi đấu mới"</strong> ở trên (ví dụ: "Đôi nam 5.5", "Đôi nam nữ hỗn hợp") để mở nhận đăng ký và tạo nhánh đấu.</div>
 <% } else { %>
 <div class="table-wrap">
   <table class="data atable">
     <thead>
       <tr>
         <th>Nội dung thi đấu</th>
-        <th class="c-fit" style="text-align: center;">Quản lý Thành viên / Đăng ký</th>
-        <th class="c-fit" style="text-align: center;">Nhánh đấu & Lịch</th>
+        <th class="c-fit" style="text-align: center;">Quản lý VĐV / Đăng ký</th>
+        <th class="c-fit" style="text-align: center;">Bốc thăm & Nhánh đấu</th>
         <th class="c-fit" style="text-align: center;">Vinh danh</th>
         <th class="c-act" style="text-align: right;">Cài đặt</th>
       </tr>
@@ -57,6 +124,7 @@
     <tbody>
     <% ev.divisions.forEach((d) => { %>
       <tr class="at-row">
+        <!-- Cột Nội dung -->
         <td class="c-main">
           <div class="stack" style="--gap: 2px;">
             <strong style="font-size: 15px;"><%= d.name %></strong>
@@ -72,14 +140,15 @@
           </div>
         </td>
 
+        <!-- Cột Quản lý Đăng ký / VĐV -->
         <td class="c-fit" style="text-align: center; vertical-align: middle;">
           <div class="stack" style="--gap: 4px; align-items: center;">
-            <a class="btn btn-sm <%= d.newRegs ? 'btn-brand' : '' %>" href="/admin/noi-dung/<%= d.id %>/dang-ky" title="Quản lý thành viên đăng ký" style="white-space: nowrap;">
+            <a class="btn btn-sm <%= d.newRegs ? 'btn-brand' : '' %>" href="/admin/noi-dung/<%= d.id %>/dang-ky" title="Quản lý danh sách VĐV đăng ký" style="white-space: nowrap; min-width: 140px; justify-content: center;">
               <%- include('../partials/icon', { name: 'users' }) %>
-              <strong>Đăng ký: <%= d.approvedRegs %></strong><% if (d.max_teams) { %><span class="small faint">/<%= d.max_teams %></span><% } %>
+              <strong><%= d.approvedRegs %> đôi đã duyệt</strong><% if (d.max_teams) { %><span class="small faint">/<%= d.max_teams %></span><% } %>
             </a>
             <% if (d.newRegs) { %>
-              <a class="chip chip-warn" href="/admin/noi-dung/<%= d.id %>/dang-ky?status=new" style="font-size: 11px; font-weight: 600;">
+              <a class="chip chip-warn" href="/admin/noi-dung/<%= d.id %>/dang-ky?status=new" style="font-size: 11px; font-weight: 700;">
                 <%= d.newRegs %> đơn mới chờ duyệt!
               </a>
             <% } else { %>
@@ -88,9 +157,10 @@
           </div>
         </td>
 
+        <!-- Cột Nhánh đấu & Bốc thăm -->
         <td class="c-fit" style="text-align: center; vertical-align: middle;">
           <div class="stack" style="--gap: 4px; align-items: center;">
-            <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/nhanh-dau" title="Quản lý nhánh đấu & bốc thăm" style="white-space: nowrap;">
+            <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/nhanh-dau" title="Quản lý nhánh đấu & bốc thăm" style="white-space: nowrap; min-width: 140px; justify-content: center;">
               <%- include('../partials/icon', { name: 'trophy' }) %>
               <span>Nhánh đấu (<%= d.matchCount %> trận)</span>
             </a>
@@ -102,12 +172,14 @@
           </div>
         </td>
 
+        <!-- Cột Vinh danh -->
         <td class="c-fit" style="text-align: center; vertical-align: middle;">
-          <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/vinh-danh" title="Trao giải & cúp vinh danh" style="white-space: nowrap;">
+          <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/vinh-danh" title="Trao giải & vinh danh cúp" style="white-space: nowrap;">
             Vinh danh
           </a>
         </td>
 
+        <!-- Cột Cài đặt -->
         <td class="c-act" style="text-align: right; vertical-align: middle;">
           <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/sua" title="Sửa cấu hình nội dung">
             <%- include('../partials/icon', { name: 'edit' }) %>Sửa
@@ -119,4 +191,5 @@
   </table>
 </div>
 <% } %>
+
 <%- include('_bottom') %>

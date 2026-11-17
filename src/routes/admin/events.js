@@ -37,7 +37,15 @@ router.get('/giai-dau', editor, wrap(async (req, res) => {
     (SELECT COUNT(*) FROM registrations r JOIN divisions d ON d.id = r.division_id WHERE d.event_id = e.id AND r.status = 'new') AS new_regs
     FROM events e ORDER BY e.start_date DESC`);
   rows.forEach((e) => { e.status = fmt.eventStatus(e); });
-  res.render('admin/events', { title: 'Giải đấu', rows });
+
+  const stats = {
+    total: rows.length,
+    openReg: rows.filter((e) => e.registration_open).length,
+    newRegs: rows.reduce((s, e) => s + (parseInt(e.new_regs, 10) || 0), 0),
+    upcoming: rows.filter((e) => e.status === 'upcoming').length,
+  };
+
+  res.render('admin/events', { title: 'Giải đấu', rows, stats });
 }));
 
 function eventForm(res, ev, error) {
@@ -148,10 +156,21 @@ router.get('/giai-dau/:id', editor, wrap(async (req, res, next) => {
       (SELECT COUNT(*) FROM matches m WHERE m.division_id = ?) AS matches FROM registrations WHERE division_id = ?`, d.id, d.id);
     Object.assign(d, { newRegs: c.new, approvedRegs: c.approved, matchCount: c.matches });
   }
+
+  const stats = {
+    divisions: ev.divisions.length,
+    approvedRegs: ev.divisions.reduce((s, d) => s + (d.approvedRegs || 0), 0),
+    newRegs: ev.divisions.reduce((s, d) => s + (d.newRegs || 0), 0),
+    totalMatches: ev.divisions.reduce((s, d) => s + (d.matchCount || 0), 0),
+    doneMatches: (await get(`SELECT COUNT(*) AS c FROM matches m JOIN divisions d ON d.id = m.division_id WHERE d.event_id = ? AND m.status = 'done'`, ev.id)).c,
+    liveMatches: (await get(`SELECT COUNT(*) AS c FROM matches m JOIN divisions d ON d.id = m.division_id WHERE d.event_id = ? AND m.status = 'live'`, ev.id)).c,
+    streams: (await get(`SELECT COUNT(*) AS c FROM live_streams WHERE event_id = ?`, ev.id)).c,
+  };
+
   // Giải của đơn vị tổ chức: hiện link đăng ký ngắn /<mã>/dangky để chia sẻ cho VĐV
   const org = await get('SELECT code FROM organizers WHERE event_id = ? AND code IS NOT NULL', ev.id);
   const shortRegUrl = org ? `${req.protocol}://${req.get('host')}/${org.code}/dangky` : null;
-  res.render('admin/event', { title: ev.name, ev, shortRegUrl });
+  res.render('admin/event', { title: ev.name, ev, stats, shortRegUrl });
 }));
 
 router.get('/giai-dau/:id/sua', editor, wrap(async (req, res, next) => {
