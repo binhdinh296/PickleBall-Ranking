@@ -1,0 +1,34 @@
+<%
+  // Sơ đồ nhánh đấu kiểu pickna: các cột vòng (tiêu đề màu theo loại vòng) + khu riêng (MINI…).
+  // Đường nối và căn giữa thẻ theo trận nguồn do /static/js/bracket.js vẽ trên màn rộng; màn hẹp xếp dọc theo vòng.
+  // locals: board (bracket.board), teamMap, teamNo, streams, d, ev, hrefFor (tuỳ chọn: hàm trả link cho thẻ — trang quản trị)
+  const hrefFor = locals.hrefFor || (() => null);
+  const card = (m) => include('match-card', { m, teamMap, teamNo, streams, d, ev, codeById: board.codeById, href: hrefFor(m) });
+%>
+<div class="bk-shell" data-bk-shell>
+  <div class="bk-toolbar">
+    <button type="button" class="bk-full-btn" data-bk-full aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>Xem toàn màn hình</span></button>
+  </div>
+  <div class="bk-scroll" data-bk-scroll>
+    <div class="bk-board" data-bk-board>
+      <svg class="bk-lines" data-bk-lines aria-hidden="true"></svg>
+      <% board.columns.forEach((c, ci) => { %>
+      <section class="bk-col" data-bk-col="<%= ci %>" aria-label="<%= c.name %>">
+        <h3 class="bk-title bk-<%= c.kind %>"><%= c.name %></h3>
+        <div class="bk-col-body" data-bk-body>
+          <% c.matches.forEach((m) => { %><%- card(m) %><% }) %>
+        </div>
+      </section>
+      <% }) %>
+    </div>
+    <% board.zones.forEach((z) => { %>
+    <section class="bk-zone" aria-label="<%= z.name %>">
+      <h3 class="bk-title bk-zone-title"><%= z.name %></h3>
+      <div class="bk-zone-grid">
+        <% z.matches.forEach((m) => { %><%- card(m) %><% }) %>
+      </div>
+    </section>
+    <% }) %>
+  </div>
+  <p class="bk-note">Trọng tài nhập từng mã trận · Đội thắng/thua tự chảy sang nhánh sau.</p>
+</div>

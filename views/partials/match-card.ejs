@@ -1,44 +1,51 @@
 <%
+  // Thẻ trận kiểu pickna: đầu thẻ (mã · sân · giờ · trạng thái) + 2 dòng đội (số thứ tự · tên · ô điểm)
   const ta = m.team_a_id ? teamMap[m.team_a_id] : null;
   const tb = m.team_b_id ? teamMap[m.team_b_id] : null;
   const done = m.status === 'done';
+  const bye = done && (!ta || !tb);
   const aWin = done && ta && (!tb || (m.score_a ?? -1) > (m.score_b ?? -1));
   const bWin = done && tb && (!ta || (m.score_b ?? -1) > (m.score_a ?? -1));
-  const bye = done && (!ta || !tb);
-  const stream = m.live_stream_id ? streams[m.live_stream_id] : null;
-  const feeders = locals.feeders || {}; // mã trận dẫn vào từng ô (để ghi "Thắng T1")
-  const nameA = m.players_a || (ta ? ta.name : '');
-  const nameB = m.players_b || (tb ? tb.name : '');
+  const waiting = !done && (!ta || !tb);
+  const stream = m.live_stream_id && streams ? streams[m.live_stream_id] : null;
+  const codeById = locals.codeById || {};
+  const teamNo = locals.teamNo || {};
+  const href = locals.href || null;
+  // Ô chưa có đội: nhãn BTC đặt ("T6 (Nhì bảng mini)") → "Thắng T1" / "Thua T1" → "Chờ xác định"
+  const pending = (s) => {
+    if (m[`label_${s}`]) return m[`label_${s}`];
+    const src = m[`src_${s}_match_id`];
+    if (src && codeById[src]) return `${m[`src_${s}_kind`] === 'loser' ? 'Thua' : 'Thắng'} ${codeById[src]}`;
+    return bye ? 'Miễn đấu' : 'Chờ xác định';
+  };
+  const time = m.start_time ? m.start_time.replace(':', 'h') : null;
+  const tag = href ? 'a' : 'div';
+  const srcAttr = [m.src_a_match_id, m.src_b_match_id].filter(Boolean).join(',');
 %>
-<div class="mcard <%= m.status === 'live' ? 'live' : '' %>" data-match-id="<%= m.id %>">
-  <div class="mhead">
-    <span class="mcode">
-      <% if (m.code) { %><b><%= m.code %></b><% } %>
-      <% if (m.court) { %><span class="mcourt"><%= m.court %></span><% } %>
+<<%= tag %> class="bk-match<%= m.status === 'live' ? ' is-live' : done ? ' is-done' : waiting ? ' is-waiting' : '' %>" id="m<%= m.id %>" data-match-id="<%= m.id %>"<% if (srcAttr) { %> data-src="<%= srcAttr %>"<% } %><% if (href) { %> href="<%= href %>"<% } %>>
+  <div class="bk-head">
+    <span class="bk-code"><%= m.code || '' %></span>
+    <span class="bk-badges">
+      <% if (m.court) { %><span class="bk-badge bk-court"><%= m.court %></span><% } %>
+      <% if (time) { %><span class="bk-badge bk-time"><%= time %></span><% } %>
+      <% if (m.status === 'live') { %><span class="bk-badge bk-live"><i></i>LIVE</span>
+      <% } else if (bye) { %><span class="bk-badge bk-wait">MIỄN ĐẤU</span>
+      <% } else if (done) { %><span class="bk-badge bk-done">XONG</span>
+      <% } else if (waiting) { %><span class="bk-badge bk-wait">CHỜ ĐỘI</span><% } %>
     </span>
-    <% if (m.status === 'live') { %>
-      <span class="chip chip-live"><span class="live-dot"></span>ĐANG ĐẤU</span>
-    <% } else if (bye) { %>
-      <span class="mstate mstate-bye">MIỄN ĐẤU</span>
-    <% } else if (done) { %>
-      <span class="chip chip-ok">XONG</span>
-    <% } else { %>
-      <span class="mstate">Chưa đấu</span>
-    <% } %>
   </div>
-  <div class="side <%= aWin ? 'win' : bWin ? 'lose' : '' %>" title="<%= nameA %>">
-    <span class="n"><% if (nameA) { %><%= nameA %><% } else { %><em class="tbd"><%= feeders[`${m.id}a`] ? `Thắng ${feeders[`${m.id}a`]}` : 'Chờ xác định' %></em><% } %></span>
-    <span class="s"><%= bye ? '' : (m.score_a ?? '') %></span>
+  <% [['a', ta, aWin, bWin, m.players_a, m.score_a], ['b', tb, bWin, aWin, m.players_b, m.score_b]].forEach(([s, t, win, lose, players, score]) => { %>
+  <div class="bk-team<%= win ? ' is-win' : lose ? ' is-lose' : '' %>">
+    <span class="bk-seed"><%= t && teamNo[t.id] ? teamNo[t.id] : '' %></span>
+    <span class="bk-name" title="<%= t ? (players || t.name) : pending(s) %>"><% if (t) { %><%= players || t.name %><% } else { %><em><%= pending(s) %></em><% } %></span>
+    <span class="bk-score"><%= bye ? '' : (score ?? '') %></span>
   </div>
-  <div class="side <%= bWin ? 'win' : aWin ? 'lose' : '' %>" title="<%= nameB %>">
-    <span class="n"><% if (nameB) { %><%= nameB %><% } else if (bye) { %><em class="tbd">Miễn đấu</em><% } else { %><em class="tbd"><%= feeders[`${m.id}b`] ? `Thắng ${feeders[`${m.id}b`]}` : 'Chờ xác định' %></em><% } %></span>
-    <span class="s"><%= bye ? '' : (m.score_b ?? '') %></span>
-  </div>
-  <% if (m.legs && m.legs.length) { %><div class="mfoot legs"><% m.legs.forEach((p, i) => { %><span class="leg <%= m.current_leg === i + 1 && m.status === 'live' ? 'cur' : '' %>">Chặng <%= i + 1 %><%= p ? ` · ${p}` : '' %> · <%= (d.relay_step || 11) * (i + 1) %></span><% }) %></div><% } %>
-  <% if (stream && stream.youtube_video_id && (m.status === 'live' || (done && m.video_offset !== null))) { %>
-  <div class="mfoot">
-    <% if (m.status === 'live') { %><a class="btn btn-live btn-sm" href="/giai-dau/<%= ev.slug %>/truc-tiep?san=<%= stream.id %>"><%- include('icon', { name: 'live' }) %>Xem live</a>
-    <% } else { %><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=<%= stream.youtube_video_id %>&t=<%= m.video_offset %>s"><%- include('icon', { name: 'play' }) %>Xem lại</a><% } %>
+  <% }) %>
+  <% if (m.legs && m.legs.length) { %><div class="bk-foot bk-legs"><% m.legs.forEach((p, i) => { %><span class="<%= m.current_leg === i + 1 && m.status === 'live' ? 'cur' : '' %>">Chặng <%= i + 1 %><%= p ? ` · ${p}` : '' %> · <%= (d.relay_step || 11) * (i + 1) %></span><% }) %></div><% } %>
+  <% if (!href && stream && stream.youtube_video_id && (m.status === 'live' || (done && m.video_offset !== null))) { %>
+  <div class="bk-foot">
+    <% if (m.status === 'live') { %><a class="bk-watch is-live" href="/giai-dau/<%= ev.slug %>/truc-tiep?san=<%= stream.id %>"><%- include('icon', { name: 'live' }) %>Xem live</a>
+    <% } else { %><a class="bk-watch" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=<%= stream.youtube_video_id %>&t=<%= m.video_offset %>s"><%- include('icon', { name: 'play' }) %>Xem lại</a><% } %>
   </div>
   <% } %>
-</div>
+</<%= tag %>>

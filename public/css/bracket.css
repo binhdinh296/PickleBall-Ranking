@@ -1,0 +1,119 @@
+/* ==========================================================================
+   Sơ đồ nhánh đấu kiểu giaidau.pickna.vn — dùng chung trang công khai và CMS.
+   Màu cố định (thẻ trắng trên nền xanh đậm) để dễ nhìn ở mọi theme.
+   Màn hẹp: các vòng xếp dọc. Màn rộng hoặc "Xem toàn màn hình": cột ngang, thẻ được /static/js/bracket.js
+   căn giữa theo trận nguồn và vẽ đường nối (lớp .is-wide).
+   ========================================================================== */
+.bk-shell {
+  --bk-card-w: 224px; --bk-gap: 46px;
+  position: relative; padding: 14px; border-radius: 18px;
+  background: radial-gradient(120% 80% at 0% 0%, rgba(59, 130, 246, .14), transparent 60%), linear-gradient(180deg, #0E1B2E, #0A1322);
+  border: 1px solid rgba(255, 255, 255, .1); color: #111827;
+}
+/* Trang nhánh đấu: khung rộng hơn trang thường để thấy hết các cột trên máy tính */
+.container.bk-page { width: min(1640px, 100% - 32px); }
+.admin-content:has(.bk-shell) { max-width: 1640px; }
+.bk-toolbar { display: flex; justify-content: center; margin-bottom: 14px; }
+.bk-full-btn {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 8px 18px; border-radius: 10px;
+  border: 1px solid #E5B300; background: #FFD24D; color: #3B2A00; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 8px 20px -10px rgba(255, 210, 77, .8);
+}
+.bk-full-btn:hover { filter: brightness(1.05); }
+.bk-full-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Chỉ cuộn ngang ở chế độ cột ngang; màn hẹp để trống để tiêu đề vòng dính (sticky) theo trang */
+.bk-shell.bk-wide .bk-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.bk-board { position: relative; display: flex; flex-direction: column; gap: 22px; }
+.bk-lines { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; display: none; }
+.bk-lines path { fill: none; stroke: rgba(203, 213, 225, .75); stroke-width: 2; }
+.bk-col { min-width: 0; }
+.bk-col-body { display: flex; flex-direction: column; gap: 10px; }
+
+/* Tiêu đề cột: màu theo loại vòng */
+.bk-title {
+  display: grid; place-items: center; min-height: 34px; margin: 0 0 12px; padding: 4px 10px; border-radius: 9px;
+  font-size: 13px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; text-align: center; line-height: 1.2;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .07);
+}
+.bk-r1 { background: #DCEAFB; color: #1E3A5F; }
+.bk-po { background: #C8F3DF; color: #065F46; }
+.bk-v2 { background: #D3E6FF; color: #1E3A8A; }
+.bk-tk { background: #FFD8C2; color: #9A3412; }
+.bk-bk { background: #F3C4EC; color: #86198F; }
+.bk-ck { background: #FFE08A; color: #7C4A03; }
+.bk-zone-title { background: #FFD866; color: #7C4A03; }
+
+/* Thẻ trận */
+.bk-match {
+  display: block; width: 100%; background: #fff; border-radius: 10px; overflow: hidden; color: #111827; text-decoration: none;
+  box-shadow: 0 8px 18px -10px rgba(0, 0, 0, .6), 0 0 0 1px rgba(15, 23, 42, .06);
+}
+a.bk-match { transition: box-shadow .15s, transform .15s; }
+a.bk-match:hover { box-shadow: 0 0 0 2px #FFD24D, 0 10px 22px -10px rgba(0, 0, 0, .6); }
+.bk-match.is-live { box-shadow: 0 0 0 2px #EF4444, 0 10px 24px -10px rgba(239, 68, 68, .6); }
+.bk-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 27px; padding: 4px 8px; background: #FFF0C2; border-bottom: 1px solid #F1DC98; }
+.bk-code { font-size: 11.5px; font-weight: 800; color: #9A3412; white-space: nowrap; }
+.bk-badges { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+.bk-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 800; line-height: 1.35; white-space: nowrap; }
+.bk-court { background: #1D4ED8; color: #fff; }
+.bk-time { background: #C2410C; color: #fff; }
+.bk-live { background: #fff; color: #DC2626; box-shadow: inset 0 0 0 1.5px #DC2626; }
+.bk-live i { width: 6px; height: 6px; border-radius: 50%; background: #DC2626; animation: bk-pulse 1.2s ease-in-out infinite; }
+@keyframes bk-pulse { 50% { opacity: .3; } }
+.bk-wait { background: #E5E7EB; color: #4B5563; }
+.bk-done { background: #DCFCE7; color: #15803D; }
+.bk-team { display: grid; grid-template-columns: 18px minmax(0, 1fr) 26px; align-items: center; gap: 6px; min-height: 30px; padding: 4px 8px; }
+.bk-team + .bk-team { border-top: 1px solid #EEF0F3; }
+.bk-seed { font-size: 10.5px; color: #6B7280; font-variant-numeric: tabular-nums; }
+.bk-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; font-weight: 700; color: #111827; }
+.bk-name em { font-style: normal; font-weight: 700; color: #374151; }
+.bk-score { display: grid; place-items: center; width: 26px; height: 22px; border: 1.5px solid #D1D5DB; border-radius: 6px; font-size: 12px; font-weight: 800; color: #111827; font-variant-numeric: tabular-nums; }
+.bk-team.is-win .bk-name { color: #15803D; }
+.bk-team.is-win .bk-score { background: #16A34A; border-color: #16A34A; color: #fff; }
+.bk-team.is-lose .bk-name { color: #9CA3AF; font-weight: 600; }
+.bk-team.is-lose .bk-score { color: #9CA3AF; }
+.bk-foot { display: flex; flex-wrap: wrap; gap: 5px; padding: 5px 8px 7px; border-top: 1px solid #EEF0F3; }
+.bk-legs span { padding: 1px 6px; border-radius: 6px; background: #F3F4F6; color: #4B5563; font-size: 10px; }
+.bk-legs .cur { background: #FEE2E2; color: #B91C1C; font-weight: 700; }
+.bk-watch { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; background: #EFF6FF; color: #1D4ED8; font-size: 11px; font-weight: 800; text-decoration: none; }
+.bk-watch.is-live { background: #DC2626; color: #fff; }
+.bk-watch svg { width: 12px; height: 12px; }
+
+/* Khu riêng (MINI…) */
+.bk-zone { margin-top: 22px; }
+.bk-zone-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+
+.bk-note { margin: 14px 4px 0; font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, .75); }
+.bk-champ {
+  display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; padding: 12px 16px; border-radius: 14px;
+  background: linear-gradient(120deg, #FFE27A, #E6B83E); color: #3B2A00; font-weight: 800; text-align: center;
+}
+.bk-champ svg { width: 22px; height: 22px; }
+.bk-champ span { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.bk-champ strong { font-size: 18px; }
+
+/* ---- Màn hẹp (mặc định): các vòng xếp dọc, tiêu đề vòng dính đầu màn hình khi cuộn ---- */
+.bk-board:not(.is-wide) .bk-title { position: sticky; top: calc(var(--header-h, 60px) + 6px); z-index: 2; }
+.bk-board:not(.is-wide) .bk-match, .bk-scroll > .bk-zone .bk-match { max-width: 480px; margin-inline: auto; }
+
+/* ---- Màn rộng: cột ngang, thẻ đặt tuyệt đối (JS tính vị trí) ---- */
+.bk-board.is-wide { flex-direction: row; align-items: flex-start; gap: var(--bk-gap); width: max-content; padding: 2px 6px 6px; }
+.bk-board.is-wide .bk-col { flex: none; width: var(--bk-card-w); }
+.bk-board.is-wide .bk-col-body { position: relative; display: block; }
+.bk-board.is-wide .bk-col-body > .bk-match { position: absolute; left: 0; right: 0; }
+.bk-board.is-wide .bk-lines { display: block; }
+.bk-board.is-wide ~ .bk-zone { padding-inline: 6px; }
+.bk-board.is-wide ~ .bk-zone .bk-zone-grid { grid-template-columns: repeat(auto-fill, var(--bk-card-w)); column-gap: 14px; }
+
+/* ---- Xem toàn màn hình (lớp phủ, chạy được cả trên iPhone) ---- */
+.bk-shell.is-full { position: fixed; inset: 0; z-index: 1000; overflow: auto; border-radius: 0; padding: 12px 14px calc(16px + env(safe-area-inset-bottom)); }
+.bk-shell.is-full .bk-toolbar { position: sticky; left: 0; top: 0; z-index: 3; }
+body.bk-lock { overflow: hidden; }
+
+@media (max-width: 640px) {
+  .bk-shell { padding: 10px; border-radius: 14px; margin-inline: -4px; }
+  .bk-full-btn { min-height: 38px; padding: 7px 14px; font-size: 13.5px; }
+  .bk-name { font-size: 13px; }
+  .bk-team { min-height: 32px; }
+}

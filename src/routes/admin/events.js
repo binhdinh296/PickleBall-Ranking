@@ -359,8 +359,9 @@ router.get('/noi-dung/:id/nhanh-dau', editor, wrap(async (req, res, next) => {
   const pendingRegs = (await get(`SELECT COUNT(*) AS c FROM registrations r WHERE r.division_id = ? AND r.status = 'approved'
     AND NOT EXISTS (SELECT 1 FROM teams t WHERE t.registration_id = r.id)`, d.id)).c;
   res.render('admin/bracket', {
-    title: `Nhánh đấu: ${d.name}`, d, teams, matches, rounds: bracket.groupRounds(matches), pendingRegs, streams,
+    title: `Nhánh đấu: ${d.name}`, d, teams, matches, board: bracket.board(matches), pendingRegs, streams, pageScript: 'bracket',
     teamMap: Object.fromEntries(teams.map((t) => [t.id, t])),
+    teamNo: Object.fromEntries(teams.map((t, i) => [t.id, t.seed || i + 1])),
     table: d.format === 'roundrobin' ? bracket.standings(teams, matches) : null,
   });
 }));
@@ -403,13 +404,20 @@ router.post('/noi-dung/:id/tao-nhanh', editor, wrap(async (req, res, next) => {
 router.post('/noi-dung/:id/tran', editor, wrap(async (req, res, next) => {
   const d = await loadDivision(req.params.id);
   if (!d) return next();
-  const round = Math.max(1, intOrNull(req.body.round_order) || 1);
+  const back = `/admin/noi-dung/${d.id}/nhanh-dau`;
+  const st = await readStructure(req.body, d.id, null);
+  if (st.error) { req.flash('error', st.error); return res.redirect(back); }
+  const round = st.data.round_order || 1;
   const pos = ((await get('SELECT MAX(position) AS p FROM matches WHERE division_id = ? AND round_order = ?', d.id, round)).p || 0) + 1;
-  await run('INSERT INTO matches(division_id, round_order, round_name, position, code, team_a_id, team_b_id) VALUES (?,?,?,?,?,?,?)',
-    d.id, round, String(req.body.round_name || `Vòng ${round}`).trim().slice(0, 40), pos,
-    String(req.body.code || '').trim().slice(0, 20) || null, intOrNull(req.body.team_a_id), intOrNull(req.body.team_b_id));
+  const row = await get(`INSERT INTO matches(division_id, round_order, round_name, position, code, team_a_id, team_b_id, court)
+    VALUES (?,?,?,?,?,?,?,?) RETURNING id`,
+  d.id, round, String(req.body.round_name || `Vòng ${round}`).trim().slice(0, 40), pos,
+  String(req.body.code || '').trim().slice(0, 20) || null, intOrNull(req.body.team_a_id), intOrNull(req.body.team_b_id),
+  String(req.body.court || '').trim().slice(0, 30) || null);
+  delete st.data.round_order;
+  await bracket.updateMatch(row.id, st.data); // gán nguồn rồi lấy ngay đội từ trận nguồn nếu đã có kết quả
   req.flash('success', 'Đã thêm trận.');
-  res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
+  res.redirect(back);
 }));
 
 router.post('/noi-dung/:id/xoa-nhanh', editor, wrap(async (req, res) => {
@@ -466,8 +474,46 @@ router.get('/tran/:id', referee, wrap(async (req, res, next) => {
   const streams = await all('SELECT id, court, title, status, actual_start FROM live_streams WHERE event_id = ? ORDER BY sort_order, court', m.event_id);
   const referees = ['referee', 'organizer'].includes(req.session.user.role) ? []
     : await all("SELECT id, display_name, username FROM users WHERE role = 'referee' AND active ORDER BY display_name");
-  res.render('admin/match', { title: `Trận ${m.code || ''} · ${m.division}`, m, teams, streams, referees, locked: access.edit ? null : access.reason });
+  const isEditor = ['admin', 'editor', 'organizer'].includes(req.session.user.role);
+  const matches = isEditor ? await bracket.loadMatches(m.division_id) : [];
+  res.render('admin/match', { title: `Trận ${m.code || ''} · ${m.division}`, m, teams, matches, streams, referees, locked: access.edit ? null : access.reason });
 }));
+
+// Giờ thi đấu: "10:00", "10h", "10h30", "9.30" → "10:00" / "09:30"; sai → null
+function readTime(v) {
+  const m = String(v || '').trim().toLowerCase().match(/^(\d{1,2})\s*[:h.]?\s*(\d{2})?$/);
+  if (!m) return null;
+  const h = parseInt(m[1], 10);
+  const mi = parseInt(m[2] || '0', 10);
+  return h < 24 && mi < 60 ? `${String(h).padStart(2, '0')}:${String(mi).padStart(2, '0')}` : null;
+}
+
+// Nguồn của ô đội: "W:<id>" = đội thắng trận id, "L:<id>" = đội thua; rỗng = gán đội trực tiếp
+function readSource(v) {
+  const m = String(v || '').match(/^([WL]):(\d+)$/);
+  return m ? { id: parseInt(m[2], 10), kind: m[1] === 'L' ? 'loser' : 'winner' } : null;
+}
+
+// Đọc phần cấu trúc nhánh của form (nguồn 2 ô, nhãn chờ, giờ, khu); kiểm tra nguồn thuộc cùng nội dung và không tạo vòng lặp
+async function readStructure(b, divisionId, selfId) {
+  const data = {};
+  const err = [];
+  for (const s of ['a', 'b']) {
+    if (!(`src_${s}` in b)) continue;
+    const src = readSource(b[`src_${s}`]);
+    if (src) {
+      const ok = await get('SELECT 1 FROM matches WHERE id = ? AND division_id = ?', src.id, divisionId);
+      if (!ok || src.id === selfId) err.push(`Nguồn ô ${s.toUpperCase()} không hợp lệ.`);
+      else if (selfId && await bracket.wouldCycle(selfId, src.id)) err.push(`Nguồn ô ${s.toUpperCase()} tạo vòng lặp (trận nguồn lại phụ thuộc vào trận này).`);
+      else { data[`src_${s}_match_id`] = src.id; data[`src_${s}_kind`] = src.kind; }
+    } else { data[`src_${s}_match_id`] = null; data[`src_${s}_kind`] = null; }
+    if (`label_${s}` in b) data[`label_${s}`] = String(b[`label_${s}`] || '').trim().slice(0, 40) || null;
+  }
+  if ('start_time' in b) data.start_time = readTime(b.start_time);
+  if ('zone' in b) data.zone = String(b.zone || '').trim().toUpperCase().slice(0, 20) || null;
+  if ('round_order' in b && intOrNull(b.round_order)) data.round_order = Math.max(1, Math.min(20, intOrNull(b.round_order)));
+  return { data, error: err.join(' ') || null };
+}
 
 function readMatch(b, isEditor) {
   const data = {};
@@ -507,6 +553,11 @@ router.post('/tran/:id', referee, wrap(async (req, res, next) => {
   }
   const isEditor = ['admin', 'editor', 'organizer'].includes(req.session.user.role);
   const data = readMatch(req.body, isEditor);
+  if (isEditor) {
+    const st = await readStructure(req.body, m.division_id, m.id);
+    if (st.error) { req.flash('error', st.error); return res.redirect(303, `/admin/tran/${m.id}`); }
+    Object.assign(data, st.data);
+  }
   if (isOrganizer(req)) delete data.referee_id; // giao trọng tài dùng tài khoản CMS của hệ thống: chỉ BTV/Admin
   // Chỉ giao trận cho tài khoản trọng tài đang hoạt động
   if (data.referee_id && !(await get("SELECT 1 FROM users WHERE id = ? AND role = 'referee' AND active", data.referee_id))) data.referee_id = null;

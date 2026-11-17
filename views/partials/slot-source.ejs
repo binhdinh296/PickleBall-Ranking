@@ -1,0 +1,31 @@
+<%
+  // Chọn nguồn cho ô đội A/B của trận: đội cụ thể, đội THẮNG hoặc THUA của một trận khác, kèm nhãn chờ.
+  // locals: s ('a' | 'b'), m (trận đang sửa, {} khi thêm mới), matches (mọi trận của nội dung), teams
+  const S = s.toUpperCase();
+  const cur = m[`src_${s}_match_id`] ? `${m[`src_${s}_kind`] === 'loser' ? 'L' : 'W'}:${m[`src_${s}_match_id`]}` : '';
+  const others = matches.filter((x) => x.id !== m.id);
+  const label = (x) => x.code || `${x.round_name} #${x.position}`;
+%>
+<fieldset class="slot-src">
+  <legend>Ô đội <%= S %></legend>
+  <div class="form-grid two">
+    <div class="field">
+      <label for="src_<%= s %>">Lấy đội từ</label>
+      <select class="input" id="src_<%= s %>" name="src_<%= s %>">
+        <option value="">Đội cụ thể (chọn bên cạnh)</option>
+        <% if (others.length) { %>
+        <optgroup label="Đội thắng của trận"><% others.forEach((x) => { %><option value="W:<%= x.id %>" <%= cur === `W:${x.id}` ? 'selected' : '' %>>Thắng <%= label(x) %></option><% }) %></optgroup>
+        <optgroup label="Đội thua của trận"><% others.forEach((x) => { %><option value="L:<%= x.id %>" <%= cur === `L:${x.id}` ? 'selected' : '' %>>Thua <%= label(x) %></option><% }) %></optgroup>
+        <% } %>
+      </select>
+    </div>
+    <div class="field">
+      <label for="team_<%= s %>_id">Đội cụ thể</label>
+      <select class="input" id="team_<%= s %>_id" name="team_<%= s %>_id"><option value="">— Chưa có —</option><% teams.forEach((t) => { %><option value="<%= t.id %>" <%= m[`team_${s}_id`] === t.id ? 'selected' : '' %>><%= t.name %></option><% }) %></select>
+    </div>
+    <div class="field span-2">
+      <label for="label_<%= s %>">Nhãn khi chưa có đội (không bắt buộc)</label>
+      <input class="input" id="label_<%= s %>" name="label_<%= s %>" maxlength="40" value="<%= m[`label_${s}`] || '' %>" placeholder="vd. T6 (Nhì bảng mini)">
+    </div>
+  </div>
+</fieldset>

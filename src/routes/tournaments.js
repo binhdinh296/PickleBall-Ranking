@@ -202,12 +202,14 @@ router.get('/:slug/nhanh-dau', wrap(loadEvent), wrap(async (req, res) => {
     data = {
       teams, teamMap, matches, streams,
       rounds: bracket.groupRounds(matches),
+      board: bracket.board(matches),
+      teamNo: Object.fromEntries(teams.map((t, i) => [t.id, t.seed || i + 1])),
       table: d.format === 'roundrobin' ? bracket.standings(teams, matches) : null,
       stats: { total: matches.length, live: matches.filter((m) => m.status === 'live').length, done: matches.filter((m) => m.status === 'done').length },
       version: matches.reduce((v, m) => Math.max(v, new Date(m.updated_at).getTime()), 0),
     };
   }
-  res.render('public/bracket', { title: `Nhánh đấu – ${ev.name}`, ev, d, data });
+  res.render('public/bracket', { title: `Nhánh đấu – ${ev.name}`, ev, d, data, pageScript: 'bracket' });
 }));
 
 router.get('/:slug/truc-tiep', wrap(loadEvent), wrap(async (req, res) => {

@@ -73,10 +73,7 @@
 .scorer[data-status="live"] [data-set-status="live"],
 .scorer[data-status="scheduled"] [data-set-status="scheduled"],
 .scorer[data-status="done"] [data-set-status="done"] { background: var(--grad-brand); color: var(--on-brand); border-color: transparent; }
-.admin-content .bracket-scroll { margin-inline: -12px; padding-inline: 12px; scroll-padding-inline: 12px; }
-@media (min-width: 900px) { .admin-content .bracket-scroll { margin-inline: 0; padding-inline: 0; } }
-.admin-bracket .mcard { font-size: 13.5px; }
-.admin-bracket .mcard a.edit { display: block; padding: 6px 10px 8px; font-size: 13px; color: var(--ink-court); font-weight: 600; }
+
 .athlete-search ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .athlete-search ul .btn { width: 100%; justify-content: flex-start; text-align: left; }
 .login-wrap { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -162,3 +159,7 @@ div.at-who { cursor: default; }
 .atable .show-m { display: none; }
 @media (max-width: 640px) { .atable .show-m { display: inline; } }
 @media (max-width: 640px) { .atable .at-meta.show-m { display: block; } }
+
+/* Chọn nguồn ô đội của trận (nhánh đấu kiểu pickna) */
+.slot-src { margin: 0; padding: 10px 12px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); min-width: 0; }
+.slot-src legend { padding: 0 6px; font-size: 13px; font-weight: 800; color: var(--text-2); }

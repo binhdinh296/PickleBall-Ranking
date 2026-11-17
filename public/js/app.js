@@ -224,7 +224,7 @@
       fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
         if (d.v && d.v !== cur) {
           var y = window.scrollY;
-          var sx = ($('.bracket-scroll') || {}).scrollLeft || 0;
+          var sx = ($('[data-bk-scroll]') || {}).scrollLeft || 0;
           try { sessionStorage.setItem('restore', JSON.stringify({ y: y, x: sx, p: location.pathname + location.search })); } catch (e) { /* bỏ qua */ }
           location.reload();
         }
@@ -236,7 +236,8 @@
     if (rs && rs.p === location.pathname + location.search) {
       sessionStorage.removeItem('restore');
       window.scrollTo(0, rs.y);
-      var bs = $('.bracket-scroll'); if (bs) bs.scrollLeft = rs.x;
+      // Sơ đồ được /static/js/bracket.js dàn cột sau khi tải: chờ một nhịp rồi mới trả lại vị trí cuộn ngang
+      setTimeout(function () { var bs = $('[data-bk-scroll]'); if (bs) bs.scrollLeft = rs.x; }, 50);
     }
   } catch (e) { /* bỏ qua */ }
 
@@ -340,49 +341,6 @@
         });
       });
     });
-  })();
-
-  // ---- Nhánh đấu: Điều hướng vòng & Thu nhỏ xem toàn cảnh ----
-  (function () {
-    var nav = $('#bracketNav');
-    var scroll = $('#bracketScroll');
-    var wrapper = $('#bracketWrapper');
-    var btnPan = $('#btnTogglePanoramic');
-    if (!nav || !scroll) return;
-
-    var buttons = $$('.rnd-nav-btn', nav);
-    buttons.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        buttons.forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        var targetId = btn.getAttribute('data-target');
-        // Điện thoại: các vòng xếp dọc → cuộn trang tới vòng (chừa chỗ cho thanh đầu trang)
-        var tree = $('.bracket', scroll);
-        if (tree && getComputedStyle(tree).flexDirection === 'column') {
-          var target = targetId === 'all' ? scroll : document.getElementById(targetId);
-          if (target) window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset - 76, behavior: 'smooth' });
-          return;
-        }
-        if (targetId === 'all') {
-          scroll.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          var el = document.getElementById(targetId);
-          if (el) {
-            var offset = el.offsetLeft - scroll.offsetLeft - 16;
-            scroll.scrollTo({ left: Math.max(0, offset), behavior: 'smooth' });
-          }
-        }
-      });
-    });
-
-    if (btnPan && wrapper) {
-      btnPan.addEventListener('click', function () {
-        var isPan = wrapper.classList.toggle('bracket-panoramic');
-        btnPan.classList.toggle('active', isPan);
-        var label = $('span', btnPan);
-        if (label) label.textContent = isPan ? 'Phóng to' : 'Thu nhỏ';
-      });
-    }
   })();
 
   // ---- Đăng ký qua link ngắn: VĐV tự nhập trình (vd. 2.65), kiểm tra theo khoảng trình của nội dung đang chọn ----

@@ -71,19 +71,20 @@ async function generateKnockout(divisionId, { randomize = true } = {}) {
         ids[r].push(row.id);
       }
     }
-    for (let r = 1; r < rounds; r++) {
+    // Trận vòng sau lấy đội THẮNG của 2 trận liền trước (ô A ← trận chẵn, ô B ← trận lẻ)
+    for (let r = 2; r <= rounds; r++) {
       for (let i = 0; i < ids[r].length; i++) {
-        await run('UPDATE matches SET next_match_id = ?, next_slot = ? WHERE id = ?', ids[r + 1][Math.floor(i / 2)], i % 2 === 0 ? 'a' : 'b', ids[r][i]);
+        await run("UPDATE matches SET src_a_match_id = ?, src_a_kind = 'winner', src_b_match_id = ?, src_b_kind = 'winner' WHERE id = ?",
+          ids[r - 1][i * 2], ids[r - 1][i * 2 + 1], ids[r][i]);
       }
     }
     for (let i = 0; i < ids[1].length; i++) {
       const a = slots[i * 2];
       const b = slots[i * 2 + 1];
       await run('UPDATE matches SET team_a_id = ?, team_b_id = ? WHERE id = ?', a ? a.id : null, b ? b.id : null, ids[1][i]);
-      const lone = a && !b ? a.id : !a && b ? b.id : null;
-      if (lone) {
-        const m = await get("UPDATE matches SET status = 'done' WHERE id = ? RETURNING next_match_id, next_slot", ids[1][i]);
-        if (m.next_match_id) await run(`UPDATE matches SET team_${m.next_slot}_id = ? WHERE id = ?`, lone, m.next_match_id);
+      if ((a && !b) || (!a && b)) { // miễn đấu: đội còn lại tự đi tiếp
+        await run("UPDATE matches SET status = 'done' WHERE id = ?", ids[1][i]);
+        await propagate(ids[1][i]);
       }
     }
     return ids.flat().length;
@@ -136,9 +137,61 @@ function loserOf(m) {
 }
 
 const MATCH_FIELDS = ['team_a_id', 'team_b_id', 'score_a', 'score_b', 'status', 'players_a', 'players_b', 'legs', 'current_leg',
-  'court', 'code', 'round_name', 'live_stream_id', 'video_offset', 'referee_id'];
+  'court', 'code', 'round_name', 'round_order', 'live_stream_id', 'video_offset', 'referee_id',
+  'src_a_match_id', 'src_a_kind', 'src_b_match_id', 'src_b_kind', 'label_a', 'label_b', 'start_time', 'zone'];
 
-// Cập nhật trận, tự đẩy đội thắng sang trận kế tiếp (nhánh loại trực tiếp)
+// Đội đi tiếp từ một trận: 'winner' → đội thắng, 'loser' → đội thua (null khi chưa có kết quả)
+const resultOf = (m, kind) => (kind === 'loser' ? loserOf(m) : winnerOf(m));
+
+// Đẩy kết quả trận sang mọi trận lấy nguồn từ nó; nếu trận nhận đã có kết quả thì đẩy tiếp (dây chuyền)
+async function propagate(matchId, seen = new Set()) {
+  if (seen.has(matchId) || seen.size > 500) return;
+  seen.add(matchId);
+  const m = await get('SELECT * FROM matches WHERE id = ?', matchId);
+  if (!m) return;
+  const kids = await all('SELECT * FROM matches WHERE src_a_match_id = ? OR src_b_match_id = ?', m.id, m.id);
+  for (const k of kids) {
+    let changed = false;
+    for (const s of ['a', 'b']) {
+      if (k[`src_${s}_match_id`] !== m.id) continue;
+      const team = resultOf(m, k[`src_${s}_kind`]);
+      if (k[`team_${s}_id`] !== team) {
+        await run(`UPDATE matches SET team_${s}_id = ?, updated_at = now() WHERE id = ?`, team, k.id);
+        changed = true;
+      }
+    }
+    if (changed) await propagate(k.id, seen);
+  }
+}
+
+// Gán nguồn cho ô thì lấy ngay đội từ trận nguồn (nếu trận nguồn đã có kết quả)
+async function pullSources(matchId) {
+  const m = await get('SELECT * FROM matches WHERE id = ?', matchId);
+  for (const s of ['a', 'b']) {
+    const srcId = m[`src_${s}_match_id`];
+    if (!srcId) continue;
+    const src = await get('SELECT * FROM matches WHERE id = ?', srcId);
+    const team = src ? resultOf(src, m[`src_${s}_kind`]) : null;
+    if (m[`team_${s}_id`] !== team) await run(`UPDATE matches SET team_${s}_id = ? WHERE id = ?`, team, m.id);
+  }
+}
+
+// Gán nguồn tạo vòng lặp? (đi ngược từ trận nguồn mà gặp lại chính trận đích)
+async function wouldCycle(targetId, sourceId) {
+  const seen = new Set();
+  const stack = [sourceId];
+  while (stack.length) {
+    const id = stack.pop();
+    if (id === targetId) return true;
+    if (!id || seen.has(id) || seen.size > 500) continue;
+    seen.add(id);
+    const r = await get('SELECT src_a_match_id, src_b_match_id FROM matches WHERE id = ?', id);
+    if (r) stack.push(r.src_a_match_id, r.src_b_match_id);
+  }
+  return false;
+}
+
+// Cập nhật trận rồi đẩy đội thắng/thua sang các trận lấy nguồn từ trận này
 async function updateMatch(matchId, data) {
   return tx(async () => {
     const m = await get('SELECT * FROM matches WHERE id = ? FOR UPDATE', matchId);
@@ -148,9 +201,8 @@ async function updateMatch(matchId, data) {
     if (next.legs && typeof next.legs !== 'string') next.legs = JSON.stringify(next.legs);
     await run(`UPDATE matches SET ${MATCH_FIELDS.map((k) => `${k} = ?`).join(', ')}, updated_at = now() WHERE id = ?`,
       ...MATCH_FIELDS.map((k) => next[k]), matchId);
-    if (m.next_match_id && m.next_slot) {
-      await run(`UPDATE matches SET team_${m.next_slot}_id = ?, updated_at = now() WHERE id = ?`, winnerOf(next), m.next_match_id);
-    }
+    await pullSources(matchId);
+    await propagate(matchId);
     return next;
   });
 }
@@ -207,7 +259,7 @@ function standings(teams, matches) {
 
 // Gợi ý vinh danh từ nhánh loại trực tiếp: vô địch, á quân, 2 đồng hạng ba
 async function suggestHonors(divisionId) {
-  const matches = await loadMatches(divisionId);
+  const matches = (await loadMatches(divisionId)).filter((m) => !m.zone);
   const teams = new Map((await loadTeams(divisionId)).map((t) => [t.id, t]));
   if (!matches.length) return [];
   const maxRound = Math.max(...matches.map((m) => m.round_order));
@@ -230,7 +282,32 @@ function groupRounds(matches) {
   return [...map.values()];
 }
 
+// Loại cột để tô màu tiêu đề (giống pickna): Vòng 1, Playoff, vòng giữa, Tứ kết, Bán kết, Chung kết
+function roundKind(name, isFirst) {
+  const n = String(name || '').toLowerCase();
+  if (/chung kết|final/.test(n) && !/bán|tứ|semi|quarter/.test(n)) return 'ck';
+  if (/bán kết|semi/.test(n)) return 'bk';
+  if (/tứ kết|quarter/.test(n)) return 'tk';
+  if (/play ?off|vớt|tranh/.test(n)) return 'po';
+  return isFirst ? 'r1' : 'v2';
+}
+
+// Dữ liệu vẽ sơ đồ: cột theo thứ tự vòng (sơ đồ chính) + các khu riêng (vd. MINI);
+// kèm mã trận theo id để ghi "Thắng T1" / "Thua T1" cho ô chưa có đội
+function board(matches) {
+  const main = matches.filter((m) => !m.zone);
+  const columns = groupRounds(main).map((r, i) => ({ ...r, kind: roundKind(r.name, i === 0) }));
+  const zones = new Map();
+  for (const m of matches.filter((x) => x.zone)) {
+    if (!zones.has(m.zone)) zones.set(m.zone, { name: m.zone, matches: [] });
+    zones.get(m.zone).matches.push(m);
+  }
+  const codeById = Object.fromEntries(matches.map((m) => [m.id, m.code || `#${m.id}`]));
+  const colOf = Object.fromEntries(columns.flatMap((c, i) => c.matches.map((m) => [m.id, i])));
+  return { columns, zones: [...zones.values()], codeById, colOf };
+}
+
 module.exports = {
   loadTeams, loadMatches, syncTeamsFromRegistrations, generateKnockout, generateRoundRobin,
-  updateMatch, winnerOf, loserOf, standings, suggestHonors, groupRounds, MATCH_FIELDS,
+  updateMatch, propagate, wouldCycle, winnerOf, loserOf, standings, suggestHonors, groupRounds, board, MATCH_FIELDS,
 };

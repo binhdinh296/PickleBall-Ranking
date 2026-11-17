@@ -126,7 +126,6 @@
 /* Phối 2 màu: nhãn nhỏ trên tiêu đề và đường nối nhánh đấu dùng xanh ngọc vạch sân, nút/điểm nhấn chính giữ cam bóng
    (html[...] để thắng rule [data-flat] chung khai báo phía sau) */
 html[data-theme="rally"] .eyebrow { color: #6FE0CF !important; }
-html[data-theme="rally"] .bracket { --bk-line: rgba(111, 224, 207, .5); }
 
 /* ---------- Nền tảng ---------- */
 *, *::before, *::after { box-sizing: border-box; font-style: normal; }
@@ -367,12 +366,27 @@ button { font: inherit; }
 .rank-row .avatar { --s: 44px; }
 .rank-row .who strong .g { display: inline; font-size: 13px; white-space: nowrap; } /* ký hiệu giới tính đi liền sau tên */
 @media (max-width: 639px) {
-  .rank-row { grid-template-columns: 30px 44px minmax(0, 1fr) auto; gap: 10px; padding: 11px 12px; }
-  .rank-row .r { font-size: 17px; }
-  .rank-row .r.top { font-size: 20px; }
-  .rank-row .who .meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* 1 dòng phụ để danh sách gọn */
+  .rank-row { grid-template-columns: 28px 40px minmax(0, 1fr) auto; gap: 10px; padding: 10px 12px; }
+  .rank-row .r { font-size: 16px; }
+  .rank-row .r.top { font-size: 18px; }
+  .rank-row .avatar { --s: 40px; }
+  .rank-row .who strong { font-size: 14.5px; line-height: 1.25; }
+  .rank-row .who .meta { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* 1 dòng phụ để danh sách gọn */
+  .rank-row .p { font-size: 16px; min-width: 55px; text-align: right; }
+  .rank-row .p small { font-size: 9px; }
 }
 @media (min-width: 640px) { .rank-row { grid-template-columns: 56px 52px minmax(0, 1fr) auto; padding: 14px 24px; gap: 16px; } .rank-row .avatar { --s: 52px; } }
+
+/* Cụm Hero Bảng Xếp Hạng & Top 1 Vợt Ngang */
+.ranking-hero-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+@media (max-width: 639px) {
+  .ranking-hero-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .ranking-top-paddle-slot { width: 100%; justify-content: stretch; }
+  .paddle-horizontal { width: 100%; max-width: 100%; box-sizing: border-box; }
+  .paddle-horizontal .paddle-head { flex: 1 1 auto !important; min-width: 0 !important; }
+  .paddle-horizontal .paddle-face { flex: 1 1 auto !important; min-width: 0 !important; justify-content: space-between !important; }
+  .paddle-horizontal .h-meta-stack { min-width: 0; flex: 1 1 auto; }
+}
 
 /* ==========================================================================
    Pickleball Paddle Card Component (Hệ thống thẻ vợt Pickleball thể thao hoàng gia)
@@ -563,7 +577,6 @@ button { font: inherit; }
   background: var(--edge);
 }
 
-
 /* ==========================================================================
    TOP 1 Pickleball Paddle Horizontal (Gọn gàng, tinh tế, tiết kiệm chiều cao)
    ========================================================================== */
@@ -573,6 +586,7 @@ button { font: inherit; }
   justify-content: flex-end;
   flex: none;
 }
+
 .paddle-horizontal {
   display: inline-flex;
   align-items: center;
@@ -1623,7 +1637,7 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; white-s
   background: color-mix(in oklab, var(--text) 7%, var(--card-solid)); box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
 }
 .stage-group-header { border-left: 4.5px solid var(--court); }
-.stage-knockout-header { border-left: 4.5px solid var(--ball); }
+
 .stage-schedule-header { border-left: 4.5px solid var(--court); }
 
 .stage-header-left { display: flex; flex-direction: column; gap: 4px; }
@@ -1636,10 +1650,7 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; white-s
   background: color-mix(in oklab, var(--court) 16%, transparent); color: var(--court);
   border: 1px solid color-mix(in oklab, var(--court) 35%, transparent);
 }
-.stage-pill-knockout {
-  background: color-mix(in oklab, var(--ball) 16%, transparent); color: var(--ink-ball);
-  border: 1px solid color-mix(in oklab, var(--ball) 35%, transparent);
-}
+
 .stage-pill-schedule {
   background: color-mix(in oklab, var(--court) 16%, transparent); color: var(--court);
   border: 1px solid color-mix(in oklab, var(--court) 35%, transparent);
@@ -1710,246 +1721,33 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; white-s
 }
 
 /* Thanh điều khiển cây nhánh đấu */
-.bracket-toolbar {
-  display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap;
-}
-.bracket-nav-chips {
-  display: flex; align-items: center; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-  max-width: 100%; padding-bottom: 2px;
-}
-.rnd-nav-btn {
-  appearance: none; border: 1px solid color-mix(in oklab, var(--text) 16%, transparent);
-  background: color-mix(in oklab, var(--text) 6%, var(--card-solid));
-  color: var(--text-2); padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700;
-  cursor: pointer; white-space: nowrap; transition: all 0.15s ease;
-}
-.rnd-nav-btn:hover {
-  color: var(--text); border-color: color-mix(in oklab, var(--text) 32%, transparent);
-  background: color-mix(in oklab, var(--text) 12%, var(--card-solid));
-}
-.rnd-nav-btn.active {
-  color: var(--on-brand); background: var(--ball); border-color: var(--ball); font-weight: 800;
-  box-shadow: 0 0 10px color-mix(in oklab, var(--ball) 40%, transparent);
-}
-.rnd-nav-btn.is-final {
-  border-color: color-mix(in oklab, var(--gold) 50%, transparent); color: var(--gold);
-}
-.rnd-nav-btn.is-final.active {
-  background: var(--gold); color: #070B14; border-color: var(--gold);
-}
-.rnd-nav-btn.is-champ {
-  border-color: color-mix(in oklab, var(--gold) 50%, transparent); color: var(--gold);
-}
-.rnd-nav-btn.is-champ.active {
-  background: var(--gold); color: #070B14; border-color: var(--gold);
-}
-.btn-panoramic {
-  appearance: none; border: 1px solid color-mix(in oklab, var(--ball) 40%, transparent);
-  background: color-mix(in oklab, var(--ball) 12%, transparent);
-  color: var(--ink-ball); padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 700;
-  cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease;
-}
-.btn-panoramic:hover, .btn-panoramic.active {
-  background: var(--ball); color: var(--on-brand);
-}
 
 /* Sơ đồ nhánh đấu - Cuộn & Bố cục */
-.bracket-wrapper { position: relative; width: 100%; overflow: hidden; }
-.bracket-scroll {
-  overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;
-  padding-bottom: 12px; margin-inline: -16px; padding-inline: 16px; scroll-padding-inline: 16px;
-}
-@media (min-width: 900px) {
-  .bracket-scroll { scroll-snap-type: none; margin-inline: 0; padding-inline: 0; }
-}
 
 /* Khoảng cách nhánh đấu: 18px (vừa vặn, thanh mảnh, nhìn toàn cảnh) */
-.bracket {
-  --bk-gap: 18px;
-  --bk-line: color-mix(in oklab, var(--text) 32%, transparent);
-  display: flex; gap: var(--bk-gap); width: max-content; min-width: 100%;
-  transition: transform 0.25s ease;
-}
 
 /* Cột vòng: 184px (5 vòng vừa khít ~990px trên desktop) */
-.bracket .round {
-  width: min(72vw, 192px); flex: 0 0 min(72vw, 192px);
-  display: flex; flex-direction: column; gap: 8px; scroll-snap-align: start;
-}
-@media (min-width: 900px) {
-  .bracket .round { flex: 0 0 184px; width: 184px; max-width: 184px; }
-}
+
 /* Ít vòng (2-3 vòng): cột mở rộng nhẹ */
-.bracket:has(.round:nth-last-child(-n+3):first-child) .round {
-  flex: 1 0 190px; max-width: 240px;
-}
 
 /* Tiêu đề vòng: Sáng sủa, phân cấp rõ rệt */
-.bracket .round-title {
-  position: sticky; top: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 6px 6px; border-radius: var(--r-sm); text-align: center;
-  font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--text);
-  background: color-mix(in oklab, var(--text) 10%, var(--card-solid));
-  border: 1px solid color-mix(in oklab, var(--text) 20%, transparent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-}
-.bracket .round-title small {
-  font-size: 9.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--text-3);
-}
 
 /* Phân biệt cấp bậc vòng đấu */
-.bracket .round.round-quarters .round-title {
-  border-color: color-mix(in oklab, var(--court) 50%, transparent);
-  box-shadow: 0 2px 10px color-mix(in oklab, var(--court) 15%, transparent);
-}
-.bracket .round.round-semis .round-title {
-  border-color: color-mix(in oklab, #818CF8 60%, transparent);
-  box-shadow: 0 2px 10px rgba(129, 140, 248, 0.18);
-}
-.bracket .round.is-final .round-title {
-  background: linear-gradient(135deg, var(--gold), color-mix(in oklab, var(--gold) 82%, var(--ball)));
-  border-color: var(--gold); color: #070B14;
-  box-shadow: 0 0 16px color-mix(in oklab, var(--gold) 45%, transparent);
-}
-.bracket .round.is-final .round-title small {
-  color: color-mix(in oklab, #070B14 78%, transparent); font-weight: 700;
-}
-.bracket .round-champ .round-title {
-  background: var(--gold); border-color: var(--gold); color: #070B14;
-}
-.bracket .round-champ .round-title small {
-  color: color-mix(in oklab, #070B14 78%, transparent);
-}
-
-.bracket .round-body {
-  display: flex; flex-direction: column; justify-content: space-around; gap: 8px; flex: 1;
-}
-.bracket .slot { position: relative; }
 
 /* Cây chuẩn: ô rút gọn tối ưu chiều cao, nhánh nối thanh mảnh sắc nét */
-.bracket.is-tree .round-body {
-  display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: 1fr; justify-content: normal; gap: 0;
-}
-.bracket.is-tree .slot {
-  display: flex; flex-direction: column; justify-content: center; padding-block: 2.5px;
-}
-.bracket.is-tree .round:not(.is-final):not(.round-champ) .slot::after {
-  content: ''; position: absolute; right: calc(var(--bk-gap) / -2); width: calc(var(--bk-gap) / 2);
-  border: 0 solid var(--bk-line); border-right-width: 2px; pointer-events: none;
-}
-.bracket.is-tree .round:not(.is-final):not(.round-champ) .slot:nth-child(odd)::after {
-  top: 50%; bottom: 0; border-top-width: 2px; border-top-right-radius: 8px;
-}
-.bracket.is-tree .round:not(.is-final):not(.round-champ) .slot:nth-child(even)::after {
-  top: 0; bottom: 50%; border-bottom-width: 2px; border-bottom-right-radius: 8px;
-}
-.bracket.is-tree .round + .round .slot::before {
-  content: ''; position: absolute; left: calc(var(--bk-gap) / -2); width: calc(var(--bk-gap) / 2); top: 50%;
-  border-top: 2px solid var(--bk-line); pointer-events: none;
-}
-.bracket.is-tree .is-final:has(+ .round-champ) .slot::after {
-  content: ''; position: absolute; right: calc(var(--bk-gap) / -2); width: calc(var(--bk-gap) / 2); top: 50%;
-  border-top: 2px solid var(--bk-line); pointer-events: none;
-}
 
 /* Thẻ trận (Match Card): Nhỏ gọn, sáng sủa, sắc nét */
-.mcard {
-  position: relative; border-radius: var(--r-sm); overflow: hidden; font-size: 11.5px;
-  background: color-mix(in oklab, var(--text) 11%, var(--card-solid));
-  border: 1px solid color-mix(in oklab, var(--text) 22%, transparent);
-  box-shadow: 0 3px 12px -2px rgba(0, 0, 0, 0.45);
-  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
-}
-.mcard:hover {
-  border-color: color-mix(in oklab, var(--ball) 55%, transparent);
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.6);
-}
-.mcard.live {
-  border-color: var(--live);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--live) 35%, transparent), 0 4px 14px rgba(239, 68, 68, 0.3);
-}
 
-.mcard .mhead {
-  display: flex; justify-content: space-between; align-items: center; gap: 4px;
-  padding: 2.5px 6px; font-size: 10px; font-weight: 700; color: var(--text-2);
-  background: color-mix(in oklab, var(--text) 6%, transparent);
-  border-bottom: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
-}
-.mcard .mcode { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
-.mcard .mcode b {
-  padding: 1px 4.5px; border-radius: 4px; font-weight: 800; font-size: 9.5px; letter-spacing: .02em;
-  color: var(--ink-ball); background: color-mix(in oklab, var(--ball) 18%, transparent);
-  border: 1px solid color-mix(in oklab, var(--ball) 30%, transparent);
-}
-.mcard .mcourt { font-size: 9.5px; color: var(--text-3); white-space: nowrap; }
-.mcard .mstate { font-size: 9.5px; color: var(--text-3); }
-.mcard .mstate-bye { color: #A78BFA; font-weight: 700; }
-.mcard .chip-live {
-  font-size: 9px !important; padding: 1px 6px !important; font-weight: 800;
-  display: inline-flex; align-items: center; gap: 4px;
-}
-.mcard .live-dot {
-  width: 5px; height: 5px; border-radius: 50%; background: #EF4444; box-shadow: 0 0 6px #EF4444;
-  animation: liveDotPulse 1.4s infinite;
-}
 @keyframes liveDotPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.8); }
 }
-.mcard .chip-ok { font-size: 9px !important; padding: 1px 5px !important; }
 
 /* Hàng đội thi đấu */
-.mcard .side {
-  display: flex; justify-content: space-between; align-items: center; gap: 6px;
-  padding: 3px 6px; min-height: 23px; color: var(--text);
-  transition: background-color 0.15s ease;
-}
-.mcard .side + .side {
-  border-top: 1px solid color-mix(in oklab, var(--text) 10%, transparent);
-}
-.mcard .side .n {
-  min-width: 0; flex: 1; font-size: 11.5px; line-height: 1.25; font-weight: 600;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.mcard .side .s {
-  flex: none; min-width: 22px; height: 18px; padding-inline: 4px; display: inline-grid; place-items: center;
-  border-radius: 4px; font-size: 11.5px; font-weight: 800; font-variant-numeric: tabular-nums;
-  color: var(--text-2); background: color-mix(in oklab, var(--text) 7%, transparent);
-}
-.mcard .side .s:empty { visibility: hidden; }
 
 /* Đội thắng: Rực rỡ, sáng sủa, nổi bật */
-.mcard .side.win {
-  background: color-mix(in oklab, var(--ball) 15%, var(--card-solid));
-  box-shadow: inset 3.5px 0 0 var(--ball);
-}
-.mcard .side.win .n { font-weight: 800; color: var(--text); }
-.mcard .side.win .s {
-  background: var(--ball); color: var(--on-brand); font-weight: 900;
-  box-shadow: 0 1px 4px color-mix(in oklab, var(--ball) 40%, transparent);
-}
-.mcard .side.lose { color: var(--text-2); opacity: 0.82; }
-.mcard .side.lose .n { font-weight: 500; }
-.mcard .side.lose .s { color: var(--text-3); }
-.mcard .tbd { font-style: normal; font-weight: 500; font-size: 11px; color: var(--text-3); }
-
-.mcard .mfoot {
-  display: flex; gap: 4px; padding: 4px 6px; flex-wrap: wrap;
-  border-top: 1px solid color-mix(in oklab, var(--text) 10%, transparent);
-}
-.mcard .mfoot .btn-sm { padding: 2px 7px; font-size: 10px; height: auto; }
 
 /* Ô Nhà vô địch */
-.champ-card {
-  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 10px;
-  border-radius: var(--r-md); text-align: center;
-  background: color-mix(in oklab, var(--gold) 16%, var(--card-solid));
-  border: 1.5px solid var(--gold);
-  box-shadow: 0 0 20px color-mix(in oklab, var(--gold) 35%, transparent);
-}
-.champ-card svg { width: 26px; height: 26px; color: var(--gold); filter: drop-shadow(0 0 6px var(--gold)); }
-.champ-card .champ-label { font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); }
-.champ-card strong { font-size: 13px; line-height: 1.3; color: var(--text); font-weight: 800; }
 
 .stat-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .stat-tile { padding: 12px 14px; border-radius: var(--r-md); border: 1px solid color-mix(in oklab, var(--text) 14%, transparent); background: color-mix(in oklab, var(--text) 6%, var(--card-solid)); }
@@ -1960,50 +1758,14 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; white-s
 .leg.cur { border-color: var(--ink-court); color: var(--ink-court); font-weight: 700; }
 
 /* Chế độ Thu nhỏ toàn cảnh (Panoramic View Mode) */
-.bracket-wrapper.bracket-panoramic .bracket {
-  transform-origin: top left;
-  transform: scale(0.82);
-  width: calc(100% / 0.82);
-}
-@media (max-width: 768px) {
-  .bracket-wrapper.bracket-panoramic .bracket {
-    transform: scale(0.72);
-    width: calc(100% / 0.72);
-  }
-}
 
 /* Điện thoại: nhánh đấu đủ lớn để đọc và bấm (bản máy tính giữ kiểu gọn để xem toàn cảnh) */
 @media (max-width: 640px) {
   /* Các vòng xếp dọc (Vòng 1 → … → Chung kết → Vô địch), mỗi trận rộng hết màn hình; không cuộn ngang, không đường nối */
-  .bracket-wrapper { overflow: visible; }
-  .bracket-scroll { overflow: visible; scroll-snap-type: none; margin-inline: 0; padding: 0; }
-  .bracket, .bracket-wrapper.bracket-panoramic .bracket { flex-direction: column; width: 100%; min-width: 0; gap: 22px; transform: none; }
-  .bracket .round, .bracket:has(.round:nth-last-child(-n+3):first-child) .round { flex: none; width: 100%; max-width: none; gap: 10px; }
-  .bracket .round-body, .bracket.is-tree .round-body { display: flex; flex-direction: column; justify-content: flex-start; gap: 10px; }
-  .bracket.is-tree .slot { padding: 0; }
-  .bracket.is-tree .slot::before, .bracket.is-tree .slot::after { display: none !important; }
-  .bracket .round-title { position: sticky; top: calc(var(--header-h, 64px) + 6px); z-index: 3; flex-direction: row; justify-content: center; gap: 8px; font-size: 13px; padding: 9px 10px; }
+
   /* Thanh chọn vòng: chip cuộn ngang trong khung, bỏ nút "Thu nhỏ" (không cần khi đã xếp dọc) */
   .stage-header-card { padding: 12px; }
-  .bracket-toolbar { width: 100%; min-width: 0; justify-content: flex-start; }
-  .bracket-nav-chips { flex: 1 1 auto; min-width: 0; }
-  .bracket-view-actions { display: none; }
-  .bracket .round-title small { font-size: 12px; }
-  .mcard { font-size: 13.5px; }
-  .mcard .mhead { padding: 6px 10px; font-size: 12px; }
-  .mcard .mcode b, .mcard .mcourt, .mcard .mstate { font-size: 12px; }
-  .mcard .chip-live, .mcard .chip-ok { font-size: 11px !important; padding: 2px 7px !important; }
-  .mcard .side { padding: 8px 10px; min-height: 40px; }
-  .mcard .side .n { font-size: 14px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .mcard .side .s { min-width: 28px; height: 26px; font-size: 14.5px; }
-  .mcard .tbd { font-size: 13px; }
-  .mcard .mfoot { padding: 8px 10px; gap: 6px; }
-  .mcard .mfoot .btn-sm { min-height: 34px; padding: 6px 12px; font-size: 13px; }
-  .champ-card .champ-label { font-size: 11px; }
-  .champ-card strong { font-size: 15px; }
-  .rnd-nav-btn { min-height: 36px; padding: 6px 13px; font-size: 13px; }
-  .btn-panoramic { min-height: 36px; padding: 6px 13px; font-size: 13px; }
-  .bracket-nav-chips { gap: 8px; }
+
   .leg { font-size: 12.5px; padding: 4px 9px; }
 }
 
