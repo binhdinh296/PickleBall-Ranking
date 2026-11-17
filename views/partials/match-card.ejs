@@ -15,14 +15,15 @@
   const pending = (s) => {
     if (m[`label_${s}`]) return m[`label_${s}`];
     const src = m[`src_${s}_match_id`];
+    if (bye) return 'Miễn đấu';
     if (src && codeById[src]) return `${m[`src_${s}_kind`] === 'loser' ? 'Thua' : 'Thắng'} ${codeById[src]}`;
-    return bye ? 'Miễn đấu' : 'Chờ xác định';
+    return 'Chờ xác định';
   };
   const time = m.start_time ? m.start_time.replace(':', 'h') : null;
   const tag = href ? 'a' : 'div';
   const srcAttr = [m.src_a_match_id, m.src_b_match_id].filter(Boolean).join(',');
 %>
-<<%= tag %> class="bk-match<%= m.status === 'live' ? ' is-live' : done ? ' is-done' : waiting ? ' is-waiting' : '' %>" id="m<%= m.id %>" data-match-id="<%= m.id %>"<% if (srcAttr) { %> data-src="<%= srcAttr %>"<% } %><% if (href) { %> href="<%= href %>"<% } %>>
+<<%= tag %> class="bk-match<%= m.status === 'live' ? ' is-live' : bye ? ' is-done is-bye' : done ? ' is-done' : waiting ? ' is-waiting' : '' %>" id="m<%= m.id %>" data-match-id="<%= m.id %>"<% if (srcAttr) { %> data-src="<%= srcAttr %>"<% } %><% if (href) { %> href="<%= href %>"<% } %>>
   <div class="bk-head">
     <span class="bk-code"><%= m.code || '' %></span>
     <span class="bk-badges">

@@ -27,6 +27,9 @@
     <form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/tao-nhanh" data-confirm="<%= matches.length ? 'Tạo lại sẽ XÓA toàn bộ trận và tỉ số hiện có. Tiếp tục?' : 'Tạo nhánh đấu?' %>" style="gap: 10px;">
       <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
       <label class="check"><input type="checkbox" name="randomize" value="1" checked><span>Bốc thăm ngẫu nhiên (bỏ chọn để xếp theo hạt giống)</span></label>
+      <% if (d.format !== 'roundrobin') { const hasPO = matches.some((x) => /playoff/i.test(x.round_name)); %>
+      <label class="check"><input type="checkbox" name="playoff" value="1" <%= hasPO || !matches.length ? 'checked' : '' %>><span><strong>Có vòng Playoff</strong> – thua Vòng 1 được đấu vớt; thắng Vòng 2 gặp thắng Playoff rồi loại trực tiếp tới Chung kết (giống pickna)</span></label>
+      <% } %>
       <button class="btn btn-brand" type="submit" <%= teams.length < 2 ? 'disabled' : '' %>><%= matches.length ? 'Bốc thăm lại' : 'Bốc thăm & tạo nhánh' %></button>
     </form>
     <details>

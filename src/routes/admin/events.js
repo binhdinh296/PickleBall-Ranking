@@ -395,8 +395,8 @@ router.post('/noi-dung/:id/tao-nhanh', editor, wrap(async (req, res, next) => {
   const randomize = req.body.randomize === '1';
   const n = d.format === 'roundrobin'
     ? await bracket.generateRoundRobin(d.id, { randomize, relayLegs: d.relay_legs })
-    : await bracket.generateKnockout(d.id, { randomize });
-  await audit(req, 'bracket_generate', `division:${d.id}`, `${d.format} ${n} trận`);
+    : await bracket.generateKnockout(d.id, { randomize, playoff: req.body.playoff === '1' });
+  await audit(req, 'bracket_generate', `division:${d.id}`, `${d.format}${req.body.playoff === '1' ? ' + playoff' : ''} ${n} trận`);
   req.flash('success', `Đã tạo ${n} trận.`);
   res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
 }));

@@ -73,6 +73,8 @@ a.bk-match:hover { box-shadow: 0 0 0 2px #FFD24D, 0 10px 22px -10px rgba(0, 0, 0
 .bk-team.is-win .bk-score { background: #16A34A; border-color: #16A34A; color: #fff; }
 .bk-team.is-lose .bk-name { color: #9CA3AF; font-weight: 600; }
 .bk-team.is-lose .bk-score { color: #9CA3AF; }
+/* Trận miễn đấu: không có tỉ số, ẩn ô điểm */
+.bk-match.is-bye .bk-score { visibility: hidden; }
 .bk-foot { display: flex; flex-wrap: wrap; gap: 5px; padding: 5px 8px 7px; border-top: 1px solid #EEF0F3; }
 .bk-legs span { padding: 1px 6px; border-radius: 6px; background: #F3F4F6; color: #4B5563; font-size: 10px; }
 .bk-legs .cur { background: #FEE2E2; color: #B91C1C; font-weight: 700; }

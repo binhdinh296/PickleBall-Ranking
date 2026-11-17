@@ -48,46 +48,83 @@ function seedOrder(size) {
   return order;
 }
 
-// Nhánh loại trực tiếp có bye; đội được bye tự đi tiếp
-async function generateKnockout(divisionId, { randomize = true } = {}) {
+// Dựng danh sách trận của nhánh loại trực tiếp (chưa ghi CSDL).
+// Mỗi trận: { key, order, name, code, a, b } với ô = { team } hoặc { src: key trận nguồn, kind: 'winner' | 'loser' }.
+// playoff = true (giống giaidau.pickna.vn): thua Vòng 1 xuống Playoff đấu vớt, thắng Vòng 1 vào Vòng 2;
+// đội thắng Vòng 2 gặp đội thắng Playoff (xếp chéo để không gặp lại ngay), sau đó loại trực tiếp tới Chung kết.
+function knockoutPlan(slots, playoff) {
+  const plan = [];
+  const add = (order, name, code, a, b) => { const m = { key: code, order, name, code, a, b }; plan.push(m); return m; };
+  const W = (m) => ({ src: m.key, kind: 'winner' });
+  const L = (m) => ({ src: m.key, kind: 'loser' });
+  const size = slots.length;
+  const r1 = [];
+  for (let i = 0; i < size / 2; i++) r1.push(add(1, 'Vòng 1', `T${i + 1}`, { team: slots[i * 2] }, { team: slots[i * 2 + 1] }));
+  let prev = r1;
+  let order = 2;
+  if (playoff && size >= 4) {
+    // Playoff chỉ ghép đội thua của các trận có đủ 2 đội; cặp toàn trận miễn đấu thì không tạo trận Playoff,
+    // suất đó là "Miễn đấu" (lấy đội thua của trận miễn đấu = không có) → đội thắng Vòng 2 được đi thẳng
+    const real = r1.filter((m) => m.a.team && m.b.team);
+    const pool = [...real, ...r1.filter((m) => !(m.a.team && m.b.team))];
+    let n = 0;
+    const poOut = [];
+    for (let i = 0; i < pool.length; i += 2) {
+      const [x, y] = [pool[i], pool[i + 1]];
+      if (!real.includes(x) && !real.includes(y)) poOut.push({ ...L(x), label: 'Miễn đấu' });
+      else poOut.push(W(add(2, 'Playoff', `PO${++n}`, L(x), L(y))));
+    }
+    const v2 = [];
+    for (let i = 0; i < r1.length / 2; i++) v2.push(add(3, 'Vòng 2', `V2-${i + 1}`, W(r1[i * 2]), W(r1[i * 2 + 1])));
+    // Gộp nhánh thắng Vòng 2 và nhánh vớt Playoff, xếp chéo; suất miễn đấu (cuối danh sách) rơi vào nhánh hạt giống cao
+    const k = v2.length;
+    const { name, prefix } = roundName(k, 4);
+    prev = v2.map((m, i) => add(4, name, k === 1 ? prefix : `${prefix}${i + 1}`, W(m), poOut[k - 1 - i]));
+    order = 5;
+  }
+  for (let count = prev.length / 2; count >= 1; count /= 2, order++) {
+    const { name, prefix } = roundName(count, order);
+    const cur = [];
+    for (let i = 0; i < count; i++) cur.push(add(order, name, count === 1 ? prefix : `${prefix}${i + 1}`, W(prev[i * 2]), W(prev[i * 2 + 1])));
+    prev = cur;
+  }
+  return plan;
+}
+
+// Tạo nhánh loại trực tiếp (xoá trận cũ); đội gặp ô trống được miễn đấu và tự đi tiếp
+async function generateKnockout(divisionId, { randomize = true, playoff = false } = {}) {
   const teams = await loadTeams(divisionId);
   if (teams.length < 2) throw Object.assign(new Error('Cần ít nhất 2 đội để tạo nhánh đấu'), { expose: true });
+  if (playoff && teams.length < 3) throw Object.assign(new Error('Cần ít nhất 3 đội để có vòng Playoff'), { expose: true });
   const ordered = randomize ? shuffle(teams) : teams;
   let size = 1;
   while (size < ordered.length) size *= 2;
   const slots = seedOrder(size).map((s) => ordered[s - 1] || null);
-  const rounds = Math.log2(size);
+  const plan = knockoutPlan(slots, playoff);
 
   return tx(async () => {
     await run('DELETE FROM matches WHERE division_id = ?', divisionId);
-    const ids = [];
-    let count = size / 2;
-    for (let r = 1; r <= rounds; r++, count /= 2) {
-      const { name, prefix } = roundName(count, r);
-      ids[r] = [];
-      for (let p = 1; p <= count; p++) {
-        const row = await get('INSERT INTO matches(division_id, round_order, round_name, position, code) VALUES (?,?,?,?,?) RETURNING id',
-          divisionId, r, name, p, count === 1 ? prefix : `${prefix}${p}`);
-        ids[r].push(row.id);
+    const id = {};
+    const pos = {};
+    for (const m of plan) {
+      pos[m.order] = (pos[m.order] || 0) + 1;
+      const t = (x) => (x.team ? x.team.id : null);
+      id[m.key] = (await get('INSERT INTO matches(division_id, round_order, round_name, position, code, team_a_id, team_b_id) VALUES (?,?,?,?,?,?,?) RETURNING id',
+        divisionId, m.order, m.name, pos[m.order], m.code, t(m.a), t(m.b))).id;
+    }
+    for (const m of plan) {
+      for (const [s, x] of [['a', m.a], ['b', m.b]]) {
+        if (x.src) await run(`UPDATE matches SET src_${s}_match_id = ?, src_${s}_kind = ?, label_${s} = ? WHERE id = ?`, id[x.src], x.kind, x.label || null, id[m.key]);
       }
     }
-    // Trận vòng sau lấy đội THẮNG của 2 trận liền trước (ô A ← trận chẵn, ô B ← trận lẻ)
-    for (let r = 2; r <= rounds; r++) {
-      for (let i = 0; i < ids[r].length; i++) {
-        await run("UPDATE matches SET src_a_match_id = ?, src_a_kind = 'winner', src_b_match_id = ?, src_b_kind = 'winner' WHERE id = ?",
-          ids[r - 1][i * 2], ids[r - 1][i * 2 + 1], ids[r][i]);
+    // Trận Vòng 1 thiếu đội: miễn đấu, kết quả chảy tiếp (Playoff thiếu đội cũng tự miễn đấu theo dây chuyền)
+    for (const m of plan.filter((x) => x.order === 1)) {
+      if (!m.a.team || !m.b.team) {
+        await run("UPDATE matches SET status = 'done' WHERE id = ?", id[m.key]);
+        await propagate(id[m.key]);
       }
     }
-    for (let i = 0; i < ids[1].length; i++) {
-      const a = slots[i * 2];
-      const b = slots[i * 2 + 1];
-      await run('UPDATE matches SET team_a_id = ?, team_b_id = ? WHERE id = ?', a ? a.id : null, b ? b.id : null, ids[1][i]);
-      if ((a && !b) || (!a && b)) { // miễn đấu: đội còn lại tự đi tiếp
-        await run("UPDATE matches SET status = 'done' WHERE id = ?", ids[1][i]);
-        await propagate(ids[1][i]);
-      }
-    }
-    return ids.flat().length;
+    return plan.length;
   });
 }
 
@@ -160,8 +197,25 @@ async function propagate(matchId, seen = new Set()) {
         changed = true;
       }
     }
-    if (changed) await propagate(k.id, seen);
+    const walkover = await autoWalkover(k.id); // luôn kiểm tra, kể cả khi vừa nhận đội
+    if (changed || walkover) await propagate(k.id, seen);
   }
+}
+
+// Ô lấy nguồn từ trận đã xong mà không có đội (vd. đội thua của trận miễn đấu) thì sẽ trống mãi:
+// trận nhận tự xử miễn đấu để đội còn lại đi tiếp. Ô chưa có nguồn mà trống (chờ BTC gán) thì không tự xử.
+async function autoWalkover(matchId) {
+  const k = await get('SELECT * FROM matches WHERE id = ?', matchId);
+  if (!k || k.status === 'done') return false;
+  const settled = async (s) => {
+    if (k[`team_${s}_id`]) return true;
+    const src = k[`src_${s}_match_id`] ? await get('SELECT status FROM matches WHERE id = ?', k[`src_${s}_match_id`]) : null;
+    return !!src && src.status === 'done';
+  };
+  if (!(await settled('a')) || !(await settled('b'))) return false;
+  if (k.team_a_id && k.team_b_id) return false;
+  await run("UPDATE matches SET status = 'done', updated_at = now() WHERE id = ?", k.id);
+  return true;
 }
 
 // Gán nguồn cho ô thì lấy ngay đội từ trận nguồn (nếu trận nguồn đã có kết quả)
