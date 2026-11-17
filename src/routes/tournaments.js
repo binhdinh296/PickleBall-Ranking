@@ -139,22 +139,22 @@ async function submitRegistration(req, res, ev, opts = {}) {
   let pts1;
   let pts2;
   if (opts.lite) {
-    // Link đăng ký của đơn vị tổ chức: VĐV chọn trình theo thang 1.0 … 5.5+ của giải
-    pts1 = fmt.parseLevel(values.trinh1);
-    pts2 = fmt.parseLevel(values.trinh2);
-    if (pts1 === null || pts2 === null) return fail('Vui lòng chọn trình độ cho cả 2 vận động viên.');
+    // Link đăng ký của đơn vị tổ chức: VĐV tự nhập trình (vd. 2.65), từ 1.0 đến 8.0, tối đa 3 số lẻ
+    pts1 = fmt.parseLevelInput(values.trinh1);
+    pts2 = fmt.parseLevelInput(values.trinh2);
+    const bad = [[pts1, values.trinh1, 1], [pts2, values.trinh2, 2]].find(([p]) => p === null);
+    if (bad) return fail(bad[1] ? `Trình độ VĐV ${bad[2]} "${bad[1]}" không hợp lệ: nhập số từ 1.0 đến 8.0, ví dụ 2.65.` : `Vui lòng nhập trình độ VĐV ${bad[2]}, ví dụ 2.65.`);
   } else {
     // Có hồ sơ trong hệ thống thì dùng điểm hệ thống, không dùng điểm tự khai
     pts1 = a1 ? a1.points : fmt.parsePoints(values.trinh1);
     pts2 = a2 ? a2.points : fmt.parsePoints(values.trinh2);
     if (pts1 === null || pts2 === null) return fail('Vui lòng nhập trình độ hợp lệ, ví dụ 3.500.');
   }
-  const lv = (v) => (opts.lite && fmt.LEVELS.includes(v) ? fmt.levelLabel(v) : fmt.pts(v));
-  if (d.min_player_points && (pts1 < d.min_player_points || pts2 < d.min_player_points)) {
-    return fail(`Nội dung ${d.name}: trình mỗi VĐV tối thiểu ${lv(d.min_player_points)}.`);
-  }
-  if (d.max_player_points && (pts1 > d.max_player_points || pts2 > d.max_player_points)) {
-    return fail(`Nội dung ${d.name}: trình mỗi VĐV không vượt quá ${lv(d.max_player_points)}.`);
+  const lv = (v) => (opts.lite ? fmt.numShort(v) : fmt.pts(v));
+  const cap = fmt.levelCap(d.max_player_points);
+  for (const [p, n] of [[pts1, 1], [pts2, 2]]) {
+    if (d.min_player_points && p < d.min_player_points) return fail(`VĐV ${n} (trình ${lv(p)}): nội dung ${d.name} yêu cầu trình từ ${lv(d.min_player_points)}.`);
+    if (cap && p > cap) return fail(`VĐV ${n} (trình ${lv(p)}): nội dung ${d.name} chỉ nhận trình đến ${lv(cap)}.`);
   }
   if (d.max_total_points && pts1 + pts2 > d.max_total_points) {
     const t = (v) => (opts.lite ? fmt.numShort(v) : fmt.pts(v));

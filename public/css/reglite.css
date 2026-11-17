@@ -47,6 +47,11 @@ select.rl-input option { color: var(--text); background: var(--card-solid); }
 .rl-hint:empty { display: none; }
 .rl-hint.ok { color: var(--ok); }
 .rl-hint.err { color: var(--err); }
+.rl-total { margin: 18px 0 0; padding: 10px 12px; border-radius: 10px; text-align: center; font-size: 14px; color: var(--text-2); background: color-mix(in oklab, var(--text) 5%, transparent); border: 1px solid var(--line); }
+.rl-total b { color: var(--text); font-size: 16px; }
+.rl-total.ok b { color: var(--ok); }
+.rl-total.err { color: var(--err); border-color: color-mix(in oklab, var(--err) 50%, transparent); background: color-mix(in oklab, var(--err) 10%, transparent); }
+.rl-total.err b { color: var(--err); }
 
 /* ---- Chọn nội dung: nút dạng huy hiệu (ảnh BTC tải lên, hoặc huy hiệu chữ theo màu theme) ---- */
 .rl-divset { border: 0; padding: 0; margin: 26px 0 0; min-width: 0; }

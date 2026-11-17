@@ -119,6 +119,18 @@ function parseLevel(v) {
   const n = /^\d{4}$/.test(s) ? parseInt(s, 10) : parsePoints(s.replace('+', ''));
   return LEVELS.includes(n) ? n : null;
 }
+// Trình VĐV tự nhập ở form đăng ký: "2.65", "2,72", "3" → số phần nghìn (2650…).
+// Hợp lệ: 1.0–8.0, tối đa 3 số lẻ; sai định dạng hoặc ngoài khoảng → null
+const LEVEL_INPUT_MIN = 1000;
+const LEVEL_INPUT_MAX = 8000;
+function parseLevelInput(v) {
+  const s = String(v ?? '').trim().replace(',', '.');
+  if (!/^\d(\.\d{1,3})?$/.test(s)) return null;
+  const n = Math.round(Number(s) * 1000);
+  return n >= LEVEL_INPUT_MIN && n <= LEVEL_INPUT_MAX ? n : null;
+}
+// Mức "5.5+" là nấc cao nhất của thang: chọn làm trình tối đa nghĩa là không giới hạn trên
+const levelCap = (max) => (max && max < LEVELS[LEVELS.length - 1] ? max : null);
 // Số gọn cho giới hạn tổng trình: 6500 → "6.5", 6250 → "6.25", 7000 → "7.0"
 const numShort = (v) => { const n = Number((v / 1000).toFixed(3)); return Number.isInteger(n) ? n.toFixed(1) : String(n); };
 
@@ -131,5 +143,5 @@ module.exports = {
   pts, signedPts, parsePoints, money, dateVN, dateTimeVN, toLocalInput, fromLocalInput, today, eventStatus, duration,
   EVENT_STATUS_LABEL, REG_STATUS_LABEL, SUB_STATUS_LABEL, MATCH_STATUS_LABEL, LIVE_STATUS_LABEL, GENDER_LABEL,
   ROLE_LABEL, GENDER_RULE_LABEL, slugify, initials, displayName, pad2, esc,
-  LEVELS, levelLabel, parseLevel, numShort,
+  LEVELS, levelLabel, parseLevel, numShort, parseLevelInput, levelCap,
 };

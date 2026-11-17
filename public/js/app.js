@@ -206,9 +206,10 @@
 
   // ---- Chặn gửi 2 lần ----
   $$('form[data-once]').forEach(function (f) {
-    f.addEventListener('submit', function () {
+    f.addEventListener('submit', function (e) {
       var b = $('button[type=submit]', f);
-      if (b) setTimeout(function () { b.disabled = true; b.textContent = 'Đang gửi…'; }, 0);
+      // Không khoá nút nếu một bước kiểm tra khác đã chặn gửi (vd. trình độ nhập sai)
+      if (b) setTimeout(function () { if (e.defaultPrevented) return; b.disabled = true; b.textContent = 'Đang gửi…'; }, 0);
     });
   });
 
@@ -384,30 +385,81 @@
     }
   })();
 
-  // ---- Đăng ký qua link ngắn: ô chọn trình chỉ hiện các mức trong khoảng của nội dung đang chọn ----
+  // ---- Đăng ký qua link ngắn: VĐV tự nhập trình (vd. 2.65), kiểm tra theo khoảng trình của nội dung đang chọn ----
+  // Quy tắc khớp với fmt.parseLevelInput phía server: 1.0–8.0, tối đa 3 số lẻ, nhận cả dấu phẩy
   $$('[data-level-form]').forEach(function (form) {
-    var selects = $$('[data-level-select]', form);
-    if (!selects.length) return;
-    var levels = $$('option', selects[0]).map(function (o) { return { v: o.value, t: o.textContent }; });
-    function apply() {
-      var picked = $('input[name=division_id]:checked', form);
-      var min = (picked && parseInt(picked.getAttribute('data-min'), 10)) || 0;
-      var max = (picked && parseInt(picked.getAttribute('data-max'), 10)) || Infinity;
-      selects.forEach(function (sel) {
-        var cur = sel.value;
-        sel.innerHTML = '';
-        levels.forEach(function (o) {
-          var v = parseInt(o.v, 10);
-          if (o.v && (v < min || v > max)) return;
-          var opt = document.createElement('option');
-          opt.value = o.v; opt.textContent = o.t;
-          if (o.v === cur) opt.selected = true;
-          sel.appendChild(opt);
-        });
-        if (sel.value !== cur) sel.value = '';
-      });
+    var inputs = $$('[data-level-input]', form);
+    if (!inputs.length) return;
+    var totalBox = $('[data-level-total]', form);
+    function parse(v) {
+      v = String(v || '').trim().replace(',', '.');
+      if (!/^\d(\.\d{1,3})?$/.test(v)) return null;
+      var n = Math.round(parseFloat(v) * 1000);
+      return n >= 1000 && n <= 8000 ? n : null;
     }
-    $$('input[name=division_id]', form).forEach(function (r) { r.addEventListener('change', apply); });
-    apply();
+    function show(n) { var x = Number((n / 1000).toFixed(3)); return x % 1 === 0 ? x.toFixed(1) : String(x); }
+    function bounds() {
+      var p = $('input[name=division_id]:checked', form);
+      var num = function (a) { return (p && parseInt(p.getAttribute(a), 10)) || 0; };
+      return { min: num('data-min'), max: num('data-max'), total: num('data-total') };
+    }
+    function rangeText(b) {
+      return b.min && b.max ? 'Nội dung này: ' + show(b.min) + ' – ' + show(b.max)
+        : b.min ? 'Nội dung này: từ ' + show(b.min) : b.max ? 'Nội dung này: đến ' + show(b.max) : 'Từ 1.0 đến 8.0';
+    }
+    // strict: báo lỗi cả khi để trống (lúc bấm gửi); không strict: chỉ báo khi đã nhập
+    function check(inp, strict) {
+      var hint = document.getElementById(inp.getAttribute('aria-describedby'));
+      var b = bounds();
+      var raw = inp.value.trim();
+      var n = parse(raw);
+      var msg = rangeText(b);
+      var bad = false;
+      if (!raw) { bad = !!strict; if (bad) msg = 'Nhập trình độ, VD 2.65'; }
+      else if (n === null) { bad = true; msg = 'Nhập số 1.0–8.0, VD 2.65'; }
+      else if (b.min && n < b.min) { bad = true; msg = 'Thấp hơn mức tối thiểu ' + show(b.min); }
+      else if (b.max && n > b.max) { bad = true; msg = 'Vượt mức tối đa ' + show(b.max); }
+      inp.setAttribute('aria-invalid', bad ? 'true' : 'false');
+      if (hint) { hint.textContent = msg; hint.className = 'rl-hint' + (bad ? ' err' : n !== null ? ' ok' : ''); }
+      return bad ? null : n;
+    }
+    function total() {
+      if (!totalBox) return true;
+      var a = parse(inputs[0].value);
+      var c = inputs[1] ? parse(inputs[1].value) : null;
+      if (a === null || c === null) { totalBox.hidden = true; return true; }
+      var b = bounds();
+      var sum = a + c;
+      var over = b.total && sum > b.total;
+      totalBox.hidden = false;
+      totalBox.className = 'rl-total' + (over ? ' err' : b.total ? ' ok' : '');
+      totalBox.innerHTML = 'Tổng trình 2 VĐV: <b>' + show(sum) + '</b>' + (b.total ? ' / tối đa ' + show(b.total) : '') + (over ? ' · vượt mức' : '');
+      return !over;
+    }
+    function refresh() { inputs.forEach(function (i) { check(i, false); }); total(); }
+    inputs.forEach(function (inp) {
+      // Đang gõ: chỉ gỡ lỗi khi đã sửa đúng, không báo lỗi giữa chừng (vd. vừa gõ "2.")
+      inp.addEventListener('input', function () {
+        if (inp.getAttribute('aria-invalid') === 'true' || parse(inp.value) !== null) check(inp, false);
+        total();
+      });
+      inp.addEventListener('change', function () {
+        var n = parse(inp.value);
+        if (n !== null) inp.value = show(n); // chuẩn hoá: "2,65" → "2.65", "3" → "3.0"
+        check(inp, false);
+        total();
+      });
+    });
+    $$('input[name=division_id]', form).forEach(function (r) { r.addEventListener('change', refresh); });
+    form.addEventListener('submit', function (e) {
+      var first = null;
+      inputs.forEach(function (inp) { if (check(inp, true) === null && !first) first = inp; });
+      var ok = total();
+      if (first || !ok) {
+        e.preventDefault();
+        (first || inputs[0]).focus();
+      }
+    });
+    refresh();
   });
 })();

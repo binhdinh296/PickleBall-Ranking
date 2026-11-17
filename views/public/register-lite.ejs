@@ -5,9 +5,9 @@
   const title = /^giải\b/i.test(ev.name.trim()) ? ev.name : `Giải ${ev.name}`;
   // Tách từ cuối để làm nổi (vd. "Đôi nữ" + "3.2", "Đôi nam" + "Newbie")
   const split = (name) => { const w = String(name).trim().split(/\s+/); const last = w.pop(); return { head: w.join(' '), tail: last }; };
-  const lv = (v) => (fmt.LEVELS.includes(v) ? fmt.levelLabel(v) : fmt.pts(v));
-  const range = (d) => (d.min_player_points && d.max_player_points ? `Trình ${lv(d.min_player_points)}–${lv(d.max_player_points)}`
-    : d.min_player_points ? `Trình từ ${lv(d.min_player_points)}` : d.max_player_points ? `Trình đến ${lv(d.max_player_points)}` : null);
+  const lv = fmt.numShort;
+  const range = (d) => { const lo = d.min_player_points; const hi = fmt.levelCap(d.max_player_points);
+    return lo && hi ? `Trình ${lv(lo)}–${lv(hi)}` : lo ? `Trình từ ${lv(lo)}` : hi ? `Trình đến ${lv(hi)}` : null; };
   const limit = (d) => [d.subtitle, range(d), d.max_total_points ? `Tổng ≤ ${fmt.numShort(d.max_total_points)}` : null,
     d.gender_rule !== 'any' ? fmt.GENDER_RULE_LABEL[d.gender_rule] : null].filter(Boolean).join(' · ');
   const icon = (n) => include('../partials/icon', { name: n });
@@ -50,10 +50,8 @@
             </div>
             <div class="rl-field">
               <label for="trinh<%= n %>">Trình độ</label>
-              <select class="rl-input tnum" id="trinh<%= n %>" name="trinh<%= n %>" required data-level-select>
-                <option value="">Chọn trình</option>
-                <% fmt.LEVELS.forEach((v) => { %><option value="<%= v %>" <%= String(values[`trinh${n}`]) === String(v) ? 'selected' : '' %>><%= fmt.levelLabel(v) %></option><% }) %>
-              </select>
+              <input class="rl-input tnum" id="trinh<%= n %>" name="trinh<%= n %>" type="text" inputmode="decimal" autocomplete="off" maxlength="5" required placeholder="VD: 2.65" value="<%= values[`trinh${n}`] || '' %>" data-level-input aria-describedby="trinh<%= n %>-hint">
+              <span class="rl-hint" id="trinh<%= n %>-hint" data-level-hint aria-live="polite">Từ 1.0 đến 8.0</span>
             </div>
           </div>
         </fieldset>
@@ -65,7 +63,7 @@
         <div class="rl-divs">
           <% ev.divisions.forEach((d) => { const checked = String(values.division_id) === String(d.id) || (!values.division_id && ev.divisions.length === 1); const s = split(d.name); const lim = limit(d); %>
           <label class="rl-div">
-            <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required data-min="<%= d.min_player_points || '' %>" data-max="<%= d.max_player_points || '' %>">
+            <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required data-min="<%= d.min_player_points || '' %>" data-max="<%= fmt.levelCap(d.max_player_points) || '' %>" data-total="<%= d.max_total_points || '' %>">
             <% if (d.banner) { %>
             <span class="rl-badge rl-badge-img"><img src="<%= d.banner %>" alt="<%= d.name %>" loading="lazy"></span>
             <% } else { %>
@@ -77,6 +75,7 @@
         </div>
       </fieldset>
 
+      <p class="rl-total" data-level-total aria-live="polite" hidden></p>
       <button class="rl-submit" type="submit">Xác nhận đăng ký</button>
     </form>
     <% } %>
