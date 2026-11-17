@@ -2121,16 +2121,25 @@ input[type="file"].input::file-selector-button { font: inherit; font-weight: 600
 }
 .action-dropdown .dropdown-item:hover,
 .action-dropdown .dropdown-item:focus-visible {
-  background: var(--surface-2, rgba(255, 255, 255, 0.1));
-  color: var(--text, #fff);
+  background: rgba(56, 189, 248, 0.16);
+  color: #38bdf8;
   outline: none;
 }
-.action-dropdown .dropdown-item.danger {
-  color: var(--danger, #ef4444);
+.action-dropdown .dropdown-item.danger,
+.action-dropdown .dropdown-item.text-danger {
+  color: #f87171 !important;
 }
-.action-dropdown .dropdown-item.danger:hover {
-  background: rgba(239, 68, 68, 0.18);
-  color: #ff6b6b;
+.action-dropdown .dropdown-item.danger:hover,
+.action-dropdown .dropdown-item.text-danger:hover {
+  background: rgba(239, 68, 68, 0.22) !important;
+  color: #ffffff !important;
+}
+.action-dropdown .dropdown-item.text-ok {
+  color: #34d399 !important;
+}
+.action-dropdown .dropdown-item.text-ok:hover {
+  background: rgba(16, 185, 129, 0.22) !important;
+  color: #ffffff !important;
 }
 .action-dropdown .dropdown-divider {
   height: 1px;

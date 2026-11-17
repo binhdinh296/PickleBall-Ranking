@@ -163,3 +163,161 @@ div.at-who { cursor: default; }
 /* Chọn nguồn ô đội của trận (nhánh đấu kiểu pickna) */
 .slot-src { margin: 0; padding: 10px 12px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); min-width: 0; }
 .slot-src legend { padding: 0 6px; font-size: 13px; font-weight: 800; color: var(--text-2); }
+
+/* ==========================================================================
+   HỆ THỐNG MÀU SẮC NÚT BẤM CMS QUẢN TRỊ (.btn & .action-dropdown)
+   Làm nổi bật rõ rệt các thành phần bấm được (clickable), phân cấp chức năng rõ ràng.
+   ========================================================================== */
+
+/* 1. NÚT CHUNG TRÊN TOÀN TRANG QUẢN TRỊ */
+.admin-shell .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #f4f6fa;
+  font-weight: 600;
+  border-radius: var(--r-sm, 8px);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+.admin-shell .btn:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border-color: rgba(255, 255, 255, 0.42);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+.admin-shell .btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* 2. NÚT CHÍNH (PRIMARY / BRAND) - XANH EMERALD RỰC RỠ */
+.admin-shell .btn-brand,
+.admin-shell .form-actions .btn-brand,
+.admin-shell .admin-modal-actions .btn-brand,
+.admin-shell button[type="submit"].btn-brand {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(52, 211, 153, 0.7) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.admin-shell .btn-brand:hover,
+.admin-shell .form-actions .btn-brand:hover,
+.admin-shell .admin-modal-actions .btn-brand:hover,
+.admin-shell button[type="submit"].btn-brand:hover {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+  border-color: #6ee7b7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+/* 3. NÚT THAO TÁC TRÊN TỪNG HÀNG BẢNG (ACTION DROPDOWN PILL BUTTON) - XANH DƯƠNG / CYAN ĐẬM NÉT */
+.admin-shell .action-dropdown summary.btn,
+.admin-shell .action-btn {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(37, 99, 235, 0.25) 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.6) !important;
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  padding: 6px 14px !important;
+  min-height: 32px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 2px 8px -1px rgba(14, 165, 233, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  cursor: pointer;
+}
+.admin-shell .action-dropdown summary.btn:hover,
+.admin-shell .action-btn:hover {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.38) 0%, rgba(37, 99, 235, 0.42) 100%) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.5) !important;
+  transform: translateY(-1px);
+}
+.admin-shell .action-dropdown[open] summary.btn {
+  background: #0284c7 !important;
+  border-color: #7dd3fc !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.35), 0 4px 14px rgba(2, 132, 199, 0.5) !important;
+}
+
+/* 4. NÚT NGUY HIỂM / XÓA (DANGER) - ĐỎ ĐẬM NÉT */
+.admin-shell .btn-danger,
+.admin-shell .at-btn.no {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.25) 100%) !important;
+  border: 1px solid rgba(248, 113, 113, 0.6) !important;
+  color: #fca5a5 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25) !important;
+}
+.admin-shell .btn-danger:hover,
+.admin-shell .at-btn.no:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+/* 5. NÚT LỌC / TÌM KIẾM TRÊN TOOLBAR */
+.admin-shell .toolbar button[type="submit"] {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border: 1px solid rgba(96, 165, 250, 0.6) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35) !important;
+}
+.admin-shell .toolbar button[type="submit"]:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+/* 6. NÚT SAO CHÉP LINK (COPY) */
+.admin-shell [data-copy] {
+  background: rgba(99, 102, 241, 0.2) !important;
+  border: 1px solid rgba(129, 140, 248, 0.6) !important;
+  color: #c7d2fe !important;
+  font-weight: 700 !important;
+}
+.admin-shell [data-copy]:hover {
+  background: #6366f1 !important;
+  border-color: #a5b4fc !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.45) !important;
+}
+
+/* 7. NÚT ĐIỀU HƯỚNG TRONG BẢNG QUẢN LÝ NỘI DUNG / GIẢI ĐẤU */
+.atable td a.btn:not(.btn-brand):not(.btn-danger) {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  color: #f1f5f9;
+}
+.atable td a.btn:not(.btn-brand):not(.btn-danger):hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
+}
+
+/* 8. NÚT ĐÓNG / HỦY TRONG POPUP MODAL */
+.admin-modal-actions button[data-modal-close],
+.admin-modal-header button[data-modal-close] {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  color: #cbd5e1 !important;
+}
+.admin-modal-actions button[data-modal-close]:hover,
+.admin-modal-header button[data-modal-close]:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+}
