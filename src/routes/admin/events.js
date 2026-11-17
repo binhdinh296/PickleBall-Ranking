@@ -241,6 +241,8 @@ async function readDivision(req) {
   };
   if (!data.name) return { error: 'Vui lòng nhập tên nội dung.', data };
   if (!data.team_type) return { error: 'Vui lòng chọn thể loại nội dung thi đấu.', data };
+  // Nội dung Đơn: không có tổng trình của đôi và không có tiếp sức
+  if (data.team_type === 'single') { data.max_total_points = null; data.relay_legs = 0; }
   const rangeErr = levelRangeError(data.min_player_points, data.max_player_points);
   if (rangeErr) return { error: rangeErr, data };
   const banner = fileOf(req, 'banner');

@@ -1,0 +1,5 @@
+/* Form nội dung thi đấu: tab Tiêu chuẩn trình độ theo Thể loại */
+.df-scope { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); }
+.df-scope .chip { font-size: 12px; padding: 3px 10px; }
+.df-relay { padding: 10px 12px; border: 1px dashed var(--line); border-radius: var(--r-sm); }
+.df-relay > summary { cursor: pointer; }

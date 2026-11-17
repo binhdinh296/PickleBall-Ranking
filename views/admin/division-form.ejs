@@ -44,15 +44,15 @@
         <div class="field">
           <label for="category">Thể loại *</label>
           <select class="input" id="category" name="category" required>
-            <% const curCat = fmt.categoryFromDivision(d); %>
+            <% const curCat = d.id || d.team_type ? fmt.categoryFromDivision(d) : fmt.DEFAULT_CATEGORY; // nội dung mới: mặc định Đôi Hỗn Hợp %>
             <% Object.entries(fmt.CATEGORIES).forEach(([k, c]) => { %>
-              <option value="<%= k %>" <%= (curCat === k || (!d.id && k === fmt.DEFAULT_CATEGORY)) ? 'selected' : '' %>><%= c.name %></option>
+              <option value="<%= k %>" data-type="<%= c.team_type %>" <%= curCat === k ? 'selected' : '' %>><%= c.name %></option>
             <% }) %>
           </select>
           <span class="hint">Tự động cấu hình thể thức Đơn / Đôi và quy định giới tính VĐV.</span>
         </div>
         <div class="field">
-          <label for="max_teams">Số đôi / VĐV tối đa</label>
+          <label for="max_teams"><span data-for="pair">Số đôi tối đa</span><span data-for="single">Số VĐV tối đa</span></label>
           <input class="input" id="max_teams" name="max_teams" inputmode="numeric" value="<%= d.max_teams || '' %>" placeholder="vd: 16">
         </div>
         <div class="field">
@@ -71,45 +71,54 @@
       </div>
     </div>
 
-    <!-- TAB 2: TIÊU CHUẨN TRÌNH ĐỘ & TIẾP SỨC -->
+    <!-- TAB 2: TIÊU CHUẨN TRÌNH ĐỘ — đổi theo Thể loại: Đơn (1 VĐV) / Đôi (2 VĐV) -->
     <div class="admin-tab-pane" id="step-2" hidden>
+      <div class="df-scope">
+        <span class="chip chip-brand" data-cat-name><%= fmt.categoryLabel(d.id ? d : fmt.DEFAULT_CATEGORY) %></span>
+        <span class="small muted"><span data-for="pair">Mỗi đôi 2 VĐV: giới hạn trình từng người và tổng trình của đôi.</span><span data-for="single">Thi đấu cá nhân: chỉ giới hạn trình của từng VĐV.</span></span>
+      </div>
       <div class="form-grid two">
         <div class="field">
-          <label for="max_total_points">
-            Tổng trình tối đa (2 VĐV)
-            <span class="guide-tip" data-tip="Tổng điểm trình của 2 VĐV cộng lại không vượt quá mức này. Có thể nhập số thập phân vd: 5.5, 6.0, 6.5...">?</span>
-          </label>
-          <input class="input tnum" id="max_total_points" name="max_total_points" inputmode="decimal" value="<%= d.max_total_points ? fmt.pts(d.max_total_points) : '' %>" placeholder="Không giới hạn, vd: 6.500">
-        </div>
-        <div class="field">
           <label for="min_player_points">
-            Trình tối thiểu mỗi VĐV
-            <span class="guide-tip" data-tip="Điểm sàn tối thiểu cho từng cá nhân VĐV tham gia nội dung này.">?</span>
+            <span data-for="pair">Trình tối thiểu mỗi VĐV</span><span data-for="single">Trình tối thiểu của VĐV</span>
+            <span class="guide-tip" data-tip="Điểm sàn: VĐV có trình thấp hơn mức này không đăng ký được nội dung.">?</span>
           </label>
           <input class="input tnum" id="min_player_points" name="min_player_points" inputmode="decimal" value="<%= d.min_player_points ? fmt.pts(d.min_player_points) : '' %>" placeholder="Không giới hạn, vd: 2.500">
         </div>
         <div class="field">
           <label for="max_player_points">
-            Trình tối đa mỗi VĐV
-            <span class="guide-tip" data-tip="Điểm trần tối đa cho từng cá nhân VĐV, tránh chênh lệch trình độ quá lớn.">?</span>
+            <span data-for="pair">Trình tối đa mỗi VĐV</span><span data-for="single">Trình tối đa của VĐV</span>
+            <span class="guide-tip" data-tip="Điểm trần: VĐV có trình cao hơn mức này không đăng ký được, tránh chênh lệch trình độ quá lớn.">?</span>
           </label>
           <input class="input tnum" id="max_player_points" name="max_player_points" inputmode="decimal" value="<%= d.max_player_points ? fmt.pts(d.max_player_points) : '' %>" placeholder="Không giới hạn, vd: 3.500">
         </div>
-        <div class="field">
-          <label for="relay_legs">
-            Số chặng tiếp sức (Relay)
-            <span class="guide-tip" data-tip="Dành cho nội dung đồng đội tiếp sức (vd: 5 chặng chạm 55 điểm). Để 0 nếu là thi đấu cặp đôi thông thường.">?</span>
+        <div class="field" data-for="pair">
+          <label for="max_total_points">
+            Tổng trình tối đa của đôi
+            <span class="guide-tip" data-tip="Tổng trình 2 VĐV cộng lại không vượt quá mức này, vd: 5.5, 6.0, 6.5...">?</span>
           </label>
-          <input class="input" id="relay_legs" name="relay_legs" inputmode="numeric" value="<%= d.relay_legs || 0 %>">
-        </div>
-        <div class="field">
-          <label for="relay_step">
-            Điểm mỗi chặng tiếp sức
-            <span class="guide-tip" data-tip="Ví dụ 11 điểm/chặng → các mốc lần lượt là 11 - 22 - 33 - 44 - 55.">?</span>
-          </label>
-          <input class="input" id="relay_step" name="relay_step" inputmode="numeric" value="<%= d.relay_step || 11 %>">
+          <input class="input tnum" id="max_total_points" name="max_total_points" inputmode="decimal" value="<%= d.max_total_points ? fmt.pts(d.max_total_points) : '' %>" placeholder="Không giới hạn, vd: 6.500">
         </div>
       </div>
+      <details class="df-relay" data-for="pair"<%= d.relay_legs ? ' open' : '' %>>
+        <summary class="small link">Thi đấu tiếp sức (nâng cao)</summary>
+        <div class="form-grid two" style="margin-top: 10px;">
+          <div class="field">
+            <label for="relay_legs">
+              Số chặng tiếp sức
+              <span class="guide-tip" data-tip="Dành cho nội dung tiếp sức (vd: 5 chặng chạm 55 điểm). Để 0 nếu thi đấu bình thường.">?</span>
+            </label>
+            <input class="input" id="relay_legs" name="relay_legs" inputmode="numeric" value="<%= d.relay_legs || 0 %>">
+          </div>
+          <div class="field">
+            <label for="relay_step">
+              Điểm mỗi chặng
+              <span class="guide-tip" data-tip="Ví dụ 11 điểm/chặng → các mốc lần lượt là 11 - 22 - 33 - 44 - 55.">?</span>
+            </label>
+            <input class="input" id="relay_step" name="relay_step" inputmode="numeric" value="<%= d.relay_step || 11 %>">
+          </div>
+        </div>
+      </details>
     </div>
 
     <!-- TAB 3: CƠ CẤU GIẢI THƯỞNG -->
@@ -162,4 +171,6 @@
   <% } %>
 </div>
 
+<link rel="stylesheet" href="/static/css/division-form.css?v=<%= locals.assetV || '' %>">
+<script src="/static/js/division-form.js?v=<%= locals.assetV || '' %>" defer></script>
 <%- include('_bottom') %>
