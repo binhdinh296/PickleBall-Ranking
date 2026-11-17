@@ -19,6 +19,7 @@
       <span class="group">Ranking</span>
       <a class="item" href="/admin/vdv" <%- cur('/admin/vdv') %>><%- ip('users') %>Vận động viên</a>
       <a class="item" href="/admin/don-cham-trinh" <%- cur('/admin/don-cham-trinh') %>><%- ip('inbox') %>Đơn chấm trình<% if (locals.pendingSubmissions) { %><span class="badge"><%= pendingSubmissions %></span><% } %></a>
+      <a class="item" href="/admin/lich-su-diem" <%- cur('/admin/lich-su-diem') %>><%- ip('history') %>Lịch sử điểm</a>
       <span class="group">Giải đấu</span>
       <a class="item" href="/admin/giai-dau" <%- path.startsWith('/admin/giai-dau') || path.startsWith('/admin/noi-dung') ? 'aria-current="page"' : '' %>><%- ip('trophy') %>Giải đấu<% if (locals.newRegistrations) { %><span class="badge"><%= newRegistrations %></span><% } %></a>
       <% if (can('admin')) { %><a class="item" href="/admin/ban-to-chuc" <%- cur('/admin/ban-to-chuc') %>><%- ip('key') %>Ban tổ chức</a><% } %>

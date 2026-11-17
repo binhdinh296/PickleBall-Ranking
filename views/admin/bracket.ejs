@@ -1,5 +1,13 @@
 <%- include('_top', { back: `/admin/giai-dau/${d.event_id}` }) %>
 <% const streamsMap = Object.fromEntries(streams.map((s) => [s.id, s])); const ev = { slug: d.event.slug }; %>
+<div class="toolbar" style="margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+  <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/dang-ky"><%- include('../partials/icon', { name: 'users' }) %>Quản lý Đăng ký / VĐV</a>
+  <span class="muted small" style="align-self: center;">·</span>
+  <span class="chip chip-brand">Sơ đồ & Bốc thăm Nhánh đấu</span>
+  <span class="muted small" style="align-self: center;">·</span>
+  <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/vinh-danh"><%- include('../partials/icon', { name: 'trophy' }) %>Trao giải & Vinh danh</a>
+  <a class="btn btn-sm" href="/giai-dau/<%= d.event.slug %>/noi-dung/<%= d.id %>" target="_blank" rel="noopener" style="margin-left: auto;"><%- include('../partials/icon', { name: 'external' }) %>Xem nhánh ngoài web</a>
+</div>
 <div class="grid" style="--min: 320px; align-items: start;">
   <div class="sub-card">
     <h2 class="section-title">1. Đội tham gia (<%= teams.length %>)</h2>

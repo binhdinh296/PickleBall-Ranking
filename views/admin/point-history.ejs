@@ -1,0 +1,91 @@
+<%- include('_top') %>
+<form class="toolbar" method="get" action="/admin/lich-su-diem" data-submit-on-change>
+  <div class="search-field grow">
+    <input class="input" name="q" placeholder="Tìm theo tên VĐV, SĐT hoặc ghi chú..." value="<%= q %>">
+  </div>
+  <select class="input" name="kind" style="width: auto;">
+    <option value="" <%= !kind ? 'selected' : '' %>>Tất cả loại biến động</option>
+    <option value="init" <%= kind === 'init' ? 'selected' : '' %>>Khởi tạo</option>
+    <option value="adjust" <%= kind === 'adjust' ? 'selected' : '' %>>Điều chỉnh thủ công</option>
+    <option value="tournament" <%= kind === 'tournament' ? 'selected' : '' %>>Kết quả giải đấu</option>
+  </select>
+  <button class="btn btn-sm" type="submit">Lọc</button>
+  <% if (q || kind) { %><a class="btn btn-sm" href="/admin/lich-su-diem">Đặt lại</a><% } %>
+</form>
+
+<p class="tiny faint"><%= total %> bản ghi biến động điểm</p>
+
+<% if (!rows.length) { %>
+  <div class="empty">Không có bản ghi biến động điểm nào.</div>
+<% } else { %>
+<div class="table-wrap">
+  <table class="data atable">
+    <thead>
+      <tr>
+        <th class="c-fit">Thời gian</th>
+        <th>Vận động viên</th>
+        <th class="c-fit">Loại</th>
+        <th class="num c-fit">Biến động</th>
+        <th class="num c-fit">Điểm mới</th>
+        <th class="hide-m">Lý do / Giải đấu / Người sửa</th>
+      </tr>
+    </thead>
+    <tbody>
+    <% rows.forEach((h) => {
+      const d = h.new_points - h.old_points;
+      const kindLabel = { init: 'Khởi tạo', adjust: 'Điều chỉnh', tournament: 'Giải đấu' }[h.kind] || h.kind;
+      const kindChip = { init: 'chip-muted', adjust: 'chip-warn', tournament: 'chip-ok' }[h.kind] || '';
+    %>
+      <tr class="at-row">
+        <td class="c-fit c-sub tnum">
+          <%= fmt.dateTimeVN(h.created_at) %>
+        </td>
+        <td class="c-main">
+          <a class="at-who" href="/admin/vdv/<%= h.athlete_id %>">
+            <span class="avatar" style="--s: 32px;"><% if (h.avatar) { %><img src="<%= h.avatar %>" alt=""><% } else { %><span><%= fmt.initials(h.full_name) %></span><% } %></span>
+            <span class="at-name">
+              <strong><%= h.full_name %></strong>
+              <% if (h.nickname) { %><span class="at-meta"><%= h.nickname %></span><% } %>
+            </span>
+          </a>
+        </td>
+        <td class="c-fit">
+          <span class="chip <%= kindChip %>"><%= kindLabel %></span>
+        </td>
+        <td class="num c-fit tnum">
+          <% if (h.kind === 'init') { %>
+            <span class="faint">Bắt đầu</span>
+          <% } else if (d > 0) { %>
+            <b style="color: var(--ok, #10b981); font-weight: 700;">+<%= fmt.pts(d) %></b>
+          <% } else if (d < 0) { %>
+            <b style="color: var(--danger, #ef4444); font-weight: 700;"><%= fmt.pts(d) %></b>
+          <% } else { %>
+            <span class="faint">0.000</span>
+          <% } %>
+        </td>
+        <td class="num c-fit tnum">
+          <strong class="gold-text"><%= fmt.pts(h.new_points) %></strong>
+          <span class="tiny faint" style="display: block;">từ <%= fmt.pts(h.old_points) %></span>
+        </td>
+        <td class="hide-m">
+          <div class="stack" style="--gap: 2px;">
+            <span><%= h.note || (h.event_name ? `Giải: ${h.event_name}` : '—') %></span>
+            <span class="tiny faint">Thực hiện bởi: <%= h.author || 'Hệ thống' %></span>
+          </div>
+        </td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<% if (pages > 1) { %>
+<div class="pagination" style="margin-top: 16px;">
+  <% for (let p = 1; p <= pages; p++) { %>
+    <a class="btn btn-sm <%= p === page ? 'btn-brand' : '' %>" href="?q=<%= encodeURIComponent(q) %>&kind=<%= kind %>&page=<%= p %>"><%= p %></a>
+  <% } %>
+</div>
+<% } %>
+
+<% } %>
+<%- include('_bottom') %>

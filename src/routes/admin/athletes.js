@@ -27,6 +27,45 @@ router.get('/vdv', editor, wrap(async (req, res) => {
   res.render('admin/athletes', { title: 'Vận động viên', rows, q, gender, page: Math.min(page, pages), pages, total });
 }));
 
+// ---- Lịch sử biến động điểm toàn hệ thống ----
+router.get('/lich-su-diem', editor, wrap(async (req, res) => {
+  const q = String(req.query.q || '').trim().slice(0, 80);
+  const kind = ['init', 'adjust', 'tournament'].includes(req.query.kind) ? req.query.kind : '';
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const where = ['TRUE'];
+  const params = [];
+  if (q) {
+    where.push('(a.full_name ILIKE ? OR a.nickname ILIKE ? OR a.phone LIKE ? OR h.note ILIKE ?)');
+    const l = `%${q}%`;
+    params.push(l, l, `%${q.replace(/\D/g, '') || q}%`, l);
+  }
+  if (kind) {
+    where.push('h.kind = ?');
+    params.push(kind);
+  }
+  const total = (await get(`SELECT COUNT(*) AS c FROM point_history h JOIN athletes a ON a.id = h.athlete_id WHERE ${where.join(' AND ')}`, ...params)).c;
+  const pages = Math.max(1, Math.ceil(total / PAGE));
+  const rows = await all(`
+    SELECT h.*, a.full_name, a.nickname, a.avatar, a.gender, e.name AS event_name, e.slug AS event_slug
+    FROM point_history h
+    JOIN athletes a ON a.id = h.athlete_id
+    LEFT JOIN events e ON e.id = h.event_id
+    WHERE ${where.join(' AND ')}
+    ORDER BY h.created_at DESC, h.id DESC
+    LIMIT ? OFFSET ?
+  `, ...params, PAGE, (Math.min(page, pages) - 1) * PAGE);
+
+  res.render('admin/point-history', {
+    title: 'Lịch sử biến động điểm',
+    rows,
+    q,
+    kind,
+    page: Math.min(page, pages),
+    pages,
+    total
+  });
+}));
+
 function athleteForm(res, a, error) {
   res.render('admin/athlete-form', { title: a.id ? `Sửa VĐV: ${a.full_name}` : 'Thêm VĐV', a, error, lock: a.id ? points.lockPoints(a) : null });
 }
