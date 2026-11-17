@@ -1,35 +1,148 @@
 <%- include('_top') %>
-<p class="tiny faint at-count"><%= rows.length %> tài khoản · bấm vào tên để đổi vai trò, khoá hoặc đặt lại mật khẩu</p>
+<p class="tiny faint at-count"><%= rows.length %> tài khoản trong hệ thống</p>
 <div class="table-wrap">
   <table class="data atable">
-    <thead><tr><th>Tài khoản</th><th class="c-fit hide-m">Vai trò</th><th class="c-fit hide-m">Đăng nhập gần nhất</th><th class="c-fit" style="text-align: right;">Trạng thái</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Tài khoản</th>
+        <th class="c-fit hide-m">Vai trò</th>
+        <th class="c-fit hide-m">Đăng nhập gần nhất</th>
+        <th class="c-fit" style="text-align: center;">Trạng thái</th>
+        <th class="c-act" style="text-align: right;">Thao tác</th>
+      </tr>
+    </thead>
     <tbody>
     <% rows.forEach((u) => { const me = u.id === user.id; %>
       <tr class="at-row">
-        <td class="c-main"><<%= me ? 'div' : 'button type="button"' %> class="at-who" <% if (!me) { %>data-row-toggle aria-expanded="false" aria-controls="u<%= u.id %>"<% } %>><span class="at-name">
-          <strong><%= u.display_name %> <small>@<%= u.username %></small></strong>
-          <span class="at-meta show-m"><%= fmt.ROLE_LABEL[u.role] %> · @<%= u.username %></span>
-        </span></<%= me ? 'div' : 'button' %>></td>
+        <td class="c-main">
+          <div class="at-who">
+            <span class="at-name">
+              <strong><%= u.display_name %> <small>@<%= u.username %></small></strong>
+              <span class="at-meta show-m"><%= fmt.ROLE_LABEL[u.role] %> · @<%= u.username %></span>
+            </span>
+          </div>
+        </td>
         <td class="c-fit c-sub hide-m"><%= fmt.ROLE_LABEL[u.role] %></td>
         <td class="c-fit c-sub tnum hide-m"><%= u.last_login_at ? fmt.dateTimeVN(u.last_login_at) : '—' %></td>
-        <td class="c-fit" style="text-align: right;"><% if (me) { %><span class="chip chip-brand">Bạn</span><% } else { %><span class="chip <%= u.active ? 'chip-ok' : 'chip-muted' %>"><%= u.active ? 'Hoạt động' : 'Đã khoá' %></span><% } %></td>
+        <td class="c-fit" style="text-align: center;">
+          <% if (me) { %>
+            <span class="chip chip-brand">Bạn</span>
+          <% } else { %>
+            <span class="chip <%= u.active ? 'chip-ok' : 'chip-muted' %>"><%= u.active ? 'Hoạt động' : 'Đã khoá' %></span>
+          <% } %>
+        </td>
+        <td class="c-act" style="text-align: right; vertical-align: middle;">
+          <% if (me) { %>
+            <span class="tiny faint">—</span>
+          <% } else { %>
+            <details class="action-dropdown">
+              <summary class="btn btn-sm" aria-label="Thao tác cho <%= u.username %>">
+                <span>Thao tác</span> <span style="font-size: 10px; opacity: 0.7;">▾</span>
+              </summary>
+              <div class="dropdown-pop">
+                <button type="button" class="dropdown-item" data-modal-target="modal-user-edit-<%= u.id %>">
+                  <%- include('../partials/icon', { name: 'edit' }) %>
+                  <span>Đổi vai trò</span>
+                </button>
+                <button type="button" class="dropdown-item" data-modal-target="modal-user-pass-<%= u.id %>">
+                  <%- include('../partials/icon', { name: 'key' }) %>
+                  <span>Đặt lại mật khẩu</span>
+                </button>
+                <div class="dropdown-divider"></div>
+                <button type="button" class="dropdown-item <%= u.active ? 'text-danger' : 'text-ok' %>" data-modal-target="modal-user-toggle-<%= u.id %>">
+                  <%- include('../partials/icon', { name: 'shield' }) %>
+                  <span><%= u.active ? 'Khóa tài khoản' : 'Mở khóa tài khoản' %></span>
+                </button>
+              </div>
+            </details>
+          <% } %>
+        </td>
       </tr>
-      <% if (!me) { %>
-      <tr class="at-detail" id="u<%= u.id %>" hidden>
-        <td colspan="4"><div class="at-detail-in">
-          <span class="tiny faint show-m"><%= u.last_login_at ? `Đăng nhập gần nhất ${fmt.dateTimeVN(u.last_login_at)}` : 'Chưa đăng nhập' %></span>
-          <div class="row" style="--gap: 8px;">
-            <form class="row inline-form" method="post" action="/admin/nguoi-dung/<%= u.id %>" style="--gap: 6px; flex-wrap: nowrap;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="role"><select class="input" name="role" aria-label="Vai trò" style="min-height: 38px; width: auto;"><% Object.entries(fmt.ROLE_LABEL).forEach(([k, l]) => { %><option value="<%= k %>" <%= u.role === k ? 'selected' : '' %>><%= l %></option><% }) %></select><button class="btn btn-sm" type="submit">Đổi vai trò</button></form>
-            <form class="inline-form" method="post" action="/admin/nguoi-dung/<%= u.id %>" data-confirm="<%= u.active ? 'Khóa' : 'Mở khóa' %> tài khoản <%= u.username %>?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="toggle"><button class="btn btn-sm <%= u.active ? 'btn-danger' : '' %>" type="submit"><%= u.active ? 'Khóa' : 'Mở khóa' %></button></form>
-          </div>
-          <form class="row" method="post" action="/admin/nguoi-dung/<%= u.id %>" style="--gap: 8px; flex-wrap: nowrap;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="reset"><input class="input" type="password" name="password" autocomplete="new-password" placeholder="Mật khẩu mới" aria-label="Mật khẩu mới cho <%= u.username %>" style="flex: 1; min-width: 0; min-height: 40px;"><button class="btn btn-sm" type="submit">Đặt lại</button></form>
-        </div></td>
-      </tr>
-      <% } %>
     <% }) %>
     </tbody>
   </table>
 </div>
+
+<!-- MODALS QUẢN LÝ TÀI KHOẢN -->
+<% rows.forEach((u) => { const me = u.id === user.id; if (!me) { %>
+  <!-- Modal 1: Đổi vai trò -->
+  <div class="admin-modal" id="modal-user-edit-<%= u.id %>" role="dialog" aria-modal="true" aria-labelledby="modal-role-title-<%= u.id %>">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 id="modal-role-title-<%= u.id %>" style="margin: 0; font-size: 16px;">Đổi vai trò: <%= u.display_name %> (@<%= u.username %>)</h3>
+        <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
+      </div>
+      <form method="post" action="/admin/nguoi-dung/<%= u.id %>">
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+        <input type="hidden" name="action" value="role">
+        <div class="admin-modal-body">
+          <div class="field">
+            <label for="role-select-<%= u.id %>">Chọn vai trò mới</label>
+            <select class="input" id="role-select-<%= u.id %>" name="role">
+              <% Object.entries(fmt.ROLE_LABEL).forEach(([k, l]) => { %>
+                <option value="<%= k %>" <%= u.role === k ? 'selected' : '' %>><%= l %></option>
+              <% }) %>
+            </select>
+            <span class="hint" style="margin-top: 6px;">Biên tập viên: quản lý VĐV, giải đấu. Trọng tài: chỉ nhập điểm số. Quản trị viên: toàn quyền hệ thống.</span>
+          </div>
+        </div>
+        <div class="admin-modal-actions">
+          <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
+          <button type="submit" class="btn btn-sm btn-brand">Lưu vai trò</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Đặt lại mật khẩu -->
+  <div class="admin-modal" id="modal-user-pass-<%= u.id %>" role="dialog" aria-modal="true" aria-labelledby="modal-pass-title-<%= u.id %>">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 id="modal-pass-title-<%= u.id %>" style="margin: 0; font-size: 16px;">Đặt lại mật khẩu: <%= u.display_name %> (@<%= u.username %>)</h3>
+        <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
+      </div>
+      <form method="post" action="/admin/nguoi-dung/<%= u.id %>">
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+        <input type="hidden" name="action" value="reset">
+        <div class="admin-modal-body">
+          <div class="field">
+            <label for="pass-<%= u.id %>">Mật khẩu mới</label>
+            <input class="input" type="password" id="pass-<%= u.id %>" name="password" autocomplete="new-password" required minlength="10" placeholder="Tối thiểu 10 ký tự">
+            <span class="hint" style="margin-top: 6px;">Sau khi đặt lại, tài khoản sẽ phải đăng nhập bằng mật khẩu mới này.</span>
+          </div>
+        </div>
+        <div class="admin-modal-actions">
+          <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
+          <button type="submit" class="btn btn-sm btn-brand">Cập nhật mật khẩu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Khóa / Mở khóa -->
+  <div class="admin-modal" id="modal-user-toggle-<%= u.id %>" role="dialog" aria-modal="true">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 style="margin: 0; font-size: 16px;"><%= u.active ? 'Khóa tài khoản' : 'Mở khóa tài khoản' %></h3>
+        <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
+      </div>
+      <div class="admin-modal-body">
+        <p>Bạn có chắc chắn muốn <%= u.active ? 'khóa' : 'mở khóa' %> tài khoản <strong><%= u.display_name %></strong> (@<%= u.username %>)?</p>
+        <% if (u.active) { %>
+          <p class="small text-danger">Tài khoản bị khóa sẽ lập tức bị đăng xuất khỏi tất cả thiết bị và không thể đăng nhập cho đến khi được mở khóa lại.</p>
+        <% } %>
+      </div>
+      <div class="admin-modal-actions">
+        <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
+        <form method="post" action="/admin/nguoi-dung/<%= u.id %>" style="margin: 0;">
+          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+          <input type="hidden" name="action" value="toggle">
+          <button type="submit" class="btn btn-sm <%= u.active ? 'btn-danger' : 'btn-brand' %>"><%= u.active ? 'Xác nhận khóa' : 'Xác nhận mở khóa' %></button>
+        </form>
+      </div>
+    </div>
+  </div>
+<% } }) %>
 <form class="card card-pad form" method="post" action="/admin/nguoi-dung" style="max-width: 720px;">
   <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
   <h2 class="section-title">Tạo tài khoản</h2>

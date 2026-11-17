@@ -11,17 +11,17 @@
   </button>
 </div>
 
-<!-- Card hướng dẫn rút gọn tối ưu diện tích -->
+<!-- Card hướng dẫn rút gọn -->
 <div class="card card-pad" style="background: var(--surface-2, rgba(255,255,255,0.02)); border-left: 3px solid var(--accent, #f59e0b); padding: 10px 14px; margin-bottom: 14px;">
   <div class="row small muted" style="--gap: 8px; flex-wrap: wrap; align-items: center;">
-    <span><strong>Quy chế phân quyền:</strong> Mỗi đơn vị có <strong>Link đăng ký VĐV</strong> (công khai: <code class="tnum">/<%= origin %>/mã/dangky</code>) và <strong>Link quản trị giải</strong> (gửi riêng người phụ trách BTC). Giải tạo xong sẽ ở trạng thái Chờ duyệt cho đến khi bạn bấm <strong>Duyệt & công khai</strong>.</span>
+    <span><strong>Quy chế phân quyền:</strong> Mỗi đơn vị có <strong>Link đăng ký VĐV</strong> (công khai: <code class="tnum"><%= origin %>/mã/dangky</code>) và <strong>Link quản trị giải</strong> (gửi riêng BTC). Giải tạo xong sẽ ở trạng thái Chờ duyệt cho đến khi bạn bấm <strong>Duyệt & công khai</strong>.</span>
   </div>
 </div>
 
 <!-- Form tạo Ban tổ chức mới (gập mở) -->
 <details class="card card-pad stack" id="new-org-details" style="--gap: 12px; margin-bottom: 16px;" <%= (locals.error || !rows.length) ? 'open' : '' %>>
   <summary class="section-title" style="cursor: pointer; user-select: none;">
-    <span>+ Thêm đơn vị Ban tổ chức mới & Cấp link quản trị</span>
+    <span>+ Thêm đơn vị Ban tổ chức mới &amp; Cấp link quản trị</span>
   </summary>
   <% if (locals.error) { %><div class="alert alert-error" style="margin-top: 8px;"><%= error %></div><% } %>
   <form class="form" method="post" action="/admin/ban-to-chuc" style="gap: 12px; margin-top: 8px;">
@@ -136,13 +136,14 @@
           </div>
         </td>
 
+        <!-- CỘT THAO TÁC: NÚT OPTION DROPDOWN DUY NHẤT -->
         <td class="c-act" style="vertical-align: middle; text-align: right;">
           <details class="action-dropdown">
             <summary class="btn btn-sm" aria-label="Thao tác cho <%= o.name %>">
               <span>Thao tác</span> <span style="font-size: 10px; opacity: 0.7;">▾</span>
             </summary>
             <div class="dropdown-pop">
-              <button type="button" class="dropdown-item" data-row-toggle aria-expanded="false" aria-controls="edit-org-<%= o.id %>">
+              <button type="button" class="dropdown-item" data-modal-target="modal-edit-org-<%= o.id %>">
                 <%- include('../partials/icon', { name: 'edit' }) %>
                 <span>Sửa thông tin</span>
               </button>
@@ -177,58 +178,60 @@
           </details>
         </td>
       </tr>
-
-      <!-- Hàng chỉnh sửa trực tiếp dạng inline collapsible -->
-      <tr class="at-detail" id="edit-org-<%= o.id %>" hidden>
-        <td colspan="5">
-          <div class="at-detail-in" style="background: var(--surface-2, rgba(255,255,255,0.02)); border-radius: 8px; padding: 14px;">
-            <form class="form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/sua" style="gap: 12px;">
-              <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-              <div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <strong style="font-size: 14px; color: var(--brand);">Chỉnh sửa đơn vị: <%= o.name %></strong>
-                <button type="button" class="btn btn-sm" data-row-toggle aria-expanded="true" aria-controls="edit-org-<%= o.id %>">Đóng ✕</button>
-              </div>
-
-              <div class="form-grid two">
-                <div class="field">
-                  <label for="name-<%= o.id %>">Tên đơn vị tổ chức *</label>
-                  <input class="input" id="name-<%= o.id %>" name="name" required maxlength="150" value="<%= o.name %>">
-                </div>
-                <div class="field">
-                  <label for="code-<%= o.id %>">Mã giải (link đăng ký) *</label>
-                  <input class="input" id="code-<%= o.id %>" name="code" required maxlength="40" value="<%= o.code || '' %>">
-                  <span class="hint">Đổi mã thì link đăng ký cũ ngừng hoạt động.</span>
-                </div>
-                <div class="field">
-                  <label for="contact-<%= o.id %>">Người liên hệ</label>
-                  <input class="input" id="contact-<%= o.id %>" name="contact_name" maxlength="100" value="<%= o.contact_name || '' %>">
-                </div>
-                <div class="field">
-                  <label for="phone-<%= o.id %>">SĐT liên hệ</label>
-                  <input class="input" id="phone-<%= o.id %>" name="phone" inputmode="tel" value="<%= o.phone || '' %>">
-                </div>
-                <div class="field">
-                  <label for="exp-<%= o.id %>">Hết hạn link quản trị</label>
-                  <input class="input" type="date" id="exp-<%= o.id %>" name="expires_at" value="<%= dateInput(o.expires_at) %>">
-                  <span class="hint">Để trống: Không giới hạn thời hạn.</span>
-                </div>
-                <div class="field">
-                  <label for="note-<%= o.id %>">Ghi chú nội bộ</label>
-                  <input class="input" id="note-<%= o.id %>" name="note" maxlength="1000" value="<%= o.note || '' %>">
-                </div>
-              </div>
-
-              <div class="row" style="justify-content: flex-end; --gap: 8px;">
-                <button class="btn btn-brand btn-sm" type="submit">Lưu thông tin</button>
-              </div>
-            </form>
-          </div>
-        </td>
-      </tr>
     <% }) %>
     </tbody>
   </table>
 </div>
+
+<!-- POPUP MODALS CHỈNH SỬA CHO TỪNG ĐƠN VỊ -->
+<% rows.forEach((o) => { %>
+<div class="admin-modal" id="modal-edit-org-<%= o.id %>" role="dialog" aria-modal="true" aria-labelledby="modal-title-org-<%= o.id %>">
+  <div class="admin-modal-content">
+    <div class="admin-modal-header">
+      <h3 id="modal-title-org-<%= o.id %>">Sửa thông tin đơn vị: <%= o.name %></h3>
+      <button type="button" class="admin-modal-close-btn" data-modal-close aria-label="Đóng popup">✕</button>
+    </div>
+    <form class="form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/sua">
+      <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+      <div class="admin-modal-body stack" style="--gap: 12px;">
+        <div class="form-grid two">
+          <div class="field">
+            <label for="name-<%= o.id %>">Tên đơn vị tổ chức *</label>
+            <input class="input" id="name-<%= o.id %>" name="name" required maxlength="150" value="<%= o.name %>">
+          </div>
+          <div class="field">
+            <label for="code-<%= o.id %>">Mã giải (link đăng ký) *</label>
+            <input class="input" id="code-<%= o.id %>" name="code" required maxlength="40" value="<%= o.code || '' %>">
+            <span class="hint">Đổi mã thì link đăng ký cũ ngừng hoạt động.</span>
+          </div>
+          <div class="field">
+            <label for="contact-<%= o.id %>">Người liên hệ</label>
+            <input class="input" id="contact-<%= o.id %>" name="contact_name" maxlength="100" value="<%= o.contact_name || '' %>">
+          </div>
+          <div class="field">
+            <label for="phone-<%= o.id %>">SĐT liên hệ</label>
+            <input class="input" id="phone-<%= o.id %>" name="phone" inputmode="tel" value="<%= o.phone || '' %>">
+          </div>
+          <div class="field">
+            <label for="exp-<%= o.id %>">Hết hạn link quản trị</label>
+            <input class="input" type="date" id="exp-<%= o.id %>" name="expires_at" value="<%= dateInput(o.expires_at) %>">
+            <span class="hint">Để trống: Không giới hạn thời hạn.</span>
+          </div>
+          <div class="field">
+            <label for="note-<%= o.id %>">Ghi chú nội bộ</label>
+            <input class="input" id="note-<%= o.id %>" name="note" maxlength="1000" value="<%= o.note || '' %>">
+          </div>
+        </div>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
+        <button class="btn btn-brand btn-sm" type="submit">Lưu thông tin</button>
+      </div>
+    </form>
+  </div>
+</div>
+<% }) %>
+
 <% } %>
 
 <%- include('_bottom') %>

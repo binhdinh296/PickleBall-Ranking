@@ -20,7 +20,7 @@
 <div class="toolbar">
   <form method="get" action="/admin/livestream" class="row grow" style="--gap: 8px; flex-wrap: nowrap;">
     <label class="sr-only" for="giai">Giải</label>
-    <select class="input" id="giai" name="giai" style="flex: 1; min-width: 0;" onchange="this.form.submit()">
+    <select class="input" id="giai" name="giai" style="flex: 1; min-width: 0;" data-auto-submit>
       <option value="all" <%= !eventId ? 'selected' : '' %>>Tất cả giải đấu (toàn bộ video livestream)</option>
       <% events.forEach((e) => { %>
         <option value="<%= e.id %>" <%= e.id === eventId ? 'selected' : '' %>><%= e.name %></option>

@@ -208,8 +208,39 @@ document.addEventListener('click', function (e) {
   });
 })();
 
-// ---- Đóng Action Dropdown và xử lý data-toggle-target tuân thủ CSP ----
+// ---- Modal Popup và Action Dropdown tuân thủ CSP ----
 document.addEventListener('click', function (e) {
+  // 1. Mở Modal Popup qua [data-modal-target]
+  var modalOpenBtn = e.target.closest('[data-modal-target]');
+  if (modalOpenBtn) {
+    var modalId = modalOpenBtn.getAttribute('data-modal-target');
+    var modalEl = document.getElementById(modalId);
+    if (modalEl) {
+      modalEl.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      var parentDetails = modalOpenBtn.closest('details.action-dropdown');
+      if (parentDetails) parentDetails.removeAttribute('open');
+    }
+    return;
+  }
+
+  // 2. Đóng Modal Popup qua [data-modal-close] hoặc click ra vùng nền backdrop
+  var modalCloseBtn = e.target.closest('[data-modal-close]');
+  if (modalCloseBtn) {
+    var targetModal = modalCloseBtn.closest('.admin-modal');
+    if (targetModal) {
+      targetModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    return;
+  }
+  if (e.target.classList && e.target.classList.contains('admin-modal')) {
+    e.target.classList.remove('open');
+    document.body.style.overflow = '';
+    return;
+  }
+
+  // 3. Xử lý [data-toggle-target]
   var toggleBtn = e.target.closest('[data-toggle-target]');
   if (toggleBtn) {
     var targetId = toggleBtn.getAttribute('data-toggle-target');
@@ -226,19 +257,53 @@ document.addEventListener('click', function (e) {
     return;
   }
 
+  // 4. Click item bên trong Action Dropdown: tự đóng dropdown
   var item = e.target.closest('.dropdown-pop button, .dropdown-pop a');
   if (item) {
-    var parentDetails = item.closest('details.action-dropdown');
-    if (parentDetails) parentDetails.removeAttribute('open');
+    var detailsEl = item.closest('details.action-dropdown');
+    if (detailsEl) detailsEl.removeAttribute('open');
   }
 
+  // 5. Đóng Action Dropdown khi click ra ngoài
   var openDropdowns = document.querySelectorAll('details.action-dropdown[open]');
   openDropdowns.forEach(function (d) {
     if (!d.contains(e.target)) d.removeAttribute('open');
   });
 });
+
+// ---- Xử lý change event: auto-submit và bracket mode switcher ----
+document.addEventListener('change', function (e) {
+  // 1. Tự động submit form khi chọn dropdown có [data-auto-submit]
+  if (e.target && e.target.matches('select[data-auto-submit]')) {
+    if (e.target.form) e.target.form.submit();
+  }
+
+  // 2. Chuyển đổi giữa Option 1 (Knockout) và Option 2 (Chia bảng)
+  if (e.target && e.target.matches('input[name="bracket_mode"][data-bracket-mode]')) {
+    var mode = e.target.getAttribute('data-bracket-mode');
+    var optKo = document.getElementById('opt-ko');
+    var optGroups = document.getElementById('opt-groups');
+    if (optKo && optGroups) {
+      if (mode === 'groups_knockout') {
+        optKo.style.display = 'none';
+        optGroups.style.display = 'block';
+      } else {
+        optKo.style.display = 'block';
+        optGroups.style.display = 'none';
+      }
+    }
+  }
+});
+
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') {
+    // Đóng Modal Popup đang mở
+    var openModal = document.querySelector('.admin-modal.open');
+    if (openModal) {
+      openModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    // Đóng Action Dropdowns
     document.querySelectorAll('details.action-dropdown[open]').forEach(function (d) {
       d.removeAttribute('open');
     });

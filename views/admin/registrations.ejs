@@ -45,12 +45,41 @@
           <td class="num c-fit tnum"><b style="font-size: 15px;"><%= total(r) %></b></td>
           <td class="c-fit hide-m"><span class="chip <%= tone(r.status) %>"><%= fmt.REG_STATUS_LABEL[r.status] %></span></td>
           <td class="c-act" style="text-align: right; vertical-align: middle;">
-            <div class="row" style="--gap: 4px; justify-content: flex-end;">
-              <% if (r.status !== 'approved') { %><button class="btn btn-sm btn-brand" type="submit" name="status" value="approved" formaction="/admin/dang-ky/<%= r.id %>/trang-thai" title="Duyệt đơn"><%- ip('check') %> Duyệt</button><% } %>
-              <% if (r.status !== 'rejected') { %><button class="btn btn-sm" type="submit" name="status" value="rejected" formaction="/admin/dang-ky/<%= r.id %>/trang-thai" title="Từ chối"><%- ip('close') %> Từ chối</button><% } %>
-              <% if (r.status !== 'new') { %><button class="btn btn-sm" type="submit" name="status" value="new" formaction="/admin/dang-ky/<%= r.id %>/trang-thai" title="Về Mới">Về Mới</button><% } %>
-              <button class="btn btn-sm btn-danger" type="submit" formaction="/admin/dang-ky/<%= r.id %>/xoa" data-confirm-one="Xoá đăng ký của <%= r.name1 %> / <%= r.name2 %>?" title="Xoá đăng ký">Xoá</button>
-            </div>
+            <details class="action-dropdown">
+              <summary class="btn btn-sm" aria-label="Thao tác cho <%= r.name1 %> / <%= r.name2 %>">
+                <span>Thao tác</span> <span style="font-size: 10px; opacity: 0.7;">▾</span>
+              </summary>
+              <div class="dropdown-pop">
+                <button type="button" class="dropdown-item" data-modal-target="modal-reg-<%= r.id %>">
+                  <%- ip('edit') %>
+                  <span>Chi tiết &amp; Ghi chú</span>
+                </button>
+                <div class="dropdown-divider"></div>
+                <% if (r.status !== 'approved') { %>
+                  <button type="button" class="dropdown-item text-ok" data-modal-target="modal-reg-approve-<%= r.id %>">
+                    <%- ip('check') %>
+                    <span>Duyệt đơn</span>
+                  </button>
+                <% } %>
+                <% if (r.status !== 'rejected') { %>
+                  <button type="button" class="dropdown-item text-danger" data-modal-target="modal-reg-reject-<%= r.id %>">
+                    <%- ip('close') %>
+                    <span>Từ chối</span>
+                  </button>
+                <% } %>
+                <% if (r.status !== 'new') { %>
+                  <button type="button" class="dropdown-item" data-modal-target="modal-reg-reset-<%= r.id %>">
+                    <%- ip('refresh') %>
+                    <span>Về Mới</span>
+                  </button>
+                <% } %>
+                <div class="dropdown-divider"></div>
+                <button type="button" class="dropdown-item text-danger" data-modal-target="modal-reg-delete-<%= r.id %>">
+                  <%- ip('trash') %>
+                  <span>Xóa đăng ký</span>
+                </button>
+              </div>
+            </details>
           </td>
         </tr>
       <% }) %>
@@ -63,6 +92,158 @@
     <button class="btn btn-brand btn-sm" type="submit" name="action" value="approve" data-bulk-action data-bulk-confirm="Duyệt {n} đội đã chọn?" disabled>Duyệt đã chọn</button>
   </div>
 </form>
+
+<!-- MODALS CHO CÁC THAO TÁC ĐĂNG KÝ -->
+<% regs.forEach((r, i) => { %>
+  <!-- Modal 1: Chi tiết & Ghi chú -->
+  <div class="admin-modal" id="modal-reg-<%= r.id %>" role="dialog" aria-modal="true" aria-labelledby="reg-title-<%= r.id %>">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 id="reg-title-<%= r.id %>" style="margin: 0; font-size: 16px;">Chi tiết đăng ký #<%= i + 1 %>: <%= r.name1 %> &amp; <%= r.name2 %></h3>
+        <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
+      </div>
+      <div class="admin-modal-body">
+        <div class="stack" style="--gap: 12px;">
+          <div class="sub-card" style="margin: 0;">
+            <div class="form-grid two">
+              <div>
+                <span class="tiny faint">VĐV 1:</span>
+                <div><strong><%= r.name1 %></strong> (<%= r.points1 ? fmt.pts(r.points1) : '?' %>)</div>
+                <div class="small muted tnum"><%= r.phone1 || 'Chưa có SĐT' %></div>
+              </div>
+              <div>
+                <span class="tiny faint">VĐV 2:</span>
+                <div><strong><%= r.name2 %></strong> (<%= r.points2 ? fmt.pts(r.points2) : '?' %>)</div>
+                <div class="small muted tnum"><%= r.phone2 || 'Chưa có SĐT' %></div>
+              </div>
+            </div>
+            <div class="row small muted" style="--gap: 16px; margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 6px;">
+              <span>Tổng điểm: <b class="tnum"><%= total(r) %></b></span>
+              <span>Trạng thái: <span class="chip <%= tone(r.status) %>"><%= fmt.REG_STATUS_LABEL[r.status] %></span></span>
+              <span>Ngày gửi: <b class="tnum"><%= fmt.dateTimeVN(r.created_at) %></b></span>
+            </div>
+          </div>
+
+          <form method="post" action="/admin/dang-ky/<%= r.id %>/trang-thai">
+            <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+            <div class="stack" style="--gap: 10px;">
+              <div class="field">
+                <label for="status-<%= r.id %>">Cập nhật trạng thái</label>
+                <select class="input" id="status-<%= r.id %>" name="status">
+                  <option value="new" <%= r.status === 'new' ? 'selected' : '' %>>Mới (Chờ duyệt)</option>
+                  <option value="approved" <%= r.status === 'approved' ? 'selected' : '' %>>Đã duyệt</option>
+                  <option value="rejected" <%= r.status === 'rejected' ? 'selected' : '' %>>Từ chối</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="note-<%= r.id %>">Ghi chú quản trị</label>
+                <textarea class="input" id="note-<%= r.id %>" name="note" rows="2" placeholder="Ghi chú nội bộ, vd: đã nộp lệ phí, check CCCD..."><%= r.admin_note || '' %></textarea>
+              </div>
+              <div class="admin-modal-actions">
+                <button type="button" class="btn btn-sm" data-modal-close>Đóng</button>
+                <button type="submit" class="btn btn-sm btn-brand">Lưu thay đổi</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Duyệt đơn -->
+  <% if (r.status !== 'approved') { %>
+  <div class="admin-modal" id="modal-reg-approve-<%= r.id %>" role="dialog" aria-modal="true">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 style="margin: 0; font-size: 16px;">Duyệt đăng ký</h3>
+        <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
+      </div>
+      <div class="admin-modal-body">
+        <p>Xác nhận duyệt cho cặp đôi: <strong><%= r.name1 %></strong> &amp; <strong><%= r.name2 %></strong> (Tổng điểm: <b class="tnum"><%= total(r) %></b>)?</p>
+      </div>
+      <div class="admin-modal-actions">
+        <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
+        <form method="post" action="/admin/dang-ky/<%= r.id %>/trang-thai" style="margin: 0;">
+          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+          <input type="hidden" name="status" value="approved">
+          <button type="submit" class="btn btn-sm btn-brand">Xác nhận duyệt</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Modal 3: Từ chối đơn -->
+  <% if (r.status !== 'rejected') { %>
+  <div class="admin-modal" id="modal-reg-reject-<%= r.id %>" role="dialog" aria-modal="true">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 style="margin: 0; font-size: 16px;">Từ chối đăng ký</h3>
+        <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
+      </div>
+      <form method="post" action="/admin/dang-ky/<%= r.id %>/trang-thai">
+        <div class="admin-modal-body">
+          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+          <input type="hidden" name="status" value="rejected">
+          <p>Từ chối đăng ký của cặp đôi <strong><%= r.name1 %></strong> &amp; <strong><%= r.name2 %></strong>?</p>
+          <div class="field" style="margin-top: 10px;">
+            <label for="reject-note-<%= r.id %>">Lý do từ chối (tùy chọn)</label>
+            <input class="input" id="reject-note-<%= r.id %>" name="note" placeholder="Vd: Vượt quá giới hạn điểm, chưa đóng lệ phí..." value="<%= r.admin_note || '' %>">
+          </div>
+        </div>
+        <div class="admin-modal-actions">
+          <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
+          <button type="submit" class="btn btn-sm btn-danger">Xác nhận từ chối</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Modal 4: Về Mới -->
+  <% if (r.status !== 'new') { %>
+  <div class="admin-modal" id="modal-reg-reset-<%= r.id %>" role="dialog" aria-modal="true">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 style="margin: 0; font-size: 16px;">Chuyển về trạng thái Mới</h3>
+        <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
+      </div>
+      <div class="admin-modal-body">
+        <p>Chuyển đơn của <strong><%= r.name1 %></strong> &amp; <strong><%= r.name2 %></strong> về trạng thái Mới (Chờ duyệt)?</p>
+      </div>
+      <div class="admin-modal-actions">
+        <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
+        <form method="post" action="/admin/dang-ky/<%= r.id %>/trang-thai" style="margin: 0;">
+          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+          <input type="hidden" name="status" value="new">
+          <button type="submit" class="btn btn-sm btn-brand">Chuyển về Mới</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Modal 5: Xóa đăng ký -->
+  <div class="admin-modal" id="modal-reg-delete-<%= r.id %>" role="dialog" aria-modal="true">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3 style="margin: 0; font-size: 16px;">Xóa đơn đăng ký</h3>
+        <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
+      </div>
+      <div class="admin-modal-body">
+        <p>Xác nhận xóa vĩnh viễn đơn đăng ký của <strong><%= r.name1 %></strong> &amp; <strong><%= r.name2 %></strong>?</p>
+        <p class="small text-danger">Thao tác này không thể hoàn tác.</p>
+      </div>
+      <div class="admin-modal-actions">
+        <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
+        <form method="post" action="/admin/dang-ky/<%= r.id %>/xoa" style="margin: 0;">
+          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-sm btn-danger">Xóa vĩnh viễn</button>
+        </form>
+      </div>
+    </div>
+  </div>
+<% }) %>
 <% } %>
 <form class="card card-pad form" method="post" action="/admin/noi-dung/<%= d.id %>/dang-ky">
   <input type="hidden" name="csrf_token" value="<%= csrfToken %>">

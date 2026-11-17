@@ -12,8 +12,8 @@ const editor = requireRole('editor');
 const referee = requireRole('referee');
 const intOrNull = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : null; };
 const isOrganizer = (req) => req.session.user.role === 'organizer';
-// Ô chọn trình (thang 1.0 … 5.5+); giữ được giá trị cũ ngoài thang (vd. 3200) nếu không đổi
-const levelOrPoints = (v) => fmt.parseLevel(v) ?? (/^\d{3,5}$/.test(String(v ?? '').trim()) ? parseInt(v, 10) : null);
+// Nhập trình VĐV tự do (vd. 2.5, 2.75, 3200) hoặc theo thang chuẩn
+const levelOrPoints = (v) => fmt.parsePoints(v) ?? fmt.parseLevel(v);
 const levelRangeError = (min, max) => (min && max && min > max ? 'Trình tối thiểu không được lớn hơn trình tối đa.' : null);
 
 async function loadEvent(id) {
@@ -102,8 +102,8 @@ async function readNewDivisions(req) {
   for (const r of rows) {
     if (!r.name) return { error: 'Mỗi nội dung thi đấu cần có tên (ví dụ "Đôi nam Newbie").', rows };
     r.max_total_points = fmt.parsePoints(r.max_total);
-    r.min_player_points = fmt.parseLevel(r.min_player);
-    r.max_player_points = fmt.parseLevel(r.max_player);
+    r.min_player_points = levelOrPoints(r.min_player);
+    r.max_player_points = levelOrPoints(r.max_player);
     if (r.max_total && r.max_total_points === null) return { error: `Nội dung "${r.name}": tổng trình không hợp lệ, ví dụ 6.5 hoặc 6.500.`, rows };
     const rangeErr = levelRangeError(r.min_player_points, r.max_player_points);
     if (rangeErr) return { error: `Nội dung "${r.name}": ${rangeErr.toLowerCase()}`, rows };

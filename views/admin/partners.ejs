@@ -59,7 +59,7 @@
       </tr>
     </thead>
     <tbody>
-    <% rows.forEach((p, idx) => { %>
+    <% rows.forEach((p) => { %>
       <tr class="at-row">
         <td class="c-fit" style="vertical-align: middle; text-align: center;">
           <div style="width: 76px; height: 38px; border-radius: 6px; border: 1px solid var(--line); background: #ffffff; display: inline-flex; align-items: center; justify-content: center; padding: 3px; overflow: hidden;">
@@ -98,72 +98,81 @@
           </span>
         </td>
 
+        <!-- CỘT THAO TÁC: NÚT OPTION DROPDOWN DUY NHẤT -->
         <td class="c-act" style="vertical-align: middle; text-align: right;">
-          <div class="row" style="--gap: 6px; justify-content: flex-end;">
-            <button type="button" class="btn btn-sm" data-row-toggle aria-expanded="false" aria-controls="edit-p<%= p.id %>">
-              <%- include('../partials/icon', { name: 'edit' }) %>Sửa
-            </button>
-            <form class="inline-form" method="post" action="/admin/doi-tac/<%= p.id %>/xoa" data-confirm="Xoá vĩnh viễn đối tác &quot;<%= p.name %>&quot;?">
-              <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-              <button class="btn btn-sm btn-danger" type="submit" title="Xóa đối tác">
-                <%- include('../partials/icon', { name: 'close' }) %>Xóa
+          <details class="action-dropdown">
+            <summary class="btn btn-sm" aria-label="Thao tác cho <%= p.name %>">
+              <span>Thao tác</span> <span style="font-size: 10px; opacity: 0.7;">▾</span>
+            </summary>
+            <div class="dropdown-pop">
+              <button type="button" class="dropdown-item" data-modal-target="modal-edit-p-<%= p.id %>">
+                <%- include('../partials/icon', { name: 'edit' }) %>
+                <span>Sửa đối tác</span>
               </button>
-            </form>
-          </div>
-        </td>
-      </tr>
 
-      <!-- Hàng chỉnh sửa trực tiếp dạng inline collapsible -->
-      <tr class="at-detail" id="edit-p<%= p.id %>" hidden>
-        <td colspan="5">
-          <div class="at-detail-in" style="background: var(--surface-2, rgba(255,255,255,0.02)); border-radius: 8px; padding: 14px;">
-            <form class="form" method="post" action="/admin/doi-tac" enctype="multipart/form-data" style="gap: 12px;">
-              <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-              <input type="hidden" name="id" value="<%= p.id %>">
-              
-              <div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <strong style="font-size: 14px; color: var(--brand);">Chỉnh sửa đối tác: <%= p.name %></strong>
-                <button type="button" class="btn btn-sm" data-row-toggle aria-expanded="true" aria-controls="edit-p<%= p.id %>">Đóng ✕</button>
-              </div>
+              <div class="dropdown-divider"></div>
 
-              <div class="form-grid two">
-                <div class="field">
-                  <label for="name_<%= p.id %>">Tên đối tác *</label>
-                  <input class="input" id="name_<%= p.id %>" name="name" required value="<%= p.name || '' %>" maxlength="100">
-                </div>
-                <div class="field">
-                  <label for="url_<%= p.id %>">Website / Fanpage</label>
-                  <input class="input" id="url_<%= p.id %>" name="url" value="<%= p.url || '' %>" placeholder="https://..." maxlength="300">
-                </div>
-                <div class="field">
-                  <label for="logo_<%= p.id %>">Thay Logo mới</label>
-                  <input class="input" id="logo_<%= p.id %>" type="file" name="logo" accept="image/jpeg,image/png,image/webp">
-                  <span class="hint">Để trống nếu muốn giữ nguyên logo hiện tại.</span>
-                </div>
-                <div class="field">
-                  <label for="sort_<%= p.id %>">Thứ tự hiển thị</label>
-                  <input class="input tnum" id="sort_<%= p.id %>" name="sort_order" inputmode="numeric" value="<%= p.sort_order || 0 %>">
-                </div>
-              </div>
-
-              <div class="row" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                <label class="check">
-                  <input type="checkbox" name="visible" value="1" <%= p.visible !== false ? 'checked' : '' %>>
-                  <span>Hiển thị trên website</span>
-                </label>
-                <div class="row" style="--gap: 8px;">
-                  <button class="btn btn-brand btn-sm" type="submit">Lưu thay đổi</button>
-                </div>
-              </div>
-            </form>
-          </div>
+              <form method="post" action="/admin/doi-tac/<%= p.id %>/xoa" data-confirm="Xoá vĩnh viễn đối tác &quot;<%= p.name %>&quot;?">
+                <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+                <button type="submit" class="dropdown-item danger">
+                  <%- include('../partials/icon', { name: 'close' }) %>
+                  <span>Xóa đối tác</span>
+                </button>
+              </form>
+            </div>
+          </details>
         </td>
       </tr>
     <% }) %>
     </tbody>
   </table>
 </div>
+
+<!-- POPUP MODALS CHỈNH SỬA CHO TỪNG ĐỐI TÁC -->
+<% rows.forEach((p) => { %>
+<div class="admin-modal" id="modal-edit-p-<%= p.id %>" role="dialog" aria-modal="true" aria-labelledby="modal-title-p-<%= p.id %>">
+  <div class="admin-modal-content">
+    <div class="admin-modal-header">
+      <h3 id="modal-title-p-<%= p.id %>">Sửa đối tác: <%= p.name %></h3>
+      <button type="button" class="admin-modal-close-btn" data-modal-close aria-label="Đóng popup">✕</button>
+    </div>
+    <form class="form" method="post" action="/admin/doi-tac" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+      <input type="hidden" name="id" value="<%= p.id %>">
+      <div class="admin-modal-body stack" style="--gap: 12px;">
+        <div class="form-grid two">
+          <div class="field">
+            <label for="name_<%= p.id %>">Tên đối tác *</label>
+            <input class="input" id="name_<%= p.id %>" name="name" required value="<%= p.name || '' %>" maxlength="100">
+          </div>
+          <div class="field">
+            <label for="url_<%= p.id %>">Website / Fanpage</label>
+            <input class="input" id="url_<%= p.id %>" name="url" value="<%= p.url || '' %>" placeholder="https://..." maxlength="300">
+          </div>
+          <div class="field">
+            <label for="logo_<%= p.id %>">Thay Logo mới</label>
+            <input class="input" id="logo_<%= p.id %>" type="file" name="logo" accept="image/jpeg,image/png,image/webp">
+            <span class="hint">Để trống nếu muốn giữ nguyên logo hiện tại.</span>
+          </div>
+          <div class="field">
+            <label for="sort_<%= p.id %>">Thứ tự hiển thị</label>
+            <input class="input tnum" id="sort_<%= p.id %>" name="sort_order" inputmode="numeric" value="<%= p.sort_order || 0 %>">
+          </div>
+        </div>
+        <label class="check" style="margin-top: 4px;">
+          <input type="checkbox" name="visible" value="1" <%= p.visible !== false ? 'checked' : '' %>>
+          <span>Hiển thị trên website</span>
+        </label>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
+        <button class="btn btn-brand btn-sm" type="submit">Lưu thay đổi</button>
+      </div>
+    </form>
+  </div>
+</div>
+<% }) %>
+
 <% } %>
 
-<p class="tiny faint" style="margin-top: 14px;">Chỉ dùng logo khi đã có sự đồng ý của đối tác hoặc nhà tài trợ.</p>
 <%- include('_bottom') %>

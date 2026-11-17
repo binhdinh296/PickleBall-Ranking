@@ -38,14 +38,14 @@
         <label><strong>Chọn thể thức phân nhánh:</strong></label>
         <div class="stack" style="--gap: 8px; margin-top: 6px;">
           <label class="check" style="align-items: flex-start;">
-            <input type="radio" name="bracket_mode" value="knockout" checked onchange="document.getElementById('opt-ko').style.display='block'; document.getElementById('opt-groups').style.display='none';">
+            <input type="radio" name="bracket_mode" value="knockout" checked data-bracket-mode="knockout">
             <span>
               <strong>Option 1: Loại trực tiếp</strong>
               <span class="small muted" style="display: block;">Đấu loại trực tiếp, có thể bật Playoff (thua Vòng 1 đấu vớt như giải Sao Vàng).</span>
             </span>
           </label>
           <label class="check" style="align-items: flex-start;">
-            <input type="radio" name="bracket_mode" value="groups_knockout" onchange="document.getElementById('opt-ko').style.display='none'; document.getElementById('opt-groups').style.display='block';">
+            <input type="radio" name="bracket_mode" value="groups_knockout" data-bracket-mode="groups_knockout">
             <span>
               <strong>Option 2: Chia bảng vòng tròn ➔ Loại trực tiếp</strong>
               <span class="small muted" style="display: block;">Chia các bảng đấu vòng tròn tính điểm (thắng, hiệu số, đối đầu), lấy Nhất hoặc Nhất/Nhì vào vòng knock-out.</span>

@@ -18,8 +18,6 @@
   </div>
   <% if (!ev.id) {
     const rows = (ev.newDivisions && ev.newDivisions.length) ? ev.newDivisions : [{ idx: '0' }];
-    const levelOpts = (cur, emptyLabel) => { const c = parseInt(cur, 10) || null; const vals = [...new Set([...fmt.LEVELS, ...(c && !fmt.LEVELS.includes(c) ? [c] : [])])].sort((a, b) => a - b);
-      return `<option value="">${emptyLabel}</option>` + vals.map((v) => `<option value="${v}" ${v === c ? 'selected' : ''}>${fmt.LEVELS.includes(v) ? fmt.levelLabel(v) : fmt.pts(v)}</option>`).join(''); };
     const divRow = (r, i) => `
       <div class="div-row" data-div-row>
         <input type="hidden" name="div_idx" value="${i}">
@@ -27,8 +25,8 @@
           <div class="field span-2"><label for="div_name_${i}">Tên nội dung ${org ? '*' : ''}</label><input class="input" id="div_name_${i}" name="div_name" maxlength="100" placeholder="Đôi nam Newbie, Đôi nữ 3.2, Hỗn hợp 4.25…" value="${fmt.esc(r.name || '')}"></div>
           <div class="field"><label for="div_gender_${i}">Giới tính</label><select class="input" id="div_gender_${i}" name="div_gender">${Object.entries(fmt.GENDER_RULE_LABEL).map(([k, l]) => `<option value="${k}" ${r.gender_rule === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
           <div class="field"><label for="div_max_teams_${i}">Số đôi tối đa</label><input class="input" id="div_max_teams_${i}" name="div_max_teams" inputmode="numeric" placeholder="Không giới hạn" value="${fmt.esc(r.max_teams || '')}"></div>
-          <div class="field"><label for="div_min_player_${i}">Trình tối thiểu mỗi VĐV</label><select class="input" id="div_min_player_${i}" name="div_min_player">${levelOpts(r.min_player, 'Không giới hạn')}</select></div>
-          <div class="field"><label for="div_max_player_${i}">Trình tối đa mỗi VĐV</label><select class="input" id="div_max_player_${i}" name="div_max_player">${levelOpts(r.max_player, 'Không giới hạn')}</select></div>
+          <div class="field"><label for="div_min_player_${i}">Trình tối thiểu mỗi VĐV</label><input class="input tnum" id="div_min_player_${i}" name="div_min_player" inputmode="decimal" placeholder="Không giới hạn, vd. 2.500" value="${fmt.esc(r.min_player || '')}"></div>
+          <div class="field"><label for="div_max_player_${i}">Trình tối đa mỗi VĐV</label><input class="input tnum" id="div_max_player_${i}" name="div_max_player" inputmode="decimal" placeholder="Không giới hạn, vd. 3.500" value="${fmt.esc(r.max_player || '')}"></div>
           <div class="field span-2"><label for="div_max_total_${i}">Tổng trình tối đa (2 VĐV)</label><input class="input tnum" id="div_max_total_${i}" name="div_max_total" inputmode="decimal" placeholder="Không giới hạn, vd. 6.5" value="${fmt.esc(r.max_total || '')}"></div>
           <div class="field span-2"><label for="div_banner_${i}">Ảnh nút chọn nội dung (không bắt buộc)</label><input class="input" id="div_banner_${i}" name="div_banner_${i}" type="file" accept="image/jpeg,image/png,image/webp"><span class="hint">Ảnh VĐV bấm để chọn khi đăng ký. Không có ảnh thì hiện tên nội dung.</span></div>
         </div>
