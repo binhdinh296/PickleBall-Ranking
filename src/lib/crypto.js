@@ -36,10 +36,4 @@ function hmac(value) {
   return crypto.createHmac('sha256', appKey()).update(String(value)).digest('hex');
 }
 
-function safeEqual(a, b) {
-  const x = Buffer.from(String(a));
-  const y = Buffer.from(String(b));
-  return x.length === y.length && crypto.timingSafeEqual(x, y);
-}
-
-module.exports = { encrypt, decrypt, hmac, safeEqual };
+module.exports = { encrypt, decrypt, hmac };

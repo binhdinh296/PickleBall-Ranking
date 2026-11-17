@@ -21,29 +21,6 @@
     revealEls.forEach(function (el) { el.classList.add('in'); });
   }
 
-  // ---- Màn hẹp: dời khối sân (rally + tỉ số + thẻ số 1) xuống sau mục VĐV nổi bật để VĐV lộ ra ngay khi tải trang ----
-  (function () {
-    var visual = $('[data-hero-visual]'); var slot = $('[data-court-slot]');
-    if (!visual || !slot || !window.matchMedia) return;
-    var home = visual.parentNode; var mq = window.matchMedia('(max-width: 959px)');
-    function place() {
-      var target = mq.matches ? slot : home;
-      if (visual.parentNode !== target) target.appendChild(visual);
-      document.documentElement.classList.toggle('court-moved', mq.matches);
-    }
-    place();
-    if (mq.addEventListener) mq.addEventListener('change', place); else if (mq.addListener) mq.addListener(place);
-  })();
-
-  // ---- Pha dink rally ở hero: dừng khi giảm chuyển động, tạm dừng khi khuất màn hình cho nhẹ máy ----
-  $$('[data-rally]').forEach(function (svg) {
-    if (typeof svg.pauseAnimations !== 'function') return;
-    if (reduce) { svg.pauseAnimations(); if (svg.setCurrentTime) svg.setCurrentTime(0.7); return; }
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (en) { if (en[0].isIntersecting) svg.unpauseAnimations(); else svg.pauseAnimations(); }).observe(svg);
-    }
-  });
-
   // ---- Slider vợt: tự lướt từng TRANG (cả nhóm vợt đang hiện) mỗi 4 giây, hết thì quay về đầu ----
   // Tạm dừng khi rê chuột / focus / chạm / mở thông tin / khuất màn hình / tab ẩn / bấm nút dừng.
   // Người dùng chọn giảm chuyển động: mặc định không tự chạy.

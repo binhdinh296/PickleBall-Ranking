@@ -79,7 +79,7 @@
 .paddles-section .section-head { justify-content: center; text-align: center; }
 .paddles-section .section-head > div { text-align: center; margin-inline: auto; }
 .paddles-section .h2 { text-align: center; margin-inline: auto; }
-.court-slot { border-top: 0; }
+
 .paddles { --pw: min(64vw, 230px); position: relative; }
 @media (min-width: 640px) { .paddles { --pw: 230px; } }
 @media (min-width: 1200px) { .paddles { --pw: 236px; } }
@@ -205,12 +205,6 @@
   -webkit-mask-image: linear-gradient(180deg, #000 35%, transparent 92%);
   mask-image: linear-gradient(180deg, #000 35%, transparent 92%);
 }
-.hero-bigball {
-  position: absolute; width: min(55vw, 440px); left: -10%; bottom: -24%;
-  color: rgba(20, 184, 166, 0.04);
-  animation: bigball 90s linear infinite;
-}
-@keyframes bigball { to { transform: rotate(1turn); } }
 
 /* Tag Mùa giải / Eyebrow phong cách thẻ VIP chuẩn màu thương hiệu */
 .hero-sport .hero-tag {
@@ -285,96 +279,10 @@
 }
 
 /* Sân đấu tỉ lệ góc rộng (panoramic 560 / 370), khung kính mờ dạ quang teal */
-.court-sport {
-  aspect-ratio: 560 / 370; background: linear-gradient(165deg, #09151C 0%, #050E13 100%);
-  border: 1px solid rgba(20, 184, 166, 0.28); border-radius: 18px;
-  box-shadow:
-    0 24px 60px -12px rgba(0, 0, 0, 0.85),
-    0 0 35px -5px rgba(20, 184, 166, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  position: relative; overflow: hidden;
-}
-.court-sport .rally { width: 100%; height: 100%; display: block; }
-.court-tag {
-  position: absolute; left: 12px; top: 11px; font-size: 10px; font-weight: 700; letter-spacing: .1em;
-  text-transform: uppercase; color: #94A3B8; background: rgba(6, 12, 18, 0.75);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(20, 184, 166, 0.2); padding: 4px 9px; border-radius: 999px;
-  max-width: calc(100% - 24px); overflow-wrap: anywhere; z-index: 2;
-}
 
 /* Bảng tỉ số phát sóng trực tiếp (Score Bug) */
-.score-bug {
-  position: absolute; bottom: -6px; left: -8px; width: min(242px, calc(100% - 16px)); padding: 0;
-  overflow: hidden; display: flex; flex-direction: column;
-  background: rgba(7, 14, 24, 0.94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(20, 184, 166, 0.3); border-radius: 13px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6), 0 0 24px rgba(20, 184, 166, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  z-index: 3; text-decoration: none; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
-}
-.score-bug:hover {
-  transform: translateY(-2px); border-color: rgba(20, 184, 166, 0.6);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(20, 184, 166, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-.sb-head {
-  display: flex; align-items: center; gap: 8px; padding: 5px 10px;
-  background: rgba(20, 184, 166, 0.16); border-bottom: 1px solid rgba(20, 184, 166, 0.22); color: #FFFFFF;
-  font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
-}
-.sb-live {
-  display: inline-flex; align-items: center; gap: 5px; background: #FF4757; color: #FFFFFF;
-  padding: 1.5px 6px; border-radius: 4px; font-size: 9.5px; font-weight: 800;
-  box-shadow: 0 0 8px rgba(255, 71, 87, 0.6);
-}
-.sb-meta { color: #CBD5E1; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sb-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 5px 10px 5px 13px; position: relative; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.75);
-}
-.sb-row + .sb-row { border-top: 1px solid rgba(255, 255, 255, 0.08); }
-.sb-row::before {
-  content: ''; position: absolute; left: 0; top: 5px; bottom: 5px; width: 3px;
-  border-radius: 0 3px 3px 0; background: rgba(255, 255, 255, 0.15);
-}
-.sb-row.lead { color: #FFFFFF; }
-.sb-row.lead::before { background: var(--ball); }
-.sb-name { min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
-.sb-score {
-  font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800;
-  font-size: 20px; line-height: 1; font-variant-numeric: tabular-nums; min-width: 24px; text-align: right;
-}
-.sb-row.lead .sb-score { color: var(--ball); }
-.sb-cta { padding: 5px 10px 6px; font-size: 11px; font-weight: 700; color: var(--court); border-top: 1px solid rgba(255, 255, 255, 0.08); }
 
 /* Thẻ số 1 VIP Bảng xếp hạng (Top Bug) */
-.top-bug {
-  position: absolute; top: -10px; right: -8px; display: flex; align-items: center; gap: 10px;
-  padding: 7px 14px 7px 11px; background: rgba(9, 17, 28, 0.92);
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(20, 184, 166, 0.35); border-radius: 14px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 20px -2px rgba(20, 184, 166, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  z-index: 3; max-width: calc(100% - 16px); text-decoration: none;
-  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
-}
-.top-bug:hover {
-  transform: translateY(-2px); border-color: rgba(20, 184, 166, 0.75);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 26px rgba(20, 184, 166, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-.tb-rank {
-  font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800;
-  font-size: 26px; line-height: 1;
-  background: linear-gradient(120deg, #FFFFFF 0%, #D4F53C 55%, #14B8A6 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0;
-}
-.top-bug .avatar {
-  --s: 34px !important; border-radius: 50%;
-  box-shadow: 0 0 10px rgba(20, 184, 166, 0.45); flex-shrink: 0;
-}
-.tb-label { font-size: 9.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #5EEAD4; }
-.top-bug strong { font-size: 13.5px; font-weight: 700; color: #FFFFFF; line-height: 1.25; }
-.tb-pts { font-size: 11.5px; font-weight: 700; color: var(--ball); font-variant-numeric: tabular-nums; }
-
-@media (prefers-reduced-motion: reduce) { .hero-bigball { animation: none; } }
 
 /* ==========================================================================
    Vợt VĐV nổi bật: một phong cách thống nhất theo màu thương hiệu (không phân hạng)
@@ -420,24 +328,15 @@
   box-shadow: 0 0 0 2px var(--m-mid), 0 10px 18px -8px rgba(0, 0, 0, .75), 0 0 18px -4px var(--glow), inset 0 -4px 8px rgba(0, 0, 0, .2); }
 .paddle .paddle-ball span { font-family: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif; font-style: normal; font-weight: 800; font-size: 19px; color: var(--b-ink); text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }
 
-
 /* Chip ngắn trong dòng giới thiệu hero: giữ 1 dòng, phần chữ bên cạnh mới xuống dòng */
 .hero-tag .chip { white-space: nowrap; flex: none; }
 .hero-tag { flex-wrap: nowrap; }
-
-/* Màn hẹp: thẻ tỉ số & thẻ số 1 nằm dưới sân (không đè lên pha rally) */
-@media (max-width: 959px) {
-  .hero-sport .hero-visual { padding-bottom: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
-  .hero-sport .hero-visual .court-card { grid-column: 1 / -1; }
-  .hero-sport .hero-visual .float-card { position: static; width: auto; max-width: none; }
-  .hero-sport .top-bug { order: 2; }
-}
 
 /* ==========================================================================
    Chiều cao hero siêu gọn: chỉ khoảng 320px để VĐV nổi bật lộ ra ngay màn hình đầu
    ========================================================================== */
 .hero-copy { --gap: 12px; }
-.court-slot { display: none; }
+
 @media (max-width: 959px) {
   .hero.hero-sport { padding-block: 16px 18px; }
   .hero-sport .hero-tag { display: inline-flex; }
@@ -450,11 +349,9 @@
   .hero .hero-title { font-size: clamp(24px, 7vw, 34px); line-height: 1.1; }
   .hero-copy { --gap: 10px; }
   .hero-sport .hero-lead { font-size: 14px; line-height: 1.45; }
-  .hero-sport .hero-features { display: none; }
+
   /* Có JS: khối sân được dời xuống ô sau mục VĐV, ẩn chỗ cũ để không nháy bố cục */
-  .js .hero-sport .hero-grid > .hero-visual { display: none; }
-  .js .court-slot { display: block; }
-  .court-slot .hero-visual { padding-bottom: 0; }
+
   .paddles-section { padding-top: 14px; }
 }
 @media (min-width: 960px) {
@@ -462,19 +359,10 @@
   .hero-sport .hero-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); gap: 32px; align-items: center; }
   .hero .hero-title { font-size: clamp(28px, 3.4vw, 44px); line-height: 1.08; }
   .hero-sport .hero-lead { font-size: 15px; line-height: 1.5; max-width: 490px; color: #94A3B8; margin: 0; }
-  .hero-sport .hero-visual { width: min(100%, 410px); justify-self: end; padding-top: 8px; padding-bottom: 12px; }
-  .hero-sport .top-bug { top: -8px; right: -6px; }
-  .hero-sport .score-bug { bottom: -4px; left: -8px; }
-  .hero-sport .hero-features { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: #94A3B8; font-weight: 600; margin-top: 2px; }
-  .hero-sport .hero-features span { display: inline-flex; align-items: center; gap: 7px; }
-  .hero-sport .hero-features svg { width: 15px; height: 15px; color: var(--court); flex-shrink: 0; }
+
   .paddles-section { padding-top: clamp(16px, 2.5vh, 28px); }
   .paddles-section .section-head { margin-bottom: 0; }
   .paddles-section .paddle-track { padding-top: 36px; }
-}
-@media (min-width: 960px) and (max-height: 760px) {
-  .hero-sport .hero-features { display: none; }
-  .hero-sport .hero-visual { width: min(100%, max(300px, 42vh)); }
 }
 
 /* ==========================================================================
@@ -489,10 +377,8 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
 /* Hero: viên "Mùa giải" ôm vừa chữ; 2 chữ cuối tiêu đề không tách dòng */
 .hero-sport .hero-tag { align-self: flex-start; }
 .hero-title .tail { white-space: nowrap; }
-.hero-sport .hero-features { color: var(--text-3); font-size: 13.5px; }
 
 /* Mobile: khối sân dưới VĐV mờ dần cả mép trên lẫn mép dưới */
-.court-slot.hero-sport::before { -webkit-mask-image: linear-gradient(180deg, transparent, #000 22%, #000 70%, transparent); mask-image: linear-gradient(180deg, transparent, #000 22%, #000 70%, transparent); }
 
 /* VĐV nổi bật: mép phải mờ dần thay vì cắt ngang cây vợt; nền tối dưới chữ đậm hơn để tên/điểm luôn rõ */
 .paddle-viewport { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); }
@@ -504,26 +390,13 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
 /* Giải đấu nổi bật: thẻ cao bằng nhau, phủ kín cột */
 .event-grid > .reveal { display: flex; min-width: 0; }
 .event-grid > .reveal > .ecard { flex: 1; }
-/* Mobile: thẻ tỉ số & số 1 nằm trong luồng, trải hết bề ngang → dùng cỡ chữ đầy đủ */
-@media (max-width: 959px) {
-  .hero-sport .sb-head { font-size: 11.5px; padding: 7px 12px; }
-  .hero-sport .sb-row { font-size: 14.5px; padding: 9px 12px 9px 16px; }
-  .hero-sport .sb-score { font-size: 28px; min-width: 30px; }
-  .hero-sport .sb-cta { font-size: 13px; padding: 8px 16px 10px; }
-  .hero-sport .top-bug { padding: 10px 14px; gap: 12px; }
-  .hero-sport .top-bug .avatar { --s: 40px !important; }
-  .hero-sport .tb-rank { font-size: 30px; }
-  .hero-sport .tb-label { font-size: 10.5px; }
-  .hero-sport .top-bug strong { font-size: 16px; }
-  .hero-sport .tb-pts { font-size: 13px; }
-}
 
 /* ==========================================================================
    Hero "năng lượng" (theo ảnh mẫu): nền xanh rừng → xanh chanh, vệt quét cong,
    tia sáng chạy dọc vệt, quỹ đạo + bụi sáng, bóng pickleball phát sáng.
    Màu theo --ball / --court (đổi được trong CMS). Hero luôn tối ở cả 2 theme (chữ trắng).
    ========================================================================== */
-.hero-energy::before, .court-slot.hero-sport::before {
+.hero-energy::before {
   background:
     radial-gradient(40% 85% at 76% 48%, color-mix(in oklab, var(--ball) 72%, transparent), transparent 70%),
     radial-gradient(30% 60% at 30% 30%, color-mix(in oklab, var(--ball) 30%, transparent), transparent 70%),
@@ -562,13 +435,9 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
 @keyframes he-float { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(7px, -16px) rotate(28deg); } }
 
 /* Sân: khung kính trong suốt hơn để vệt sáng phía sau xuyên qua, viền xanh chanh */
-.hero-sport .court-sport { background: rgba(3, 18, 10, .30); border-color: color-mix(in oklab, var(--ball) 26%, transparent);
-  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
-  box-shadow: 0 24px 60px -16px rgba(0, 0, 0, .7), 0 0 40px -8px color-mix(in oklab, var(--ball) 35%, transparent), inset 0 1px 0 rgba(255, 255, 255, .14); }
-.hero-sport .rl-apron { opacity: 0; }
-.hero-sport .court-sport .rally { filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .4)); }
+
 .hero-energy .hero-title .tail { filter: drop-shadow(0 0 20px color-mix(in oklab, var(--ball) 45%, transparent)); }
-.hero-energy .hero-lead, .hero-energy .hero-features { color: color-mix(in oklab, #fff 78%, var(--ball)) !important; }
+.hero-energy .hero-lead { color: color-mix(in oklab, #fff 78%, var(--ball)) !important; }
 .hero-energy .hero-tag { background: rgba(3, 18, 10, .55); border-color: color-mix(in oklab, var(--ball) 30%, transparent); }
 
 /* Mobile: chỉ giữ 3 bóng, mờ hơn để không lấn chữ */
@@ -582,7 +451,6 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
   .he-flow path, .he-orbit-main, .he-orbit-dots, .he-dust, .he-ball { animation: none; }
 }
 /* Desktop: khung sân chỉ ~410px, nhãn kích thước sân bị thẻ "#1" đè → ẩn (mobile vẫn hiện) */
-@media (min-width: 960px) { .hero-sport .hero-grid .court-tag { display: none; } }
 
 /* ==========================================================================
    Hero ảnh VĐV: ảnh thi đấu bên phải, mép trái cắt chéo + vạch xanh chanh phát sáng,
@@ -704,9 +572,9 @@ main > .paddles-section { padding-top: clamp(16px, 3vh, 36px); padding-bottom: c
 [data-flat] .hero-sport .hero-tag .chip-brand { background: var(--f-accent) !important; color: var(--f-on) !important; box-shadow: none !important; }
 [data-flat] .hero-sport .hero-tag .clip { color: var(--f-text-soft) !important; }
 [data-flat] .hero .hero-title { color: var(--f-text) !important; text-shadow: none !important; }
-[data-flat] .hero-energy .hero-copy, [data-flat] .hero-energy .hero-lead, [data-flat] .hero-energy .hero-features { text-shadow: none !important; }
-[data-flat] .hero-energy .hero-lead, [data-flat] .hero-energy .hero-features { color: var(--f-text2) !important; }
-[data-flat] .hero-sport .hero-features svg { color: var(--f-accent) !important; }
+[data-flat] .hero-energy .hero-copy, [data-flat] .hero-energy .hero-lead { text-shadow: none !important; }
+[data-flat] .hero-energy .hero-lead { color: var(--f-text2) !important; }
+
 [data-flat] .hero-sport .btn-brand.btn-sport { background: var(--f-accent) !important; color: var(--f-on) !important; border-color: var(--f-accent) !important; box-shadow: none !important; }
 [data-flat] .hero-sport .btn-brand.btn-sport:hover { background: var(--f-accent-hi) !important; }
 [data-flat] .hero-sport .btn.btn-sport:not(.btn-brand) { background: transparent !important; border-color: rgba(var(--f-line-rgb), .28) !important; color: var(--f-text) !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }

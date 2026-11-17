@@ -1,7 +1,6 @@
 // Chạy đồng bộ trong <head> để không nháy màu khi tải trang
 (function () {
   var root = document.documentElement;
-  root.classList.add('js'); // CSS biết JS đang chạy (vd. khối sân hero được dời xuống dưới trên mobile)
   // 'dark' = Midnight; các theme còn lại thuộc nhóm theme phẳng [data-flat]
   var THEMES = ['dark', 'luxe', 'sky', 'banana', 'rally'];
   var saved = null;
