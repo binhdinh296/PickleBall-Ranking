@@ -199,12 +199,28 @@ router.get('/:slug/nhanh-dau', wrap(loadEvent), wrap(async (req, res) => {
     const matches = await bracket.loadMatches(d.id);
     const teamMap = Object.fromEntries(teams.map((t) => [t.id, t]));
     const streams = Object.fromEntries(ev.streams.map((s) => [s.id, s]));
+    const groupMatches = matches.filter((m) => m.zone && m.zone.startsWith('Bảng '));
+    const groupTables = {};
+    if (groupMatches.length) {
+      const byGroup = new Map();
+      for (const m of groupMatches) {
+        if (!byGroup.has(m.zone)) byGroup.set(m.zone, []);
+        byGroup.get(m.zone).push(m);
+      }
+      for (const [zoneName, gMatches] of byGroup.entries()) {
+        const tIds = new Set(gMatches.flatMap((m) => [m.team_a_id, m.team_b_id]).filter(Boolean));
+        const gTeams = teams.filter((t) => tIds.has(t.id));
+        groupTables[zoneName] = bracket.standings(gTeams, gMatches);
+      }
+    }
+
     data = {
       teams, teamMap, matches, streams,
       rounds: bracket.groupRounds(matches),
       board: bracket.board(matches),
       teamNo: Object.fromEntries(teams.map((t, i) => [t.id, t.seed || i + 1])),
-      table: d.format === 'roundrobin' ? bracket.standings(teams, matches) : null,
+      table: d.format === 'roundrobin' && !groupMatches.length ? bracket.standings(teams, matches) : null,
+      groupTables,
       stats: { total: matches.length, live: matches.filter((m) => m.status === 'live').length, done: matches.filter((m) => m.status === 'done').length },
       version: matches.reduce((v, m) => Math.max(v, new Date(m.updated_at).getTime()), 0),
     };

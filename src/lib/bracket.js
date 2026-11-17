@@ -159,6 +159,213 @@ async function generateRoundRobin(divisionId, { randomize = true, relayLegs = 0 
   });
 }
 
+// ---- Option 2: Chia bảng vòng tròn + Loại trực tiếp (Group Stage + Knockout) ----
+async function generateGroupsKnockout(divisionId, { numGroups = 4, advancePerGroup = 2, randomize = true } = {}) {
+  const teams = await loadTeams(divisionId);
+  const groupsCount = Math.max(2, parseInt(numGroups, 10) || 2);
+  const advance = Math.min(2, Math.max(1, parseInt(advancePerGroup, 10) || 2));
+  if (teams.length < 2) throw Object.assign(new Error('Cần ít nhất 2 đội để tạo giải đấu'), { expose: true });
+
+  const list = randomize ? shuffle(teams) : teams;
+  const groups = Array.from({ length: groupsCount }, () => []);
+
+  // Phân bổ đội vào các bảng
+  if (randomize) {
+    list.forEach((t, i) => groups[i % groupsCount].push(t));
+  } else {
+    // Snake draft theo hạt giống
+    let dir = 1;
+    let g = 0;
+    list.forEach((t) => {
+      groups[g].push(t);
+      g += dir;
+      if (g >= groupsCount) { g = groupsCount - 1; dir = -1; }
+      else if (g < 0) { g = 0; dir = 1; }
+    });
+  }
+
+  return tx(async () => {
+    await run('DELETE FROM matches WHERE division_id = ?', divisionId);
+    let totalMatches = 0;
+
+    // 1. Sinh các trận vòng tròn cho từng bảng (zone = 'Bảng X')
+    for (let gIdx = 0; gIdx < groupsCount; gIdx++) {
+      const gChar = String.fromCharCode(65 + gIdx); // A, B, C, D...
+      const zoneName = `Bảng ${gChar}`;
+      const gTeams = groups[gIdx].map((t) => t.id);
+      if (gTeams.length % 2) gTeams.push(null);
+      const n = gTeams.length;
+      const arr = gTeams.slice();
+      let matchNum = 1;
+
+      for (let r = 0; r < n - 1; r++) {
+        for (let i = 0; i < n / 2; i++) {
+          const a = arr[i];
+          const b = arr[n - 1 - i];
+          if (a && b) {
+            await run(`INSERT INTO matches(division_id, round_order, round_name, position, code, zone, team_a_id, team_b_id)
+              VALUES (?, 1, 'Vòng bảng', ?, ?, ?, ?, ?)`,
+              divisionId, matchNum, `${gChar}${matchNum}`, zoneName, a, b);
+            matchNum++;
+            totalMatches++;
+          }
+        }
+        arr.splice(1, 0, arr.pop());
+      }
+    }
+
+    // 2. Sinh nhánh Knockout (zone = null, nằm ở sơ đồ chính)
+    const numAdvancing = groupsCount * advance;
+    let initialMatches = []; // Các trận mở màn của Knockout
+
+    if (numAdvancing === 2) {
+      initialMatches.push({
+        code: 'CK',
+        name: 'Chung kết',
+        label_a: 'Nhất Bảng A',
+        label_b: 'Nhất Bảng B',
+      });
+    } else if (numAdvancing === 4) {
+      if (advance === 2) {
+        initialMatches.push(
+          { code: 'BK1', name: 'Bán kết', label_a: 'Nhất Bảng A', label_b: 'Nhì Bảng B' },
+          { code: 'BK2', name: 'Bán kết', label_a: 'Nhất Bảng B', label_b: 'Nhì Bảng A' }
+        );
+      } else {
+        initialMatches.push(
+          { code: 'BK1', name: 'Bán kết', label_a: 'Nhất Bảng A', label_b: 'Nhất Bảng C' },
+          { code: 'BK2', name: 'Bán kết', label_a: 'Nhất Bảng B', label_b: 'Nhất Bảng D' }
+        );
+      }
+    } else if (numAdvancing === 8) {
+      if (advance === 2) {
+        initialMatches.push(
+          { code: 'TK1', name: 'Tứ kết', label_a: 'Nhất Bảng A', label_b: 'Nhì Bảng B' },
+          { code: 'TK2', name: 'Tứ kết', label_a: 'Nhất Bảng C', label_b: 'Nhì Bảng D' },
+          { code: 'TK3', name: 'Tứ kết', label_a: 'Nhất Bảng B', label_b: 'Nhì Bảng A' },
+          { code: 'TK4', name: 'Tứ kết', label_a: 'Nhất Bảng D', label_b: 'Nhì Bảng C' }
+        );
+      } else {
+        initialMatches.push(
+          { code: 'TK1', name: 'Tứ kết', label_a: 'Nhất Bảng A', label_b: 'Nhất Bảng E' },
+          { code: 'TK2', name: 'Tứ kết', label_a: 'Nhất Bảng C', label_b: 'Nhất Bảng G' },
+          { code: 'TK3', name: 'Tứ kết', label_a: 'Nhất Bảng B', label_b: 'Nhất Bảng F' },
+          { code: 'TK4', name: 'Tứ kết', label_a: 'Nhất Bảng D', label_b: 'Nhất Bảng H' }
+        );
+      }
+    } else if (numAdvancing === 16) {
+      const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+      for (let i = 0; i < 4; i++) {
+        const top1 = letters[i * 2];
+        const top2 = letters[i * 2 + 1];
+        initialMatches.push(
+          { code: `V1/8-${i * 2 + 1}`, name: 'Vòng 1/8', label_a: `Nhất Bảng ${top1}`, label_b: `Nhì Bảng ${top2}` },
+          { code: `V1/8-${i * 2 + 2}`, name: 'Vòng 1/8', label_a: `Nhất Bảng ${top2}`, label_b: `Nhì Bảng ${top1}` }
+        );
+      }
+    } else {
+      let p = 2;
+      while (p < numAdvancing) p *= 2;
+      const count = p / 2;
+      for (let i = 0; i < count; i++) {
+        initialMatches.push({
+          code: `KO-${i + 1}`,
+          name: roundName(count, 1).name,
+          label_a: `Đội hạt giống ${i * 2 + 1}`,
+          label_b: `Đội hạt giống ${i * 2 + 2}`
+        });
+      }
+    }
+
+    let roundOrder = 2;
+    const matchIdByCode = {};
+
+    for (let i = 0; i < initialMatches.length; i++) {
+      const im = initialMatches[i];
+      const row = await get(`INSERT INTO matches(division_id, round_order, round_name, position, code, label_a, label_b)
+        VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+        divisionId, roundOrder, im.name, i + 1, im.code, im.label_a, im.label_b);
+      matchIdByCode[im.code] = row.id;
+      totalMatches++;
+    }
+
+    let currentRoundMatches = initialMatches;
+    while (currentRoundMatches.length > 1) {
+      roundOrder++;
+      const nextRoundCount = currentRoundMatches.length / 2;
+      const { name, prefix } = roundName(nextRoundCount, roundOrder);
+      const nextRoundMatches = [];
+
+      for (let i = 0; i < nextRoundCount; i++) {
+        const prevA = currentRoundMatches[i * 2];
+        const prevB = currentRoundMatches[i * 2 + 1];
+        const code = nextRoundCount === 1 ? 'CK' : `${prefix}${i + 1}`;
+
+        const row = await get(`INSERT INTO matches(division_id, round_order, round_name, position, code, src_a_match_id, src_a_kind, src_b_match_id, src_b_kind)
+          VALUES (?, ?, ?, ?, ?, ?, 'winner', ?, 'winner') RETURNING id`,
+          divisionId, roundOrder, name, i + 1, code, matchIdByCode[prevA.code], matchIdByCode[prevB.code]);
+        matchIdByCode[code] = row.id;
+        nextRoundMatches.push({ code, name });
+        totalMatches++;
+      }
+      currentRoundMatches = nextRoundMatches;
+    }
+
+    return totalMatches;
+  });
+}
+
+// Tự động đồng bộ các đội Nhất / Nhì từ vòng bảng vào các ô nhánh Knockout
+async function syncGroupWinners(divisionId) {
+  const teams = await loadTeams(divisionId);
+  const allMatches = await loadMatches(divisionId);
+
+  const groupMatches = allMatches.filter((m) => m.zone && m.zone.startsWith('Bảng '));
+  if (!groupMatches.length) return 0;
+
+  const byGroup = new Map();
+  for (const m of groupMatches) {
+    if (!byGroup.has(m.zone)) byGroup.set(m.zone, []);
+    byGroup.get(m.zone).push(m);
+  }
+
+  const topTeams = {};
+  for (const [zoneName, gMatches] of byGroup.entries()) {
+    const tIds = new Set(gMatches.flatMap((m) => [m.team_a_id, m.team_b_id]).filter(Boolean));
+    const gTeams = teams.filter((t) => tIds.has(t.id));
+    const st = standings(gTeams, gMatches);
+
+    if (st.rows.length >= 1) topTeams[`Nhất ${zoneName}`] = st.rows[0].id;
+    if (st.rows.length >= 2) topTeams[`Nhì ${zoneName}`] = st.rows[1].id;
+  }
+
+  const koMatches = allMatches.filter((m) => !m.zone);
+  let updatedCount = 0;
+
+  for (const m of koMatches) {
+    let changed = false;
+    let newTeamA = m.team_a_id;
+    let newTeamB = m.team_b_id;
+
+    if (m.label_a && topTeams[m.label_a] && m.team_a_id !== topTeams[m.label_a]) {
+      newTeamA = topTeams[m.label_a];
+      changed = true;
+    }
+    if (m.label_b && topTeams[m.label_b] && m.team_b_id !== topTeams[m.label_b]) {
+      newTeamB = topTeams[m.label_b];
+      changed = true;
+    }
+
+    if (changed) {
+      await run('UPDATE matches SET team_a_id = ?, team_b_id = ?, updated_at = now() WHERE id = ?', newTeamA, newTeamB, m.id);
+      await propagate(m.id);
+      updatedCount++;
+    }
+  }
+
+  return updatedCount;
+}
+
 function winnerOf(m) {
   if (m.status !== 'done') return null;
   if (m.team_a_id && !m.team_b_id) return m.team_a_id;
@@ -257,6 +464,9 @@ async function updateMatch(matchId, data) {
       ...MATCH_FIELDS.map((k) => next[k]), matchId);
     await pullSources(matchId);
     await propagate(matchId);
+    if (m.zone && m.zone.startsWith('Bảng ') && next.status === 'done') {
+      await syncGroupWinners(m.division_id);
+    }
     return next;
   });
 }
@@ -363,5 +573,6 @@ function board(matches) {
 
 module.exports = {
   loadTeams, loadMatches, syncTeamsFromRegistrations, generateKnockout, generateRoundRobin,
+  generateGroupsKnockout, syncGroupWinners,
   updateMatch, propagate, wouldCycle, winnerOf, loserOf, standings, suggestHonors, groupRounds, board, MATCH_FIELDS,
 };

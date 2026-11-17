@@ -358,12 +358,38 @@ router.get('/noi-dung/:id/nhanh-dau', editor, wrap(async (req, res, next) => {
   const streams = await all('SELECT id, court, title FROM live_streams WHERE event_id = ? ORDER BY sort_order, court', d.event_id);
   const pendingRegs = (await get(`SELECT COUNT(*) AS c FROM registrations r WHERE r.division_id = ? AND r.status = 'approved'
     AND NOT EXISTS (SELECT 1 FROM teams t WHERE t.registration_id = r.id)`, d.id)).c;
+
+  // Tính bảng xếp hạng cho từng bảng (nếu có chia bảng vòng tròn)
+  const groupMatches = matches.filter((m) => m.zone && m.zone.startsWith('Bảng '));
+  const groupTables = {};
+  if (groupMatches.length) {
+    const byGroup = new Map();
+    for (const m of groupMatches) {
+      if (!byGroup.has(m.zone)) byGroup.set(m.zone, []);
+      byGroup.get(m.zone).push(m);
+    }
+    for (const [zoneName, gMatches] of byGroup.entries()) {
+      const tIds = new Set(gMatches.flatMap((m) => [m.team_a_id, m.team_b_id]).filter(Boolean));
+      const gTeams = teams.filter((t) => tIds.has(t.id));
+      groupTables[zoneName] = bracket.standings(gTeams, gMatches);
+    }
+  }
+
   res.render('admin/bracket', {
     title: `Nhánh đấu: ${d.name}`, d, teams, matches, board: bracket.board(matches), pendingRegs, streams, pageScript: 'bracket',
     teamMap: Object.fromEntries(teams.map((t) => [t.id, t])),
     teamNo: Object.fromEntries(teams.map((t, i) => [t.id, t.seed || i + 1])),
-    table: d.format === 'roundrobin' ? bracket.standings(teams, matches) : null,
+    table: d.format === 'roundrobin' && !groupMatches.length ? bracket.standings(teams, matches) : null,
+    groupTables,
   });
+}));
+
+router.post('/noi-dung/:id/dong-bo-bang', editor, wrap(async (req, res, next) => {
+  const d = await loadDivision(req.params.id);
+  if (!d) return next();
+  const count = await bracket.syncGroupWinners(d.id);
+  req.flash('success', count ? `Đã cập nhật ${count} vị trí vào nhánh Knockout.` : 'Đã đồng bộ xếp hạng (chưa có vị trí mới cần cập nhật).');
+  res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
 }));
 
 router.post('/noi-dung/:id/doi/dong-bo', editor, wrap(async (req, res) => {
@@ -393,11 +419,24 @@ router.post('/noi-dung/:id/tao-nhanh', editor, wrap(async (req, res, next) => {
   const d = await loadDivision(req.params.id);
   if (!d) return next();
   const randomize = req.body.randomize === '1';
-  const n = d.format === 'roundrobin'
-    ? await bracket.generateRoundRobin(d.id, { randomize, relayLegs: d.relay_legs })
-    : await bracket.generateKnockout(d.id, { randomize, playoff: req.body.playoff === '1' });
-  await audit(req, 'bracket_generate', `division:${d.id}`, `${d.format}${req.body.playoff === '1' ? ' + playoff' : ''} ${n} trận`);
-  req.flash('success', `Đã tạo ${n} trận.`);
+  const mode = req.body.bracket_mode || (d.format === 'roundrobin' ? 'roundrobin' : 'knockout');
+  let n = 0;
+
+  if (mode === 'groups_knockout') {
+    const numGroups = parseInt(req.body.num_groups, 10) || 4;
+    const advancePerGroup = parseInt(req.body.advance_per_group, 10) || 2;
+    n = await bracket.generateGroupsKnockout(d.id, { numGroups, advancePerGroup, randomize });
+    await audit(req, 'bracket_generate', `division:${d.id}`, `Chia ${numGroups} bảng (lấy ${advancePerGroup}) + Knockout: ${n} trận`);
+  } else if (mode === 'roundrobin') {
+    n = await bracket.generateRoundRobin(d.id, { randomize, relayLegs: d.relay_legs });
+    await audit(req, 'bracket_generate', `division:${d.id}`, `Vòng tròn 1 bảng: ${n} trận`);
+  } else {
+    const playoff = req.body.playoff === '1';
+    n = await bracket.generateKnockout(d.id, { randomize, playoff });
+    await audit(req, 'bracket_generate', `division:${d.id}`, `Loại trực tiếp${playoff ? ' + Playoff' : ''}: ${n} trận`);
+  }
+
+  req.flash('success', `Đã tạo ${n} trận đấu.`);
   res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
 }));
 

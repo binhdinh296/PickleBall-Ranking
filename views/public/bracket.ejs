@@ -19,6 +19,66 @@
       <div class="stat-tile"><b><%= data.stats.done %></b><span>Hoàn thành</span></div>
     </div>
 
+    <% if (locals.data && data.groupTables && Object.keys(data.groupTables).length) { %>
+    <section class="stage-section" aria-label="Bảng đấu vòng tròn">
+      <div class="stage-header-card stage-group-header">
+        <div class="stage-header-left">
+          <div class="stage-pill stage-pill-group">
+            <%- include('../partials/icon', { name: 'bracket' }) %>
+            <span>VÒNG BẢNG · TÍNH ĐIỂM</span>
+          </div>
+          <h2 class="stage-header-title">BẢNG XẾP HẠNG CÁC BẢNG ĐẤU</h2>
+        </div>
+        <div class="stage-criteria-pills">
+          <span class="crit-pill">1. Số trận thắng</span>
+          <span class="crit-pill">2. Hiệu số điểm</span>
+          <span class="crit-pill">3. Đối đầu trực tiếp</span>
+          <span class="crit-pill crit-pill-muted">Hòa: Bốc thăm</span>
+        </div>
+      </div>
+
+      <div class="grid" style="--min: 340px; gap: 16px;">
+        <% Object.entries(data.groupTables).forEach(([zName, gTable]) => { %>
+        <div class="card card-pad stack" style="--gap: 10px;">
+          <h3 style="font-size: 16px; margin: 0; color: var(--gold-2);"><%= zName %></h3>
+          <div class="table-wrap">
+            <table class="data standings-table">
+              <thead>
+                <tr>
+                  <th style="width: 48px; text-align: center;">Hạng</th>
+                  <th>Đội</th>
+                  <th class="num">Trận</th>
+                  <th class="num">Thắng</th>
+                  <th class="num">Thua</th>
+                  <th class="num">HS</th>
+                  <th class="hide-m">Căn cứ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% gTable.rows.forEach((r) => { const t = data.teamMap[r.id]; %>
+                <tr class="<%= r.rank === 1 ? 'is-leader' : r.rank <= 2 ? 'is-qualifier' : '' %>">
+                  <td data-label="Hạng" style="text-align: center;">
+                    <span class="rank-badge rank-<%= r.rank %>"><%= r.rank %></span>
+                  </td>
+                  <td data-label="Đội">
+                    <strong class="team-name"><%= t ? t.name : 'Đội #' + r.id %></strong>
+                  </td>
+                  <td data-label="Trận" class="num"><%= r.played %></td>
+                  <td data-label="Thắng" class="num"><strong class="stat-win"><%= r.wins %></strong></td>
+                  <td data-label="Thua" class="num"><%= r.losses %></td>
+                  <td data-label="Hiệu số" class="num"><strong class="<%= r.diff > 0 ? 'diff-pos' : r.diff < 0 ? 'diff-neg' : '' %>"><%= r.diff > 0 ? '+' : '' %><%= r.diff %></strong></td>
+                  <td data-label="Căn cứ" class="tiny faint hide-m"><%= r.basis %></td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+    </section>
+    <% } %>
+
     <% if (data.table) { %>
     <section class="stage-section" aria-label="Bảng đấu vòng tròn">
       <div class="stage-header-card stage-group-header">

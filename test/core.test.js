@@ -180,3 +180,25 @@ test('Ban tổ chức (link quản trị riêng): chỉ vào được các trang
   assert.notEqual(newToken(), t);
   assert.notEqual(hashToken(t), t);
 });
+
+test('Option 2 (Chia bảng + Knockout): xếp hạng vòng bảng tính theo Thắng → Hiệu số → Đối đầu', () => {
+  const teams = [{ id: 101, name: 'Đội A' }, { id: 102, name: 'Đội B' }, { id: 103, name: 'Đội C' }];
+  // Bảng 3 đội:
+  // Đội A vs Đội B: 11 - 9 (A thắng, diff A: +2, B: -2)
+  // Đội B vs Đội C: 11 - 5 (B thắng, diff B: +6, C: -6)
+  // Đội C vs Đội A: 11 - 9 (C thắng, diff C: +2, A: -2)
+  // Tổng kết: Mỗi đội 1 thắng, 1 thua.
+  // Hiệu số:
+  // Đội B: -2 + 6 = +4 (Nhất bảng nhờ hiệu số!)
+  // Đội A: +2 - 2 = 0 (Nhì bảng)
+  // Đội C: -6 + 2 = -4 (Hạng 3)
+  const matches = [
+    { team_a_id: 101, team_b_id: 102, score_a: 11, score_b: 9, status: 'done' },
+    { team_a_id: 102, team_b_id: 103, score_a: 11, score_b: 5, status: 'done' },
+    { team_a_id: 103, team_b_id: 101, score_a: 11, score_b: 9, status: 'done' }
+  ];
+  const { rows } = bracket.standings(teams, matches);
+  assert.equal(rows[0].id, 102, 'Đội B phải xếp Nhất bảng do hiệu số cao nhất (+4)');
+  assert.equal(rows[1].id, 101, 'Đội A phải xếp Nhì bảng (hiệu số 0)');
+  assert.equal(rows[2].id, 103, 'Đội C phải xếp Hạng 3 (hiệu số -4)');
+});
