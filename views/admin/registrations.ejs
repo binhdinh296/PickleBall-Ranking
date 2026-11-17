@@ -6,24 +6,57 @@
   <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/dang-ky.csv"><%- include('../partials/icon', { name: 'download' }) %>Xuất CSV</a>
   <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/nhanh-dau">Nhánh đấu →</a>
 </div>
-<div class="list">
-  <% if (!regs.length) { %><div class="list-item faint">Chưa có đăng ký.</div><% } %>
-  <% regs.forEach((r, i) => { %>
-  <div class="list-item" style="flex-wrap: wrap;">
-    <span class="main" style="flex: 1 1 260px;">
-      <strong>#<%= i + 1 %> · <%= r.name1 %> / <%= r.name2 %></strong>
-      <span class="sub"><%= r.phone1 %><% if (r.points1) { %> (<%= fmt.pts(r.points1) %>)<% } %> · <%= r.phone2 %><% if (r.points2) { %> (<%= fmt.pts(r.points2) %>)<% } %><% if (r.points1 && r.points2) { %> · Tổng <strong><%= fmt.pts(r.points1 + r.points2) %></strong><% } else { %> · Tổng: <span class="muted">Chưa có trình</span><% } %></span>
-      <span class="sub"><%= fmt.dateTimeVN(r.created_at) %><%= r.admin_note ? ` · ${r.admin_note}` : '' %></span>
-    </span>
-    <span class="side">
-      <span class="chip <%= r.status === 'approved' ? 'chip-ok' : r.status === 'rejected' ? 'chip-err' : 'chip-warn' %>"><%= fmt.REG_STATUS_LABEL[r.status] %></span>
-      <% if (r.status !== 'approved') { %><form class="inline-form" method="post" action="/admin/dang-ky/<%= r.id %>/trang-thai"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="status" value="approved"><button class="btn btn-sm btn-brand" type="submit">Duyệt</button></form><% } %>
-      <% if (r.status !== 'rejected') { %><form class="inline-form" method="post" action="/admin/dang-ky/<%= r.id %>/trang-thai"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="status" value="rejected"><button class="btn btn-sm" type="submit">Từ chối</button></form><% } %>
-      <form class="inline-form" method="post" action="/admin/dang-ky/<%= r.id %>/xoa" data-confirm="Xóa đăng ký này?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-danger" type="submit" aria-label="Xóa">✕</button></form>
-    </span>
+<% if (!regs.length) { %><div class="empty">Chưa có đăng ký.</div><% } else {
+  const ip = (n) => include('../partials/icon', { name: n });
+  const tone = (st) => st === 'approved' ? 'chip-ok' : st === 'rejected' ? 'chip-err' : 'chip-warn';
+  const total = (r) => r.points1 && r.points2 ? fmt.pts(r.points1 + r.points2) : '—';
+%>
+<p class="tiny faint at-count"><%= regs.length %> đội · bấm tên đội để xem SĐT, ghi chú hoặc xoá</p>
+<form method="post" action="/admin/noi-dung/<%= d.id %>/dang-ky/hang-loat" data-bulk-form>
+  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+  <input type="hidden" name="back_status" value="<%= status %>">
+  <button type="submit" disabled hidden aria-hidden="true" tabindex="-1"></button>
+  <div class="table-wrap">
+    <table class="data atable">
+      <thead><tr>
+        <th class="c-chk"><input type="checkbox" data-check-all aria-label="Chọn tất cả"></th>
+        <th class="c-idx">#</th>
+        <th>Đội</th>
+        <th class="num c-fit">Tổng</th>
+        <th class="c-fit hide-m">Trạng thái</th>
+        <th class="c-act"><span class="sr-only">Thao tác</span></th>
+      </tr></thead>
+      <tbody>
+      <% regs.forEach((r, i) => { %>
+        <tr class="at-row">
+          <td class="c-chk"><input type="checkbox" name="ids" value="<%= r.id %>" data-check-item aria-label="Chọn đội <%= r.name1 %> / <%= r.name2 %>"></td>
+          <td class="c-idx"><%= i + 1 %></td>
+          <td class="c-main"><button type="button" class="at-who" data-row-toggle aria-expanded="false" aria-controls="r<%= r.id %>"><span class="at-name">
+            <strong><%= r.name1 %> / <%= r.name2 %></strong>
+            <span class="at-meta"><span class="show-m"><span class="chip <%= tone(r.status) %>"><%= fmt.REG_STATUS_LABEL[r.status] %></span> · </span>Trình <%= r.points1 ? fmt.pts(r.points1) : '?' %> + <%= r.points2 ? fmt.pts(r.points2) : '?' %></span>
+          </span></button></td>
+          <td class="num c-fit tnum"><b><%= total(r) %></b></td>
+          <td class="c-fit hide-m"><span class="chip <%= tone(r.status) %>"><%= fmt.REG_STATUS_LABEL[r.status] %></span></td>
+          <td class="c-act"><% if (r.status !== 'approved') { %><button class="at-btn ok" type="submit" name="status" value="approved" formaction="/admin/dang-ky/<%= r.id %>/trang-thai" title="Duyệt" aria-label="Duyệt đội <%= r.name1 %> / <%= r.name2 %>"><%- ip('check') %></button><% } %><% if (r.status !== 'rejected') { %><button class="at-btn no" type="submit" name="status" value="rejected" formaction="/admin/dang-ky/<%= r.id %>/trang-thai" title="Từ chối" aria-label="Từ chối đội <%= r.name1 %> / <%= r.name2 %>"><%- ip('close') %></button><% } %></td>
+        </tr>
+        <tr class="at-detail" id="r<%= r.id %>" hidden>
+          <td colspan="6"><div class="at-detail-in">
+            <div class="row small" style="--gap: 6px 8px;"><span class="chip tnum"><%= r.name1 %>: <%= r.phone1 || '—' %></span><span class="chip tnum"><%= r.name2 %>: <%= r.phone2 || '—' %></span></div>
+            <span class="tiny faint">Đăng ký lúc <%= fmt.dateTimeVN(r.created_at) %><%= r.admin_note ? ` · ${r.admin_note}` : '' %></span>
+            <div class="row" style="--gap: 8px;"><% if (r.status !== 'new') { %><button class="btn btn-sm" type="submit" name="status" value="new" formaction="/admin/dang-ky/<%= r.id %>/trang-thai">Đưa về "Mới"</button><% } %><button class="btn btn-sm btn-danger" type="submit" formaction="/admin/dang-ky/<%= r.id %>/xoa" data-confirm-one="Xoá đăng ký của <%= r.name1 %> / <%= r.name2 %>?">Xoá đăng ký</button></div>
+          </div></td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
   </div>
-  <% }) %>
-</div>
+  <div class="at-bar">
+    <span class="small">Đã chọn <b data-bulk-count>0</b>/<%= regs.length %></span>
+    <button class="btn btn-danger btn-sm" type="submit" name="action" value="reject" data-bulk-action data-bulk-confirm="Từ chối {n} đội đã chọn?" disabled>Từ chối</button>
+    <button class="btn btn-brand btn-sm" type="submit" name="action" value="approve" data-bulk-action data-bulk-confirm="Duyệt {n} đội đã chọn?" disabled>Duyệt đã chọn</button>
+  </div>
+</form>
+<% } %>
 <form class="card card-pad form" method="post" action="/admin/noi-dung/<%= d.id %>/dang-ky">
   <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
   <h2 class="section-title">Thêm đăng ký thủ công</h2>

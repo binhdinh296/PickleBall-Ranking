@@ -1475,17 +1475,6 @@ table.data th { text-align: left; font-size: 12px; text-transform: uppercase; le
 table.data td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 table.data tr:last-child td { border-bottom: 0; }
 table.data .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-@media (max-width: 699px) {
-  table.stack-mobile, table.stack-mobile tbody, table.stack-mobile tr, table.stack-mobile td { display: block; width: 100%; }
-  table.stack-mobile thead { display: none; }
-  table.stack-mobile tr { padding: 12px 14px; border-bottom: 1px solid var(--line); }
-  table.stack-mobile tr:last-child { border-bottom: 0; }
-  table.stack-mobile td { border: 0; padding: 3px 0; display: flex; justify-content: space-between; gap: 12px; text-align: right; }
-  table.stack-mobile td::before { content: attr(data-label); color: var(--text-3); font-size: 13px; font-weight: 600; text-align: left; flex: none; }
-  table.stack-mobile td.num { text-align: right; }
-  table.stack-mobile td[data-label=""]::before { display: none; }
-  .table-wrap:has(table.stack-mobile) { overflow-x: visible; }
-}
 
 /* ---------- Bảng danh sách đăng ký giải đấu (1 table duy nhất, mỗi cặp 1 dòng trên mobile) ---------- */
 .table-reg {

@@ -1,11 +1,16 @@
 <%- include('_top') %>
+<% if (!rows.length) { %><div class="empty">Chưa có nhật ký.</div><% } else { %>
 <div class="table-wrap">
-  <table class="data stack-mobile">
-    <thead><tr><th>Thời gian</th><th>Người thực hiện</th><th>Thao tác</th><th>Đối tượng</th><th>Chi tiết</th></tr></thead>
+  <table class="data atable">
+    <thead><tr><th class="c-fit">Thời gian</th><th class="c-fit hide-m">Người</th><th>Thao tác</th></tr></thead>
     <tbody>
-      <% rows.forEach((r) => { %><tr><td data-label="Thời gian" class="nowrap"><%= fmt.dateTimeVN(r.created_at) %></td><td data-label="Người"><%= r.username || '—' %></td><td data-label="Thao tác"><code><%= r.action %></code></td><td data-label="Đối tượng"><%= r.target || '' %></td><td data-label="Chi tiết" class="small muted"><%= r.detail || '' %></td></tr><% }) %>
-      <% if (!rows.length) { %><tr><td colspan="5" data-label="" class="faint">Chưa có nhật ký.</td></tr><% } %>
+      <% rows.forEach((r) => { %><tr class="at-row">
+        <td class="c-fit c-sub tnum"><%= fmt.dateTimeVN(r.created_at) %><span class="at-meta show-m"><%= r.username || '—' %></span></td>
+        <td class="c-fit c-sub hide-m"><%= r.username || '—' %></td>
+        <td class="c-main"><span class="at-name"><strong><code><%= r.action %></code></strong><% if (r.target || r.detail) { %><span class="at-meta" title="<%= [r.target, r.detail].filter(Boolean).join(' · ') %>"><%= [r.target, r.detail].filter(Boolean).join(' · ') %></span><% } %></span></td>
+      </tr><% }) %>
     </tbody>
   </table>
 </div>
+<% } %>
 <%- include('_bottom') %>

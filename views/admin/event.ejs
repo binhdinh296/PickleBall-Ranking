@@ -22,19 +22,36 @@
 </div>
 <div class="row" style="justify-content: space-between;"><h2 class="section-title">Nội dung thi đấu</h2><a class="btn btn-brand btn-sm" href="/admin/giai-dau/<%= ev.id %>/noi-dung/moi"><%- include('../partials/icon', { name: 'plus' }) %>Thêm nội dung</a></div>
 <% if (!ev.divisions.length) { %><div class="empty">Chưa có nội dung. Thêm nội dung (ví dụ "Đôi nam newbie", "Hỗn hợp 5.3") để mở đăng ký.</div><% } %>
-<div class="grid" style="--min: 300px;">
-  <% ev.divisions.forEach((d) => { %>
-  <div class="sub-card">
-    <div class="row" style="justify-content: space-between; flex-wrap: nowrap;"><strong style="overflow-wrap: anywhere;"><%= d.name %></strong><span class="chip"><%= d.format === 'roundrobin' ? 'Vòng tròn' : 'Loại trực tiếp' %></span></div>
-    <span class="small muted"><%= [d.subtitle, d.max_teams ? `Tối đa ${d.max_teams}` : null, d.max_total_points ? `Tổng ≤ ${fmt.pts(d.max_total_points)}` : null, fmt.GENDER_RULE_LABEL[d.gender_rule]].filter(Boolean).join(' · ') %></span>
-    <div class="row small" style="--gap: 6px;"><% if (d.newRegs) { %><span class="chip chip-warn"><%= d.newRegs %> mới</span><% } %><span class="chip"><%= d.approvedRegs %> đã duyệt</span><span class="chip"><%= d.matchCount %> trận</span></div>
-    <div class="action-grid">
-      <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/dang-ky">Đăng ký</a>
-      <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/nhanh-dau">Nhánh đấu</a>
-      <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/vinh-danh">Vinh danh</a>
-      <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/sua">Sửa</a>
-    </div>
-  </div>
-  <% }) %>
+<% if (ev.divisions.length) { %>
+<div class="table-wrap">
+  <table class="data atable">
+    <thead><tr><th>Nội dung</th><th class="num c-fit">ĐK mới</th><th class="num c-fit">Đội</th><th class="num c-fit hide-m">Trận</th></tr></thead>
+    <tbody>
+    <% ev.divisions.forEach((d) => { %>
+      <tr class="at-row">
+        <td class="c-main"><button type="button" class="at-who" data-row-toggle aria-expanded="false" aria-controls="dv<%= d.id %>"><span class="at-name">
+          <strong><%= d.name %></strong>
+          <span class="at-meta"><%= [d.format === 'roundrobin' ? 'Vòng tròn' : 'Loại trực tiếp', d.max_teams ? `Tối đa ${d.max_teams}` : null, d.max_total_points ? `Tổng ≤ ${fmt.pts(d.max_total_points)}` : null, fmt.GENDER_RULE_LABEL[d.gender_rule]].filter(Boolean).join(' · ') %></span>
+        </span></button></td>
+        <td class="num c-fit tnum"><% if (d.newRegs) { %><a class="chip chip-warn" href="/admin/noi-dung/<%= d.id %>/dang-ky?status=new"><%= d.newRegs %></a><% } else { %><span class="faint">0</span><% } %></td>
+        <td class="num c-fit tnum"><b><%= d.approvedRegs %></b><% if (d.max_teams) { %><span class="faint small">/<%= d.max_teams %></span><% } %></td>
+        <td class="num c-fit tnum hide-m"><%= d.matchCount %></td>
+      </tr>
+      <tr class="at-detail" id="dv<%= d.id %>" hidden>
+        <td colspan="4"><div class="at-detail-in">
+          <% if (d.subtitle) { %><span class="small muted"><%= d.subtitle %></span><% } %>
+          <div class="action-grid">
+            <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/dang-ky">Đăng ký</a>
+            <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/nhanh-dau">Nhánh đấu</a>
+            <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/vinh-danh">Vinh danh</a>
+            <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/sua">Sửa</a>
+          </div>
+        </div></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
 </div>
+<p class="tiny faint">Bấm tên nội dung để mở Đăng ký, Nhánh đấu, Vinh danh, Sửa. "Đội" là số đội đã duyệt.</p>
+<% } %>
 <%- include('_bottom') %>

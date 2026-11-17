@@ -1,19 +1,34 @@
 <%- include('_top') %>
-<div class="list">
-  <% rows.forEach((u) => { %>
-  <div class="list-item" style="flex-wrap: wrap;">
-    <span class="main" style="flex: 1 1 220px;"><strong><%= u.display_name %> <span class="faint small">@<%= u.username %></span></strong><span class="sub"><%= fmt.ROLE_LABEL[u.role] %> · <%= u.active ? 'Đang hoạt động' : 'Đã khóa' %><%= u.last_login_at ? ` · đăng nhập ${fmt.dateTimeVN(u.last_login_at)}` : '' %></span></span>
-    <% if (u.id !== user.id) { %>
-    <span class="side">
-      <form class="row inline-form" method="post" action="/admin/nguoi-dung/<%= u.id %>" style="--gap: 6px;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="role"><select class="input" name="role" aria-label="Vai trò" style="min-height: 38px; width: auto;"><% Object.entries(fmt.ROLE_LABEL).forEach(([k, l]) => { %><option value="<%= k %>" <%= u.role === k ? 'selected' : '' %>><%= l %></option><% }) %></select><button class="btn btn-sm" type="submit">Đổi</button></form>
-      <form class="inline-form" method="post" action="/admin/nguoi-dung/<%= u.id %>" data-confirm="<%= u.active ? 'Khóa' : 'Mở khóa' %> tài khoản <%= u.username %>?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="toggle"><button class="btn btn-sm <%= u.active ? 'btn-danger' : '' %>" type="submit"><%= u.active ? 'Khóa' : 'Mở khóa' %></button></form>
-    </span>
-    <details style="flex-basis: 100%;"><summary class="link tiny" style="cursor: pointer;">Đặt lại mật khẩu</summary>
-      <form class="row" method="post" action="/admin/nguoi-dung/<%= u.id %>" style="--gap: 8px; margin-top: 8px;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="reset"><input class="input" type="password" name="password" autocomplete="new-password" placeholder="Mật khẩu mới" aria-label="Mật khẩu mới" style="flex: 1; min-height: 44px;"><button class="btn btn-sm" type="submit">Đặt lại</button></form>
-    </details>
-    <% } else { %><span class="chip">Bạn</span><% } %>
-  </div>
-  <% }) %>
+<p class="tiny faint at-count"><%= rows.length %> tài khoản · bấm vào tên để đổi vai trò, khoá hoặc đặt lại mật khẩu</p>
+<div class="table-wrap">
+  <table class="data atable">
+    <thead><tr><th>Tài khoản</th><th class="c-fit hide-m">Vai trò</th><th class="c-fit hide-m">Đăng nhập gần nhất</th><th class="c-fit" style="text-align: right;">Trạng thái</th></tr></thead>
+    <tbody>
+    <% rows.forEach((u) => { const me = u.id === user.id; %>
+      <tr class="at-row">
+        <td class="c-main"><<%= me ? 'div' : 'button type="button"' %> class="at-who" <% if (!me) { %>data-row-toggle aria-expanded="false" aria-controls="u<%= u.id %>"<% } %>><span class="at-name">
+          <strong><%= u.display_name %> <small>@<%= u.username %></small></strong>
+          <span class="at-meta show-m"><%= fmt.ROLE_LABEL[u.role] %> · @<%= u.username %></span>
+        </span></<%= me ? 'div' : 'button' %>></td>
+        <td class="c-fit c-sub hide-m"><%= fmt.ROLE_LABEL[u.role] %></td>
+        <td class="c-fit c-sub tnum hide-m"><%= u.last_login_at ? fmt.dateTimeVN(u.last_login_at) : '—' %></td>
+        <td class="c-fit" style="text-align: right;"><% if (me) { %><span class="chip chip-brand">Bạn</span><% } else { %><span class="chip <%= u.active ? 'chip-ok' : 'chip-muted' %>"><%= u.active ? 'Hoạt động' : 'Đã khoá' %></span><% } %></td>
+      </tr>
+      <% if (!me) { %>
+      <tr class="at-detail" id="u<%= u.id %>" hidden>
+        <td colspan="4"><div class="at-detail-in">
+          <span class="tiny faint show-m"><%= u.last_login_at ? `Đăng nhập gần nhất ${fmt.dateTimeVN(u.last_login_at)}` : 'Chưa đăng nhập' %></span>
+          <div class="row" style="--gap: 8px;">
+            <form class="row inline-form" method="post" action="/admin/nguoi-dung/<%= u.id %>" style="--gap: 6px; flex-wrap: nowrap;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="role"><select class="input" name="role" aria-label="Vai trò" style="min-height: 38px; width: auto;"><% Object.entries(fmt.ROLE_LABEL).forEach(([k, l]) => { %><option value="<%= k %>" <%= u.role === k ? 'selected' : '' %>><%= l %></option><% }) %></select><button class="btn btn-sm" type="submit">Đổi vai trò</button></form>
+            <form class="inline-form" method="post" action="/admin/nguoi-dung/<%= u.id %>" data-confirm="<%= u.active ? 'Khóa' : 'Mở khóa' %> tài khoản <%= u.username %>?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="toggle"><button class="btn btn-sm <%= u.active ? 'btn-danger' : '' %>" type="submit"><%= u.active ? 'Khóa' : 'Mở khóa' %></button></form>
+          </div>
+          <form class="row" method="post" action="/admin/nguoi-dung/<%= u.id %>" style="--gap: 8px; flex-wrap: nowrap;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="action" value="reset"><input class="input" type="password" name="password" autocomplete="new-password" placeholder="Mật khẩu mới" aria-label="Mật khẩu mới cho <%= u.username %>" style="flex: 1; min-width: 0; min-height: 40px;"><button class="btn btn-sm" type="submit">Đặt lại</button></form>
+        </div></td>
+      </tr>
+      <% } %>
+    <% }) %>
+    </tbody>
+  </table>
 </div>
 <form class="card card-pad form" method="post" action="/admin/nguoi-dung" style="max-width: 720px;">
   <input type="hidden" name="csrf_token" value="<%= csrfToken %>">

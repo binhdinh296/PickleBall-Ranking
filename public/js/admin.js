@@ -157,3 +157,53 @@
     sync();
   });
 })();
+
+// ---- Bảng quản trị (.atable): mở dòng chi tiết, bấm cả dòng để mở bản ghi, chọn nhiều ----
+document.addEventListener('click', function (e) {
+  var t = e.target.closest('[data-row-toggle]');
+  if (t) {
+    var d = document.getElementById(t.getAttribute('aria-controls'));
+    if (!d) return;
+    var open = d.hidden;
+    d.hidden = !open;
+    t.setAttribute('aria-expanded', String(open));
+    return;
+  }
+  var tr = e.target.closest('tr[data-href]');
+  if (tr && !e.target.closest('a, button, input, select, textarea, label, form, summary')) {
+    if (e.metaKey || e.ctrlKey) window.open(tr.getAttribute('data-href'), '_blank');
+    else location.href = tr.getAttribute('data-href');
+  }
+});
+
+(function () {
+  var form = document.querySelector('[data-bulk-form]');
+  if (!form) return;
+  var items = Array.prototype.slice.call(form.querySelectorAll('[data-check-item]'));
+  var all = form.querySelector('[data-check-all]');
+  var count = form.querySelector('[data-bulk-count]');
+  var actions = form.querySelectorAll('[data-bulk-action]');
+  function sync() {
+    var n = items.filter(function (c) { return c.checked; }).length;
+    if (count) count.textContent = n;
+    actions.forEach(function (b) { b.disabled = n === 0; });
+    if (all) { all.checked = n > 0 && n === items.length; all.indeterminate = n > 0 && n < items.length; }
+  }
+  if (all) all.addEventListener('change', function () { items.forEach(function (c) { c.checked = all.checked; }); sync(); });
+  items.forEach(function (c) { c.addEventListener('change', sync); });
+  sync();
+
+  form.querySelectorAll('.at-pts').forEach(function (i) {
+    i.addEventListener('input', function () { i.classList.toggle('changed', i.value.trim() !== i.getAttribute('data-self')); });
+  });
+
+  form.addEventListener('submit', function (e) {
+    var b = e.submitter;
+    if (!b) return;
+    var n = count ? count.textContent : '';
+    var msg = b.getAttribute('data-confirm-one') || (b.hasAttribute('data-bulk-action') ? (b.getAttribute('data-bulk-confirm') || '').replace('{n}', n) : '');
+    if (msg && !window.confirm(msg)) { e.preventDefault(); return; }
+    // Chặn bấm hai lần trong lúc gửi
+    setTimeout(function () { form.querySelectorAll('button[type="submit"]').forEach(function (x) { x.disabled = true; }); }, 0);
+  });
+})();

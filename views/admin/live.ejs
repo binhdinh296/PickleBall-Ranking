@@ -26,16 +26,25 @@
   <a class="btn btn-brand" href="/admin/livestream/moi?giai=<%= eventId %>"><%- include('../partials/icon', { name: 'plus' }) %>Tạo buổi phát</a>
   <% if (account.connected) { %><form method="post" action="/admin/livestream/dong-bo"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="event_id" value="<%= eventId %>"><button class="btn" type="submit">Đồng bộ trạng thái</button></form><% } %>
 </div>
-<div class="list">
-  <% if (!events.length) { %><div class="list-item faint">Chưa có giải đấu trong 30 ngày gần đây.</div><% } else if (!streams.length) { %><div class="list-item faint">Giải này chưa có buổi phát. Tạo mỗi sân một buổi phát cho mỗi ngày thi đấu.</div><% } %>
-  <% streams.forEach((s) => { %>
-  <a class="list-item" href="/admin/livestream/<%= s.id %>">
-    <% if (s.youtube_video_id) { %><img src="https://i.ytimg.com/vi/<%= s.youtube_video_id %>/mqdefault.jpg" alt="" width="96" height="54" style="border-radius: 8px; object-fit: cover; flex: none;" loading="lazy"><% } %>
-    <span class="main"><strong><%= s.court %> · <%= s.title %></strong><span class="sub"><%= s.scheduled_start ? fmt.dateTimeVN(s.scheduled_start) : 'Chưa đặt giờ' %> · <%= s.via_api ? 'Tạo qua YouTube API' : 'Link dán tay' %></span></span>
-    <span class="chip <%= s.status === 'live' ? 'chip-live' : s.status === 'ended' ? 'chip-muted' : 'chip-ball' %>"><%= fmt.LIVE_STATUS_LABEL[s.status] %></span>
-  </a>
-  <% }) %>
+<% if (!events.length) { %><div class="empty">Chưa có giải đấu trong 30 ngày gần đây.</div><% } else if (!streams.length) { %><div class="empty">Giải này chưa có buổi phát. Tạo mỗi sân một buổi phát cho mỗi ngày thi đấu.</div><% } else { %>
+<div class="table-wrap">
+  <table class="data atable">
+    <thead><tr><th>Buổi phát</th><th class="c-fit hide-m">Giờ phát</th><th class="c-fit" style="text-align: right;">Trạng thái</th></tr></thead>
+    <tbody>
+    <% streams.forEach((s) => { %>
+      <tr class="at-row" data-href="/admin/livestream/<%= s.id %>">
+        <td class="c-main"><a class="at-who" href="/admin/livestream/<%= s.id %>">
+          <% if (s.youtube_video_id) { %><img src="https://i.ytimg.com/vi/<%= s.youtube_video_id %>/mqdefault.jpg" alt="" width="64" height="36" style="border-radius: 6px; object-fit: cover; flex: none;" loading="lazy"><% } %>
+          <span class="at-name"><strong><%= s.court %> · <%= s.title %></strong><span class="at-meta"><span class="show-m"><%= s.scheduled_start ? fmt.dateTimeVN(s.scheduled_start) : 'Chưa đặt giờ' %> · </span><%= s.via_api ? 'YouTube API' : 'Link dán tay' %></span></span>
+        </a></td>
+        <td class="c-fit c-sub tnum hide-m"><%= s.scheduled_start ? fmt.dateTimeVN(s.scheduled_start) : 'Chưa đặt giờ' %></td>
+        <td class="c-fit" style="text-align: right;"><span class="chip <%= s.status === 'live' ? 'chip-live' : s.status === 'ended' ? 'chip-muted' : 'chip-ball' %>"><%= fmt.LIVE_STATUS_LABEL[s.status] %></span></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
 </div>
+<% } %>
 <details class="fold">
   <summary>Hướng dẫn phát trực tiếp từ sân</summary>
   <div class="fold-body stack small muted" style="--gap: 8px;">

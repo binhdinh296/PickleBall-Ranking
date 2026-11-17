@@ -1,13 +1,26 @@
 <%- include('_top') %>
 <p class="muted small"><%= user.role === 'referee' ? 'Các trận được giao cho bạn hiện trên cùng, kế đến là trận chưa giao cho ai.' : 'Tất cả trận đang chờ nhập tỉ số, kèm trọng tài được giao.' %> Trận "Đang đấu" được ưu tiên.</p>
-<div class="list">
-  <% if (!matches.length) { %><div class="list-item faint">Không có trận nào chờ nhập tỉ số.</div><% } %>
-  <% matches.forEach((m) => { %>
-  <a class="list-item" href="/admin/tran/<%= m.id %>">
-    <span class="main"><strong><%= m.team_a %> <span class="faint">vs</span> <%= m.team_b %></strong><span class="sub"><%= m.event_name %> · <%= m.division %> · <%= m.round_name %><%= m.code ? ` · ${m.code}` : '' %><%= m.court ? ` · ${m.court}` : '' %></span></span>
-    <% if (m.referee_name && m.referee_id === user.id) { %><span class="chip chip-brand">Giao cho bạn</span><% } else if (m.referee_name && user.role !== 'referee') { %><span class="chip">TT: <%= m.referee_name %></span><% } else if (!m.referee_name) { %><span class="chip faint">Chưa giao</span><% } %>
-    <span class="side"><span class="chip <%= m.status === 'live' ? 'chip-live' : '' %>"><%= fmt.MATCH_STATUS_LABEL[m.status] %></span><% if (m.status === 'live') { %><strong class="tnum"><%= m.score_a ?? 0 %>–<%= m.score_b ?? 0 %></strong><% } %></span>
-  </a>
-  <% }) %>
+<% if (!matches.length) { %><div class="empty">Không có trận nào chờ nhập tỉ số.</div><% } else { %>
+<div class="table-wrap">
+  <table class="data atable">
+    <thead><tr><th>Trận</th><th class="c-fit hide-m">Trọng tài</th><th class="c-fit" style="text-align: right;">Trạng thái</th></tr></thead>
+    <tbody>
+    <% matches.forEach((m) => {
+      const mine = m.referee_name && m.referee_id === user.id;
+      const refLabel = mine ? 'Giao cho bạn' : m.referee_name ? `TT: ${m.referee_name}` : 'Chưa giao';
+    %>
+      <tr class="at-row" data-href="/admin/tran/<%= m.id %>">
+        <td class="c-main"><a class="at-who" href="/admin/tran/<%= m.id %>"><span class="at-name">
+          <strong><%= m.team_a %> <span class="faint">vs</span> <%= m.team_b %></strong>
+          <span class="at-meta"><%= [m.code, m.court, m.round_name].filter(Boolean).join(' · ') %></span>
+          <span class="at-meta"><%= m.division %> · <%= m.event_name %><span class="show-m"> · <%= refLabel %></span></span>
+        </span></a></td>
+        <td class="c-fit hide-m"><span class="chip <%= mine ? 'chip-brand' : m.referee_name ? '' : 'chip-muted' %>"><%= refLabel %></span></td>
+        <td class="c-fit" style="text-align: right;"><span class="chips"><span class="chip <%= m.status === 'live' ? 'chip-live' : '' %>"><%= fmt.MATCH_STATUS_LABEL[m.status] %></span><% if (m.status === 'live') { %><strong class="tnum"><%= m.score_a ?? 0 %>–<%= m.score_b ?? 0 %></strong><% } %></span></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
 </div>
+<% } %>
 <%- include('_bottom') %>

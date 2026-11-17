@@ -6,17 +6,27 @@
   <button class="btn" type="submit">Lọc</button>
   <a class="btn btn-brand" href="/admin/vdv/moi"><%- include('../partials/icon', { name: 'plus' }) %>Thêm VĐV</a>
 </form>
-<p class="tiny faint"><%= total %> vận động viên</p>
-<div class="list">
-  <% if (!rows.length) { %><div class="list-item faint">Không có VĐV phù hợp.</div><% } %>
-  <% rows.forEach((a) => { %>
-  <a class="list-item" href="/admin/vdv/<%= a.id %>">
-    <%- include('../partials/avatar', { a, size: 44 }) %>
-    <span class="main"><strong><%= a.full_name %><%= a.nickname ? ` (${a.nickname})` : '' %></strong><span class="sub"><%= fmt.GENDER_LABEL[a.gender] %> · <%= a.club || '—' %> · <%= a.phone || 'chưa có SĐT' %></span></span>
-    <span class="side"><% if (a.featured) { %><span class="chip chip-gold">Nổi bật</span><% } %><% if (!a.visible) { %><span class="chip chip-muted">Ẩn</span><% } %><strong class="tnum"><%= fmt.pts(a.points) %></strong></span>
-  </a>
-  <% }) %>
+<p class="tiny faint at-count"><%= total %> vận động viên</p>
+<% if (!rows.length) { %><div class="empty">Không có VĐV phù hợp.</div><% } else { %>
+<div class="table-wrap">
+  <table class="data atable">
+    <thead><tr><th>Vận động viên</th><th class="hide-m">CLB</th><th class="c-fit hide-m">SĐT</th><th class="num c-fit">Điểm</th></tr></thead>
+    <tbody>
+    <% rows.forEach((a) => { %>
+      <tr class="at-row" data-href="/admin/vdv/<%= a.id %>">
+        <td class="c-main"><a class="at-who" href="/admin/vdv/<%= a.id %>"><%- include('../partials/avatar', { a, size: 36 }) %><span class="at-name">
+          <strong><%= a.full_name %><% if (a.nickname) { %> <small>(<%= a.nickname %>)</small><% } %></strong>
+          <span class="at-meta"><%= fmt.GENDER_LABEL[a.gender] %><span class="show-m"> · <%= a.club || 'Chưa có CLB' %></span><% if (a.featured) { %> · <span class="chip chip-gold">Nổi bật</span><% } %><% if (!a.visible) { %> · <span class="chip chip-muted">Ẩn</span><% } %></span>
+        </span></a></td>
+        <td class="c-sub c-col hide-m"><span title="<%= a.club || '' %>"><%= a.club || '—' %></span></td>
+        <td class="c-fit c-sub tnum hide-m"><%= a.phone || '—' %></td>
+        <td class="num c-fit tnum"><b><%= fmt.pts(a.points) %></b></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
 </div>
+<% } %>
 <% if (pages > 1) { %>
 <nav class="pager"><% if (page > 1) { %><a href="/admin/vdv<%= qs({ page: page - 1 }) %>">‹</a><% } %><span aria-current="page"><%= page %>/<%= pages %></span><% if (page < pages) { %><a href="/admin/vdv<%= qs({ page: page + 1 }) %>">›</a><% } %></nav>
 <% } %>

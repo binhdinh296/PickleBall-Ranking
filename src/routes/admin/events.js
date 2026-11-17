@@ -318,6 +318,20 @@ router.post('/noi-dung/:id/dang-ky', editor, wrap(async (req, res, next) => {
   res.redirect(`/admin/noi-dung/${d.id}/dang-ky`);
 }));
 
+// Duyệt / từ chối nhiều đăng ký một lần (chỉ trong nội dung này)
+router.post('/noi-dung/:id/dang-ky/hang-loat', editor, wrap(async (req, res, next) => {
+  const d = await loadDivision(req.params.id);
+  if (!d) return next();
+  const status = { approve: 'approved', reject: 'rejected' }[req.body.action];
+  const ids = [].concat(req.body.ids || []).map((v) => parseInt(v, 10)).filter((n) => n > 0).slice(0, 500);
+  if (!status || !ids.length) { req.flash('error', 'Chưa chọn đăng ký nào.'); return res.redirect(`/admin/noi-dung/${d.id}/dang-ky`); }
+  const rows = await all(`UPDATE registrations SET status = ? WHERE division_id = ? AND id = ANY(?::int[]) RETURNING id`, status, d.id, ids);
+  await audit(req, 'registration_status_bulk', `division:${d.id}`, `${status}: ${rows.map((r) => r.id).join(',')}`);
+  req.flash('success', `Đã chuyển ${rows.length} đăng ký sang "${fmt.REG_STATUS_LABEL[status]}".`);
+  const back = ['new', 'approved', 'rejected'].includes(req.body.back_status) ? `?status=${req.body.back_status}` : '';
+  res.redirect(`/admin/noi-dung/${d.id}/dang-ky${back}`);
+}));
+
 router.post('/dang-ky/:id/trang-thai', editor, wrap(async (req, res) => {
   const status = ['new', 'approved', 'rejected'].includes(req.body.status) ? req.body.status : null;
   const r = await get('SELECT * FROM registrations WHERE id = ?', parseInt(req.params.id, 10) || 0);

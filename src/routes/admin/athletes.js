@@ -142,32 +142,65 @@ router.get('/don-cham-trinh', editor, wrap(async (req, res) => {
   res.render('admin/submissions', { title: 'Đơn chấm trình', rows, status, counts });
 }));
 
-router.post('/don-cham-trinh/:id/duyet', editor, wrap(async (req, res) => {
+// Duyệt một đơn: tạo VĐV từ đơn với điểm admin chốt (mặc định = điểm tự chấm)
+async function approveSubmission(req, id, rawPoints, rawNote) {
   const result = await tx(async () => {
-    const s = await get("SELECT * FROM submissions WHERE id = ? AND status = 'pending' FOR UPDATE", parseInt(req.params.id, 10) || 0);
+    const s = await get("SELECT * FROM submissions WHERE id = ? AND status = 'pending' FOR UPDATE", id);
     if (!s) return { error: 'Đơn không tồn tại hoặc đã được xử lý.' };
-    if (await get('SELECT 1 FROM athletes WHERE phone = ?', s.phone)) return { error: 'SĐT của đơn đã có VĐV trong hệ thống.' };
-    const pts = fmt.parsePoints(req.body.points) ?? s.points;
+    if (await get('SELECT 1 FROM athletes WHERE phone = ?', s.phone)) return { error: `SĐT của ${s.full_name} đã có VĐV trong hệ thống.` };
+    const pts = fmt.parsePoints(rawPoints) ?? s.points;
     const a = await get(`INSERT INTO athletes(full_name, nickname, phone, gender, hometown, club, description, avatar, points, peak_points)
       VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING id`, s.full_name, s.nickname, s.phone, s.gender, s.hometown, s.club, s.description, s.avatar, pts, pts);
     await run("INSERT INTO point_history(athlete_id, old_points, new_points, kind, note, author) VALUES (?, ?, ?, 'init', 'Duyệt đơn tự chấm trình', ?)",
       a.id, pts, pts, req.session.user.displayName);
     await run("UPDATE submissions SET status = 'approved', athlete_id = ?, points = ?, reviewed_by = ?, reviewed_at = now(), admin_note = ? WHERE id = ?",
-      a.id, pts, req.session.user.displayName, String(req.body.note || '').trim() || null, s.id);
+      a.id, pts, req.session.user.displayName, String(rawNote || '').trim().slice(0, 300) || null, s.id);
     return { athleteId: a.id, name: s.full_name };
   });
-  if (result.error) { req.flash('error', result.error); return res.redirect('/admin/don-cham-trinh'); }
-  await audit(req, 'submission_approve', `athlete:${result.athleteId}`, result.name);
-  req.flash('success', `Đã duyệt và tạo VĐV ${result.name}.`);
+  if (!result.error) await audit(req, 'submission_approve', `athlete:${result.athleteId}`, result.name);
+  return result;
+}
+
+async function rejectSubmission(req, id, rawNote) {
+  const note = String(rawNote || '').trim().slice(0, 300);
+  const s = await get(`UPDATE submissions SET status = 'rejected', reviewed_by = ?, reviewed_at = now(), admin_note = ?
+    WHERE id = ? AND status = 'pending' RETURNING id, full_name`, req.session.user.displayName, note || null, id);
+  if (s) await audit(req, 'submission_reject', `submission:${s.id}`, note);
+  return s;
+}
+
+// Bảng duyệt gửi chung một form: điểm và lý do theo từng đơn nằm ở points_<id>, note_<id>
+const fieldOf = (body, name, id) => body[`${name}_${id}`] ?? body[name];
+const selectedIds = (body) => [].concat(body.ids || []).map((v) => parseInt(v, 10)).filter((n) => n > 0).slice(0, 200);
+
+router.post('/don-cham-trinh/hang-loat', editor, wrap(async (req, res) => {
+  const ids = selectedIds(req.body);
+  const reject = req.body.action === 'reject';
+  if (!ids.length) { req.flash('error', 'Chưa chọn đơn nào.'); return res.redirect('/admin/don-cham-trinh'); }
+  let ok = 0; const errors = [];
+  for (const id of ids) {
+    if (reject) { if (await rejectSubmission(req, id, fieldOf(req.body, 'note', id))) ok++; else errors.push(`Đơn #${id} đã được xử lý.`); continue; }
+    const r = await approveSubmission(req, id, fieldOf(req.body, 'points', id), fieldOf(req.body, 'note', id));
+    if (r.error) errors.push(r.error); else ok++;
+  }
+  // flash chỉ giữ một thông báo: gộp phần thành công và phần lỗi
+  const done = ok ? (reject ? `Đã từ chối ${ok} đơn.` : `Đã duyệt ${ok} đơn và tạo VĐV.`) : '';
+  req.flash(errors.length ? 'error' : 'success', [done, ...errors].filter(Boolean).join(' '));
+  res.redirect('/admin/don-cham-trinh');
+}));
+
+router.post('/don-cham-trinh/:id/duyet', editor, wrap(async (req, res) => {
+  const id = parseInt(req.params.id, 10) || 0;
+  const result = await approveSubmission(req, id, fieldOf(req.body, 'points', id), fieldOf(req.body, 'note', id));
+  if (result.error) req.flash('error', result.error);
+  else req.flash('success', `Đã duyệt và tạo VĐV ${result.name}.`);
   res.redirect('/admin/don-cham-trinh');
 }));
 
 router.post('/don-cham-trinh/:id/tu-choi', editor, wrap(async (req, res) => {
-  const note = String(req.body.note || '').trim().slice(0, 300);
-  const s = await get(`UPDATE submissions SET status = 'rejected', reviewed_by = ?, reviewed_at = now(), admin_note = ?
-    WHERE id = ? AND status = 'pending' RETURNING id, full_name`, req.session.user.displayName, note || null, parseInt(req.params.id, 10) || 0);
-  if (s) await audit(req, 'submission_reject', `submission:${s.id}`, note);
-  req.flash(s ? 'success' : 'error', s ? 'Đã từ chối đơn.' : 'Đơn không tồn tại hoặc đã được xử lý.');
+  const id = parseInt(req.params.id, 10) || 0;
+  const s = await rejectSubmission(req, id, fieldOf(req.body, 'note', id));
+  req.flash(s ? 'success' : 'error', s ? `Đã từ chối đơn của ${s.full_name}.` : 'Đơn không tồn tại hoặc đã được xử lý.');
   res.redirect('/admin/don-cham-trinh');
 }));
 
