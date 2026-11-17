@@ -15,10 +15,20 @@ function appUrl(req) {
 }
 
 router.get('/livestream', editor, wrap(async (req, res) => {
-  const events = await all("SELECT id, name, start_date, end_date FROM events WHERE end_date >= CURRENT_DATE - 30 ORDER BY start_date DESC");
-  const eventId = parseInt(req.query.giai, 10) || (events[0] && events[0].id) || 0;
-  const streams = await all(`SELECT l.*, e.name AS event_name, e.slug FROM live_streams l JOIN events e ON e.id = l.event_id
-    WHERE l.event_id = ? ORDER BY l.sort_order, l.court, l.id`, eventId);
+  const events = await all("SELECT id, name, start_date, end_date FROM events ORDER BY start_date DESC");
+  const giaiParam = req.query.giai;
+  const eventId = giaiParam && giaiParam !== 'all' ? parseInt(giaiParam, 10) || 0 : 0;
+
+  let streams;
+  if (eventId > 0) {
+    streams = await all(`SELECT l.*, e.name AS event_name, e.slug FROM live_streams l JOIN events e ON e.id = l.event_id
+      WHERE l.event_id = ? ORDER BY CASE l.status WHEN 'live' THEN 1 WHEN 'upcoming' THEN 2 ELSE 3 END, l.sort_order, l.court, l.id`, eventId);
+  } else {
+    // Mặc định: Hiện tất cả các buổi phát, ưu tiên đang Live lên đầu
+    streams = await all(`SELECT l.*, e.name AS event_name, e.slug FROM live_streams l LEFT JOIN events e ON e.id = l.event_id
+      ORDER BY CASE l.status WHEN 'live' THEN 1 WHEN 'upcoming' THEN 2 ELSE 3 END, l.created_at DESC`);
+  }
+
   res.render('admin/live', {
     title: 'Livestream', events, eventId, streams, account: await youtube.account(), ytConfigured: youtube.configured(),
     redirectUri: youtube.configured() ? youtube.redirectUri() : null, appUrl: appUrl(req),

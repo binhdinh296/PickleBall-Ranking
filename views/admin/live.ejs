@@ -20,25 +20,42 @@
 <div class="toolbar">
   <form method="get" action="/admin/livestream" class="row grow" style="--gap: 8px; flex-wrap: nowrap;">
     <label class="sr-only" for="giai">Giải</label>
-    <select class="input" id="giai" name="giai" style="flex: 1; min-width: 0;"><% events.forEach((e) => { %><option value="<%= e.id %>" <%= e.id === eventId ? 'selected' : '' %>><%= e.name %></option><% }) %></select>
-    <button class="btn" type="submit">Xem</button>
+    <select class="input" id="giai" name="giai" style="flex: 1; min-width: 0;" onchange="this.form.submit()">
+      <option value="all" <%= !eventId ? 'selected' : '' %>>Tất cả giải đấu (toàn bộ video livestream)</option>
+      <% events.forEach((e) => { %>
+        <option value="<%= e.id %>" <%= e.id === eventId ? 'selected' : '' %>><%= e.name %></option>
+      <% }) %>
+    </select>
+    <button class="btn" type="submit">Lọc</button>
   </form>
-  <a class="btn btn-brand" href="/admin/livestream/moi?giai=<%= eventId %>"><%- include('../partials/icon', { name: 'plus' }) %>Tạo buổi phát</a>
-  <% if (account.connected) { %><form method="post" action="/admin/livestream/dong-bo"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="event_id" value="<%= eventId %>"><button class="btn" type="submit">Đồng bộ trạng thái</button></form><% } %>
+  <a class="btn btn-brand" href="/admin/livestream/moi<%= eventId ? `?giai=${eventId}` : '' %>"><%- include('../partials/icon', { name: 'plus' }) %>Tạo buổi phát</a>
+  <% if (account.connected && eventId) { %><form method="post" action="/admin/livestream/dong-bo"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="event_id" value="<%= eventId %>"><button class="btn" type="submit">Đồng bộ trạng thái</button></form><% } %>
 </div>
-<% if (!events.length) { %><div class="empty">Chưa có giải đấu trong 30 ngày gần đây.</div><% } else if (!streams.length) { %><div class="empty">Giải này chưa có buổi phát. Tạo mỗi sân một buổi phát cho mỗi ngày thi đấu.</div><% } else { %>
+<% if (!events.length) { %><div class="empty">Chưa có giải đấu nào trong hệ thống.</div><% } else if (!streams.length) { %><div class="empty">Giải này chưa có buổi phát nào. Bấm nút <strong>+ Tạo buổi phát</strong> ở trên để thêm video.</div><% } else { %>
 <div class="table-wrap">
   <table class="data atable">
-    <thead><tr><th>Buổi phát</th><th class="c-fit hide-m">Giờ phát</th><th class="c-fit" style="text-align: right;">Trạng thái</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Buổi phát</th>
+        <th class="c-fit hide-m">Giải đấu</th>
+        <th class="c-fit hide-m">Giờ phát</th>
+        <th class="c-fit" style="text-align: right;">Trạng thái</th>
+        <th class="c-fit" style="text-align: right;">Hành động</th>
+      </tr>
+    </thead>
     <tbody>
     <% streams.forEach((s) => { %>
       <tr class="at-row" data-href="/admin/livestream/<%= s.id %>">
         <td class="c-main"><a class="at-who" href="/admin/livestream/<%= s.id %>">
           <% if (s.youtube_video_id) { %><img src="https://i.ytimg.com/vi/<%= s.youtube_video_id %>/mqdefault.jpg" alt="" width="64" height="36" style="border-radius: 6px; object-fit: cover; flex: none;" loading="lazy"><% } %>
-          <span class="at-name"><strong><%= s.court %> · <%= s.title %></strong><span class="at-meta"><span class="show-m"><%= s.scheduled_start ? fmt.dateTimeVN(s.scheduled_start) : 'Chưa đặt giờ' %> · </span><%= s.via_api ? 'YouTube API' : 'Link dán tay' %></span></span>
+          <span class="at-name"><strong><%= s.court %> · <%= s.title %></strong><span class="at-meta"><span class="show-m"><%= s.event_name ? `${s.event_name} · ` : '' %></span><span class="show-m"><%= s.scheduled_start ? fmt.dateTimeVN(s.scheduled_start) : 'Chưa đặt giờ' %> · </span><%= s.via_api ? 'YouTube API' : 'Link dán tay' %></span></span>
         </a></td>
+        <td class="c-fit c-sub hide-m" style="white-space: nowrap;"><%= s.event_name || '—' %></td>
         <td class="c-fit c-sub tnum hide-m"><%= s.scheduled_start ? fmt.dateTimeVN(s.scheduled_start) : 'Chưa đặt giờ' %></td>
         <td class="c-fit" style="text-align: right;"><span class="chip <%= s.status === 'live' ? 'chip-live' : s.status === 'ended' ? 'chip-muted' : 'chip-ball' %>"><%= fmt.LIVE_STATUS_LABEL[s.status] %></span></td>
+        <td class="c-fit" style="text-align: right;">
+          <a class="btn btn-sm" href="/admin/livestream/<%= s.id %>">Sửa / Quản lý</a>
+        </td>
       </tr>
     <% }) %>
     </tbody>
