@@ -40,6 +40,18 @@
   box-shadow: 0 4px 14px -4px color-mix(in oklab, var(--ball) 60%, transparent);
 }
 .tx-tab.is-active b { background: rgba(0, 0, 0, .18); color: var(--on-brand); }
+.tx-tab-short { display: none; }
+/* Điện thoại: 4 tab chia đều một hàng, nhãn ngắn, để tab "Kết thúc" không bị đẩy ra ngoài màn hình */
+@media (max-width: 520px) {
+  .tx-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; overflow: visible; flex-basis: 100%; }
+  .tx-tab { justify-content: center; gap: 3px; padding: 0 2px; font-size: clamp(11px, 3.3vw, 12.5px); min-height: 40px; }
+  .tx-tab-full { display: none; }
+  .tx-tab-short { display: inline; }
+}
+@media (max-width: 359px) {
+  .tx-tab b { display: none; }
+  .tx-tab b { min-width: 16px; height: 16px; padding: 0 3px; font-size: 10px; }
+}
 
 .tx-search { position: relative; display: flex; align-items: center; flex: 1 1 240px; max-width: 100%; margin: 0; }
 @media (min-width: 900px) { .tx-search { max-width: 320px; } }

@@ -1,10 +1,10 @@
 <%- include('../partials/top', { pageScript: 'tournaments' }) %>
 <%
   const tabs = [
-    ['all', 'Tất cả', groups.all.length],
-    ['ongoing', 'Đang diễn ra', groups.ongoing.length],
-    ['upcoming', 'Sắp diễn ra', groups.upcoming.length],
-    ['ended', 'Đã kết thúc', groups.ended.length]
+    ['all', 'Tất cả', groups.all.length, 'Tất cả'],
+    ['ongoing', 'Đang diễn ra', groups.ongoing.length, 'Đang đấu'],
+    ['upcoming', 'Sắp diễn ra', groups.upcoming.length, 'Sắp tới'],
+    ['ended', 'Đã kết thúc', groups.ended.length, 'Kết thúc']
   ];
   const currentTabObj = tabs.find((t) => t[0] === tab) || tabs[0];
   const currentEvents = groups[tab] || [];
@@ -31,9 +31,9 @@
     <!-- Thanh điều khiển: Tab lọc trạng thái + Tìm kiếm -->
     <div class="tx-controls">
       <nav class="tx-tabs" aria-label="Lọc giải đấu">
-        <% tabs.forEach(([k, label, count]) => { %>
-          <a class="tx-tab<%= tab === k ? ' is-active' : '' %>" href="/giai-dau?tab=<%= k %>#danh-sach-giai"<% if (tab === k) { %> aria-current="page"<% } %>>
-            <span><%= label %></span><b class="tnum"><%= count %></b>
+        <% tabs.forEach(([k, label, count, short]) => { %>
+          <a class="tx-tab<%= tab === k ? ' is-active' : '' %>" href="/giai-dau?tab=<%= k %>#danh-sach-giai" aria-label="<%= label %> (<%= count %>)"<% if (tab === k) { %> aria-current="page"<% } %>>
+            <span class="tx-tab-full" aria-hidden="true"><%= label %></span><span class="tx-tab-short" aria-hidden="true"><%= short %></span><b class="tnum" aria-hidden="true"><%= count %></b>
           </a>
         <% }) %>
       </nav>

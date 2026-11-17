@@ -11,6 +11,7 @@
     <a class="btn btn-sm" href="/admin/giai-dau/<%= ev.id %>/sua"><%- include('../partials/icon', { name: 'edit' }) %>Sửa thông tin</a>
     <% if (!org) { %><a class="btn btn-sm" href="/admin/livestream?giai=<%= ev.id %>"><%- include('../partials/icon', { name: 'live' }) %>Livestream</a><% } %>
     <% if (ev.published) { %><a class="btn btn-sm" href="/giai-dau/<%= ev.slug %>" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'external' }) %>Xem trang giải</a><% } %>
+    <% if (user.role === 'admin') { %><form class="inline-form" method="post" action="/admin/giai-dau/<%= ev.id %>/xoa" data-confirm="Xoá giải &quot;<%= ev.name %>&quot; cùng toàn bộ nội dung, đăng ký, nhánh đấu, vinh danh và buổi phát? Không thể hoàn tác."><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-danger" type="submit"><%- include('../partials/icon', { name: 'close' }) %>Xoá giải</button></form><% } %>
   </div>
   <% if (locals.shortRegUrl) { %>
   <div class="field" style="max-width: 620px;">

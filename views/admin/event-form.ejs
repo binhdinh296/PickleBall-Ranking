@@ -48,6 +48,6 @@
   <div class="form-actions"><button class="btn btn-brand" type="submit"><%= ev.id ? 'Lưu giải đấu' : 'Tạo giải đấu' %></button></div>
 </form>
 <% if (ev.id && user.role === 'admin') { %>
-<form method="post" action="/admin/giai-dau/<%= ev.id %>/xoa" data-confirm="Xóa giải này cùng toàn bộ nội dung, đăng ký, nhánh đấu và buổi phát?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xóa giải</button></form>
+<form method="post" action="/admin/giai-dau/<%= ev.id %>/xoa" data-confirm="Xoá giải &quot;<%= ev.name %>&quot; cùng toàn bộ nội dung, đăng ký, nhánh đấu, vinh danh và buổi phát? Không thể hoàn tác."><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xóa giải</button></form>
 <% } %>
 <%- include('_bottom') %>
