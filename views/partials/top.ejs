@@ -20,6 +20,7 @@
 <% if (locals.pageScript) { %><link rel="stylesheet" href="/static/css/<%= pageScript %>.css?v=<%= locals.assetV || "" %>"><% } %>
 <% if (locals.pageStyle) { %><link rel="stylesheet" href="/static/css/<%= pageStyle %>.css?v=<%= locals.assetV || "" %>"><% } %>
 <% if (locals.admin) { %><link rel="stylesheet" href="/static/css/admin.css?v=<%= locals.assetV || "" %>"><% } %>
+<link rel="stylesheet" href="/static/css/mobile.css?v=<%= locals.assetV || "" %>" media="(max-width: 640px)"><%# bố cục gọn cho điện thoại, nạp sau cùng %>
 <script src="/static/js/theme.js?v=<%= locals.assetV || "" %>"></script>
 </head>
 <body<% if (locals.admin) { %> class="admin-body"<% } else if (locals.bare) { %> class="bare-body"<% } %>>

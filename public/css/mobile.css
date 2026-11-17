@@ -1,0 +1,116 @@
+/* ==========================================================================
+   Bố cục gọn cho điện thoại — chỉ nạp khi màn hình ≤ 640px (thẻ <link media> trong top.ejs), nạp sau cùng.
+   Mục tiêu: thấy được nhiều nội dung hơn trên một màn hình, chữ vừa đủ đọc, nút vẫn dễ chạm (≥ 36px).
+   Giao diện máy tính không bị ảnh hưởng.
+   ========================================================================== */
+
+/* ---- Khung chung ---- */
+.page-head { padding-block: 18px 4px; }
+.section { padding-block: 30px; }
+.h1 { font-size: clamp(22px, 6.4vw, 28px); }
+.eyebrow { font-size: 11px; margin-bottom: 6px; }
+
+/* ---- Chân trang: bỏ danh sách link đã có ở thanh tab dưới, gom phần còn lại ---- */
+.site-footer { padding-block: 22px 16px; margin-top: 24px; }
+.footer-grid { gap: 14px; }
+.footer-grid .footer-nav { display: none; }
+.footer-grid h4 { margin-bottom: 6px; }
+.footer-grid ul { font-size: 14px; gap: 6px; }
+.footer-grid .footer-connect ul { flex-direction: row; flex-wrap: wrap; gap: 6px 16px; }
+.footer-bottom { margin-top: 14px; padding-top: 12px; font-size: 12.5px; }
+.sponsors { gap: 10px; margin-bottom: 18px; }
+.sponsors-head { gap: 10px; }
+.sponsors-board { padding-block: 10px; }
+.sponsors-board .sp-tile { width: 112px; height: 56px; }
+
+/* ---- Trang chủ: thẻ vợt VĐV nổi bật nhỏ lại ---- */
+.paddles { --pw: min(50vw, 190px); }
+
+/* ---- Danh sách giải: banner thấp hơn, thẻ gọn ---- */
+.tc .tc-cover { aspect-ratio: 16 / 7; }
+.tc-body { padding: 12px 14px 14px; gap: 6px; }
+.tx-grid { gap: 12px; }
+
+/* ---- Trang giải ---- */
+.lux-specs-ribbon { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.spec-card { padding: 10px; gap: 8px; border-radius: 14px; flex-direction: column; }
+.spec-icon { width: 30px; height: 30px; border-radius: 9px; }
+.spec-icon svg { width: 16px; height: 16px; }
+.spec-icon.gold-icon { font-size: 15px; }
+.spec-label { font-size: 10px; letter-spacing: .04em; }
+.spec-value { font-size: 13.5px; }
+.spec-sub { font-size: 11.5px; }
+.vip-action-bar { gap: 6px; }
+.btn-vip, .btn-vip-primary { min-height: 38px; padding: 7px 12px; font-size: 13.5px; gap: 6px; }
+.btn-vip svg { width: 15px; height: 15px; }
+/* Bảng vàng: bục nhỏ lại, ảnh nhỏ lại */
+.royal-podium-card { padding: 16px 12px; }
+.podium-card-header h3 { font-size: 19px; }
+.podium-div-crest { font-size: 26px; }
+.royal-podium-stage { min-height: 0; gap: 8px; padding-top: 12px; }
+.podium-avatar { width: 56px; height: 56px; }
+.podium-avatars.has-pair .podium-avatar { width: 50px; height: 50px; }
+.podium-1st .podium-avatar { width: 66px; height: 66px; }
+.podium-1st .podium-avatars.has-pair .podium-avatar { width: 54px; height: 54px; }
+.podium-avatar-wrap { margin-bottom: 8px; }
+.podium-crown { font-size: 22px; top: -24px; }
+
+/* ---- Tự chấm trình: phần giới thiệu thấp lại để vào form nhanh ---- */
+.sx-intro { min-height: 0; padding: 128px 16px 14px; gap: 8px; }
+.sx-title { font-size: clamp(28px, 8.4vw, 36px); }
+.sx-lead { font-size: 14px; }
+/* Ảnh hiện thành dải ~120px phía trên, chữ nằm trên nền đặc phía dưới để luôn đọc rõ */
+.sx-photo img { object-position: 50% 18%; }
+html:not([data-flat]) .sx-photo::after { background: linear-gradient(180deg, rgba(6, 14, 26, 0) 70px, rgba(6, 14, 26, .9) 124px, rgba(6, 14, 26, .94) 100%); }
+html[data-flat] .sx-photo::after { background: linear-gradient(180deg, transparent 118px, rgba(var(--f-bg-rgb), .9) 118px); }
+
+/* ---- Hồ sơ VĐV: 3 ô điểm một hàng ---- */
+.grid:has(> .stat-tile) { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stat-tile { padding: 10px; }
+.grid:has(> .stat-tile) .stat-tile :is(b, strong) { font-size: clamp(16px, 5vw, 20px) !important; line-height: 1.15; }
+.stat-tile span { font-size: 11px; }
+
+/* ---- Trực tiếp: danh sách buổi phát dạng hàng ngang (ảnh nhỏ trái, chữ phải) ---- */
+.grid:has(> a.ecard) { gap: 10px; }
+.grid > a.ecard { flex-direction: row; align-items: stretch; border-radius: var(--r-md); }
+.grid > a.ecard .cover { flex: 0 0 132px; aspect-ratio: auto; min-height: 84px; }
+.grid > a.ecard .body { padding: 10px 12px; gap: 2px; min-width: 0; }
+.grid > a.ecard .body strong { font-size: 14.5px; line-height: 1.3; }
+.grid > a.ecard .body .small { font-size: 12.5px; }
+
+/* ---- Đối tác: lưới 2 cột ---- */
+.sponsors-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.sponsors-card { padding: 10px; gap: 6px; }
+.sponsors-card .sp-tile { height: 70px; }
+.sponsors-card strong { font-size: 12.5px; }
+
+/* ---- Đăng ký giải: họ tên một dòng, SĐT + trình độ chung một hàng ---- */
+.player-box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; padding: 12px; }
+.player-box > strong { grid-column: 1 / -1; order: 0; }
+.player-box > .field:has([data-lookup-name]) { grid-column: 1 / -1; order: 1; }
+.player-box > .field:has([data-phone]) { order: 2; }
+.player-box > .field:has([data-lookup-points]) { order: 3; }
+.division-pick { gap: 8px; }
+.division-pick .opt { min-height: 0; padding: 10px 8px; }
+.division-pick .opt img { max-height: 44px; }
+
+/* ---- CMS ---- */
+.admin-content { padding: 12px 10px 40px; gap: 12px; }
+.kpis { gap: 8px; }
+.kpi { padding: 10px 12px; }
+.kpi b { font-size: 22px; }
+.kpi span { font-size: 12px; }
+.list-item { padding: 10px 12px; gap: 8px 10px; }
+.list-item .main { flex-basis: 140px; }
+.list-item .side .chip { padding: 2px 7px; font-size: 11px; }
+.list-item .main strong { font-size: 15px; }
+.list-item .side .btn-sm { min-height: 34px; padding: 5px 11px; font-size: 13px; }
+.sub-card { padding: 12px; gap: 10px; }
+.card-pad { padding: 14px; }
+
+/* ---- Ô nhập ≥ 16px để iPhone không tự phóng to khi chạm ---- */
+#tourSearchInput, .tx-search input { font-size: 16px !important; }
+
+/* ---- Popup cắt ảnh đại diện: vùng cắt gần vuông, popup thoáng hơn ---- */
+.crop-area { height: min(88vw, 50dvh); }
+.crop-panel { gap: 12px; padding: 14px; }

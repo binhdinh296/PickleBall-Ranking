@@ -355,6 +355,13 @@
         buttons.forEach(function (b) { b.classList.remove('active'); });
         btn.classList.add('active');
         var targetId = btn.getAttribute('data-target');
+        // Điện thoại: các vòng xếp dọc → cuộn trang tới vòng (chừa chỗ cho thanh đầu trang)
+        var tree = $('.bracket', scroll);
+        if (tree && getComputedStyle(tree).flexDirection === 'column') {
+          var target = targetId === 'all' ? scroll : document.getElementById(targetId);
+          if (target) window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset - 76, behavior: 'smooth' });
+          return;
+        }
         if (targetId === 'all') {
           scroll.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
