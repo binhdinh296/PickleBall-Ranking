@@ -3,58 +3,227 @@
   const expired = (o) => o.expires_at && new Date(o.expires_at) < new Date();
   const dateInput = (v) => v ? new Date(new Date(v).getTime() + 7 * 3600e3).toISOString().slice(0, 10) : '';
 %>
-<p class="muted small" style="max-width: 760px;">Mỗi đơn vị tổ chức có 2 link: <strong>link đăng ký cho VĐV</strong> (công khai, dạng <span class="tnum"><%= origin %>/<em>mã-giải</em>/dangky</span>) và <strong>link quản trị giải</strong> (bí mật, gửi riêng người phụ trách để họ tạo giải rồi sửa thông tin, nội dung thi đấu, duyệt đăng ký, nhánh đấu, nhập tỉ số, vinh danh). Giải do đơn vị tạo chỉ hiện trên website và nhận đăng ký khi bạn bấm <strong>Duyệt &amp; công khai</strong>. Livestream vẫn do CMS quản lý.</p>
 
-<% if (!rows.length) { %><div class="empty">Chưa có đơn vị tổ chức nào. Tạo đơn vị đầu tiên ở form bên dưới.</div><% } else { %>
+<div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+  <p class="tiny faint at-count" style="margin: 0;"><%= rows.length %> đơn vị tổ chức</p>
+  <button type="button" class="btn btn-brand btn-sm" data-toggle-target="new-org-details">
+    <%- include('../partials/icon', { name: 'plus' }) %>Tạo Ban tổ chức mới
+  </button>
+</div>
+
+<!-- Card hướng dẫn rút gọn tối ưu diện tích -->
+<div class="card card-pad" style="background: var(--surface-2, rgba(255,255,255,0.02)); border-left: 3px solid var(--accent, #f59e0b); padding: 10px 14px; margin-bottom: 14px;">
+  <div class="row small muted" style="--gap: 8px; flex-wrap: wrap; align-items: center;">
+    <span><strong>Quy chế phân quyền:</strong> Mỗi đơn vị có <strong>Link đăng ký VĐV</strong> (công khai: <code class="tnum">/<%= origin %>/mã/dangky</code>) và <strong>Link quản trị giải</strong> (gửi riêng người phụ trách BTC). Giải tạo xong sẽ ở trạng thái Chờ duyệt cho đến khi bạn bấm <strong>Duyệt & công khai</strong>.</span>
+  </div>
+</div>
+
+<!-- Form tạo Ban tổ chức mới (gập mở) -->
+<details class="card card-pad stack" id="new-org-details" style="--gap: 12px; margin-bottom: 16px;" <%= (locals.error || !rows.length) ? 'open' : '' %>>
+  <summary class="section-title" style="cursor: pointer; user-select: none;">
+    <span>+ Thêm đơn vị Ban tổ chức mới & Cấp link quản trị</span>
+  </summary>
+  <% if (locals.error) { %><div class="alert alert-error" style="margin-top: 8px;"><%= error %></div><% } %>
+  <form class="form" method="post" action="/admin/ban-to-chuc" style="gap: 12px; margin-top: 8px;">
+    <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+    <div class="form-grid two">
+      <div class="field">
+        <label for="name">Tên đơn vị tổ chức *</label>
+        <input class="input" id="name" name="name" required maxlength="150" placeholder="CLB Pickleball Hà Nội, Vitar Open..." value="<%= values.name || '' %>">
+      </div>
+      <div class="field">
+        <label for="code">Mã giải (dùng cho link đăng ký) *</label>
+        <input class="input" id="code" name="code" required maxlength="40" placeholder="vd: hanoipickleball" value="<%= values.code || '' %>">
+        <span class="hint">Link đăng ký cho VĐV: <%= origin %>/<strong>mã</strong>/dangky (chữ thường không dấu, số, dấu gạch ngang).</span>
+      </div>
+      <div class="field">
+        <label for="contact_name">Người liên hệ</label>
+        <input class="input" id="contact_name" name="contact_name" maxlength="100" placeholder="Họ tên người phụ trách" value="<%= values.contact_name || '' %>">
+      </div>
+      <div class="field">
+        <label for="phone">Số điện thoại liên hệ</label>
+        <input class="input" id="phone" name="phone" inputmode="tel" placeholder="09xxxxxxxx" value="<%= values.phone || '' %>">
+      </div>
+      <div class="field">
+        <label for="expires_at">Hạn dùng link quản trị</label>
+        <input class="input" type="date" id="expires_at" name="expires_at" value="<%= values.expires_at || '' %>">
+        <span class="hint">Để trống: Không giới hạn thời hạn.</span>
+      </div>
+      <div class="field">
+        <label for="note">Ghi chú nội bộ</label>
+        <input class="input" id="note" name="note" maxlength="1000" placeholder="Ghi chú về BTC hoặc hợp đồng tài trợ..." value="<%= values.note || '' %>">
+      </div>
+    </div>
+    <button class="btn btn-brand" type="submit" style="align-self: flex-start;">Tạo đơn vị và cấp 2 link</button>
+  </form>
+</details>
+
+<% if (!rows.length) { %>
+  <div class="empty">Chưa có đơn vị tổ chức nào. Bấm <strong>"+ Tạo Ban tổ chức mới"</strong> ở trên để bắt đầu.</div>
+<% } else { %>
 <div class="table-wrap">
   <table class="data atable">
-    <thead><tr><th>Đơn vị</th><th class="c-fit hide-m">Link quản trị</th><th class="c-fit" style="text-align: right;">Giải</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Đơn vị tổ chức</th>
+        <th class="c-fit">Link đăng ký cho VĐV</th>
+        <th>Giải đấu liên kết</th>
+        <th class="c-fit hide-m" style="text-align: center;">Trạng thái Link</th>
+        <th class="c-act" style="text-align: right;">Thao tác</th>
+      </tr>
+    </thead>
     <tbody>
     <% rows.forEach((o) => {
-      const link = !o.active ? ['Đã khoá', 'chip-muted'] : expired(o) ? ['Hết hạn', 'chip-muted'] : ['Dùng được', 'chip-ok'];
-      const evs = !o.event_id ? ['Chưa tạo', ''] : o.event_published ? ['Công khai', 'chip-ok'] : ['Chờ duyệt', 'chip-warn'];
+      const isExp = expired(o);
+      const linkLabel = !o.active ? 'Đã khoá' : isExp ? 'Hết hạn' : 'Hoạt động';
+      const linkChip = !o.active ? 'chip-muted' : isExp ? 'chip-warn' : 'chip-ok';
+      const evStatus = !o.event_id ? 'Chưa tạo giải' : o.event_published ? 'Công khai' : 'Chờ duyệt';
+      const evChip = !o.event_id ? 'chip-muted' : o.event_published ? 'chip-ok' : 'chip-warn';
     %>
       <tr class="at-row">
-        <td class="c-main"><button type="button" class="at-who" data-row-toggle aria-expanded="false" aria-controls="o<%= o.id %>"><span class="at-name">
-          <strong><%= o.name %></strong>
-          <span class="at-meta"><%= [o.code ? `/${o.code}` : 'chưa có mã', o.contact_name, o.phone].filter(Boolean).join(' · ') %></span>
-          <span class="at-meta show-m">Link quản trị: <%= link[0] %></span>
-        </span></button></td>
-        <td class="c-fit hide-m"><span class="chip <%= link[1] %>"><%= link[0] %></span></td>
-        <td class="c-fit" style="text-align: right;"><span class="chip <%= evs[1] %>"><%= evs[0] %></span></td>
+        <td class="c-main" style="vertical-align: middle;">
+          <div class="stack" style="--gap: 2px;">
+            <strong style="font-size: 14px;"><%= o.name %></strong>
+            <span class="at-meta" style="font-size: 12px;">
+              <%= [o.contact_name ? `Liên hệ: ${o.contact_name}` : null, o.phone, o.expires_at ? `Hạn: ${fmt.dateVN(o.expires_at)}` : 'Hạn: Vĩnh viễn'].filter(Boolean).join(' · ') %>
+            </span>
+            <% if (o.note) { %><span class="tiny faint" style="color: var(--text-dim, #888);"><%= o.note %></span><% } %>
+          </div>
+        </td>
+
+        <td class="c-fit" style="vertical-align: middle;">
+          <% if (o.code) { %>
+            <div class="copy-row" style="max-width: 280px;">
+              <input class="input tnum small" id="reg-link-<%= o.id %>" readonly value="<%= origin %>/<%= o.code %>/dangky" style="height: 30px; font-size: 12px;">
+              <button type="button" class="btn btn-sm" data-copy="reg-link-<%= o.id %>" title="Chép link đăng ký">Chép</button>
+            </div>
+          <% } else { %>
+            <span class="tiny faint">Chưa có mã</span>
+          <% } %>
+        </td>
+
+        <td style="vertical-align: middle;">
+          <div class="stack" style="--gap: 4px;">
+            <% if (o.event_id) { %>
+              <div class="row small" style="--gap: 6px; align-items: center; flex-wrap: wrap;">
+                <a href="/admin/giai-dau/<%= o.event_id %>" style="font-weight: 600;">
+                  <%= o.event_name %>
+                </a>
+                <span class="chip <%= evChip %>" style="font-size: 11px;"><%= evStatus %></span>
+                <% if (o.event_published) { %>
+                  <a href="/giai-dau/<%= o.event_slug %>" target="_blank" rel="noopener" class="tiny muted" title="Xem trên web">
+                    <%- include('../partials/icon', { name: 'external' }) %>
+                  </a>
+                <% } %>
+              </div>
+              <form class="inline-form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/duyet" data-confirm="<%= o.event_published ? 'Ẩn giải này khỏi website?' : 'Duyệt và hiện giải này trên website?' %>">
+                <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+                <input type="hidden" name="published" value="<%= o.event_published ? '0' : '1' %>">
+                <button class="btn btn-sm <%= o.event_published ? '' : 'btn-brand' %>" type="submit" style="font-size: 11px; padding: 2px 8px;">
+                  <%= o.event_published ? 'Ẩn khỏi web' : 'Duyệt & công khai giải' %>
+                </button>
+              </form>
+            <% } else { %>
+              <span class="tiny faint">BTC chưa tạo giải</span>
+            <% } %>
+          </div>
+        </td>
+
+        <td class="c-fit hide-m" style="vertical-align: middle; text-align: center;">
+          <div class="stack" style="--gap: 2px; align-items: center;">
+            <span class="chip <%= linkChip %>"><%= linkLabel %></span>
+            <span class="tiny faint"><%= o.last_login_at ? fmt.dateVN(o.last_login_at) : 'Chưa đăng nhập' %></span>
+          </div>
+        </td>
+
+        <td class="c-act" style="vertical-align: middle; text-align: right;">
+          <details class="action-dropdown">
+            <summary class="btn btn-sm" aria-label="Thao tác cho <%= o.name %>">
+              <span>Thao tác</span> <span style="font-size: 10px; opacity: 0.7;">▾</span>
+            </summary>
+            <div class="dropdown-pop">
+              <button type="button" class="dropdown-item" data-row-toggle aria-expanded="false" aria-controls="edit-org-<%= o.id %>">
+                <%- include('../partials/icon', { name: 'edit' }) %>
+                <span>Sửa thông tin</span>
+              </button>
+
+              <form method="post" action="/admin/ban-to-chuc/<%= o.id %>/tao-lai-link" data-confirm="Tạo lại link quản trị mới cho <%= o.name %>? Link cũ sẽ bị vô hiệu hóa ngay.">
+                <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+                <button type="submit" class="dropdown-item">
+                  <%- include('../partials/icon', { name: 'key' }) %>
+                  <span>Cấp lại link</span>
+                </button>
+              </form>
+
+              <form method="post" action="/admin/ban-to-chuc/<%= o.id %>/khoa" data-confirm="<%= o.active ? `Khoá link quản trị của ${o.name}?` : `Mở lại link quản trị cho ${o.name}?` %>">
+                <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+                <input type="hidden" name="active" value="<%= o.active ? '0' : '1' %>">
+                <button type="submit" class="dropdown-item">
+                  <%- include('../partials/icon', { name: 'shield' }) %>
+                  <span><%= o.active ? 'Khoá link' : 'Mở khoá link' %></span>
+                </button>
+              </form>
+
+              <div class="dropdown-divider"></div>
+
+              <form method="post" action="/admin/ban-to-chuc/<%= o.id %>/xoa" data-confirm="Xoá vĩnh viễn đơn vị &quot;<%= o.name %>&quot;? Các link sẽ bị hủy. Giải đã tạo vẫn được giữ.">
+                <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+                <button type="submit" class="dropdown-item danger">
+                  <%- include('../partials/icon', { name: 'close' }) %>
+                  <span>Xóa đơn vị</span>
+                </button>
+              </form>
+            </div>
+          </details>
+        </td>
       </tr>
-      <tr class="at-detail" id="o<%= o.id %>" hidden>
-        <td colspan="3"><div class="at-detail-in">
-          <div class="row tiny" style="--gap: 6px;">
-            <% if (o.expires_at) { %><span class="chip">Hạn: <%= fmt.dateVN(o.expires_at) %></span><% } %>
-            <span class="chip"><%= o.last_login_at ? `Vào lần cuối ${fmt.dateTimeVN(o.last_login_at)}` : 'Chưa đăng nhập' %></span>
+
+      <!-- Hàng chỉnh sửa trực tiếp dạng inline collapsible -->
+      <tr class="at-detail" id="edit-org-<%= o.id %>" hidden>
+        <td colspan="5">
+          <div class="at-detail-in" style="background: var(--surface-2, rgba(255,255,255,0.02)); border-radius: 8px; padding: 14px;">
+            <form class="form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/sua" style="gap: 12px;">
+              <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+              <div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="font-size: 14px; color: var(--brand);">Chỉnh sửa đơn vị: <%= o.name %></strong>
+                <button type="button" class="btn btn-sm" data-row-toggle aria-expanded="true" aria-controls="edit-org-<%= o.id %>">Đóng ✕</button>
+              </div>
+
+              <div class="form-grid two">
+                <div class="field">
+                  <label for="name-<%= o.id %>">Tên đơn vị tổ chức *</label>
+                  <input class="input" id="name-<%= o.id %>" name="name" required maxlength="150" value="<%= o.name %>">
+                </div>
+                <div class="field">
+                  <label for="code-<%= o.id %>">Mã giải (link đăng ký) *</label>
+                  <input class="input" id="code-<%= o.id %>" name="code" required maxlength="40" value="<%= o.code || '' %>">
+                  <span class="hint">Đổi mã thì link đăng ký cũ ngừng hoạt động.</span>
+                </div>
+                <div class="field">
+                  <label for="contact-<%= o.id %>">Người liên hệ</label>
+                  <input class="input" id="contact-<%= o.id %>" name="contact_name" maxlength="100" value="<%= o.contact_name || '' %>">
+                </div>
+                <div class="field">
+                  <label for="phone-<%= o.id %>">SĐT liên hệ</label>
+                  <input class="input" id="phone-<%= o.id %>" name="phone" inputmode="tel" value="<%= o.phone || '' %>">
+                </div>
+                <div class="field">
+                  <label for="exp-<%= o.id %>">Hết hạn link quản trị</label>
+                  <input class="input" type="date" id="exp-<%= o.id %>" name="expires_at" value="<%= dateInput(o.expires_at) %>">
+                  <span class="hint">Để trống: Không giới hạn thời hạn.</span>
+                </div>
+                <div class="field">
+                  <label for="note-<%= o.id %>">Ghi chú nội bộ</label>
+                  <input class="input" id="note-<%= o.id %>" name="note" maxlength="1000" value="<%= o.note || '' %>">
+                </div>
+              </div>
+
+              <div class="row" style="justify-content: flex-end; --gap: 8px;">
+                <button class="btn btn-brand btn-sm" type="submit">Lưu thông tin</button>
+              </div>
+            </form>
           </div>
-          <% if (o.event_id) { %><span class="small">Giải: <a class="link" href="/admin/giai-dau/<%= o.event_id %>"><%= o.event_name %></a><% if (o.event_published) { %> · <a class="link" href="/giai-dau/<%= o.event_slug %>" target="_blank" rel="noopener">xem trên web</a><% } %></span><% } %>
-          <% if (o.code) { %><span class="copy-row"><input class="input" id="reg-<%= o.id %>" readonly value="<%= origin %>/<%= o.code %>/dangky" aria-label="Link đăng ký cho VĐV của <%= o.name %>"><button type="button" class="btn btn-sm" data-copy="reg-<%= o.id %>">Chép link đăng ký</button></span><% } else { %><span class="small muted">Chưa có mã giải: mở "Sửa thông tin đơn vị" để đặt mã và có link đăng ký.</span><% } %>
-          <% if (o.note) { %><span class="small muted"><%= o.note %></span><% } %>
-          <div class="row" style="--gap: 8px;">
-      <% if (o.event_id) { %>
-      <form class="inline-form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/duyet" data-confirm="<%= o.event_published ? 'Ẩn giải này khỏi website?' : 'Duyệt và hiện giải này trên website?' %>"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="published" value="<%= o.event_published ? '0' : '1' %>"><button class="btn btn-sm <%= o.event_published ? '' : 'btn-brand' %>" type="submit"><%= o.event_published ? 'Ẩn khỏi web' : 'Duyệt & công khai' %></button></form>
-      <% } %>
-      <form class="inline-form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/tao-lai-link" data-confirm="Tạo link quản trị mới cho <%= o.name %>? Link quản trị cũ hết hiệu lực ngay và đơn vị bị đăng xuất. Link đăng ký VĐV giữ nguyên."><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm" type="submit">Tạo lại link quản trị</button></form>
-      <form class="inline-form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/khoa" data-confirm="<%= o.active ? `Khoá link quản trị của ${o.name}? Đơn vị sẽ bị đăng xuất (link đăng ký VĐV vẫn hoạt động).` : `Mở lại link quản trị cho ${o.name}?` %>"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="active" value="<%= o.active ? '0' : '1' %>"><button class="btn btn-sm" type="submit"><%= o.active ? 'Khoá' : 'Mở khoá' %></button></form>
-          </div>
-          <details><summary class="link tiny" style="cursor: pointer;">Sửa thông tin đơn vị · xoá</summary>
-      <form class="form" method="post" action="/admin/ban-to-chuc/<%= o.id %>/sua" style="margin-top: 10px; max-width: 720px;">
-        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-        <div class="form-grid two">
-          <div class="field"><label for="name-<%= o.id %>">Tên đơn vị *</label><input class="input" id="name-<%= o.id %>" name="name" required maxlength="150" value="<%= o.name %>"></div>
-          <div class="field"><label for="code-<%= o.id %>">Mã giải (link đăng ký) *</label><input class="input" id="code-<%= o.id %>" name="code" required maxlength="40" value="<%= o.code || '' %>" placeholder="vd. hmopen"><span class="hint">Đổi mã thì link đăng ký cũ ngừng hoạt động.</span></div>
-          <div class="field"><label for="contact-<%= o.id %>">Người liên hệ</label><input class="input" id="contact-<%= o.id %>" name="contact_name" maxlength="100" value="<%= o.contact_name || '' %>"></div>
-          <div class="field"><label for="phone-<%= o.id %>">SĐT liên hệ</label><input class="input" id="phone-<%= o.id %>" name="phone" inputmode="tel" value="<%= o.phone || '' %>"></div>
-          <div class="field"><label for="exp-<%= o.id %>">Hết hạn link quản trị</label><input class="input" type="date" id="exp-<%= o.id %>" name="expires_at" value="<%= dateInput(o.expires_at) %>"><span class="hint">Để trống: không giới hạn.</span></div>
-          <div class="field span-2"><label for="note-<%= o.id %>">Ghi chú nội bộ</label><input class="input" id="note-<%= o.id %>" name="note" maxlength="1000" value="<%= o.note || '' %>"></div>
-        </div>
-        <button class="btn btn-sm" type="submit" style="align-self: flex-start;">Lưu</button>
-      </form>
-      <form method="post" action="/admin/ban-to-chuc/<%= o.id %>/xoa" data-confirm="Xoá đơn vị <%= o.name %>? Cả 2 link sẽ ngừng hoạt động. Giải đã tạo vẫn được giữ trong mục Giải đấu." style="margin-top: 8px;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xoá đơn vị</button></form>
-    </details>
-        </div></td>
+        </td>
       </tr>
     <% }) %>
     </tbody>
@@ -62,18 +231,4 @@
 </div>
 <% } %>
 
-<form class="card card-pad form" method="post" action="/admin/ban-to-chuc" style="max-width: 720px;">
-  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-  <h2 class="section-title">Thêm đơn vị tổ chức &amp; tạo link</h2>
-  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
-  <div class="form-grid two">
-    <div class="field"><label for="name">Tên đơn vị *</label><input class="input" id="name" name="name" required maxlength="150" placeholder="CLB Pickleball …" value="<%= values.name || '' %>"></div>
-    <div class="field"><label for="code">Mã giải (link đăng ký) *</label><input class="input" id="code" name="code" required maxlength="40" placeholder="vd. hmopen" value="<%= values.code || '' %>"><span class="hint">Link đăng ký sẽ là <%= origin %>/<strong>mã</strong>/dangky. Chữ thường không dấu, số, dấu gạch ngang.</span></div>
-    <div class="field"><label for="contact_name">Người liên hệ</label><input class="input" id="contact_name" name="contact_name" maxlength="100" value="<%= values.contact_name || '' %>"></div>
-    <div class="field"><label for="phone">SĐT liên hệ</label><input class="input" id="phone" name="phone" inputmode="tel" value="<%= values.phone || '' %>"></div>
-    <div class="field"><label for="expires_at">Hết hạn link quản trị</label><input class="input" type="date" id="expires_at" name="expires_at" value="<%= values.expires_at || '' %>"><span class="hint">Nên đặt sau ngày bế mạc giải vài tuần.</span></div>
-    <div class="field span-2"><label for="note">Ghi chú nội bộ</label><input class="input" id="note" name="note" maxlength="1000" value="<%= values.note || '' %>"></div>
-  </div>
-  <button class="btn btn-brand" type="submit" style="align-self: flex-start;">Tạo đơn vị và 2 link</button>
-</form>
 <%- include('_bottom') %>

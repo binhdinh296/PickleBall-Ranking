@@ -207,3 +207,40 @@ document.addEventListener('click', function (e) {
     setTimeout(function () { form.querySelectorAll('button[type="submit"]').forEach(function (x) { x.disabled = true; }); }, 0);
   });
 })();
+
+// ---- Đóng Action Dropdown và xử lý data-toggle-target tuân thủ CSP ----
+document.addEventListener('click', function (e) {
+  var toggleBtn = e.target.closest('[data-toggle-target]');
+  if (toggleBtn) {
+    var targetId = toggleBtn.getAttribute('data-toggle-target');
+    var targetEl = document.getElementById(targetId);
+    if (targetEl) {
+      if (targetEl.tagName === 'DETAILS') {
+        targetEl.open = !targetEl.open;
+        if (targetEl.open) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        targetEl.hidden = !targetEl.hidden;
+        if (!targetEl.hidden) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+    return;
+  }
+
+  var item = e.target.closest('.dropdown-pop button, .dropdown-pop a');
+  if (item) {
+    var parentDetails = item.closest('details.action-dropdown');
+    if (parentDetails) parentDetails.removeAttribute('open');
+  }
+
+  var openDropdowns = document.querySelectorAll('details.action-dropdown[open]');
+  openDropdowns.forEach(function (d) {
+    if (!d.contains(e.target)) d.removeAttribute('open');
+  });
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('details.action-dropdown[open]').forEach(function (d) {
+      d.removeAttribute('open');
+    });
+  }
+});

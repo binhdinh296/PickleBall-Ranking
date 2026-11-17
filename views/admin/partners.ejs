@@ -2,7 +2,7 @@
 
 <div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
   <p class="tiny faint at-count" style="margin: 0;"><%= rows.length %> đối tác & nhà tài trợ</p>
-  <button type="button" class="btn btn-brand btn-sm" onclick="const d = document.getElementById('new-partner-details'); d.open = !d.open; if (d.open) d.scrollIntoView({ behavior: 'smooth' });">
+  <button type="button" class="btn btn-brand btn-sm" data-toggle-target="new-partner-details">
     <%- include('../partials/icon', { name: 'plus' }) %>Thêm đối tác mới
   </button>
 </div>
