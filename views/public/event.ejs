@@ -246,7 +246,7 @@
         <div class="lpc-head">
           <div class="lpc-badge">BẢNG ĐẤU</div>
           <h4><%= d.name %></h4>
-          <span class="lpc-sub"><%= [d.subtitle || (d.max_teams ? `Tối đa ${d.max_teams} ${d.team_type === 'team' ? 'đội' : 'đôi'}` : null), d.max_total_points && !String(d.subtitle || '').includes(fmt.pts(d.max_total_points)) ? `Tổng trình ≤ ${fmt.pts(d.max_total_points)}` : null].filter(Boolean).join(' · ') %></span>
+          <span class="lpc-sub"><%= [d.subtitle || (d.max_teams ? `Tối đa ${d.max_teams} ${fmt.unitLabel(d)}` : null), d.max_total_points && !String(d.subtitle || '').includes(fmt.pts(d.max_total_points)) ? `Tổng trình ≤ ${fmt.pts(d.max_total_points)}` : null].filter(Boolean).join(' · ') %></span>
         </div>
 
         <div class="lpc-prizes">

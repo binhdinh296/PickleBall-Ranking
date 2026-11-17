@@ -343,6 +343,22 @@
     });
   })();
 
+  // ---- Form đăng ký: nội dung Đơn chỉ có 1 VĐV → ẩn & tắt khối VĐV 2 (ô bị tắt không gửi lên, không bắt buộc) ----
+  $$('form').forEach(function (form) {
+    var p2 = $('[data-p2]', form);
+    if (!p2 || !$('input[name=division_id]', form)) return;
+    function sync() {
+      var picked = $('input[name=division_id]:checked', form);
+      var single = !!(picked && picked.hasAttribute('data-single'));
+      p2.hidden = single;
+      $$('input, select, textarea', p2).forEach(function (el) { el.disabled = single; });
+      $$('[data-p-no]', form).forEach(function (el) { el.hidden = single; });
+      form.classList.toggle('is-single', single);
+    }
+    $$('input[name=division_id]', form).forEach(function (r) { r.addEventListener('change', sync); });
+    sync();
+  });
+
   // ---- Đăng ký qua link ngắn: VĐV tự nhập trình (vd. 2.65), kiểm tra theo khoảng trình của nội dung đang chọn ----
   // Quy tắc khớp với fmt.parseLevelInput phía server: 1.0–8.0, tối đa 3 số lẻ, nhận cả dấu phẩy
   $$('[data-level-form]').forEach(function (form) {
@@ -383,8 +399,9 @@
     }
     function total() {
       if (!totalBox) return true;
+      if (!inputs[1] || inputs[1].disabled) { totalBox.hidden = true; return true; }
       var a = parse(inputs[0].value);
-      var c = inputs[1] ? parse(inputs[1].value) : null;
+      var c = parse(inputs[1].value);
       if (a === null || c === null) { totalBox.hidden = true; return true; }
       var b = bounds();
       var sum = a + c;
@@ -411,7 +428,7 @@
     $$('input[name=division_id]', form).forEach(function (r) { r.addEventListener('change', refresh); });
     form.addEventListener('submit', function (e) {
       var first = null;
-      inputs.forEach(function (inp) { if (check(inp, true) === null && !first) first = inp; });
+      inputs.forEach(function (inp) { if (!inp.disabled && check(inp, true) === null && !first) first = inp; });
       var ok = total();
       if (first || !ok) {
         e.preventDefault();

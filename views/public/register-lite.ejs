@@ -23,7 +23,7 @@
       <span class="rl-done-ico" aria-hidden="true">✓</span>
       <h2>Đăng ký thành công</h2>
       <p>Đã ghi nhận đăng ký nội dung <strong><%= doneDivision.name %></strong>. Ban tổ chức sẽ duyệt và liên hệ qua số điện thoại đã đăng ký.</p>
-      <div class="rl-done-actions"><a class="rl-submit" href="<%= formAction %>">Đăng ký thêm đôi khác</a><a class="rl-link" href="/giai-dau/<%= ev.slug %>/danh-sach?d=<%= doneDivision.id %>">Xem danh sách đăng ký</a></div>
+      <div class="rl-done-actions"><a class="rl-submit" href="<%= formAction %>">Đăng ký thêm <%= fmt.isSingle(doneDivision) ? 'VĐV' : 'đôi' %> khác</a><a class="rl-link" href="/giai-dau/<%= ev.slug %>/danh-sach?d=<%= doneDivision.id %>">Xem danh sách đăng ký</a></div>
     </div>
     <% } else if (closed) { %>
     <div class="rl-empty">Giải đã đóng đăng ký.</div>
@@ -36,8 +36,8 @@
 
       <div class="rl-players">
         <% [1, 2].forEach((n) => { %>
-        <fieldset class="rl-player rl-p<%= n %>">
-          <legend class="rl-ptitle"><%- icon('users') %>Vận động viên <%= n %></legend>
+        <fieldset class="rl-player rl-p<%= n %>"<%- n === 2 ? ' data-p2' : '' %>>
+          <legend class="rl-ptitle"><%- icon('users') %>Vận động viên<span data-p-no> <%= n %></span></legend>
           <div class="rl-field">
             <label for="full_name<%= n %>">Họ và tên</label>
             <input class="rl-input" id="full_name<%= n %>" name="full_name<%= n %>" maxlength="80" required autocomplete="<%= n === 1 ? 'name' : 'off' %>" placeholder="Ví dụ: <%= n === 1 ? 'Nguyễn Văn A' : 'Trần Thị B' %>" value="<%= values[`name${n}`] || '' %>">
@@ -63,7 +63,7 @@
         <div class="rl-divs">
           <% ev.divisions.forEach((d) => { const checked = String(values.division_id) === String(d.id) || (!values.division_id && ev.divisions.length === 1); const s = split(d.name); const lim = limit(d); %>
           <label class="rl-div">
-            <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required data-min="<%= d.min_player_points || '' %>" data-max="<%= fmt.levelCap(d.max_player_points) || '' %>" data-total="<%= d.max_total_points || '' %>">
+            <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required<%= fmt.isSingle(d) ? ' data-single' : '' %> data-min="<%= d.min_player_points || '' %>" data-max="<%= fmt.levelCap(d.max_player_points) || '' %>" data-total="<%= d.max_total_points || '' %>">
             <% if (d.banner) { %>
             <span class="rl-badge rl-badge-img"><img src="<%= d.banner %>" alt="<%= d.name %>" loading="lazy"></span>
             <% } else { %>

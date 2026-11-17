@@ -116,6 +116,7 @@ router.post('/tai-khoan', wrap(async (req, res) => {
 router.use('/', require('./athletes'));
 router.use('/', require('./organizers'));
 router.use('/', require('./events'));
+router.use('/', require('./reg-import'));
 router.use('/', require('./live'));
 router.use('/', require('./system'));
 

@@ -85,6 +85,13 @@ const LIVE_STATUS_LABEL = { scheduled: 'Sắp phát', live: 'Đang phát', ended
 const GENDER_LABEL = { M: 'Nam', F: 'Nữ' };
 const ROLE_LABEL = { admin: 'Quản trị viên', editor: 'Biên tập viên', referee: 'Trọng tài', organizer: 'Ban tổ chức' };
 const GENDER_RULE_LABEL = { any: 'Tự do', male: 'Nam', female: 'Nữ', mixed: 'Hỗn hợp (1 nam + 1 nữ)' };
+// Loại nội dung: đơn (1 VĐV) / đôi (2 VĐV) / đồng đội (đội nhập trong CMS)
+const TEAM_TYPE_LABEL = { single: 'Đơn', pair: 'Đôi', team: 'Đồng đội' };
+const isSingle = (d) => !!d && d.team_type === 'single';
+// Đơn vị đếm đăng ký: "16 VĐV" / "16 đôi" / "16 đội"
+const unitLabel = (d) => (isSingle(d) ? 'VĐV' : d && d.team_type === 'team' ? 'đội' : 'đôi');
+// Tên hiển thị của 1 đăng ký: "A / B" (đôi) hoặc "A" (đơn)
+const regName = (r) => (r.name2 ? `${r.name1} / ${r.name2}` : r.name1);
 
 function slugify(s) {
   return String(s || '')
@@ -142,6 +149,6 @@ function esc(v) {
 module.exports = {
   pts, signedPts, parsePoints, money, dateVN, dateTimeVN, toLocalInput, fromLocalInput, today, eventStatus, duration,
   EVENT_STATUS_LABEL, REG_STATUS_LABEL, SUB_STATUS_LABEL, MATCH_STATUS_LABEL, LIVE_STATUS_LABEL, GENDER_LABEL,
-  ROLE_LABEL, GENDER_RULE_LABEL, slugify, initials, displayName, pad2, esc,
+  ROLE_LABEL, GENDER_RULE_LABEL, TEAM_TYPE_LABEL, isSingle, unitLabel, regName, slugify, initials, displayName, pad2, esc,
   LEVELS, levelLabel, parseLevel, numShort, parseLevelInput, levelCap,
 };

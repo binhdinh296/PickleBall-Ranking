@@ -28,7 +28,7 @@
         <div class="division-pick">
           <% ev.divisions.forEach((d, i) => { const checked = String(values.division_id) === String(d.id) || (!values.division_id && ev.divisions.length === 1); %>
           <label>
-            <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required>
+            <input type="radio" name="division_id" value="<%= d.id %>" <%= checked ? 'checked' : '' %> required<%= fmt.isSingle(d) ? ' data-single' : '' %>>
             <span class="opt">
               <%
                 // Ảnh thiết kế sẵn cho các nội dung mẫu; ảnh BTC tự tải lên được ưu tiên trừ khi đã có ảnh thiết kế; không có ảnh → nút chữ
@@ -49,8 +49,8 @@
       </fieldset>
       <div class="form-grid two">
         <% [1, 2].forEach((n) => { %>
-        <div class="player-box" data-lookup>
-          <strong>Vận động viên <%= n %><%= n === 1 ? ' (người đăng ký)' : '' %></strong>
+        <div class="player-box" data-lookup<%- n === 2 ? ' data-p2' : '' %>>
+          <strong>Vận động viên<span data-p-no> <%= n %></span><%= n === 1 ? ' (người đăng ký)' : '' %></strong>
           <div class="field"><label for="phone<%= n %>">Số điện thoại *</label><input class="input" id="phone<%= n %>" name="phone<%= n %>" type="tel" inputmode="tel" autocomplete="<%= n === 1 ? 'tel' : 'off' %>" maxlength="16" required data-phone value="<%= values[`phone${n}`] || '' %>" placeholder="09xx xxx xxx"><span class="hint" data-phone-hint data-default="Nhập SĐT để tự điền nếu đã có hồ sơ"></span><span class="hint" data-lookup-status aria-live="polite"></span></div>
           <div class="field"><label for="full_name<%= n %>">Họ và tên *</label><input class="input" id="full_name<%= n %>" name="full_name<%= n %>" maxlength="80" required data-lookup-name value="<%= values[`name${n}`] || '' %>"></div>
           <div class="field"><label for="trinh<%= n %>">Trình độ *</label><input class="input tnum" id="trinh<%= n %>" name="trinh<%= n %>" inputmode="decimal" required data-lookup-points placeholder="Ví dụ 3.500" value="<%= values[`trinh${n}`] || '' %>"></div>

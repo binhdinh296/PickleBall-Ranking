@@ -25,7 +25,7 @@ async function syncTeamsFromRegistrations(divisionId) {
       AND NOT EXISTS (SELECT 1 FROM teams t WHERE t.registration_id = r.id) ORDER BY r.id`, divisionId);
     for (const r of regs) {
       await run('INSERT INTO teams(division_id, registration_id, name, athlete1_id, athlete2_id) VALUES (?,?,?,?,?)',
-        divisionId, r.id, `${r.name1} / ${r.name2}`, r.athlete1_id, r.athlete2_id);
+        divisionId, r.id, r.name2 ? `${r.name1} / ${r.name2}` : r.name1, r.athlete1_id, r.athlete2_id);
     }
     return regs.length;
   });

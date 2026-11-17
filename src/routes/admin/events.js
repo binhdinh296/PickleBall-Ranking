@@ -220,7 +220,7 @@ async function readDivision(req) {
   const data = {
     name: String(b.name || '').trim().slice(0, 100),
     subtitle: String(b.subtitle || '').trim().slice(0, 100) || null,
-    team_type: b.team_type === 'team' ? 'team' : 'pair',
+    team_type: ['single', 'pair', 'team'].includes(b.team_type) ? b.team_type : null,
     format: b.format === 'roundrobin' ? 'roundrobin' : 'knockout',
     max_teams: intOrNull(b.max_teams),
     max_total_points: fmt.parsePoints(b.max_total_points),
@@ -233,6 +233,7 @@ async function readDivision(req) {
     sort_order: intOrNull(b.sort_order) || 0,
   };
   if (!data.name) return { error: 'Vui lòng nhập tên nội dung.', data };
+  if (!data.team_type) return { error: 'Vui lòng chọn nội dung thi đấu Đơn hay Đôi.', data };
   const rangeErr = levelRangeError(data.min_player_points, data.max_player_points);
   if (rangeErr) return { error: rangeErr, data };
   const banner = fileOf(req, 'banner');
@@ -268,7 +269,14 @@ router.get('/noi-dung/:id/sua', editor, wrap(async (req, res, next) => {
 router.post('/noi-dung/:id/sua', editor, upload.any(), verifyCsrf, wrap(async (req, res, next) => {
   const d = await loadDivision(req.params.id);
   if (!d) return next();
-  const { error, data } = await readDivision(req);
+  const read = await readDivision(req);
+  const { data } = read;
+  let { error } = read;
+  // Đã có đăng ký thì không đổi qua lại Đơn ↔ Đôi (dữ liệu VĐV 2 sẽ không khớp)
+  if (!error && data.team_type !== d.team_type && [data.team_type, d.team_type].includes('single')) {
+    const has = await get('SELECT 1 FROM registrations WHERE division_id = ? LIMIT 1', d.id);
+    if (has) error = `Nội dung đã có đăng ký nên không đổi từ ${fmt.TEAM_TYPE_LABEL[d.team_type]} sang ${fmt.TEAM_TYPE_LABEL[data.team_type]} được. Xoá các đăng ký trước nếu thật sự cần đổi.`;
+  }
   if (error) return divisionForm(res.status(400), d.event, { ...d, ...data, prizes: JSON.parse(data.prizes) }, error);
   await run(`UPDATE divisions SET name = ?, subtitle = ?, banner = COALESCE(?, banner), team_type = ?, format = ?, max_teams = ?,
     max_total_points = ?, min_player_points = ?, max_player_points = ?, gender_rule = ?, prizes = ?, relay_legs = ?, relay_step = ?, sort_order = ? WHERE id = ?`,
@@ -302,7 +310,7 @@ router.get('/noi-dung/:id/dang-ky.csv', editor, wrap(async (req, res, next) => {
   const esc = (v) => { const s = String(v ?? ''); return /^[=+\-@]/.test(s) ? `"'${s.replace(/"/g, '""')}"` : `"${s.replace(/"/g, '""')}"`; };
   const lines = [['STT', 'VĐV 1', 'SĐT 1', 'Trình 1', 'VĐV 2', 'SĐT 2', 'Trình 2', 'Tổng trình', 'Trạng thái', 'Thời gian'].map(esc).join(',')];
   regs.forEach((r, i) => lines.push([i + 1, r.name1, r.phone1, fmt.pts(r.points1), r.name2, r.phone2, fmt.pts(r.points2),
-    fmt.pts(r.points1 + r.points2), fmt.REG_STATUS_LABEL[r.status], fmt.dateTimeVN(r.created_at)].map(esc).join(',')));
+    fmt.pts((r.points1 || 0) + (r.points2 || 0)), fmt.REG_STATUS_LABEL[r.status], fmt.dateTimeVN(r.created_at)].map(esc).join(',')));
   await audit(req, 'registrations_export', `division:${d.id}`);
   res.set('Content-Type', 'text/csv; charset=utf-8');
   res.set('Content-Disposition', `attachment; filename="dang-ky-${fmt.slugify(d.name)}.csv"`);

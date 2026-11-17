@@ -127,40 +127,45 @@ async function submitRegistration(req, res, ev, opts = {}) {
   if (!ev.registration_open || ev.status === 'ended') return fail('Giải đã đóng đăng ký.');
   const d = ev.divisions.find((x) => x.id === parseInt(values.division_id, 10));
   if (!d) return fail('Vui lòng chọn nội dung thi đấu.');
-  if (!values.name1 || !values.name2) return fail('Vui lòng nhập họ tên cả 2 vận động viên.');
+  // Nội dung đơn: chỉ có 1 VĐV, bỏ qua các ô VĐV 2 (nếu trình duyệt vẫn gửi)
+  const single = fmt.isSingle(d);
+  if (single) Object.assign(values, { name2: '', phone2: '', trinh2: '' });
+  if (!values.name1 || (!single && !values.name2)) return fail(single ? 'Vui lòng nhập họ tên vận động viên.' : 'Vui lòng nhập họ tên cả 2 vận động viên.');
   const p1 = phoneLib.validate(values.phone1);
-  const p2 = phoneLib.validate(values.phone2);
-  if (!p1.ok) return fail(`VĐV 1: ${p1.error}`);
+  const p2 = single ? { ok: true, phone: null } : phoneLib.validate(values.phone2);
+  if (!p1.ok) return fail(single ? p1.error : `VĐV 1: ${p1.error}`);
   if (!p2.ok) return fail(`VĐV 2: ${p2.error}`);
   if (p1.phone === p2.phone) return fail('Hai vận động viên không được dùng chung số điện thoại.');
 
   const a1 = await get('SELECT * FROM athletes WHERE phone = ?', p1.phone);
-  const a2 = await get('SELECT * FROM athletes WHERE phone = ?', p2.phone);
+  const a2 = single ? null : await get('SELECT * FROM athletes WHERE phone = ?', p2.phone);
   let pts1;
   let pts2;
   if (opts.lite) {
     // Link đăng ký của đơn vị tổ chức: VĐV tự nhập trình (vd. 2.65), từ 1.0 đến 8.0, tối đa 3 số lẻ
     pts1 = fmt.parseLevelInput(values.trinh1);
-    pts2 = fmt.parseLevelInput(values.trinh2);
-    const bad = [[pts1, values.trinh1, 1], [pts2, values.trinh2, 2]].find(([p]) => p === null);
+    pts2 = single ? null : fmt.parseLevelInput(values.trinh2);
+    const bad = [[pts1, values.trinh1, 1], ...(single ? [] : [[pts2, values.trinh2, 2]])].find(([p]) => p === null);
     if (bad) return fail(bad[1] ? `Trình độ VĐV ${bad[2]} "${bad[1]}" không hợp lệ: nhập số từ 1.0 đến 8.0, ví dụ 2.65.` : `Vui lòng nhập trình độ VĐV ${bad[2]}, ví dụ 2.65.`);
   } else {
     // Có hồ sơ trong hệ thống thì dùng điểm hệ thống, không dùng điểm tự khai
     pts1 = a1 ? a1.points : fmt.parsePoints(values.trinh1);
-    pts2 = a2 ? a2.points : fmt.parsePoints(values.trinh2);
-    if (pts1 === null || pts2 === null) return fail('Vui lòng nhập trình độ hợp lệ, ví dụ 3.500.');
+    pts2 = single ? null : a2 ? a2.points : fmt.parsePoints(values.trinh2);
+    if (pts1 === null || (!single && pts2 === null)) return fail('Vui lòng nhập trình độ hợp lệ, ví dụ 3.500.');
   }
   const lv = (v) => (opts.lite ? fmt.numShort(v) : fmt.pts(v));
   const cap = fmt.levelCap(d.max_player_points);
-  for (const [p, n] of [[pts1, 1], [pts2, 2]]) {
+  for (const [p, n] of single ? [[pts1, 1]] : [[pts1, 1], [pts2, 2]]) {
     if (d.min_player_points && p < d.min_player_points) return fail(`VĐV ${n} (trình ${lv(p)}): nội dung ${d.name} yêu cầu trình từ ${lv(d.min_player_points)}.`);
     if (cap && p > cap) return fail(`VĐV ${n} (trình ${lv(p)}): nội dung ${d.name} chỉ nhận trình đến ${lv(cap)}.`);
   }
-  if (d.max_total_points && pts1 + pts2 > d.max_total_points) {
+  if (!single && d.max_total_points && pts1 + pts2 > d.max_total_points) {
     const t = (v) => (opts.lite ? fmt.numShort(v) : fmt.pts(v));
     return fail(`Tổng trình 2 VĐV (${t(pts1 + pts2)}) vượt mức ${t(d.max_total_points)}.`);
   }
-  if (d.gender_rule !== 'any' && a1 && a2) {
+  if (single && d.gender_rule !== 'any' && a1 && ['male', 'female'].includes(d.gender_rule)) {
+    if (a1.gender !== (d.gender_rule === 'male' ? 'M' : 'F')) return fail(`Nội dung này yêu cầu: ${fmt.GENDER_RULE_LABEL[d.gender_rule]}.`);
+  } else if (!single && d.gender_rule !== 'any' && a1 && a2) {
     const gs = [a1.gender, a2.gender].sort().join('');
     const ok = { male: gs === 'MM', female: gs === 'FF', mixed: gs === 'FM' }[d.gender_rule];
     if (!ok) return fail(`Nội dung này yêu cầu: ${fmt.GENDER_RULE_LABEL[d.gender_rule]}.`);
@@ -168,14 +173,14 @@ async function submitRegistration(req, res, ev, opts = {}) {
   const err = await tx(async () => {
     await run('SELECT pg_advisory_xact_lock(?)', d.id);
     const dup = await get(`SELECT 1 FROM registrations WHERE division_id = ? AND status <> 'rejected'
-      AND (phone1 IN (?, ?) OR phone2 IN (?, ?))`, d.id, p1.phone, p2.phone, p1.phone, p2.phone);
-    if (dup) return 'Một trong hai số điện thoại đã đăng ký nội dung này.';
+      AND (phone1 IN (?, ?) OR phone2 IN (?, ?))`, d.id, p1.phone, p2.phone || p1.phone, p1.phone, p2.phone || p1.phone);
+    if (dup) return single ? 'Số điện thoại này đã đăng ký nội dung này.' : 'Một trong hai số điện thoại đã đăng ký nội dung này.';
     if (d.max_teams) {
       const count = (await get("SELECT COUNT(*) AS c FROM registrations WHERE division_id = ? AND status <> 'rejected'", d.id)).c;
-      if (count >= d.max_teams) return `Nội dung ${d.name} đã đủ ${d.max_teams} đôi.`;
+      if (count >= d.max_teams) return `Nội dung ${d.name} đã đủ ${d.max_teams} ${fmt.unitLabel(d)}.`;
     }
     await run(`INSERT INTO registrations(division_id, athlete1_id, name1, phone1, points1, athlete2_id, name2, phone2, points2)
-      VALUES (?,?,?,?,?,?,?,?,?)`, d.id, a1 ? a1.id : null, values.name1, p1.phone, pts1, a2 ? a2.id : null, values.name2, p2.phone, pts2);
+      VALUES (?,?,?,?,?,?,?,?,?)`, d.id, a1 ? a1.id : null, values.name1, p1.phone, pts1, a2 ? a2.id : null, values.name2 || null, p2.phone, pts2);
     return null;
   });
   if (err) return fail(err);
@@ -227,6 +232,10 @@ router.get('/:slug/nhanh-dau', wrap(loadEvent), wrap(async (req, res) => {
   }
   res.render('public/bracket', { title: `Nhánh đấu – ${ev.name}`, ev, d, data, pageScript: 'bracket' });
 }));
+
+router.get('/:slug/noi-dung/:divisionId', wrap(loadEvent), (req, res) => {
+  res.redirect(301, `/giai-dau/${req.params.slug}/nhanh-dau?d=${req.params.divisionId}`);
+});
 
 router.get('/:slug/truc-tiep', wrap(loadEvent), wrap(async (req, res) => {
   const ev = req.event;

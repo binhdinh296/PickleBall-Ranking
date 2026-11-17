@@ -11,15 +11,16 @@
     <% if (!d) { %><div class="empty">Giải chưa có nội dung thi đấu.</div>
     <% } else if (!regs.length) { %><div class="empty">Chưa có đăng ký cho nội dung này.</div>
     <% } else { %>
-    <p class="tiny faint" style="margin-bottom: 10px;"><%= regs.length %><%= d.max_teams ? `/${d.max_teams}` : '' %> <%= d.team_type === 'team' ? 'đội' : 'đôi' %> · <%= regs.filter((r) => r.status === 'approved').length %> đã duyệt</p>
+    <p class="tiny faint" style="margin-bottom: 10px;"><%= regs.length %><%= d.max_teams ? `/${d.max_teams}` : '' %> <%= fmt.unitLabel(d) %> · <%= regs.filter((r) => r.status === 'approved').length %> đã duyệt</p>
     <div class="table-wrap">
       <table class="data table-reg">
         <thead>
           <tr>
             <th class="col-stt tnum">STT</th>
-            <th class="col-v1"><span class="hide-desktop">VĐV 1</span><span class="hide-mobile">Vận động viên 1</span></th>
-            <th class="col-v2"><span class="hide-desktop">VĐV 2</span><span class="hide-mobile">Vận động viên 2</span></th>
-            <th class="col-pts num"><span class="hide-desktop">Trình</span><span class="hide-mobile">Tổng trình</span></th>
+            <% const single = fmt.isSingle(d); %>
+            <th class="col-v1"><% if (single) { %>Vận động viên<% } else { %><span class="hide-desktop">VĐV 1</span><span class="hide-mobile">Vận động viên 1</span><% } %></th>
+            <% if (!single) { %><th class="col-v2"><span class="hide-desktop">VĐV 2</span><span class="hide-mobile">Vận động viên 2</span></th><% } %>
+            <th class="col-pts num"><% if (single) { %>Trình<% } else { %><span class="hide-desktop">Trình</span><span class="hide-mobile">Tổng trình</span><% } %></th>
             <th class="col-status"><span class="hide-desktop">T.Thái</span><span class="hide-mobile">Trạng thái</span></th>
           </tr>
         </thead>
@@ -30,12 +31,12 @@
             <td class="col-v1">
               <% if (r.athlete1_id) { %><a class="link" href="/vdv/<%= r.athlete1_id %>"><%= r.name1 %></a><% } else { %><span><%= r.name1 %></span><% } %>
             </td>
-            <td class="col-v2">
+            <% if (!single) { %><td class="col-v2">
               <% if (r.athlete2_id) { %><a class="link" href="/vdv/<%= r.athlete2_id %>"><%= r.name2 %></a><% } else { %><span class="<%= r.name2 ? '' : 'muted' %>"><%= r.name2 || '—' %></span><% } %>
-            </td>
+            </td><% } %>
             <td class="col-pts num">
-              <% if (r.points1 != null && r.points2 != null && (r.points1 > 0 || r.points2 > 0)) { %>
-                <strong><%= fmt.pts(r.points1 + r.points2) %></strong>
+              <% if (r.points1 != null && (r.points2 != null || single) && (r.points1 > 0 || r.points2 > 0)) { %>
+                <strong><%= fmt.pts(r.points1 + (r.points2 || 0)) %></strong>
               <% } else { %>
                 <span class="muted">—</span>
               <% } %>

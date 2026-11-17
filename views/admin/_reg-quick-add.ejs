@@ -1,0 +1,108 @@
+<%
+  // Thêm đăng ký: bảng nhập nhiều dòng (gõ tay / dán từ Excel) + nút tải mẫu Excel + nút nhập file Excel.
+  // Cột của bảng và mẫu Excel đi theo loại nội dung: Đơn (1 VĐV / dòng) hoặc Đôi (2 VĐV / dòng).
+  // locals: d, csrfToken, error (lỗi từ form cũ), grid (tuỳ chọn: { rows, errorCount, warnCount, source, fileName, fileError, fileWarning, saveError, regStatus })
+  const g = locals.grid || null;
+  const ic = (n) => include('../partials/icon', { name: n });
+  const single = fmt.isSingle(d);
+  const unit = fmt.unitLabel(d);
+  const kindName = single ? 'Đơn' : 'Đôi';
+  const empty = { name1: '', phone1: '', points1: '', name2: '', phone2: '', points2: '', note: '', line: '', errors: [], warnings: [] };
+  const rows = g && g.rows && g.rows.length ? g.rows : Array.from({ length: 5 }, () => empty);
+  const cols = single
+    ? [['name1', 'Họ tên VĐV', 'text', 'rq-name'], ['phone1', 'SĐT', 'tel', 'rq-phone'], ['points1', 'Trình', 'decimal', 'rq-pts'], ['note', 'Ghi chú', 'text', 'rq-note']]
+    : [['name1', 'Họ tên VĐV 1', 'text', 'rq-name'], ['phone1', 'SĐT 1', 'tel', 'rq-phone'], ['points1', 'Trình 1', 'decimal', 'rq-pts'],
+      ['name2', 'Họ tên VĐV 2', 'text', 'rq-name rq-p2'], ['phone2', 'SĐT 2', 'tel', 'rq-phone'], ['points2', 'Trình 2', 'decimal', 'rq-pts'],
+      ['note', 'Ghi chú', 'text', 'rq-note']];
+  const fromExcel = g && g.source === 'excel';
+  const regStatus = g && g.regStatus === 'new' ? 'new' : 'approved';
+  const rowHtml = (r, i) => {
+    const bad = r.errors && r.errors.length;
+    const warn = r.warnings && r.warnings.length;
+    let h = `<tr class="rq-row${bad ? ' is-err' : warn ? ' is-warn' : ''}" data-rq-row>`;
+    h += `<td class="rq-idx"><span data-rq-no>${i + 1}</span><input type="hidden" name="line" value="${fmt.esc(r.line || '')}" data-col="line"></td>`;
+    cols.forEach(([f, label, type, cls]) => {
+      const attrs = type === 'tel' ? 'type="tel" inputmode="tel" autocomplete="off"' : type === 'decimal' ? 'inputmode="decimal" autocomplete="off"' : 'autocomplete="off"';
+      h += `<td class="${cls}" data-label="${label}"><input class="input rq-in" name="${f}" value="${fmt.esc(r[f] || '')}" ${attrs} data-col="${f}" aria-label="${label} dòng ${i + 1}"${f === 'note' ? ' maxlength="200"' : ' maxlength="80"'}></td>`;
+    });
+    h += `<td class="rq-del"><button type="button" class="rq-x" data-rq-del aria-label="Xoá dòng ${i + 1}" title="Xoá dòng">✕</button></td></tr>`;
+    if (bad || warn) {
+      h += `<tr class="rq-msg" data-rq-msg><td></td><td colspan="${cols.length + 1}">${r.line ? `<b>${fmt.esc(r.line)}:</b> ` : ''}`;
+      h += (r.errors || []).map((e) => `<span class="rq-e">${fmt.esc(e)}</span>`).join('');
+      h += (r.warnings || []).map((e) => `<span class="rq-w">${fmt.esc(e)}</span>`).join('');
+      h += '</td></tr>';
+    }
+    return h;
+  };
+%>
+<link rel="stylesheet" href="/static/css/reg-grid.css?v=<%= locals.assetV || '' %>">
+<section class="card card-pad rq<%= single ? ' is-single' : '' %>" id="them-dang-ky" data-rq<%= g ? ' data-rq-focus' : '' %>>
+  <div class="rq-head">
+    <div>
+      <h2 class="section-title" style="margin: 0;">Thêm đăng ký <span class="chip chip-brand rq-kind"><%= single ? 'Nội dung Đơn' : 'Nội dung Đôi' %></span></h2>
+      <p class="small muted" style="margin: 4px 0 0;"><%= single ? 'Mỗi dòng là 1 vận động viên.' : 'Mỗi dòng là 1 đôi (VĐV 1 + VĐV 2).' %> Gõ trực tiếp, dán vùng ô copy từ Excel, hoặc nhập file theo mẫu.</p>
+    </div>
+    <div class="rq-excel">
+      <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/dang-ky/mau.xlsx" download title="Mẫu Excel cho nội dung <%= kindName %>: <%= single ? 'mỗi dòng 1 VĐV' : 'mỗi dòng 1 đôi' %>"><%- ic('download') %>Tải mẫu Excel (<%= kindName %>)</a>
+      <form class="rq-upload" method="post" action="/admin/noi-dung/<%= d.id %>/dang-ky/nhap-file" enctype="multipart/form-data" data-rq-upload>
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+        <label class="btn btn-brand btn-sm" tabindex="0" title="Chọn file .xlsx đã điền theo mẫu <%= kindName %> (tối đa 2 MB, 300 <%= unit %>)">
+          <%- ic('file') %><span data-rq-upload-label>Nhập từ Excel</span>
+          <input class="sr-only" type="file" name="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required data-rq-file>
+        </label>
+        <noscript><button class="btn btn-sm" type="submit">Đọc file</button></noscript>
+      </form>
+    </div>
+  </div>
+
+  <% if (locals.error) { %><div class="alert alert-error"><%= error %></div><% } %>
+  <% if (g && g.fileError) { %><div class="alert alert-error"><%= g.fileError %></div><% } %>
+  <% if (g && g.rows && g.rows.length) { %>
+    <% if (g.saveError) { %>
+      <div class="alert alert-error">Còn <b><%= g.errorCount %></b> dòng lỗi (tô đỏ) nên <b>chưa lưu dòng nào</b>. Sửa hoặc xoá các dòng đó rồi bấm Lưu lại.</div>
+    <% } else if (fromExcel) { %>
+      <div class="alert <%= g.errorCount ? 'alert-warning' : 'alert-success' %>">
+        Đã đọc <b><%= g.fileName || 'file' %></b> (mẫu <%= kindName %>): <b><%= g.rows.length %></b> <%= unit %><%= g.errorCount ? ` · ${g.errorCount} dòng lỗi` : '' %><%= g.warnCount ? ` · ${g.warnCount} dòng cần lưu ý` : '' %>.
+        Chưa lưu: kiểm tra bảng rồi bấm <b>Lưu</b>.
+      </div>
+      <% if (g.fileWarning) { %><div class="alert alert-warning"><%= g.fileWarning %></div><% } %>
+    <% } %>
+  <% } %>
+
+  <form method="post" action="/admin/noi-dung/<%= d.id %>/dang-ky/nhap-nhanh" data-rq-form>
+    <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+    <input type="hidden" name="source" value="<%= fromExcel ? 'excel' : 'grid' %>">
+    <input type="hidden" name="rows_json" value="" data-rq-json disabled>
+    <div class="rq-wrap">
+      <table class="rq-table">
+        <thead><tr>
+          <th class="rq-idx">#</th>
+          <% cols.forEach(([f, label, type, cls]) => { %><th class="<%= cls %>"><%= label %></th><% }) %>
+          <th class="rq-del"><span class="sr-only">Xoá</span></th>
+        </tr></thead>
+        <tbody data-rq-body>
+          <% rows.forEach((r, i) => { %><%- rowHtml(r, i) %><% }) %>
+        </tbody>
+      </table>
+    </div>
+    <template data-rq-tpl><%- rowHtml(empty, 0) %></template>
+    <div class="rq-foot">
+      <div class="rq-add">
+        <button type="button" class="btn btn-sm" data-rq-add="1"><%- ic('plus') %>1 dòng</button>
+        <button type="button" class="btn btn-sm" data-rq-add="5"><%- ic('plus') %>5 dòng</button>
+        <span class="tiny muted rq-tip">Mẹo: copy vùng ô trong Excel (<%= single ? 'Họ tên → Ghi chú' : 'Họ tên VĐV 1 → Ghi chú' %>) rồi dán vào ô bất kỳ · Enter xuống dòng.</span>
+      </div>
+      <div class="rq-save">
+        <label class="small rq-status">Trạng thái
+          <select class="input" name="reg_status">
+            <option value="approved"<%= regStatus === 'approved' ? ' selected' : '' %>>Đã duyệt</option>
+            <option value="new"<%= regStatus === 'new' ? ' selected' : '' %>>Chờ duyệt</option>
+          </select>
+        </label>
+        <button class="btn btn-brand" type="submit" data-rq-submit>Lưu <span data-rq-count><%= g && g.rows ? g.rows.length : 0 %></span> <%= unit %></button>
+      </div>
+    </div>
+    <p class="tiny muted" style="margin: 8px 0 0;">VĐV đã có hồ sơ (trùng SĐT) dùng trình trên hệ thống, có thể bỏ trống ô Trình. Trình 1.0–8.0, vd. 2.65. Dòng trống được bỏ qua.</p>
+  </form>
+</section>
+<script src="/static/js/reg-grid.js?v=<%= locals.assetV || '' %>" defer></script>

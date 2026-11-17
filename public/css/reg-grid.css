@@ -1,0 +1,80 @@
+/* Bảng thêm đăng ký nhanh (CMS › Đăng ký) */
+.rq { margin-top: 20px; display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 80px; }
+.rq-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+
+.rq-kind { vertical-align: middle; margin-left: 6px; padding: 3px 10px; font-size: 12px; }
+
+/* 2 nút Excel: tải mẫu · nhập file */
+.rq-excel { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.rq-excel .btn svg { width: 16px; height: 16px; }
+.rq-upload { margin: 0; }
+.rq-upload label { cursor: pointer; position: relative; }
+.rq-upload label:focus-within, .rq-upload label:focus-visible { outline: 2px solid var(--line-strong); outline-offset: 2px; }
+.rq-upload label.is-busy { opacity: .7; pointer-events: none; }
+
+/* Bảng */
+.rq-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-sm); }
+.rq-table { width: 100%; border-collapse: collapse; min-width: 980px; }
+@media (min-width: 761px) {
+  .rq.is-single .rq-table { min-width: 520px; }
+  .rq.is-single .rq-name { width: 34%; }
+  .rq.is-single .rq-phone { width: 18%; }
+  .rq.is-single .rq-pts { width: 11%; }
+}
+.rq-table th { position: sticky; top: 0; z-index: 1; text-align: left; font-size: 12px; font-weight: 700; color: var(--text-3); padding: 8px 6px;
+  background: var(--bg-2); border-bottom: 1px solid var(--line); white-space: nowrap; }
+.rq-table td { padding: 3px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.rq-table .input.rq-in { min-height: 36px; padding: 6px 8px; font-size: 14px; border-radius: 8px; width: 100%; }
+.rq-idx { width: 34px; text-align: center; color: var(--text-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+.rq-name { width: 19%; }
+.rq-phone { width: 13%; }
+.rq-pts { width: 7.5%; }
+.rq-pts .rq-in, .rq-phone .rq-in { font-variant-numeric: tabular-nums; }
+.rq-del { width: 36px; text-align: center; }
+.rq-x { width: 30px; height: 30px; border: 0; border-radius: 8px; background: none; color: var(--text-3); cursor: pointer; font-size: 13px; }
+.rq-x:hover, .rq-x:focus-visible { background: color-mix(in oklab, var(--err) 18%, transparent); color: var(--err); }
+.rq-row.is-err td { background: color-mix(in oklab, var(--err) 9%, transparent); }
+.rq-row.is-err .rq-idx { color: var(--err); font-weight: 800; }
+.rq-row.is-warn td { background: color-mix(in oklab, var(--warn) 7%, transparent); }
+.rq-msg td { padding: 2px 8px 8px; font-size: 12.5px; border-bottom: 1px solid var(--line); }
+.rq-msg td:empty { padding: 0; }
+.rq-e, .rq-w { display: inline-block; margin-right: 10px; }
+.rq-e { color: var(--err); }
+.rq-e::before { content: '✕ '; }
+.rq-w { color: var(--warn); }
+.rq-w::before { content: '! '; font-weight: 800; }
+.rq-msg.is-stale { opacity: .45; }
+
+.rq-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rq-add { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.rq-add .btn svg { width: 16px; height: 16px; }
+.rq-save { display: flex; gap: 10px; align-items: center; margin-left: auto; }
+.rq-status { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.rq-status .input { min-height: 38px; padding: 4px 10px; width: auto; }
+
+/* Màn hẹp: mỗi đôi là 1 thẻ, ô xếp 2 cột */
+@media (max-width: 760px) {
+  .rq-tip { display: none; }
+  .rq-wrap { border: 0; overflow: visible; }
+  .rq-table { min-width: 0; }
+  .rq-table thead { display: none; }
+  .rq-table, .rq-table tbody { display: block; }
+  .rq-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 8px; padding: 30px 10px 10px; margin-top: 10px; position: relative;
+    border: 1px solid var(--line); border-radius: var(--r-sm); }
+  .rq-row td { display: block; width: auto; padding: 0; border: 0; background: none !important; }
+  .rq-row td[data-label]::before { content: attr(data-label); display: block; font-size: 11.5px; color: var(--text-3); margin-bottom: 2px; }
+  .rq-row .rq-name, .rq-row .rq-note { grid-column: 1 / -1; }
+  .rq-row .rq-name + .rq-phone { grid-column: 1; }
+  .rq-row .rq-idx { position: absolute; left: 10px; top: 8px; width: auto; text-align: left; font-weight: 700; }
+  .rq-row .rq-idx::before { content: 'Đôi '; }
+  .rq.is-single .rq-row .rq-idx::before { content: 'VĐV '; }
+  .rq-row .rq-del { position: absolute; right: 6px; top: 2px; width: auto; }
+  .rq-row .rq-p2 { margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); }
+  .rq-row.is-err { border-color: color-mix(in oklab, var(--err) 55%, transparent); background: color-mix(in oklab, var(--err) 7%, transparent); }
+  .rq-row.is-warn { border-color: color-mix(in oklab, var(--warn) 55%, transparent); }
+  .rq-msg { display: block; }
+  .rq-msg td { display: block; padding: 6px 2px 0; border: 0; }
+  .rq-msg td:first-child { display: none; }
+  .rq-save { width: 100%; justify-content: space-between; }
+  .rq-save .btn { flex: 1; }
+}
