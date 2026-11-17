@@ -1,51 +1,61 @@
 <%- include('_top') %>
 
 <div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-  <p class="tiny faint at-count" style="margin: 0;"><%= rows.length %> đối tác & nhà tài trợ</p>
-  <button type="button" class="btn btn-brand btn-sm" data-toggle-target="new-partner-details">
+  <div class="row" style="--gap: 6px; align-items: center;">
+    <p class="tiny faint at-count" style="margin: 0;"><%= rows.length %> đối tác &amp; nhà tài trợ</p>
+    <span class="guide-tip" data-tip="Logo đối tác và nhà tài trợ hiển thị tại chân trang chủ và các trang giải đấu. Bấm Thao tác để chỉnh sửa hoặc xóa đối tác.">?</span>
+  </div>
+  <button type="button" class="btn btn-brand btn-sm" data-modal-target="modal-new-partner">
     <%- include('../partials/icon', { name: 'plus' }) %>Thêm đối tác mới
   </button>
 </div>
 
-<!-- Form thêm đối tác mới (gập mở) -->
-<details class="card card-pad stack" id="new-partner-details" style="--gap: 12px; margin-bottom: 16px;" <%= !rows.length ? 'open' : '' %>>
-  <summary class="section-title" style="cursor: pointer; user-select: none;">
-    <span>+ Thêm đối tác mới</span>
-  </summary>
-  <form class="form" method="post" action="/admin/doi-tac" enctype="multipart/form-data" style="gap: 12px; margin-top: 8px;">
-    <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-    <div class="form-grid two">
-      <div class="field">
-        <label for="new_name">Tên đối tác / Nhà tài trợ *</label>
-        <input class="input" id="new_name" name="name" placeholder="Ví dụ: Kamito, Wilson, Pickleball Việt Nam..." required maxlength="100">
-      </div>
-      <div class="field">
-        <label for="new_url">Website / Fanpage</label>
-        <input class="input" id="new_url" name="url" placeholder="https://..." maxlength="300">
-      </div>
-      <div class="field">
-        <label for="new_logo">Logo đối tác (PNG, JPG, WebP)</label>
-        <input class="input" id="new_logo" type="file" name="logo" accept="image/jpeg,image/png,image/webp">
-        <span class="hint">Nên dùng file ảnh logo nền trong suốt (PNG), kích thước chuẩn 480x240 px.</span>
-      </div>
-      <div class="field">
-        <label for="new_sort">Thứ tự hiển thị</label>
-        <input class="input tnum" id="new_sort" name="sort_order" inputmode="numeric" value="0" placeholder="0">
-        <span class="hint">Số nhỏ hơn sẽ đứng trước trên website.</span>
-      </div>
+<!-- POPUP MODAL THÊM ĐỐI TÁC MỚI -->
+<div class="admin-modal" id="modal-new-partner" role="dialog" aria-modal="true" aria-labelledby="modal-title-new-partner">
+  <div class="admin-modal-content">
+    <div class="admin-modal-header">
+      <h3 id="modal-title-new-partner">+ Thêm đối tác / Nhà tài trợ mới</h3>
+      <button type="button" class="admin-modal-close-btn" data-modal-close aria-label="Đóng popup">✕</button>
     </div>
-    <div class="row" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-      <label class="check">
-        <input type="checkbox" name="visible" value="1" checked>
-        <span>Hiển thị trên trang chủ và chân trang</span>
-      </label>
-      <button class="btn btn-brand" type="submit">Lưu đối tác</button>
-    </div>
-  </form>
-</details>
+    <form class="form" method="post" action="/admin/doi-tac" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+      <div class="admin-modal-body stack" style="--gap: 12px;">
+        <div class="form-grid two">
+          <div class="field">
+            <label for="new_name">Tên đối tác / Nhà tài trợ *</label>
+            <input class="input" id="new_name" name="name" placeholder="Ví dụ: Kamito, Wilson, Pickleball Việt Nam..." required maxlength="100">
+          </div>
+          <div class="field">
+            <label for="new_url">Website / Fanpage</label>
+            <input class="input" id="new_url" name="url" placeholder="https://..." maxlength="300">
+          </div>
+          <div class="field">
+            <label for="new_logo">Logo đối tác <span class="guide-tip" data-tip="Nên dùng file ảnh logo nền trong suốt (PNG/WebP), tỉ lệ chuẩn 2:1 (khoảng 480x240 px).">?</span></label>
+            <input class="input" id="new_logo" type="file" name="logo" accept="image/jpeg,image/png,image/webp">
+          </div>
+          <div class="field">
+            <label for="new_sort">Thứ tự hiển thị</label>
+            <input class="input tnum" id="new_sort" name="sort_order" inputmode="numeric" value="0" placeholder="0">
+            <span class="hint">Số nhỏ hơn sẽ đứng trước trên website.</span>
+          </div>
+        </div>
+        <label class="check" style="margin-top: 4px;">
+          <input type="checkbox" name="visible" value="1" checked>
+          <span>Hiển thị trên trang chủ và chân trang</span>
+        </label>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
+        <button class="btn btn-brand btn-sm" type="submit">
+          <%- include('../partials/icon', { name: 'plus' }) %>Lưu đối tác
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <% if (!rows.length) { %>
-  <div class="empty">Chưa có đối tác nào. Bấm <strong>"+ Thêm đối tác mới"</strong> ở trên để thêm đối tác đầu tiên.</div>
+  <div class="empty">Chưa có đối tác nào.</div>
 <% } else { %>
 <div class="table-wrap">
   <table class="data atable">

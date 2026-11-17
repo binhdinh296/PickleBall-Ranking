@@ -7,7 +7,10 @@
   <a class="btn" href="/admin/lich-su-diem"><%- include('../partials/icon', { name: 'history' }) %>Lịch sử điểm</a>
   <a class="btn btn-brand" href="/admin/vdv/moi"><%- include('../partials/icon', { name: 'plus' }) %>Thêm VĐV</a>
 </form>
-<p class="tiny faint at-count"><%= total %> vận động viên</p>
+<div class="row" style="--gap: 6px; align-items: center; margin-bottom: 8px;">
+  <p class="tiny faint at-count" style="margin: 0;"><%= total %> vận động viên</p>
+  <span class="guide-tip" data-tip="Bấm vào hàng VĐV để chỉnh sửa thông tin cá nhân, điều chỉnh điểm số hoặc theo dõi lịch sử điểm.">?</span>
+</div>
 <% if (!rows.length) { %><div class="empty">Không có VĐV phù hợp.</div><% } else { %>
 <div class="table-wrap">
   <table class="data atable">

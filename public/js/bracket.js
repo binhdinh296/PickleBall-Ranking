@@ -8,7 +8,8 @@
   var board = shell.querySelector('[data-bk-board]');
   var svg = shell.querySelector('[data-bk-lines]');
   var btn = shell.querySelector('[data-bk-full]');
-  var cols = Array.prototype.slice.call(board.querySelectorAll('[data-bk-col]'));
+  var cols = board ? Array.prototype.slice.call(board.querySelectorAll('[data-bk-col]')) : [];
+  var zones = Array.prototype.slice.call(shell.querySelectorAll('.bk-zone'));
   var GAP = 12;
   var SVGNS = 'http://www.w3.org/2000/svg';
 
@@ -18,15 +19,16 @@
   function isWide() { return shell.classList.contains('is-full') || window.innerWidth >= 760; }
 
   function reset() {
-    board.classList.remove('is-wide');
+    if (board) board.classList.remove('is-wide');
     shell.classList.remove('bk-wide');
     bodies().forEach(function (b) { b.style.height = ''; cards(b).forEach(function (c) { c.style.top = ''; }); });
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    if (svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
   }
 
   // Co thẻ (190–224px) và khoảng cách cột (28–46px) để mọi cột vừa khung; không vừa thì mới cuộn ngang
   function fit() {
-    var n = cols.length;
+    var n = Math.max(cols.length, zones.length);
+    if (!n) return;
     var avail = shell.querySelector('[data-bk-scroll]').clientWidth - 14;
     var cw = Math.max(190, Math.min(224, Math.floor((avail - (n - 1) * 28) / n)));
     var gap = n > 1 ? Math.max(28, Math.min(46, Math.floor((avail - n * cw) / (n - 1)))) : 46;
@@ -36,10 +38,11 @@
 
   function layout() {
     reset();
-    if (!isWide() || !cols.length) return;
-    board.classList.add('is-wide');
+    if (!isWide() || (!cols.length && !zones.length)) return;
+    if (board) board.classList.add('is-wide');
     shell.classList.add('bk-wide');
     fit();
+    if (!board || !cols.length || !svg) return;
     var pos = {}; // id trận → { col, top, h, el }
     bodies().forEach(function (body, ci) {
       var y = 0;

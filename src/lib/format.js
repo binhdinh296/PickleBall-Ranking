@@ -85,6 +85,46 @@ const LIVE_STATUS_LABEL = { scheduled: 'Sắp phát', live: 'Đang phát', ended
 const GENDER_LABEL = { M: 'Nam', F: 'Nữ' };
 const ROLE_LABEL = { admin: 'Quản trị viên', editor: 'Biên tập viên', referee: 'Trọng tài', organizer: 'Ban tổ chức' };
 const GENDER_RULE_LABEL = { any: 'Tự do', male: 'Nam', female: 'Nữ', mixed: 'Hỗn hợp (1 nam + 1 nữ)' };
+// Thể loại nội dung thi đấu chuẩn theo quy định hệ thống:
+// 1. Đơn Nam
+// 2. Đơn Nữ
+// 3. Đơn Tự Do
+// 4. Đôi Hỗn Hợp (Mặc định)
+// 5. Đôi Nam
+// 6. Đôi Nữ
+// 7. Đôi Tự Do
+const CATEGORIES = {
+  don_nam: { code: 'don_nam', name: 'Đơn Nam', team_type: 'single', gender_rule: 'male' },
+  don_nu: { code: 'don_nu', name: 'Đơn Nữ', team_type: 'single', gender_rule: 'female' },
+  don_tu_do: { code: 'don_tu_do', name: 'Đơn Tự Do', team_type: 'single', gender_rule: 'any' },
+  doi_hon_hop: { code: 'doi_hon_hop', name: 'Đôi Hỗn Hợp', team_type: 'pair', gender_rule: 'mixed' },
+  doi_nam: { code: 'doi_nam', name: 'Đôi Nam', team_type: 'pair', gender_rule: 'male' },
+  doi_nu: { code: 'doi_nu', name: 'Đôi Nữ', team_type: 'pair', gender_rule: 'female' },
+  doi_tu_do: { code: 'doi_tu_do', name: 'Đôi Tự Do', team_type: 'pair', gender_rule: 'any' },
+};
+
+const DEFAULT_CATEGORY = 'doi_hon_hop';
+
+function categoryFromDivision(d) {
+  if (!d) return DEFAULT_CATEGORY;
+  if (d.category && CATEGORIES[d.category]) return d.category;
+  const isS = d.team_type === 'single';
+  const g = d.gender_rule || 'any';
+  if (isS) {
+    if (g === 'male') return 'don_nam';
+    if (g === 'female') return 'don_nu';
+    return 'don_tu_do';
+  }
+  if (g === 'mixed') return 'doi_hon_hop';
+  if (g === 'male') return 'doi_nam';
+  if (g === 'female') return 'doi_nu';
+  return 'doi_tu_do';
+}
+
+function categoryLabel(d) {
+  const code = typeof d === 'string' ? d : categoryFromDivision(d);
+  return CATEGORIES[code] ? CATEGORIES[code].name : 'Đôi Hỗn Hợp';
+}
 // Loại nội dung: đơn (1 VĐV) / đôi (2 VĐV) / đồng đội (đội nhập trong CMS)
 const TEAM_TYPE_LABEL = { single: 'Đơn', pair: 'Đôi', team: 'Đồng đội' };
 const isSingle = (d) => !!d && d.team_type === 'single';
@@ -141,6 +181,15 @@ const levelCap = (max) => (max && max < LEVELS[LEVELS.length - 1] ? max : null);
 // Số gọn cho giới hạn tổng trình: 6500 → "6.5", 6250 → "6.25", 7000 → "7.0"
 const numShort = (v) => { const n = Number((v / 1000).toFixed(3)); return Number.isInteger(n) ? n.toFixed(1) : String(n); };
 
+const FORMAT_LABELS = {
+  roundrobin: 'Chia Bảng',
+  knockout: 'Loại Trực Tiếp thua đi Playoff',
+};
+
+function formatLabel(v) {
+  return v === 'roundrobin' ? 'Chia Bảng' : 'Loại Trực Tiếp thua đi Playoff';
+}
+
 // Thoát ký tự HTML cho chuỗi chèn bằng <%- %> (vd. tiêu đề trang chủ lấy từ CMS)
 function esc(v) {
   return String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -150,5 +199,7 @@ module.exports = {
   pts, signedPts, parsePoints, money, dateVN, dateTimeVN, toLocalInput, fromLocalInput, today, eventStatus, duration,
   EVENT_STATUS_LABEL, REG_STATUS_LABEL, SUB_STATUS_LABEL, MATCH_STATUS_LABEL, LIVE_STATUS_LABEL, GENDER_LABEL,
   ROLE_LABEL, GENDER_RULE_LABEL, TEAM_TYPE_LABEL, isSingle, unitLabel, regName, slugify, initials, displayName, pad2, esc,
+  CATEGORIES, DEFAULT_CATEGORY, categoryFromDivision, categoryLabel,
+  FORMAT_LABELS, formatLabel,
   LEVELS, levelLabel, parseLevel, numShort, parseLevelInput, levelCap,
 };

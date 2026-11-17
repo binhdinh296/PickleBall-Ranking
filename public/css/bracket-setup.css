@@ -1,0 +1,101 @@
+/* Cấu hình bốc thăm 2 bước (CMS › Nhánh đấu) */
+.bs { margin-bottom: 16px; padding: 0; overflow: hidden; }
+.bs-sum { list-style: none; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 14px 18px; }
+.bs-sum::-webkit-details-marker { display: none; }
+.bs-sum-title { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
+.bs-sum-title svg { width: 18px; height: 18px; }
+.bs-sum-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.bs-sum-chips .chip { font-size: 11.5px; padding: 3px 10px; }
+.bs-sum-toggle { margin-left: auto; }
+.bs-sum-toggle::after { content: attr(data-closed-text) ' ▾'; }
+.bs[open] .bs-sum-toggle::after { content: attr(data-open-text) ' ▴'; }
+.bs[open] .bs-sum { border-bottom: 1px solid var(--line); }
+.bs-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+
+/* Thanh bước */
+.bs-steps { margin: 0; padding: 6px; gap: 6px; }
+.bs-step { flex: 1; min-width: 0; justify-content: flex-start; gap: 12px; padding: 10px 14px; text-align: left; }
+.bs-num { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800;
+  background: color-mix(in oklab, var(--text) 10%, transparent); }
+.bs-num.is-done { background: color-mix(in oklab, var(--ok) 30%, transparent); color: var(--ok); }
+.bs-step.active .bs-num { background: rgba(255, 255, 255, .22); color: #fff; }
+.bs-step-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.bs-step-txt b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; }
+.bs-step-txt small { font-size: 12px; font-weight: 500; opacity: .75; }
+.bs-arrow { color: var(--text-3); font-size: 20px; flex: none; }
+
+.bs-pane { gap: 14px; }
+.bs-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; }
+.bs-lead { margin: 0; max-width: 60ch; }
+.bs-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.bs-actions form { margin: 0; }
+.bs-actions .btn svg, .bs-format-edit svg, .bs-foot .btn svg { width: 16px; height: 16px; }
+
+.bs-add { display: grid; grid-template-columns: minmax(0, 1fr) 120px auto; gap: 10px; align-items: end; padding: 12px; border: 1px dashed var(--line-strong); border-radius: var(--r-sm); }
+.bs-add .field { margin: 0; }
+.bs-add-members { grid-column: 1 / -1; }
+
+/* Danh sách đội */
+.bs-list { max-height: 440px; overflow: auto; border: 1px solid var(--line); border-radius: var(--r-sm); }
+.bs-list .atable { margin: 0; }
+.bs-list thead th { position: sticky; top: 0; z-index: 1; background: var(--bg-2); }
+.bs-members { display: block; margin-top: 2px; }
+.bs-seed { font-size: 11px; padding: 2px 8px; }
+.bs-del { padding: 2px 8px; }
+.bs-teams .c-act form { margin: 0; }
+.bs-empty { margin: 0; }
+
+.bs-foot { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--line); }
+.bs-foot > span:first-child { margin-right: auto; }
+.bs-foot form { margin: 0; }
+.bs-ok { color: var(--ok); }
+
+/* Bước 2 */
+.bs-gate { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px; border-radius: var(--r-sm);
+  border: 1px dashed color-mix(in oklab, var(--warn) 50%, transparent); background: color-mix(in oklab, var(--warn) 7%, transparent); }
+.bs-gate > div { flex: 1; min-width: 220px; }
+.bs-gate p { margin: 2px 0 0; }
+.bs-gate-ico { font-size: 22px; }
+.bs-draw { display: flex; flex-direction: column; gap: 14px; }
+.bs-format { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: var(--r-sm);
+  border: 1px solid color-mix(in oklab, var(--ok) 40%, transparent); background: color-mix(in oklab, var(--ok) 7%, transparent); }
+.bs-format-ico { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in oklab, var(--ok) 18%, transparent); color: var(--ok); }
+.bs-format-ico svg { width: 22px; height: 22px; }
+.bs-format-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.bs-format-txt b { font-size: 15px; }
+.bs-format-edit { flex: none; }
+.bs-opts { padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-sm); }
+.bs-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.bs-grid2 .field { margin: 0; }
+.bs-random small, .bs-opts small { font-weight: 400; }
+
+@media (max-width: 760px) {
+  .bs-sum { padding: 12px 14px; }
+  .bs-sum-toggle { margin-left: 0; width: 100%; }
+  .bs-body { padding: 12px; }
+  .bs-arrow { display: none; }
+  .bs-step { padding: 8px 10px; gap: 8px; }
+  .bs-step-txt small { display: none; }
+  .bs-add { grid-template-columns: 1fr 1fr; }
+  .bs-add-name { grid-column: 1 / -1; }
+  .bs-format { flex-wrap: wrap; }
+  .bs-format-edit { width: 100%; justify-content: center; }
+  .bs-grid2 { grid-template-columns: 1fr; }
+  .bs-foot > span:first-child { width: 100%; }
+  .bs-foot .btn-brand { flex: 1; justify-content: center; }
+}
+
+/* Danh sách đội gọn hơn bảng dữ liệu thường: nhiều đội vẫn nhìn được một lượt */
+.bs-teams td, .bs-teams th { padding-top: 6px; padding-bottom: 6px; }
+.bs-teams .bs-del { min-height: 28px; height: 28px; width: 30px; padding: 0; font-size: 12px; }
+
+/* Đã có nhánh: nút tạo lại / sửa danh sách luôn thấy trên thanh tóm tắt */
+.bs-sum-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.bs-sum-actions .btn svg { width: 16px; height: 16px; }
+.bs-sum-actions + .bs-sum-toggle { margin-left: 0; }
+.bs-current { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: var(--r-sm); border: 1px solid var(--line-strong); }
+.bs-current.has-played { border-color: color-mix(in oklab, var(--warn) 55%, transparent); background: color-mix(in oklab, var(--warn) 7%, transparent); }
+@media (max-width: 760px) {
+  .bs-sum-actions { margin-left: 0; width: 100%; }
+  .bs-sum-actions .btn { flex: 1; justify-content: center; }
+}

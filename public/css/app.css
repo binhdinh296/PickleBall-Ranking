@@ -2096,6 +2096,12 @@ input[type="file"].input::file-selector-button { font: inherit; font-weight: 600
   flex-direction: column;
   gap: 2px;
 }
+/* Khi ở gần đáy bảng hoặc màn hình: bung ngược lên trên (Dropup) không bị che */
+.action-dropdown.dropup .dropdown-pop {
+  top: auto;
+  bottom: calc(100% + 4px);
+  box-shadow: 0 -16px 36px -8px rgba(0, 0, 0, 0.7), 0 -6px 12px -4px rgba(0, 0, 0, 0.4);
+}
 .action-dropdown .dropdown-item {
   display: flex;
   align-items: center;
@@ -2148,24 +2154,29 @@ input[type="file"].input::file-selector-button { font: inherit; font-weight: 600
 }
 
 /* ---------- Modal Popup chuẩn cho toàn bộ CMS ---------- */
+/* Popup đóng: ẩn hẳn (visibility) và KHÔNG làm mờ nền — trang có hàng chục popup ẩn (mỗi dòng bảng vài cái),
+   để backdrop-filter trên lớp phủ toàn màn hình đang ẩn khiến trình duyệt vẽ lại hàng chục lớp blur khi cuộn → giật, mất hình */
 .admin-modal {
   position: fixed;
   inset: 0;
   z-index: 1000;
   background: rgba(0, 0, 0, 0.78);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.2s;
 }
 .admin-modal.open {
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s;
 }
 .admin-modal-content {
   background: var(--card-solid, #18181b);

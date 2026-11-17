@@ -131,6 +131,22 @@ function createApp() {
     const message = exposed ? err.message : 'Đã có lỗi xảy ra, vui lòng thử lại.';
     const status = err.status || (exposed ? 400 : 500);
     if (req.path.startsWith('/api/') || req.get('x-csrf-token') !== undefined) return res.status(status).json({ ok: false, error: message });
+
+    // Đối với trang quản trị (/admin hoặc /btc): ưu tiên redirect kèm flash error thay vì văng ra trang OUT
+    const isAdmin = req.path.startsWith('/admin') || req.path.startsWith('/btc');
+    if (isAdmin && req.flash) {
+      req.flash('error', message);
+      // Chỉ quay lại trang trong chính website (chống open redirect qua header Referer do trình duyệt/kẻ xấu gửi)
+      let back = null;
+      try {
+        const ref = new URL(req.get('Referer') || '');
+        if (ref.host === req.get('host') && /^\/(admin|btc)(\/|$)/.test(ref.pathname)) back = ref.pathname + ref.search;
+      } catch { /* Referer trống hoặc sai định dạng */ }
+      if (back && back !== req.originalUrl) {
+        return res.redirect(303, back);
+      }
+    }
+
     // Lỗi có thể xảy ra trước middleware biến dùng chung (vd. CSDL mất kết nối khi đọc session): đặt lại để trang lỗi vẫn hiển thị
     if (!res.locals.site) setBaseLocals(req, res);
     res.status(status).render('error', { title: 'Có lỗi xảy ra', message });

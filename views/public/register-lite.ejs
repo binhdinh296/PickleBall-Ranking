@@ -9,7 +9,7 @@
   const range = (d) => { const lo = d.min_player_points; const hi = fmt.levelCap(d.max_player_points);
     return lo && hi ? `Trình ${lv(lo)}–${lv(hi)}` : lo ? `Trình từ ${lv(lo)}` : hi ? `Trình đến ${lv(hi)}` : null; };
   const limit = (d) => [d.subtitle, range(d), d.max_total_points ? `Tổng ≤ ${fmt.numShort(d.max_total_points)}` : null,
-    d.gender_rule !== 'any' ? fmt.GENDER_RULE_LABEL[d.gender_rule] : null].filter(Boolean).join(' · ');
+    fmt.categoryLabel(d)].filter(Boolean).join(' · ');
   const icon = (n) => include('../partials/icon', { name: n });
 %>
 <div class="rl">

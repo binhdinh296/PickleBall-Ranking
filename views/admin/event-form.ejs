@@ -1,51 +1,155 @@
 <% const org = user.role === 'organizer'; %>
 <%- include('_top', { back: ev.id ? `/admin/giai-dau/${ev.id}` : (org ? null : '/admin/giai-dau') }) %>
-<% if (org && !ev.id) { %><div class="alert alert-info" role="status" style="max-width: 860px;">Chào <strong><%= user.displayName %></strong>. Điền thông tin giải của đơn vị bạn. Sau khi tạo, giải ở trạng thái <strong>chờ duyệt</strong>: bạn vẫn thêm nội dung thi đấu, nhận đăng ký… bình thường; giải hiện công khai trên website khi quản trị viên duyệt.</div><% } %>
-<form class="card card-pad form" method="post" action="/admin/giai-dau/<%= ev.id ? `${ev.id}/sua` : 'moi' %>" enctype="multipart/form-data" data-once style="max-width: 860px;">
+
+<form class="card card-pad form" method="post" action="/admin/giai-dau/<%= ev.id ? `${ev.id}/sua` : 'moi' %>" enctype="multipart/form-data" data-once style="max-width: 880px;">
   <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
   <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
-  <div class="form-grid two">
-    <div class="field span-2"><label for="name">Tên giải *</label><input class="input" id="name" name="name" required maxlength="150" value="<%= ev.name || '' %>"></div>
-    <div class="field span-2"><label for="slug">Đường dẫn</label><input class="input" id="slug" name="slug" maxlength="80" value="<%= ev.slug || '' %>" placeholder="tự tạo từ tên giải"><span class="hint">Trang giải: /giai-dau/<strong><%= ev.slug || 'ten-giai' %></strong></span></div>
-    <div class="field"><label for="start_date">Ngày bắt đầu *</label><input class="input" type="date" id="start_date" name="start_date" required value="<%= ev.start_date || '' %>"></div>
-    <div class="field"><label for="end_date">Ngày kết thúc *</label><input class="input" type="date" id="end_date" name="end_date" required value="<%= ev.end_date || '' %>"></div>
-    <div class="field"><label for="venue">Sân thi đấu</label><input class="input" id="venue" name="venue" maxlength="150" value="<%= ev.venue || '' %>"></div>
-    <div class="field"><label for="address">Địa chỉ</label><input class="input" id="address" name="address" maxlength="200" value="<%= ev.address || '' %>"></div>
-    <div class="field span-2"><label for="zalo_link">Link nhóm Zalo</label><input class="input" id="zalo_link" name="zalo_link" type="url" inputmode="url" maxlength="300" placeholder="https://zalo.me/g/…" value="<%= ev.zalo_link || '' %>"></div>
-    <div class="field"><label for="banner">Banner (JPG/PNG/WebP)</label><input class="input" id="banner" name="banner" type="file" accept="image/jpeg,image/png,image/webp"><% if (ev.banner) { %><img src="<%= ev.banner %>" alt="Banner hiện tại" style="border-radius: 12px; margin-top: 6px; max-height: 120px; width: auto;"><% } %></div>
-    <div class="field"><label for="regulation_pdf">Điều lệ (PDF)</label><input class="input" id="regulation_pdf" name="regulation_pdf" type="file" accept="application/pdf"><% if (ev.regulation_pdf) { %><a class="link small" href="<%= ev.regulation_pdf %>" target="_blank">Xem điều lệ hiện tại</a><% } %></div>
-    <div class="field span-2"><label for="description">Mô tả</label><textarea class="input" id="description" name="description" maxlength="5000"><%= ev.description || '' %></textarea></div>
+
+  <!-- THANH TABS CHUYỂN ĐỔI GIẢI ĐẤU -->
+  <nav class="admin-tabs" role="tablist" aria-label="Nhóm thông tin giải">
+    <button type="button" class="admin-tab active" role="tab" aria-selected="true" data-tab-target="event-tab-1">
+      <%- include('../partials/icon', { name: 'trophy' }) %>
+      <span>Thông tin giải đấu</span>
+    </button>
+    <button type="button" class="admin-tab" role="tab" aria-selected="false" data-tab-target="event-tab-2">
+      <%- include('../partials/icon', { name: 'users' }) %>
+      <span>Nội dung thi đấu</span>
+    </button>
+    <button type="button" class="admin-tab" role="tab" aria-selected="false" data-tab-target="event-tab-3">
+      <%- include('../partials/icon', { name: 'settings' }) %>
+      <span>Cài đặt &amp; Xuất bản</span>
+    </button>
+  </nav>
+
+  <!-- TAB 1: THÔNG TIN GIẢI ĐẤU -->
+  <div class="admin-tab-pane" id="event-tab-1">
+    <div class="form-grid two">
+      <div class="field span-2">
+        <label for="name">Tên giải đấu *</label>
+        <input class="input" id="name" name="name" required maxlength="150" placeholder="Ví dụ: Nghệ An Pickleball Open 2026" value="<%= ev.name || '' %>">
+      </div>
+      <div class="field span-2">
+        <label for="slug">Đường dẫn trang giải <span class="guide-tip" data-tip="Để trống hệ thống sẽ tự tạo từ tên giải. Người dùng truy cập qua /giai-dau/duong-dan">?</span></label>
+        <input class="input" id="slug" name="slug" maxlength="80" value="<%= ev.slug || '' %>" placeholder="vd: nghe-an-open-2026">
+      </div>
+      <div class="field">
+        <label for="start_date">Ngày bắt đầu *</label>
+        <input class="input" type="date" id="start_date" name="start_date" required value="<%= ev.start_date || '' %>">
+      </div>
+      <div class="field">
+        <label for="end_date">Ngày kết thúc *</label>
+        <input class="input" type="date" id="end_date" name="end_date" required value="<%= ev.end_date || '' %>">
+      </div>
+      <div class="field">
+        <label for="venue">Cụm sân thi đấu</label>
+        <input class="input" id="venue" name="venue" maxlength="150" placeholder="Ví dụ: Cụm sân D-Pickleball" value="<%= ev.venue || '' %>">
+      </div>
+      <div class="field">
+        <label for="address">Địa chỉ cụm sân</label>
+        <input class="input" id="address" name="address" maxlength="200" placeholder="Số nhà, đường, phường, thành phố" value="<%= ev.address || '' %>">
+      </div>
+      <div class="field span-2">
+        <label for="zalo_link">Link nhóm Zalo VĐV</label>
+        <input class="input" id="zalo_link" name="zalo_link" type="url" inputmode="url" maxlength="300" placeholder="https://zalo.me/g/…" value="<%= ev.zalo_link || '' %>">
+      </div>
+      <div class="field">
+        <label for="banner">Banner giải đấu (JPG/PNG/WebP)</label>
+        <input class="input" id="banner" name="banner" type="file" accept="image/jpeg,image/png,image/webp">
+        <% if (ev.banner) { %><img src="<%= ev.banner %>" alt="Banner hiện tại" style="border-radius: 8px; margin-top: 6px; max-height: 80px; width: auto;"><% } %>
+      </div>
+      <div class="field">
+        <label for="regulation_pdf">Điều lệ giải (PDF)</label>
+        <input class="input" id="regulation_pdf" name="regulation_pdf" type="file" accept="application/pdf">
+        <% if (ev.regulation_pdf) { %><a class="link small" href="<%= ev.regulation_pdf %>" target="_blank" style="margin-top: 6px; display: inline-block;">Xem điều lệ hiện tại ↗</a><% } %>
+      </div>
+      <div class="field span-2">
+        <label for="description">Mô tả &amp; Giới thiệu giải đấu</label>
+        <textarea class="input" id="description" name="description" maxlength="5000" rows="3" placeholder="Thông tin chi tiết về thể thức, cơ cấu giải, lưu ý..."><%= ev.description || '' %></textarea>
+      </div>
+    </div>
   </div>
-  <% if (!ev.id) {
-    const rows = (ev.newDivisions && ev.newDivisions.length) ? ev.newDivisions : [{ idx: '0' }];
-    const divRow = (r, i) => `
-      <div class="div-row" data-div-row>
-        <input type="hidden" name="div_idx" value="${i}">
-        <div class="form-grid two">
-          <div class="field span-2"><label for="div_name_${i}">Tên nội dung ${org ? '*' : ''}</label><input class="input" id="div_name_${i}" name="div_name" maxlength="100" placeholder="Đôi nam Newbie, Đôi nữ 3.2, Hỗn hợp 4.25…" value="${fmt.esc(r.name || '')}"></div>
-          <div class="field"><label for="div_gender_${i}">Giới tính</label><select class="input" id="div_gender_${i}" name="div_gender">${Object.entries(fmt.GENDER_RULE_LABEL).map(([k, l]) => `<option value="${k}" ${r.gender_rule === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
-          <div class="field"><label for="div_max_teams_${i}">Số đôi tối đa</label><input class="input" id="div_max_teams_${i}" name="div_max_teams" inputmode="numeric" placeholder="Không giới hạn" value="${fmt.esc(r.max_teams || '')}"></div>
-          <div class="field"><label for="div_min_player_${i}">Trình tối thiểu mỗi VĐV</label><input class="input tnum" id="div_min_player_${i}" name="div_min_player" inputmode="decimal" placeholder="Không giới hạn, vd. 2.500" value="${fmt.esc(r.min_player || '')}"></div>
-          <div class="field"><label for="div_max_player_${i}">Trình tối đa mỗi VĐV</label><input class="input tnum" id="div_max_player_${i}" name="div_max_player" inputmode="decimal" placeholder="Không giới hạn, vd. 3.500" value="${fmt.esc(r.max_player || '')}"></div>
-          <div class="field span-2"><label for="div_max_total_${i}">Tổng trình tối đa (2 VĐV)</label><input class="input tnum" id="div_max_total_${i}" name="div_max_total" inputmode="decimal" placeholder="Không giới hạn, vd. 6.5" value="${fmt.esc(r.max_total || '')}"></div>
-          <div class="field span-2"><label for="div_banner_${i}">Ảnh nút chọn nội dung (không bắt buộc)</label><input class="input" id="div_banner_${i}" name="div_banner_${i}" type="file" accept="image/jpeg,image/png,image/webp"><span class="hint">Ảnh VĐV bấm để chọn khi đăng ký. Không có ảnh thì hiện tên nội dung.</span></div>
+
+  <!-- TAB 2: NỘI DUNG THI ĐẤU -->
+  <div class="admin-tab-pane" id="event-tab-2" hidden>
+    <% if (!ev.id) {
+      const rows = (ev.newDivisions && ev.newDivisions.length) ? ev.newDivisions : [{ idx: '0' }];
+      const catOf = (r) => r.category || (r.team_type ? fmt.categoryFromDivision(r) : fmt.DEFAULT_CATEGORY);
+      const divRow = (r, i) => `
+        <div class="div-row" data-div-row style="border-radius: var(--r-sm, 10px); padding: 14px; background: rgba(255,255,255,0.02); border: 1px solid var(--line);">
+          <input type="hidden" name="div_idx" value="${i}">
+          <div class="form-grid two">
+            <div class="field span-2"><label for="div_name_${i}">Tên nội dung ${org ? '*' : ''}</label><input class="input" id="div_name_${i}" name="div_name" maxlength="100" placeholder="Đôi nam Newbie, Đôi nữ 3.2, Hỗn hợp 4.25…" value="${fmt.esc(r.name || '')}"></div>
+            <div class="field"><label for="div_category_${i}">Thể loại</label><select class="input" id="div_category_${i}" name="div_category">${Object.entries(fmt.CATEGORIES).map(([k, c]) => `<option value="${k}" ${catOf(r) === k ? 'selected' : ''}>${c.name}</option>`).join('')}</select></div>
+            <div class="field"><label for="div_max_teams_${i}">Số đôi / VĐV tối đa</label><input class="input" id="div_max_teams_${i}" name="div_max_teams" inputmode="numeric" placeholder="Không giới hạn" value="${fmt.esc(r.max_teams || '')}"></div>
+            <div class="field"><label for="div_min_player_${i}">Trình tối thiểu mỗi VĐV</label><input class="input tnum" id="div_min_player_${i}" name="div_min_player" inputmode="decimal" placeholder="Không giới hạn, vd. 2.500" value="${fmt.esc(r.min_player || '')}"></div>
+            <div class="field"><label for="div_max_player_${i}">Trình tối đa mỗi VĐV</label><input class="input tnum" id="div_max_player_${i}" name="div_max_player" inputmode="decimal" placeholder="Không giới hạn, vd. 3.500" value="${fmt.esc(r.max_player || '')}"></div>
+            <div class="field span-2"><label for="div_max_total_${i}">Tổng trình tối đa (2 VĐV)</label><input class="input tnum" id="div_max_total_${i}" name="div_max_total" inputmode="decimal" placeholder="Không giới hạn, vd. 6.5" value="${fmt.esc(r.max_total || '')}"></div>
+            <div class="field span-2"><label for="div_banner_${i}">Ảnh nút chọn nội dung (tùy chọn)</label><input class="input" id="div_banner_${i}" name="div_banner_${i}" type="file" accept="image/jpeg,image/png,image/webp"></div>
+          </div>
+          <button class="btn btn-sm btn-danger" type="button" data-div-remove style="align-self: flex-start; margin-top: 6px;">Bỏ nội dung này</button>
+        </div>`;
+    %>
+    <div class="stack" style="--gap: 12px;" data-divs data-next="<%= rows.length %>">
+      <div class="row" style="--gap: 6px; align-items: center;">
+        <span class="label" style="font-size: 15px; font-weight: 700;">Danh sách nội dung thi đấu<%= org ? ' *' : '' %></span>
+        <span class="guide-tip" data-tip="Các nội dung để VĐV đăng ký tham gia. Sau khi tạo giải, bạn vẫn có thể thêm mới, sửa đổi hoặc cấu hình giải thưởng bất kỳ lúc nào.">?</span>
+      </div>
+      <div class="stack" style="--gap: 12px;" data-div-rows><% rows.forEach((r, i) => { %><%- divRow(r, i) %><% }) %></div>
+      <template><%- divRow({}, '__i__') %></template>
+      <button class="btn btn-sm btn-brand" type="button" data-div-add style="align-self: flex-start;"><%- include('../partials/icon', { name: 'plus' }) %>Thêm nội dung thi đấu</button>
+    </div>
+    <% } else { %>
+      <div class="sub-card" style="align-items: center; text-align: center; padding: 24px;">
+        <p style="margin: 0; font-size: 15px; font-weight: 600;">Giải đấu đã được tạo thành công!</p>
+        <p class="small muted" style="margin-top: 4px; max-width: 480px;">Bạn có thể quản lý, thêm mới hoặc chỉnh sửa từng nội dung thi đấu, phân nhánh và giải thưởng trực tiếp tại trang chi tiết giải đấu.</p>
+        <a class="btn btn-sm" href="/admin/giai-dau/<%= ev.id %>" style="margin-top: 8px;">Xem các nội dung của giải →</a>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- TAB 3: XUẤT BẢN & HOÀN TẤT -->
+  <div class="admin-tab-pane" id="event-tab-3" hidden>
+    <div class="stack" style="--gap: 14px;">
+      <div class="sub-card">
+        <h3 class="section-title" style="margin: 0 0 8px 0; font-size: 15px;">Cài đặt trạng thái giải</h3>
+        <% if (!org) { %>
+          <label class="check">
+            <input type="checkbox" name="published" value="1" <%= ev.published ? 'checked' : '' %>>
+            <span><strong>Công khai trên website</strong> (Bỏ chọn nếu muốn lưu nháp hoặc thử nghiệm)</span>
+          </label>
+        <% } else { %>
+          <p class="small muted" style="margin: 0;">Trạng thái công khai: <strong><%= ev.published ? 'Đang hiện trên website' : 'Chờ quản trị viên duyệt' %></strong></p>
+        <% } %>
+        <label class="check">
+          <input type="checkbox" name="registration_open" value="1" <%= ev.registration_open ? 'checked' : '' %>>
+          <span><strong>Mở nhận đăng ký online</strong> (Cho phép VĐV gửi đơn đăng ký qua link giải)</span>
+        </label>
+        <% if (!org) { %>
+          <label class="check">
+            <input type="checkbox" name="featured" value="1" <%= ev.featured ? 'checked' : '' %>>
+            <span><strong>Ưu tiên hiển thị nổi bật</strong> (Hiện tại mục Giải đấu nổi bật ở trang chủ)</span>
+          </label>
+        <% } %>
+      </div>
+
+      <div class="sub-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.25);">
+        <div class="row" style="--gap: 8px; align-items: center;">
+          <span style="color: #34d399; font-size: 18px;">✓</span>
+          <span class="small"><strong>Sẵn sàng:</strong> Kiểm tra lại các thông tin trước khi bấm nút hoàn tất bên dưới. Sau khi lưu, giải sẽ được cập nhật ngay lập tức.</span>
         </div>
-        <button class="btn btn-sm" type="button" data-div-remove>Bỏ nội dung này</button>
-      </div>`;
-  %>
-  <div class="stack" style="--gap: 12px;" data-divs data-next="<%= rows.length %>">
-    <div><span class="label">Nội dung thi đấu<%= org ? ' *' : '' %></span><p class="hint" style="margin-top: 4px;">Các nội dung VĐV chọn khi đăng ký. Sau khi tạo vẫn thêm, sửa, đặt giải thưởng được ở trang giải.</p></div>
-    <div class="stack" style="--gap: 12px;" data-div-rows><% rows.forEach((r, i) => { %><%- divRow(r, i) %><% }) %></div>
-    <template><%- divRow({}, '__i__') %></template>
-    <button class="btn btn-sm" type="button" data-div-add style="align-self: flex-start;"><%- include('../partials/icon', { name: 'plus' }) %>Thêm nội dung</button>
+      </div>
+    </div>
   </div>
-  <% } %>
-  <% if (!org) { %><label class="check"><input type="checkbox" name="published" value="1" <%= ev.published ? 'checked' : '' %>><span><strong>Công khai</strong> – hiện trên website (bỏ chọn để lưu nháp, giải thử nghiệm)</span></label><% } else { %><p class="small muted">Trạng thái công khai: <strong><%= ev.published ? 'Đang hiện trên website' : 'Chờ quản trị viên duyệt' %></strong></p><% } %>
-  <label class="check"><input type="checkbox" name="registration_open" value="1" <%= ev.registration_open ? 'checked' : '' %>><span>Mở đăng ký online</span></label>
-  <% if (!org) { %><label class="check"><input type="checkbox" name="featured" value="1" <%= ev.featured ? 'checked' : '' %>><span>Ưu tiên hiện ở "Giải đấu nổi bật" trang chủ</span></label><% } %>
-  <div class="form-actions"><button class="btn btn-brand" type="submit"><%= ev.id ? 'Lưu giải đấu' : 'Tạo giải đấu' %></button></div>
+
+  <div class="form-actions" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end;">
+    <button class="btn btn-brand btn-lg" type="submit">
+      <%- include('../partials/icon', { name: 'check' }) %>
+      <%= ev.id ? 'Lưu giải đấu' : 'Hoàn tất & Tạo giải đấu' %>
+    </button>
+  </div>
 </form>
+
 <% if (ev.id && user.role === 'admin') { %>
-<form method="post" action="/admin/giai-dau/<%= ev.id %>/xoa" data-confirm="Xoá giải &quot;<%= ev.name %>&quot; cùng toàn bộ nội dung, đăng ký, nhánh đấu, vinh danh và buổi phát? Không thể hoàn tác."><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xóa giải</button></form>
+<form method="post" action="/admin/giai-dau/<%= ev.id %>/xoa" data-confirm="Xoá giải &quot;<%= ev.name %>&quot; cùng toàn bộ nội dung, đăng ký, nhánh đấu, vinh danh và buổi phát? Không thể hoàn tác." style="margin-top: 14px;"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-danger btn-sm" type="submit">Xóa giải</button></form>
 <% } %>
 <%- include('_bottom') %>

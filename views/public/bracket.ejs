@@ -3,7 +3,7 @@
   <div class="container stack" style="--gap: 18px;">
     <%- include('../partials/event-nav', { current: 'bracket' }) %>
     <div><span class="eyebrow">NHÁNH ĐẤU</span><h1 class="h1" style="font-size: clamp(26px, 6.5vw, 42px);"><%= d ? d.name : ev.name %></h1>
-      <% if (d && d.format === 'roundrobin') { %><p class="muted small" style="margin-top: 6px;"><%= data.teams.length %> đội<%= d.relay_legs ? ` · ${d.relay_legs} chặng · chạm ${d.relay_legs * d.relay_step}` : '' %> · vòng tròn</p><% } %>
+      <% if (d && d.format === 'roundrobin') { %><p class="muted small" style="margin-top: 6px;"><%= data.teams.length %> <%= fmt.unitLabel(d) %><%= d.relay_legs ? ` · ${d.relay_legs} chặng · chạm ${d.relay_legs * d.relay_step}` : '' %> · Chia Bảng</p><% } %>
     </div>
     <%- include('../partials/division-tabs') %>
   </div>
@@ -13,72 +13,6 @@
     <% if (!d) { %><div class="empty">Giải chưa có nội dung thi đấu.</div>
     <% } else if (!data.matches.length) { %><div class="empty">Chưa có nhánh đấu cho nội dung này.</div>
     <% } else { %>
-    <div class="stat-tiles">
-      <div class="stat-tile"><b><%= data.stats.total %></b><span>Tổng trận</span></div>
-      <div class="stat-tile"><b style="color: var(--live);"><%= data.stats.live %></b><span>Đang đấu</span></div>
-      <div class="stat-tile"><b><%= data.stats.done %></b><span>Hoàn thành</span></div>
-    </div>
-
-    <% if (locals.data && data.groupTables && Object.keys(data.groupTables).length) { %>
-    <section class="stage-section" aria-label="Bảng đấu vòng tròn">
-      <div class="stage-header-card stage-group-header">
-        <div class="stage-header-left">
-          <div class="stage-pill stage-pill-group">
-            <%- include('../partials/icon', { name: 'bracket' }) %>
-            <span>VÒNG BẢNG · TÍNH ĐIỂM</span>
-          </div>
-          <h2 class="stage-header-title">BẢNG XẾP HẠNG CÁC BẢNG ĐẤU</h2>
-        </div>
-        <div class="stage-criteria-pills">
-          <span class="crit-pill">1. Số trận thắng</span>
-          <span class="crit-pill">2. Hiệu số điểm</span>
-          <span class="crit-pill">3. Đối đầu trực tiếp</span>
-          <span class="crit-pill crit-pill-muted">Hòa: Bốc thăm</span>
-        </div>
-      </div>
-
-      <div class="grid" style="--min: 340px; gap: 16px;">
-        <% Object.entries(data.groupTables).forEach(([zName, gTable]) => { %>
-        <div class="card card-pad stack" style="--gap: 10px;">
-          <h3 style="font-size: 16px; margin: 0; color: var(--gold-2);"><%= zName %></h3>
-          <div class="table-wrap">
-            <table class="data standings-table">
-              <thead>
-                <tr>
-                  <th style="width: 48px; text-align: center;">Hạng</th>
-                  <th>Đội</th>
-                  <th class="num">Trận</th>
-                  <th class="num">Thắng</th>
-                  <th class="num">Thua</th>
-                  <th class="num">HS</th>
-                  <th class="hide-m">Căn cứ</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% gTable.rows.forEach((r) => { const t = data.teamMap[r.id]; %>
-                <tr class="<%= r.rank === 1 ? 'is-leader' : r.rank <= 2 ? 'is-qualifier' : '' %>">
-                  <td data-label="Hạng" style="text-align: center;">
-                    <span class="rank-badge rank-<%= r.rank %>"><%= r.rank %></span>
-                  </td>
-                  <td data-label="Đội">
-                    <strong class="team-name"><%= t ? t.name : 'Đội #' + r.id %></strong>
-                  </td>
-                  <td data-label="Trận" class="num"><%= r.played %></td>
-                  <td data-label="Thắng" class="num"><strong class="stat-win"><%= r.wins %></strong></td>
-                  <td data-label="Thua" class="num"><%= r.losses %></td>
-                  <td data-label="Hiệu số" class="num"><strong class="<%= r.diff > 0 ? 'diff-pos' : r.diff < 0 ? 'diff-neg' : '' %>"><%= r.diff > 0 ? '+' : '' %><%= r.diff %></strong></td>
-                  <td data-label="Căn cứ" class="tiny faint hide-m"><%= r.basis %></td>
-                </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <% }) %>
-      </div>
-    </section>
-    <% } %>
-
     <% if (data.table) { %>
     <section class="stage-section" aria-label="Bảng đấu vòng tròn">
       <div class="stage-header-card stage-group-header">
@@ -97,6 +31,7 @@
         </div>
       </div>
       <div class="card card-pad stack" style="--gap: 14px;">
+        <p class="small <%= data.table.complete ? 'muted' : 'faint' %>" style="margin: 0;"><%= !data.table.started ? 'Chưa thi đấu trận nào: thứ tự dưới đây là thứ tự bốc thăm, chưa phải xếp hạng.' : data.table.complete ? `Đã đấu xong ${data.table.total} trận · xếp hạng chính thức.` : `Đang đấu ${data.table.played}/${data.table.total} trận · xếp hạng tạm thời.` %></p>
         <div class="table-wrap">
           <table class="data standings-table">
             <thead>
@@ -114,9 +49,9 @@
             </thead>
             <tbody>
               <% data.table.rows.forEach((r) => { const t = data.teamMap[r.id]; %>
-              <tr class="<%= r.rank === 1 ? 'is-leader' : r.rank <= 2 ? 'is-qualifier' : '' %>">
+              <tr class="<%= data.table.complete && r.rank === 1 ? 'is-leader' : data.table.complete && r.rank === 2 ? 'is-qualifier' : '' %>">
                 <td data-label="Hạng" style="text-align: center;">
-                  <span class="rank-badge rank-<%= r.rank %>"><%= r.rank %></span>
+                  <% if (r.rank == null) { %><span class="faint">–</span><% } else { %><span class="rank-badge rank-<%= data.table.complete ? r.rank : 'x' %>"><%= r.rank %></span><% } %>
                 </td>
                 <td data-label="Đội">
                   <strong class="team-name"><%= t.name %></strong>
@@ -194,7 +129,11 @@
       }
     %>
     <section class="stage-section" aria-label="Sơ đồ nhánh đấu">
-      <% if (champ) { %><div class="bk-champ"><%- include('../partials/icon', { name: 'trophy' }) %><span>Vô địch</span><strong><%= champ %></strong></div><% } %>
+      <% if (champ) { %>
+      <div style="display: flex; justify-content: center; margin-bottom: 16px;">
+        <div class="bk-champ"><%- include('../partials/icon', { name: 'trophy' }) %><span>Vô địch</span><strong><%= champ %></strong></div>
+      </div>
+      <% } %>
       <%- include('../partials/bracket-board', { board: data.board, teamMap: data.teamMap, teamNo: data.teamNo, streams: data.streams, d, ev }) %>
     </section>
     <% } %>

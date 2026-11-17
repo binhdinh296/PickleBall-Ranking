@@ -1,0 +1,36 @@
+/* Tooltip nổi (public/js/hover-tip.js) */
+.hover-tip { position: fixed; z-index: 1200; max-width: min(420px, calc(100vw - 16px)); padding: 10px 12px; border-radius: 10px;
+  background: var(--card-solid, #18181b); border: 1px solid var(--line-strong); box-shadow: 0 12px 32px rgba(0, 0, 0, .45);
+  font-size: 13px; line-height: 1.45; color: var(--text); pointer-events: none; }
+.hover-tip .ht-row { display: flex; gap: 4px 10px; flex-wrap: wrap; align-items: baseline; }
+.hover-tip .ht-row + .ht-row { margin-top: 4px; }
+.hover-tip .ht-row span { color: var(--text-2); }
+.hover-tip .ht-meta { margin-top: 6px; font-size: 12px; color: var(--text-3); }
+
+/* Bảng đăng ký (CMS): dòng gọn 1 hàng, bảng cao cố định cuộn bên trong để thấy phần bên dưới */
+.reg-scroll { max-height: min(62vh, 560px); overflow: auto; overscroll-behavior: contain; }
+.reg-scroll .reg-table thead th { position: sticky; top: 0; z-index: 2; background: var(--bg-2); }
+.reg-table td { padding-top: 6px; padding-bottom: 6px; }
+.reg-table .c-act .btn, .reg-table .c-act summary.btn { min-height: 30px; padding: 3px 10px; font-size: 12.5px; }
+.reg-table .chip { font-size: 11.5px; padding: 2px 9px; }
+.reg-who { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; cursor: help; border-radius: 6px; }
+.reg-who:focus-visible { outline: 2px solid var(--line-strong); outline-offset: 2px; }
+.reg-name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reg-note-dot { flex: none; font-size: 12px; color: var(--warn); }
+.reg-pts { color: var(--text-2); font-size: 13px; white-space: nowrap; }
+.reg-hint { font-weight: 500; text-transform: none; letter-spacing: 0; }
+@media (max-width: 760px) {
+  .reg-scroll { max-height: 60vh; }
+  .reg-hint { display: none; }
+}
+/* Màn vừa (có thanh menu trái): bỏ cột trình từng VĐV để cột Thao tác không bị đẩy ra ngoài — xem trong tooltip */
+@media (max-width: 1100px) { .reg-table .reg-pts { display: none; } }
+/* Điện thoại: bỏ cột #, nút Thao tác chỉ còn mũi tên để cả bảng vừa màn hình */
+@media (max-width: 760px) {
+  .reg-table .c-idx { display: none; }
+  .reg-table .c-act summary > span:first-child { display: none; }
+  .reg-table .c-act summary { padding: 3px 9px; }
+  .reg-table .c-act summary > span:last-child { font-size: 13px !important; opacity: 1 !important; }
+  .reg-table .c-act summary > span:last-child::before { content: 'Sửa '; font-size: 12px; }
+}
+@media (max-width: 760px) { .reg-table th.c-act { font-size: 0; } }

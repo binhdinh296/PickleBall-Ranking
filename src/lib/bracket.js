@@ -11,7 +11,39 @@ function shuffle(arr) {
 }
 
 async function loadTeams(divisionId) {
-  return all('SELECT * FROM teams WHERE division_id = ? ORDER BY COALESCE(seed, 9999), id', divisionId);
+  return all(`
+    SELECT t.*,
+      COALESCE(r.points1, a1.points, 0) AS points1,
+      COALESCE(r.points2, a2.points, 0) AS points2,
+      (COALESCE(r.points1, a1.points, 0) + COALESCE(r.points2, a2.points, 0)) AS total_points
+    FROM teams t
+    LEFT JOIN registrations r ON r.id = t.registration_id
+    LEFT JOIN athletes a1 ON a1.id = t.athlete1_id
+    LEFT JOIN athletes a2 ON a2.id = t.athlete2_id
+    WHERE t.division_id = ?
+    ORDER BY COALESCE(t.seed, 9999), total_points DESC, t.id
+  `, divisionId);
+}
+
+// Tự động tính điểm trình độ của từng đội và xếp hạt giống (seed 1, 2, 3...) theo trình từ cao xuống thấp
+async function autoSeedTeamsBySkill(divisionId) {
+  const teams = await all(`
+    SELECT t.id,
+      (COALESCE(r.points1, a1.points, 0) + COALESCE(r.points2, a2.points, 0)) AS total_points
+    FROM teams t
+    LEFT JOIN registrations r ON r.id = t.registration_id
+    LEFT JOIN athletes a1 ON a1.id = t.athlete1_id
+    LEFT JOIN athletes a2 ON a2.id = t.athlete2_id
+    WHERE t.division_id = ?
+    ORDER BY total_points DESC, t.id
+  `, divisionId);
+
+  return tx(async () => {
+    for (let i = 0; i < teams.length; i++) {
+      await run('UPDATE teams SET seed = ? WHERE id = ?', i + 1, teams[i].id);
+    }
+    return teams.length;
+  });
 }
 
 async function loadMatches(divisionId) {
@@ -92,7 +124,7 @@ function knockoutPlan(slots, playoff) {
 }
 
 // Tạo nhánh loại trực tiếp (xoá trận cũ); đội gặp ô trống được miễn đấu và tự đi tiếp
-async function generateKnockout(divisionId, { randomize = true, playoff = false } = {}) {
+async function generateKnockout(divisionId, { randomize = false, playoff = false } = {}) {
   const teams = await loadTeams(divisionId);
   if (teams.length < 2) throw Object.assign(new Error('Cần ít nhất 2 đội để tạo nhánh đấu'), { expose: true });
   if (playoff && teams.length < 3) throw Object.assign(new Error('Cần ít nhất 3 đội để có vòng Playoff'), { expose: true });
@@ -160,11 +192,13 @@ async function generateRoundRobin(divisionId, { randomize = true, relayLegs = 0 
 }
 
 // ---- Option 2: Chia bảng vòng tròn + Loại trực tiếp (Group Stage + Knockout) ----
-async function generateGroupsKnockout(divisionId, { numGroups = 4, advancePerGroup = 2, randomize = true } = {}) {
+async function generateGroupsKnockout(divisionId, { numGroups = 4, advancePerGroup = 2, randomize = false } = {}) {
   const teams = await loadTeams(divisionId);
   const groupsCount = Math.max(2, parseInt(numGroups, 10) || 2);
   const advance = Math.min(2, Math.max(1, parseInt(advancePerGroup, 10) || 2));
-  if (teams.length < 2) throw Object.assign(new Error('Cần ít nhất 2 đội để tạo giải đấu'), { expose: true });
+  if (teams.length < groupsCount * 3) {
+    throw Object.assign(new Error(`Theo quy định, mỗi bảng đấu cần tối thiểu 3 đội (với ${groupsCount} bảng cần ít nhất ${groupsCount * 3} đội)`), { expose: true });
+  }
 
   const list = randomize ? shuffle(teams) : teams;
   const groups = Array.from({ length: groupsCount }, () => []);
@@ -334,9 +368,11 @@ async function syncGroupWinners(divisionId) {
     const tIds = new Set(gMatches.flatMap((m) => [m.team_a_id, m.team_b_id]).filter(Boolean));
     const gTeams = teams.filter((t) => tIds.has(t.id));
     const st = standings(gTeams, gMatches);
-
-    if (st.rows.length >= 1) topTeams[`Nhất ${zoneName}`] = st.rows[0].id;
-    if (st.rows.length >= 2) topTeams[`Nhì ${zoneName}`] = st.rows[1].id;
+    // Chỉ khi bảng đã đấu xong mọi trận mới biết Nhất / Nhì; bảng chưa xong → ô nhánh sau để trống
+    // (đồng hạng chưa phân định thì cũng chưa điền, chờ BTC bốc thăm)
+    const sure = (k) => st.complete && st.rows[k] && !st.rows[k].tiedWithPrev && !(st.rows[k + 1] && st.rows[k + 1].tiedWithPrev);
+    topTeams[`Nhất ${zoneName}`] = sure(0) ? st.rows[0].id : null;
+    topTeams[`Nhì ${zoneName}`] = sure(1) ? st.rows[1].id : null;
   }
 
   const koMatches = allMatches.filter((m) => !m.zone);
@@ -347,11 +383,13 @@ async function syncGroupWinners(divisionId) {
     let newTeamA = m.team_a_id;
     let newTeamB = m.team_b_id;
 
-    if (m.label_a && topTeams[m.label_a] && m.team_a_id !== topTeams[m.label_a]) {
+    // Trận nhánh sau đã đấu xong thì giữ nguyên (không đổi đội ngược về trước)
+    if (m.status === 'done') continue;
+    if (m.label_a && m.label_a in topTeams && m.team_a_id !== topTeams[m.label_a]) {
       newTeamA = topTeams[m.label_a];
       changed = true;
     }
-    if (m.label_b && topTeams[m.label_b] && m.team_b_id !== topTeams[m.label_b]) {
+    if (m.label_b && m.label_b in topTeams && m.team_b_id !== topTeams[m.label_b]) {
       newTeamB = topTeams[m.label_b];
       changed = true;
     }
@@ -464,7 +502,8 @@ async function updateMatch(matchId, data) {
       ...MATCH_FIELDS.map((k) => next[k]), matchId);
     await pullSources(matchId);
     await propagate(matchId);
-    if (m.zone && m.zone.startsWith('Bảng ') && next.status === 'done') {
+    // Trận vòng bảng đổi kết quả (kể cả sửa ngược về chưa xong) → tính lại Nhất / Nhì cho nhánh sau
+    if (m.zone && m.zone.startsWith('Bảng ')) {
       await syncGroupWinners(m.division_id);
     }
     return next;
@@ -518,7 +557,20 @@ function standings(teams, matches) {
   }
   let rank = 0;
   result.forEach((r, k) => { if (!r.tiedWithPrev) rank = k + 1; r.rank = rank; });
-  return { rows: result, subTables };
+  // Trạng thái bảng: chưa đấu trận nào thì CHƯA có hạng (giữ thứ tự bốc thăm / hạt giống);
+  // đang đấu: hạng tạm; đấu xong mọi trận: hạng chính thức → mới có Nhất / Nhì
+  const total = matches.filter((m) => m.team_a_id && m.team_b_id).length;
+  const started = done.length > 0;
+  const complete = total > 0 && done.length >= total;
+  if (!started) {
+    const order = new Map(teams.map((t, k) => [t.id, k]));
+    result.sort((x, y) => order.get(x.id) - order.get(y.id));
+    result.forEach((r) => { r.rank = null; r.tiedWithPrev = false; r.basis = 'Chưa thi đấu'; });
+  } else if (!complete) {
+    // Đang đấu: đội chưa ra sân trận nào thì chưa có hạng tạm
+    result.forEach((r) => { if (!r.played) { r.rank = null; r.basis = 'Chưa thi đấu'; } });
+  }
+  return { rows: result, subTables, played: done.length, total, started, complete };
 }
 
 // Gợi ý vinh danh từ nhánh loại trực tiếp: vô địch, á quân, 2 đồng hạng ba
@@ -572,7 +624,7 @@ function board(matches) {
 }
 
 module.exports = {
-  loadTeams, loadMatches, syncTeamsFromRegistrations, generateKnockout, generateRoundRobin,
+  loadTeams, loadMatches, syncTeamsFromRegistrations, autoSeedTeamsBySkill, generateKnockout, generateRoundRobin,
   generateGroupsKnockout, syncGroupWinners,
   updateMatch, propagate, wouldCycle, winnerOf, loserOf, standings, suggestHonors, groupRounds, board, MATCH_FIELDS,
 };

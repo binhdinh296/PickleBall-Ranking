@@ -1,0 +1,43 @@
+/* Bảng vinh danh (CMS › Nội dung › Vinh danh): dạng bảng, mỗi dòng 1 hạng */
+.hn-bar { flex-wrap: wrap; gap: 8px; }
+.hn-bar form { margin: 0; }
+.hn-bar .btn svg { width: 16px; height: 16px; }
+.hn-wrap { border: 1px solid var(--line); border-radius: var(--r-md); overflow: visible; }
+.hn-table { width: 100%; border-collapse: collapse; }
+.hn-table th { text-align: left; font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em;
+  padding: 10px 12px; background: var(--bg-2); border-bottom: 1px solid var(--line); }
+.hn-table th:first-child { border-top-left-radius: var(--r-md); }
+.hn-table th:last-child { border-top-right-radius: var(--r-md); }
+.hn-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.hn-table tr:last-child td { border-bottom: 0; }
+.hn-place { width: 170px; white-space: nowrap; }
+td.hn-place { vertical-align: middle; }
+.hn-medal { font-size: 20px; margin-right: 8px; vertical-align: middle; }
+.hn-p1 td.hn-place b { color: var(--gold, #e6c27a); }
+.hn-cell { display: table-cell; }
+.hn-cell .input { min-height: 38px; padding: 6px 10px; font-size: 14px; }
+.hn-name { font-weight: 600; }
+.hn-search { position: relative; margin-top: 6px; }
+.hn-search-row { display: flex; gap: 6px; }
+.hn-search-row .input[type=search] { flex: 1; min-width: 0; font-size: 13px; min-height: 34px; color: var(--text-2); }
+.hn-search-row .btn { min-height: 34px; width: 34px; padding: 0; flex: none; }
+/* Gợi ý hồ sơ nổi trên bảng, không làm dòng cao lên */
+.hn-search ul { position: absolute; left: 0; right: 40px; top: 100%; z-index: 30; margin: 4px 0 0; padding: 6px;
+  background: var(--card); border: 1px solid var(--line-strong); border-radius: var(--r-sm); box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+  max-height: 240px; overflow: auto; }
+.hn-search ul:empty { display: none; }
+.hn-actions { margin-top: 4px; }
+
+@media (max-width: 760px) {
+  .hn-wrap { border: 0; }
+  .hn-table, .hn-table tbody { display: block; }
+  .hn-table thead { display: none; }
+  .hn-row { display: block; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; margin-bottom: 10px; }
+  .hn-p1 { border-color: color-mix(in oklab, var(--gold, #e6c27a) 50%, transparent); }
+  .hn-table td { display: block; padding: 0; border: 0; width: auto; }
+  td.hn-place { margin-bottom: 8px; }
+  .hn-cell + .hn-cell { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .hn-cell::before { content: attr(data-label); display: block; font-size: 11.5px; color: var(--text-3); margin-bottom: 4px; }
+  .hn-actions .btn { width: 100%; justify-content: center; }
+}
+.hn-search-row .input.is-linked { color: var(--ok); border-color: color-mix(in oklab, var(--ok) 40%, transparent); }

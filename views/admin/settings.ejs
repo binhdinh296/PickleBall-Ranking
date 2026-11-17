@@ -1,43 +1,122 @@
 <%- include('_top') %>
-<form class="form" method="post" action="/admin/cau-hinh" style="max-width: 900px;">
-  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+
+<div class="stack" style="--gap: 16px; max-width: 900px;">
   <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
   <% const f = (k, label, attrs = '') => `<div class="field"><label for="${k}">${label}</label><input class="input" id="${k}" name="${k}" value="${String(s[k] ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}" ${attrs}></div>`; %>
-  <div class="sub-card">
-    <h2 class="section-title">Thương hiệu & giao diện</h2>
-    <div class="form-grid two">
-      <%- f('site_name', 'Tên website') %>
-      <%- f('site_tagline', 'Dòng phụ dưới logo') %>
-      <%- f('hero_eyebrow', 'Nhãn trên tiêu đề trang chủ') %>
-      <div class="field"><label for="default_theme">Giao diện mặc định</label><select class="input" id="default_theme" name="default_theme"><% const _dt = locals.themes ? themes.normalizeTheme(s.default_theme) : 'dark'; (locals.themes ? themes.THEMES : [{ id: 'dark', name: 'Midnight', desc: 'Navy · xanh chanh' }]).forEach(function (t) { %><option value="<%= t.id %>" <%= _dt === t.id ? 'selected' : '' %>><%= t.name %> (<%= t.desc %>)</option><% }) %></select></div>
-      <div class="field span-2"><label for="hero_title">Tiêu đề trang chủ</label><textarea class="input" id="hero_title" name="hero_title" rows="2" style="min-height: 74px;"><%= s.hero_title %></textarea><span class="hint">Chữ "dink" tự in nghiêng; 2 chữ cuối tô gradient.</span></div>
-      <div class="field span-2"><label for="hero_text">Mô tả trang chủ</label><textarea class="input" id="hero_text" name="hero_text"><%= s.hero_text %></textarea></div>
-      <div class="field"><label for="color_ball">Màu bóng (nhấn chính)</label><input class="input" type="color" id="color_ball" name="color_ball" value="<%= s.color_ball %>" style="padding: 4px;"></div>
-      <div class="field"><label for="color_court">Màu sân (nhấn phụ)</label><input class="input" type="color" id="color_court" name="color_court" value="<%= s.color_court %>" style="padding: 4px;"></div>
-      <div class="field"><label for="color_gold">Màu vàng (thứ hạng)</label><input class="input" type="color" id="color_gold" name="color_gold" value="<%= s.color_gold %>" style="padding: 4px;"></div>
-      <div class="field"><span class="label">Xem trước</span><div class="btn btn-brand" aria-hidden="true">Nút chính</div></div>
+
+  <form class="card card-pad form" method="post" action="/admin/cau-hinh">
+    <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+
+    <!-- THANH TABS CHUYỂN ĐỔI CẤU HÌNH -->
+    <nav class="admin-tabs" role="tablist" aria-label="Nhóm cấu hình">
+      <button type="button" class="admin-tab active" role="tab" aria-selected="true" data-tab-target="cfg-1">
+        <%- include('../partials/icon', { name: 'palette' }) %>
+        <span>Thương hiệu &amp; Giao diện</span>
+      </button>
+      <button type="button" class="admin-tab" role="tab" aria-selected="false" data-tab-target="cfg-2">
+        <%- include('../partials/icon', { name: 'phone' }) %>
+        <span>Liên hệ &amp; Mạng xã hội</span>
+      </button>
+      <button type="button" class="admin-tab" role="tab" aria-selected="false" data-tab-target="cfg-3">
+        <%- include('../partials/icon', { name: 'settings' }) %>
+        <span>Quy tắc điểm &amp; SĐT</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: THƯƠNG HIỆU & GIAO DIỆN -->
+    <div class="admin-tab-pane" id="cfg-1">
+      <div class="form-grid two">
+        <%- f('site_name', 'Tên website') %>
+        <%- f('site_tagline', 'Dòng phụ dưới logo') %>
+        <%- f('hero_eyebrow', 'Nhãn trên tiêu đề trang chủ') %>
+        <div class="field">
+          <label for="default_theme">
+            Giao diện mặc định
+            <span class="guide-tip" data-tip="Giao diện hiển thị mặc định cho khách truy cập lần đầu. Người dùng vẫn có thể tự chọn theme ở nút góc trang.">?</span>
+          </label>
+          <select class="input" id="default_theme" name="default_theme">
+            <% const _dt = locals.themes ? themes.normalizeTheme(s.default_theme) : 'dark'; (locals.themes ? themes.THEMES : [{ id: 'dark', name: 'Midnight', desc: 'Navy · xanh chanh' }]).forEach(function (t) { %>
+              <option value="<%= t.id %>" <%= _dt === t.id ? 'selected' : '' %>><%= t.name %> (<%= t.desc %>)</option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="field span-2">
+          <label for="hero_title">Tiêu đề trang chủ</label>
+          <textarea class="input" id="hero_title" name="hero_title" rows="2" style="min-height: 74px;"><%= s.hero_title %></textarea>
+          <span class="hint">Chữ "dink" tự in nghiêng; 2 chữ cuối tô gradient nổi bật.</span>
+        </div>
+        <div class="field span-2">
+          <label for="hero_text">Mô tả trang chủ</label>
+          <textarea class="input" id="hero_text" name="hero_text"><%= s.hero_text %></textarea>
+        </div>
+        <div class="field">
+          <label for="color_ball">Màu bóng (nhấn chính)</label>
+          <input class="input" type="color" id="color_ball" name="color_ball" value="<%= s.color_ball %>" style="padding: 4px;">
+        </div>
+        <div class="field">
+          <label for="color_court">Màu sân (nhấn phụ)</label>
+          <input class="input" type="color" id="color_court" name="color_court" value="<%= s.color_court %>" style="padding: 4px;">
+        </div>
+        <div class="field">
+          <label for="color_gold">Màu vàng (thứ hạng)</label>
+          <input class="input" type="color" id="color_gold" name="color_gold" value="<%= s.color_gold %>" style="padding: 4px;">
+        </div>
+      </div>
     </div>
-    <span class="hint">Toàn bộ gradient, màu chữ ở cả 2 giao diện tự suy ra từ 3 màu này.</span>
-  </div>
-  <div class="sub-card">
-    <h2 class="section-title">Liên hệ & mạng xã hội</h2>
-    <div class="form-grid two">
-      <%- f('hotline', 'Hotline') %><%- f('zalo', 'Zalo') %><%- f('email', 'Email', 'type="email"') %><%- f('address', 'Địa chỉ') %>
-      <%- f('facebook_url', 'Facebook', 'inputmode="url"') %><%- f('youtube_url', 'Kênh YouTube', 'inputmode="url"') %><%- f('zalo_group_url', 'Nhóm Zalo', 'inputmode="url"') %><%- f('privacy_url', 'Link chính sách quyền riêng tư (nếu có)', 'inputmode="url"') %>
-      <div class="field span-2"><label for="footer_text">Mô tả chân trang</label><textarea class="input" id="footer_text" name="footer_text" rows="2" style="min-height: 74px;"><%= s.footer_text %></textarea></div>
+
+    <!-- TAB 2: LIÊN HỆ & MẠNG XÃ HỘI -->
+    <div class="admin-tab-pane" id="cfg-2" hidden>
+      <div class="form-grid two">
+        <%- f('hotline', 'Hotline liên hệ') %>
+        <%- f('zalo', 'Số điện thoại Zalo') %>
+        <%- f('email', 'Email hỗ trợ', 'type="email"') %>
+        <%- f('address', 'Địa chỉ trụ sở / cụm sân chính') %>
+        <%- f('facebook_url', 'Fanpage Facebook', 'inputmode="url"') %>
+        <%- f('youtube_url', 'Kênh YouTube Livestream', 'inputmode="url"') %>
+        <%- f('zalo_group_url', 'Link tham gia nhóm cộng đồng Zalo', 'inputmode="url"') %>
+        <%- f('privacy_url', 'Link chính sách quyền riêng tư', 'inputmode="url"') %>
+        <div class="field span-2">
+          <label for="footer_text">Mô tả hiển thị ở chân trang</label>
+          <textarea class="input" id="footer_text" name="footer_text" rows="2" style="min-height: 74px;"><%= s.footer_text %></textarea>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="sub-card">
-    <h2 class="section-title">Quy tắc điểm (đơn vị phần nghìn: 2500 = 2.500)</h2>
-    <div class="form-grid three">
-      <%- f('min_points_male', 'Sàn Nam', 'inputmode="numeric"') %><%- f('min_points_female', 'Sàn Nữ', 'inputmode="numeric"') %><%- f('lock_margin', 'Biên Lock (điểm cao nhất − x)', 'inputmode="numeric"') %>
-      <%- f('newbie_exit_male', 'Mốc thoát newbie Nam', 'inputmode="numeric"') %><%- f('newbie_exit_female', 'Mốc thoát newbie Nữ', 'inputmode="numeric"') %><%- f('featured_count', 'Số VĐV nổi bật trang chủ', 'inputmode="numeric"') %>
+
+    <!-- TAB 3: QUY TẮC ĐIỂM & ĐẦU SỐ SĐT -->
+    <div class="admin-tab-pane" id="cfg-3" hidden>
+      <div class="stack" style="--gap: 16px;">
+        <div>
+          <h3 class="section-title" style="margin-bottom: 8px;">Quy chuẩn điểm xếp hạng (đơn vị phần nghìn: 2500 = 2.500)</h3>
+          <div class="form-grid three">
+            <%- f('min_points_male', 'Sàn điểm Nam', 'inputmode="numeric"') %>
+            <%- f('min_points_female', 'Sàn điểm Nữ', 'inputmode="numeric"') %>
+            <%- f('lock_margin', 'Biên Lock (đỉnh − x)', 'inputmode="numeric"') %>
+            <%- f('newbie_exit_male', 'Mốc thoát newbie Nam', 'inputmode="numeric"') %>
+            <%- f('newbie_exit_female', 'Mốc thoát newbie Nữ', 'inputmode="numeric"') %>
+            <%- f('featured_count', 'Số VĐV nổi bật trang chủ', 'inputmode="numeric"') %>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="section-title" style="margin-bottom: 8px;">Đầu số điện thoại di động hợp lệ</h3>
+          <div class="field">
+            <label for="phone_prefixes">Danh sách đầu số (mỗi dòng: Nhà mạng: đầu số, …)</label>
+            <textarea class="input secret" id="phone_prefixes" name="phone_prefixes" style="min-height: 140px;"><%= s.phone_prefixes %></textarea>
+            <details style="margin-top: 6px;">
+              <summary class="link tiny" style="cursor: pointer;">Xem danh sách đầu số mặc định</summary>
+              <pre class="tiny faint" style="white-space: pre-wrap; padding: 8px; background: rgba(0,0,0,0.2); border-radius: var(--r-sm); margin-top: 4px;"><%= defaultPrefixes %></pre>
+            </details>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="sub-card">
-    <h2 class="section-title">Số điện thoại</h2>
-    <div class="field"><label for="phone_prefixes">Đầu số di động hợp lệ (mỗi dòng: Nhà mạng: đầu số, …)</label><textarea class="input secret" id="phone_prefixes" name="phone_prefixes" style="min-height: 180px;"><%= s.phone_prefixes %></textarea><details><summary class="link tiny" style="cursor: pointer;">Danh sách mặc định</summary><pre class="tiny faint" style="white-space: pre-wrap;"><%= defaultPrefixes %></pre></details></div>
-  </div>
-  <div class="form-actions"><button class="btn btn-brand" type="submit">Lưu cấu hình</button></div>
-</form>
+
+    <div class="form-actions" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end;">
+      <button class="btn btn-brand btn-lg" type="submit">
+        <%- include('../partials/icon', { name: 'check' }) %>Lưu toàn bộ cấu hình
+      </button>
+    </div>
+  </form>
+</div>
+
 <%- include('_bottom') %>

@@ -1,163 +1,77 @@
 <%- include('_top', { back: `/admin/giai-dau/${d.event_id}` }) %>
 <% const streamsMap = Object.fromEntries(streams.map((s) => [s.id, s])); const ev = { slug: d.event.slug }; %>
-<div class="toolbar" style="margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+<div class="toolbar" style="margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
   <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/dang-ky"><%- include('../partials/icon', { name: 'users' }) %>Quản lý Đăng ký / VĐV</a>
   <span class="muted small" style="align-self: center;">·</span>
   <span class="chip chip-brand">Sơ đồ & Bốc thăm Nhánh đấu</span>
   <span class="muted small" style="align-self: center;">·</span>
   <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/vinh-danh"><%- include('../partials/icon', { name: 'trophy' }) %>Trao giải & Vinh danh</a>
-  <a class="btn btn-sm" href="/giai-dau/<%= d.event.slug %>/noi-dung/<%= d.id %>" target="_blank" rel="noopener" style="margin-left: auto;"><%- include('../partials/icon', { name: 'external' }) %>Xem nhánh ngoài web</a>
-</div>
-<div class="grid" style="--min: 320px; align-items: start;">
-  <div class="sub-card">
-    <h2 class="section-title">1. Đội tham gia (<%= teams.length %>)</h2>
-    <% if (d.team_type === 'pair') { %>
-    <form method="post" action="/admin/noi-dung/<%= d.id %>/doi/dong-bo"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm btn-block" type="submit">Tạo đội từ <%= pendingRegs %> đăng ký đã duyệt</button></form>
-    <% } %>
-    <details>
-      <summary class="link small" style="cursor: pointer;">+ Thêm đội thủ công</summary>
-      <form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/doi" style="margin-top: 10px; gap: 10px;">
-        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-        <input class="input" name="name" placeholder="Tên đội hoặc 'VĐV A / VĐV B'" required aria-label="Tên đội">
-        <textarea class="input" name="members" placeholder="Danh sách thành viên (mỗi dòng 1 người, cho đội tiếp sức)" aria-label="Thành viên" style="min-height: 80px;"></textarea>
-        <input class="input" name="seed" inputmode="numeric" placeholder="Hạt giống (không bắt buộc)" aria-label="Hạt giống">
-        <button class="btn btn-sm" type="submit">Thêm đội</button>
-      </form>
-    </details>
-    <div class="list" data-scroll style="max-height: 320px;">
-      <% teams.forEach((t) => { %><div class="list-item"><span class="main"><strong class="small"><%= t.name %></strong><% if (t.seed) { %><span class="sub">Hạt giống <%= t.seed %></span><% } %></span><form class="inline-form" method="post" action="/admin/doi/<%= t.id %>/xoa" data-confirm="Xóa đội này?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm" type="submit" aria-label="Xóa đội">✕</button></form></div><% }) %>
-      <% if (!teams.length) { %><div class="list-item faint small">Chưa có đội.</div><% } %>
-    </div>
-  </div>
-  <div class="sub-card">
-    <h2 class="section-title">2. Bốc thăm & tạo lịch</h2>
-    <form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/tao-nhanh" data-confirm="<%= matches.length ? 'Tạo lại sẽ XÓA toàn bộ trận và tỉ số hiện có. Tiếp tục?' : 'Tạo nhánh đấu?' %>" style="gap: 12px;">
-      <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-      
-      <div class="field">
-        <label><strong>Chọn thể thức phân nhánh:</strong></label>
-        <div class="stack" style="--gap: 8px; margin-top: 6px;">
-          <label class="check" style="align-items: flex-start;">
-            <input type="radio" name="bracket_mode" value="knockout" checked data-bracket-mode="knockout">
-            <span>
-              <strong>Option 1: Loại trực tiếp</strong>
-              <span class="small muted" style="display: block;">Đấu loại trực tiếp, có thể bật Playoff (thua Vòng 1 đấu vớt như giải Sao Vàng).</span>
-            </span>
-          </label>
-          <label class="check" style="align-items: flex-start;">
-            <input type="radio" name="bracket_mode" value="groups_knockout" data-bracket-mode="groups_knockout">
-            <span>
-              <strong>Option 2: Chia bảng vòng tròn ➔ Loại trực tiếp</strong>
-              <span class="small muted" style="display: block;">Chia các bảng đấu vòng tròn tính điểm (thắng, hiệu số, đối đầu), lấy Nhất hoặc Nhất/Nhì vào vòng knock-out.</span>
-            </span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Tùy chọn Option 1 -->
-      <div id="opt-ko" class="card card-pad" style="background: var(--surface-2, rgba(255,255,255,0.02));">
-        <% const hasPO = matches.some((x) => /playoff/i.test(x.round_name)); %>
-        <label class="check">
-          <input type="checkbox" name="playoff" value="1" <%= hasPO || !matches.length ? 'checked' : '' %>>
-          <span><strong>Thua Vòng 1 đi Playoff</strong> (Thua V1 gặp nhau ở Playoff, thắng Playoff lên Vòng 2 gặp thắng V1 - chuẩn giải Sao Vàng)</span>
-        </label>
-      </div>
-
-      <!-- Tùy chọn Option 2 -->
-      <div id="opt-groups" class="card card-pad stack" style="display: none; --gap: 10px; background: var(--surface-2, rgba(255,255,255,0.02));">
-        <div class="form-grid two">
-          <div class="field">
-            <label for="num_groups">Số lượng bảng đấu</label>
-            <select class="input" id="num_groups" name="num_groups">
-              <option value="2">2 Bảng (Bảng A, B)</option>
-              <option value="3">3 Bảng (Bảng A, B, C)</option>
-              <option value="4" selected>4 Bảng (Bảng A, B, C, D)</option>
-              <option value="6">6 Bảng (Bảng A - F)</option>
-              <option value="8">8 Bảng (Bảng A - H)</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="advance_per_group">Suất đi tiếp vào Knock-out</label>
-            <select class="input" id="advance_per_group" name="advance_per_group">
-              <option value="2" selected>Lấy Nhất và Nhì mỗi bảng (2 đội/bảng)</option>
-              <option value="1">Chỉ lấy Nhất mỗi bảng (1 đội/bảng)</option>
-            </select>
-          </div>
-        </div>
-        <span class="hint">Thứ tự xếp hạng vòng bảng: 1. Số trận thắng ➔ 2. Hiệu số điểm ➔ 3. Đối đầu trực tiếp.</span>
-      </div>
-
-      <label class="check">
-        <input type="checkbox" name="randomize" value="1" checked>
-        <span>Bốc thăm ngẫu nhiên (bỏ chọn để chia theo hạt giống Snake Draft)</span>
-      </label>
-
-      <button class="btn btn-brand" type="submit" <%= teams.length < 2 ? 'disabled' : '' %>><%= matches.length ? 'Bốc thăm lại toàn bộ' : 'Bốc thăm & tạo nhánh' %></button>
-    </form>
-    <details style="margin-top: 10px;">
-      <summary class="link small" style="cursor: pointer;">+ Thêm trận thủ công (khu riêng, sửa lịch…)</summary>
-      <form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/tran" style="margin-top: 10px; gap: 10px;">
-        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-        <div class="form-grid two">
-          <div class="field"><label for="nm-round">Cột (thứ tự vòng)</label><input class="input" id="nm-round" name="round_order" inputmode="numeric" placeholder="1, 2, 3…" required></div>
-          <div class="field"><label for="nm-rname">Tên vòng</label><input class="input" id="nm-rname" name="round_name" placeholder="Playoff, Vòng 2, Tứ kết…" list="round-names"></div>
-          <div class="field"><label for="nm-code">Mã trận</label><input class="input" id="nm-code" name="code" placeholder="PO1, V2-1, TK1…"></div>
-          <div class="field"><label for="nm-zone">Khu riêng (không bắt buộc)</label><input class="input" id="nm-zone" name="zone" placeholder="MINI"><span class="hint">Để trống: nằm trong sơ đồ chính.</span></div>
-          <div class="field"><label for="nm-court">Sân</label><input class="input" id="nm-court" name="court" placeholder="Sân 1"></div>
-          <div class="field"><label for="nm-time">Giờ</label><input class="input tnum" id="nm-time" name="start_time" placeholder="10:00"></div>
-        </div>
-        <% ['a', 'b'].forEach((s) => { %><%- include('../partials/slot-source', { s, m: {}, matches, teams }) %><% }) %>
-        <datalist id="round-names"><% ['Vòng 1', 'Playoff', 'Vòng 2', 'Tứ kết', 'Bán kết', 'Chung kết'].forEach((n) => { %><option value="<%= n %>"><% }) %></datalist>
-        <button class="btn btn-sm" type="submit">Thêm trận</button>
-      </form>
-    </details>
-    <% if (matches.length) { %><form method="post" action="/admin/noi-dung/<%= d.id %>/xoa-nhanh" data-confirm="Xóa toàn bộ trận của nội dung này?"><input type="hidden" name="csrf_token" value="<%= csrfToken %>" style="margin-top: 8px;"><button class="btn btn-danger btn-sm" type="submit">Xóa toàn bộ trận</button></form><% } %>
-  </div>
+  <a class="btn btn-sm" href="/giai-dau/<%= d.event.slug %>/nhanh-dau?d=<%= d.id %>" target="_blank" rel="noopener" style="margin-left: auto;"><%- include('../partials/icon', { name: 'external' }) %>Xem nhánh ngoài web</a>
 </div>
 
-<% if (locals.groupTables && Object.keys(groupTables).length) { %>
-<div class="card card-pad stack" style="--gap: 16px; margin-top: 16px;">
+<%- include('_bracket-setup') %>
+<script src="/static/js/bracket-setup.js?v=<%= locals.assetV || '' %>" defer></script>
+
+<link rel="stylesheet" href="/static/css/standings-admin.css?v=<%= locals.assetV || '' %>">
+<% if (locals.groupTables && Object.keys(groupTables).length) {
+  const gList = Object.values(groupTables);
+  const doneGroups = gList.filter((g) => g.complete).length;
+  // Số suất đi tiếp mỗi bảng: nhánh sau có ô "Nhì Bảng …" thì lấy 2, không thì chỉ Nhất
+  const advance = matches.some((m) => !m.zone && [m.label_a, m.label_b].some((l) => /^Nhì Bảng /.test(l || ''))) ? 2 : 1;
+%>
+<div class="card card-pad stack" style="--gap: 16px; margin: 12px 0 16px;">
   <div class="row" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
     <div>
-      <h2 class="section-title" style="margin: 0;">Bảng xếp hạng các bảng đấu</h2>
-      <span class="tiny faint">Tiêu chí: 1. Thắng ➔ 2. Hiệu số ➔ 3. Đối đầu</span>
+      <h2 class="section-title" style="margin: 0; font-size: 16px;">Bảng xếp hạng các bảng đấu</h2>
+      <span class="tiny faint">Tiêu chí: 1. Thắng ➔ 2. Hiệu số ➔ 3. Đối đầu · Nhất/Nhì chỉ xác định khi bảng đã đấu xong · <%= doneGroups %>/<%= gList.length %> bảng đã xong</span>
     </div>
     <form method="post" action="/admin/noi-dung/<%= d.id %>/dong-bo-bang">
       <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-      <button class="btn btn-brand btn-sm" type="submit"><%- include('../partials/icon', { name: 'trophy' }) %>Cập nhật đội đi tiếp vào nhánh Knockout</button>
+      <button class="btn btn-brand btn-sm" type="submit"<%= doneGroups ? '' : ' disabled title="Chưa có bảng nào đấu xong"' %>><%- include('../partials/icon', { name: 'trophy' }) %>Đưa Nhất/Nhì các bảng đã xong vào nhánh sau</button>
     </form>
   </div>
   <div class="grid" style="--min: 320px; gap: 14px;">
-    <% Object.entries(groupTables).forEach(([zName, gTable]) => { %>
-    <div class="sub-card">
-      <h3 style="font-size: 15px; margin-bottom: 8px; color: var(--brand);"><%= zName %></h3>
-      <div class="list">
-        <% gTable.rows.forEach((r) => { %>
-        <div class="list-item" style="padding: 6px 8px;">
-          <strong class="serif" style="font-size: 16px; min-width: 24px;"><%= r.rank %></strong>
-          <span class="main">
-            <strong class="small"><%= teamMap[r.id] ? teamMap[r.id].name : 'Đội #' + r.id %></strong>
-            <span class="sub"><%= r.wins %>T · <%= r.losses %>B · HS <%= r.diff > 0 ? '+' : '' %><%= r.diff %> (<%= r.pf %>/<%= r.pa %>) · <%= r.basis %></span>
-          </span>
-          <% if (r.rank === 1) { %><span class="chip chip-gold" style="font-size: 10px;">Nhất</span><% } %>
-          <% if (r.rank === 2) { %><span class="chip chip-ok" style="font-size: 10px;">Nhì</span><% } %>
-        </div>
-        <% }) %>
-      </div>
-    </div>
-    <% }) %>
+    <% Object.entries(groupTables).forEach(([zName, gTable]) => { %><%- include('_standings', { st: gTable, title: zName, teamMap, advance }) %><% }) %>
   </div>
 </div>
 <% } %>
 
 <% if (table) { %>
-<div class="sub-card" style="margin-top: 16px;">
-  <h2 class="section-title">Bảng xếp hạng vòng tròn hiện tại</h2>
-  <div class="list"><% table.rows.forEach((r) => { %><div class="list-item"><strong class="serif" style="font-size: 20px; min-width: 28px;"><%= r.rank %></strong><span class="main"><strong class="small"><%= teamMap[r.id].name %></strong><span class="sub"><%= r.wins %> thắng · <%= r.losses %> thua · hiệu số <%= r.diff > 0 ? '+' : '' %><%= r.diff %> · <%= r.basis %></span></span></div><% }) %></div>
-</div>
+<div style="margin: 12px 0 16px;"><%- include('_standings', { st: table, title: 'Bảng xếp hạng vòng tròn', teamMap, advance: 0 }) %></div>
 <% } %>
 
-<h2 class="section-title">3. Sơ đồ (<%= matches.length %> trận) · bấm vào trận để nhập tỉ số, đổi nguồn đội, giờ, sân</h2>
+<!-- TIÊU ĐỀ SƠ ĐỒ THI ĐẤU & THANH CÔNG CỤ -->
+<div class="row" style="justify-content: space-between; align-items: center; margin: 12px 0 8px; flex-wrap: wrap; gap: 8px;">
+  <div class="row" style="--gap: 8px; align-items: center;">
+    <h2 class="section-title" style="margin: 0; font-size: 16px;">Sơ đồ thi đấu (<%= matches.length %> trận)</h2>
+    <% if (matches.length) { %><button type="button" class="btn btn-sm" data-bs-open="tab-draw">↻ Tạo lại nhánh đấu</button><% } %>
+    <span class="guide-tip" data-tip="Bấm trực tiếp vào từng ô trận để nhập tỉ số, đổi nguồn đội, đổi sân đấu hoặc phát livestream.">?</span>
+  </div>
+  <% if (matches.length) { %>
+    <details class="action-dropdown">
+      <summary class="btn btn-sm">
+        <span>+ Thêm trận thủ công</span> <span style="font-size: 10px; opacity: 0.7;">▾</span>
+      </summary>
+      <div class="dropdown-pop" style="min-width: 280px; padding: 12px;">
+        <form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/tran" style="gap: 8px;">
+          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+          <div class="form-grid two" style="gap: 6px;">
+            <div class="field"><label for="nm-round" style="font-size: 11px;">Cột vòng</label><input class="input" id="nm-round" name="round_order" inputmode="numeric" placeholder="1, 2, 3…" required style="font-size: 12px; padding: 4px 6px;"></div>
+            <div class="field"><label for="nm-rname" style="font-size: 11px;">Tên vòng</label><input class="input" id="nm-rname" name="round_name" placeholder="Playoff, Tứ kết…" list="round-names" style="font-size: 12px; padding: 4px 6px;"></div>
+            <div class="field"><label for="nm-code" style="font-size: 11px;">Mã trận</label><input class="input" id="nm-code" name="code" placeholder="PO1, TK1…" style="font-size: 12px; padding: 4px 6px;"></div>
+            <div class="field"><label for="nm-zone" style="font-size: 11px;">Khu riêng</label><input class="input" id="nm-zone" name="zone" placeholder="Bảng A / MINI" style="font-size: 12px; padding: 4px 6px;"></div>
+            <div class="field"><label for="nm-court" style="font-size: 11px;">Sân</label><input class="input" id="nm-court" name="court" placeholder="Sân 1" style="font-size: 12px; padding: 4px 6px;"></div>
+            <div class="field"><label for="nm-time" style="font-size: 11px;">Giờ</label><input class="input tnum" id="nm-time" name="start_time" placeholder="10:00" style="font-size: 12px; padding: 4px 6px;"></div>
+          </div>
+          <% ['a', 'b'].forEach((s) => { %><%- include('../partials/slot-source', { s, m: {}, matches, teams }) %><% }) %>
+          <datalist id="round-names"><% ['Vòng 1', 'Playoff', 'Vòng 2', 'Tứ kết', 'Bán kết', 'Chung kết'].forEach((n) => { %><option value="<%= n %>"><% }) %></datalist>
+          <button class="btn btn-brand btn-sm" type="submit" style="margin-top: 4px;">Thêm trận vào sơ đồ</button>
+        </form>
+      </div>
+    </details>
+  <% } %>
+</div>
+
 <% if (!matches.length) { %><div class="empty">Chưa có trận nào.</div><% } else { %>
 <%- include('../partials/bracket-board', { board, teamMap, teamNo, streams: streamsMap, d, ev, hrefFor: (m) => `/admin/tran/${m.id}` }) %>
 <% } %>

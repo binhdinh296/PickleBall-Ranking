@@ -83,17 +83,21 @@ async function readEvent(req, existing) {
   return { data };
 }
 
-// Nội dung thi đấu khai ngay trong form tạo giải (mỗi dòng: tên, giới tính, giới hạn trình, số đôi, ảnh nút chọn)
+// Nội dung thi đấu khai ngay trong form tạo giải (mỗi dòng: tên, thể loại, giới hạn trình, số đôi, ảnh nút chọn)
 async function readNewDivisions(req) {
   const b = req.body;
   const idxs = [].concat(b.div_idx || []);
   const at = (k, i) => String([].concat(b[k] ?? [])[i] ?? '').trim();
   const rows = [];
   for (let i = 0; i < idxs.length; i++) {
+    const catKey = at('div_category', i) || at('div_gender', i) || fmt.DEFAULT_CATEGORY;
+    const cat = fmt.CATEGORIES[catKey] || fmt.CATEGORIES.doi_hon_hop;
     const row = {
       idx: /^\d{1,3}$/.test(String(idxs[i])) ? String(idxs[i]) : String(i),
       name: at('div_name', i).slice(0, 100),
-      gender_rule: ['any', 'male', 'female', 'mixed'].includes(at('div_gender', i)) ? at('div_gender', i) : 'any',
+      category: cat.code,
+      team_type: cat.team_type,
+      gender_rule: cat.gender_rule,
       max_total: at('div_max_total', i).slice(0, 10), min_player: at('div_min_player', i).slice(0, 6), max_player: at('div_max_player', i).slice(0, 6), max_teams: at('div_max_teams', i).slice(0, 5),
     };
     if (!row.name && !row.max_total && !row.min_player && !row.max_player && !row.max_teams) continue; // dòng để trống: bỏ qua
@@ -134,8 +138,8 @@ router.post('/giai-dau/moi', editor, upload.any(), verifyCsrf, wrap(async (req, 
       throw Object.assign(new Error('Đơn vị này đã tạo giải rồi.'), { expose: true, status: 409 });
     }
     for (const [i, r] of divs.rows.entries()) {
-      await run(`INSERT INTO divisions(event_id, name, banner, max_teams, max_total_points, min_player_points, max_player_points, gender_rule, sort_order)
-        VALUES (?,?,?,?,?,?,?,?,?)`, ev.id, r.name, r.banner || null, r.max_teams_n, r.max_total_points, r.min_player_points, r.max_player_points, r.gender_rule, i);
+      await run(`INSERT INTO divisions(event_id, name, banner, team_type, max_teams, max_total_points, min_player_points, max_player_points, gender_rule, sort_order)
+        VALUES (?,?,?,?,?,?,?,?,?,?)`, ev.id, r.name, r.banner || null, r.team_type || 'pair', r.max_teams_n, r.max_total_points, r.min_player_points, r.max_player_points, r.gender_rule, i);
     }
     return ev;
   });
@@ -217,23 +221,26 @@ function readPrizes(b) {
 
 async function readDivision(req) {
   const b = req.body;
+  const cat = fmt.CATEGORIES[b.category];
+  const teamType = cat ? cat.team_type : (['single', 'pair', 'team'].includes(b.team_type) ? b.team_type : 'pair');
+  const genderRule = cat ? cat.gender_rule : (['any', 'male', 'female', 'mixed'].includes(b.gender_rule) ? b.gender_rule : 'any');
   const data = {
     name: String(b.name || '').trim().slice(0, 100),
     subtitle: String(b.subtitle || '').trim().slice(0, 100) || null,
-    team_type: ['single', 'pair', 'team'].includes(b.team_type) ? b.team_type : null,
+    team_type: teamType,
     format: b.format === 'roundrobin' ? 'roundrobin' : 'knockout',
     max_teams: intOrNull(b.max_teams),
     max_total_points: fmt.parsePoints(b.max_total_points),
     min_player_points: levelOrPoints(b.min_player_points),
     max_player_points: levelOrPoints(b.max_player_points),
-    gender_rule: ['any', 'male', 'female', 'mixed'].includes(b.gender_rule) ? b.gender_rule : 'any',
+    gender_rule: genderRule,
     prizes: JSON.stringify(readPrizes(b)),
     relay_legs: Math.max(0, Math.min(15, intOrNull(b.relay_legs) || 0)),
     relay_step: Math.max(1, Math.min(50, intOrNull(b.relay_step) || 11)),
     sort_order: intOrNull(b.sort_order) || 0,
   };
   if (!data.name) return { error: 'Vui lòng nhập tên nội dung.', data };
-  if (!data.team_type) return { error: 'Vui lòng chọn nội dung thi đấu Đơn hay Đôi.', data };
+  if (!data.team_type) return { error: 'Vui lòng chọn thể loại nội dung thi đấu.', data };
   const rangeErr = levelRangeError(data.min_player_points, data.max_player_points);
   if (rangeErr) return { error: rangeErr, data };
   const banner = fileOf(req, 'banner');
@@ -352,9 +359,13 @@ router.post('/noi-dung/:id/dang-ky/hang-loat', editor, wrap(async (req, res, nex
   const status = { approve: 'approved', reject: 'rejected' }[req.body.action];
   const ids = [].concat(req.body.ids || []).map((v) => parseInt(v, 10)).filter((n) => n > 0).slice(0, 500);
   if (!status || !ids.length) { req.flash('error', 'Chưa chọn đăng ký nào.'); return res.redirect(`/admin/noi-dung/${d.id}/dang-ky`); }
-  const rows = await all(`UPDATE registrations SET status = ? WHERE division_id = ? AND id = ANY(?::int[]) RETURNING id`, status, d.id, ids);
-  await audit(req, 'registration_status_bulk', `division:${d.id}`, `${status}: ${rows.map((r) => r.id).join(',')}`);
-  req.flash('success', `Đã chuyển ${rows.length} đăng ký sang "${fmt.REG_STATUS_LABEL[status]}".`);
+  // Chỉ đổi những đăng ký chưa ở trạng thái đích; báo rõ số thực sự thay đổi
+  const rows = await all(`UPDATE registrations SET status = ? WHERE division_id = ? AND id = ANY(?::int[]) AND status <> ? RETURNING id`, status, d.id, ids, status);
+  const label = fmt.REG_STATUS_LABEL[status];
+  const same = ids.length - rows.length;
+  if (rows.length) await audit(req, 'registration_status_bulk', `division:${d.id}`, `${status}: ${rows.map((r) => r.id).join(',')}`);
+  if (!rows.length) req.flash('warning', `Không có thay đổi: ${ids.length} đăng ký đã chọn đều đã ở trạng thái "${label}".`);
+  else req.flash('success', `Đã chuyển ${rows.length} đăng ký sang "${label}".${same > 0 ? ` (${same} đăng ký đã ở trạng thái này từ trước.)` : ''}`);
   const back = ['new', 'approved', 'rejected'].includes(req.body.back_status) ? `?status=${req.body.back_status}` : '';
   res.redirect(`/admin/noi-dung/${d.id}/dang-ky${back}`);
 }));
@@ -419,15 +430,25 @@ router.post('/noi-dung/:id/dong-bo-bang', editor, wrap(async (req, res, next) =>
   res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
 }));
 
-router.post('/noi-dung/:id/doi/dong-bo', editor, wrap(async (req, res) => {
-  const n = await bracket.syncTeamsFromRegistrations(parseInt(req.params.id, 10) || 0);
+router.post('/noi-dung/:id/doi/dong-bo', editor, wrap(async (req, res, next) => {
+  const d = await loadDivision(req.params.id);
+  if (!d) return next();
+  if (d.teams_locked) {
+    req.flash('error', 'Danh sách đội đã bị khóa. Vui lòng mở khóa trước khi tạo thêm đội.');
+    return res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
+  }
+  const n = await bracket.syncTeamsFromRegistrations(d.id);
   req.flash('success', n ? `Đã tạo ${n} đội từ đăng ký đã duyệt.` : 'Không có đăng ký mới để tạo đội.');
-  res.redirect(`/admin/noi-dung/${req.params.id}/nhanh-dau`);
+  res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
 }));
 
 router.post('/noi-dung/:id/doi', editor, wrap(async (req, res, next) => {
   const d = await loadDivision(req.params.id);
   if (!d) return next();
+  if (d.teams_locked) {
+    req.flash('error', 'Danh sách đội đã bị khóa. Vui lòng mở khóa trước khi thêm đội.');
+    return res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
+  }
   const name = String(req.body.name || '').trim().slice(0, 120);
   if (!name) { req.flash('error', 'Nhập tên đội.'); return res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`); }
   await run('INSERT INTO teams(division_id, name, members, seed) VALUES (?,?,?,?)', d.id, name,
@@ -437,33 +458,76 @@ router.post('/noi-dung/:id/doi', editor, wrap(async (req, res, next) => {
 }));
 
 router.post('/doi/:id/xoa', editor, wrap(async (req, res) => {
+  const team = await get('SELECT division_id FROM teams WHERE id = ?', parseInt(req.params.id, 10) || 0);
+  if (team) {
+    const d = await get('SELECT teams_locked FROM divisions WHERE id = ?', team.division_id);
+    if (d && d.teams_locked) {
+      req.flash('error', 'Danh sách đội đã bị khóa. Vui lòng mở khóa trước khi xóa đội.');
+      return res.redirect(`/admin/noi-dung/${team.division_id}/nhanh-dau`);
+    }
+  }
   const t = await get('DELETE FROM teams WHERE id = ? RETURNING division_id', parseInt(req.params.id, 10) || 0);
   req.flash('success', 'Đã xóa đội.');
   res.redirect(t ? `/admin/noi-dung/${t.division_id}/nhanh-dau` : '/admin/giai-dau');
 }));
 
+router.post('/noi-dung/:id/khoa-danh-sach', editor, wrap(async (req, res, next) => {
+  const d = await loadDivision(req.params.id);
+  if (!d) return next();
+  const locked = req.body.locked === '1';
+  await run('UPDATE divisions SET teams_locked = ? WHERE id = ?', locked, d.id);
+  if (locked) {
+    // Tự động tính điểm trình độ và xếp hạt giống (seed) từ cao xuống thấp
+    await bracket.autoSeedTeamsBySkill(d.id);
+    await audit(req, 'division_lock_teams', `division:${d.id}`, 'Chốt danh sách đội và xếp hạt giống theo trình độ VĐV');
+    req.flash('success', 'Đã chốt danh sách đội! Hệ thống đã xếp hạt giống theo điểm trình độ của từng đội.');
+  } else {
+    await audit(req, 'division_unlock_teams', `division:${d.id}`, 'Mở khóa danh sách đội');
+    req.flash('success', 'Đã mở khóa danh sách đội để điều chỉnh.');
+  }
+  res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
+}));
+
 router.post('/noi-dung/:id/tao-nhanh', editor, wrap(async (req, res, next) => {
   const d = await loadDivision(req.params.id);
   if (!d) return next();
+  if (!d.teams_locked) {
+    req.flash('error', 'Cần chốt & khóa danh sách đội trước khi chọn thể thức và bốc thăm chia nhánh.');
+    return res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
+  }
+  const teams = await bracket.loadTeams(d.id);
+  if (teams.length < 2) {
+    req.flash('error', 'Cần ít nhất 2 đội tham gia để bốc thăm và tạo nhánh đấu.');
+    return res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
+  }
   const randomize = req.body.randomize === '1';
-  const mode = req.body.bracket_mode || (d.format === 'roundrobin' ? 'roundrobin' : 'knockout');
+  // Thể thức lấy theo "Thể thức thi đấu" của nội dung (1 nguồn duy nhất):
+  //   Chia bảng: 1 bảng = vòng tròn tất cả; ≥ 2 bảng = vòng bảng → loại trực tiếp
+  //   Loại trực tiếp: thua Vòng 1 đi Playoff
+  const groupCount = Math.max(1, parseInt(req.body.num_groups, 10) || 1);
+  const mode = d.format === 'roundrobin' ? (groupCount > 1 ? 'groups_knockout' : 'roundrobin') : 'knockout';
   let n = 0;
 
   if (mode === 'groups_knockout') {
-    const numGroups = parseInt(req.body.num_groups, 10) || 4;
+    const numGroups = groupCount;
+    const minTeams = numGroups * 3;
+    if (teams.length < minTeams) {
+      req.flash('error', `Theo quy định, mỗi bảng đấu phải có tối thiểu 3 đội (chia ${numGroups} bảng cần ít nhất ${minTeams} đội, hiện có ${teams.length} đội).`);
+      return res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
+    }
     const advancePerGroup = parseInt(req.body.advance_per_group, 10) || 2;
     n = await bracket.generateGroupsKnockout(d.id, { numGroups, advancePerGroup, randomize });
-    await audit(req, 'bracket_generate', `division:${d.id}`, `Chia ${numGroups} bảng (lấy ${advancePerGroup}) + Knockout: ${n} trận`);
+    await audit(req, 'bracket_generate', `division:${d.id}`, `Chia ${numGroups} bảng theo trình độ (lấy ${advancePerGroup}) + Knockout: ${n} trận`);
   } else if (mode === 'roundrobin') {
     n = await bracket.generateRoundRobin(d.id, { randomize, relayLegs: d.relay_legs });
     await audit(req, 'bracket_generate', `division:${d.id}`, `Vòng tròn 1 bảng: ${n} trận`);
   } else {
-    const playoff = req.body.playoff === '1';
+    const playoff = true; // thể thức "Loại trực tiếp thua đi Playoff"
     n = await bracket.generateKnockout(d.id, { randomize, playoff });
-    await audit(req, 'bracket_generate', `division:${d.id}`, `Loại trực tiếp${playoff ? ' + Playoff' : ''}: ${n} trận`);
+    await audit(req, 'bracket_generate', `division:${d.id}`, `Loại trực tiếp theo hạt giống trình độ${playoff ? ' + Playoff' : ''}: ${n} trận`);
   }
 
-  req.flash('success', `Đã tạo ${n} trận đấu.`);
+  req.flash('success', `Đã tạo ${n} trận đấu bám theo trình độ hạt giống.`);
   res.redirect(`/admin/noi-dung/${d.id}/nhanh-dau`);
 }));
 
@@ -651,12 +715,19 @@ router.post('/tran/:id/xoa', editor, wrap(async (req, res) => {
 }));
 
 // ---- Vinh danh ----
+// Tên hồ sơ VĐV đã gắn (để bảng vinh danh hiện "Đã gắn: Nguyễn Văn A" thay vì chỉ số hồ sơ)
+async function renderHonors(res, d, slots, suggestion) {
+  const ids = [...new Set(slots.flatMap((h) => [h.athlete1_id, h.athlete2_id]).filter(Boolean))];
+  const linked = ids.length ? Object.fromEntries((await all('SELECT id, full_name, nickname FROM athletes WHERE id = ANY(?::int[])', ids)).map((a) => [a.id, fmt.displayName(a)])) : {};
+  res.render('admin/honors', { title: `Vinh danh: ${d.name}`, d, slots, suggestion, linked });
+}
+
 router.get('/noi-dung/:id/vinh-danh', editor, wrap(async (req, res, next) => {
   const d = await loadDivision(req.params.id);
   if (!d) return next();
   const honors = await all('SELECT * FROM honors WHERE division_id = ? ORDER BY place, sort_order', d.id);
   const slots = [1, 2, 3, 3].map((place, i) => honors.filter((h) => h.place === place)[place === 3 ? i - 2 : 0] || { place });
-  res.render('admin/honors', { title: `Vinh danh: ${d.name}`, d, slots, suggestion: null });
+  await renderHonors(res, d, slots, null);
 }));
 
 router.post('/noi-dung/:id/vinh-danh/goi-y', editor, wrap(async (req, res, next) => {
@@ -675,7 +746,7 @@ router.post('/noi-dung/:id/vinh-danh/goi-y', editor, wrap(async (req, res, next)
     slots.push({ place: s.place, name1: a1 ? fmt.displayName(a1) : n1, athlete1_id: a1 ? a1.id : null, name2: a2 ? fmt.displayName(a2) : (n2 || ''), athlete2_id: a2 ? a2.id : null });
   }
   while (slots.length < 4) slots.push({ place: slots.length < 2 ? slots.length + 1 : 3 });
-  res.render('admin/honors', { title: `Vinh danh: ${d.name}`, d, slots, suggestion: true });
+  await renderHonors(res, d, slots, true);
 }));
 
 router.post('/noi-dung/:id/vinh-danh', editor, wrap(async (req, res, next) => {

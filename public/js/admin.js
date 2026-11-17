@@ -183,12 +183,24 @@ document.addEventListener('click', function (e) {
   var all = form.querySelector('[data-check-all]');
   var count = form.querySelector('[data-bulk-count]');
   var actions = form.querySelectorAll('[data-bulk-action]');
+  // Nút có data-bulk-skip="<trạng thái>": chỉ tính các dòng đã chọn CHƯA ở trạng thái đó (vd. "Duyệt" bỏ qua dòng đã duyệt);
+  // không còn dòng nào cần đổi thì khoá nút để khỏi bấm mà không thấy gì thay đổi
+  function eligible(b) {
+    var skip = b.getAttribute('data-bulk-skip');
+    return items.filter(function (c) { return c.checked && (!skip || c.getAttribute('data-status') !== skip); }).length;
+  }
   function sync() {
     var n = items.filter(function (c) { return c.checked; }).length;
     if (count) count.textContent = n;
-    actions.forEach(function (b) { b.disabled = n === 0; });
+    actions.forEach(function (b) {
+      var k = eligible(b);
+      b.disabled = k === 0;
+      b.title = n && !k ? 'Các mục đã chọn đều đã ở trạng thái này' : '';
+    });
     if (all) { all.checked = n > 0 && n === items.length; all.indeterminate = n > 0 && n < items.length; }
   }
+  // Trình duyệt có thể giữ lại ô đã tích khi tải lại / quay lại trang → luôn bỏ chọn khi trang hiện ra
+  window.addEventListener('pageshow', function () { items.forEach(function (c) { c.checked = false; }); if (all) all.checked = false; sync(); });
   if (all) all.addEventListener('change', function () { items.forEach(function (c) { c.checked = all.checked; }); sync(); });
   items.forEach(function (c) { c.addEventListener('change', sync); });
   sync();
@@ -200,13 +212,108 @@ document.addEventListener('click', function (e) {
   form.addEventListener('submit', function (e) {
     var b = e.submitter;
     if (!b) return;
-    var n = count ? count.textContent : '';
+    var n = b.hasAttribute('data-bulk-skip') ? eligible(b) : (count ? count.textContent : '');
     var msg = b.getAttribute('data-confirm-one') || (b.hasAttribute('data-bulk-action') ? (b.getAttribute('data-bulk-confirm') || '').replace('{n}', n) : '');
     if (msg && !window.confirm(msg)) { e.preventDefault(); return; }
     // Chặn bấm hai lần trong lúc gửi
     setTimeout(function () { form.querySelectorAll('button[type="submit"]').forEach(function (x) { x.disabled = true; }); }, 0);
   });
 })();
+
+// Helper định vị thông minh cho Action Dropdown menu (không bao giờ bị che khuất)
+function resetDropdownPosition(details) {
+  var pop = details.querySelector('.dropdown-pop');
+  if (pop) {
+    pop.style.position = '';
+    pop.style.top = '';
+    pop.style.bottom = '';
+    pop.style.left = '';
+    pop.style.right = '';
+    pop.style.zIndex = '';
+  }
+  details.classList.remove('dropup');
+}
+
+function positionActionDropdown(details) {
+  var summary = details.querySelector('summary');
+  var pop = details.querySelector('.dropdown-pop');
+  if (!summary || !pop) return;
+
+  var rect = summary.getBoundingClientRect();
+  var popHeight = pop.offsetHeight || 160;
+  var popWidth = pop.offsetWidth || 185;
+
+  var spaceBelow = window.innerHeight - rect.bottom;
+  var spaceAbove = rect.top;
+
+  // Quyết định bung lên (dropup) hay bung xuống:
+  // CHỈ BUNG LÊN khi:
+  // 1. Phía dưới KHÔNG đủ chỗ (< popHeight + 12) VÀ
+  // 2. Phía trên có NHIỀU CHỖ HƠN phía dưới (spaceAbove > spaceBelow) VÀ
+  // 3. Phía trên ĐỦ CHỖ chứa menu (spaceAbove >= popHeight)
+  var shouldDropup = (spaceBelow < popHeight + 12) && (spaceAbove > spaceBelow) && (spaceAbove >= popHeight);
+
+  if (shouldDropup) {
+    details.classList.add('dropup');
+  } else {
+    details.classList.remove('dropup');
+  }
+
+  // Đặt fixed position để KHÔNG BAO GIỜ bị overflow của .table-wrap hay thead cắt xén!
+  pop.style.position = 'fixed';
+  pop.style.zIndex = '9999';
+
+  if (shouldDropup) {
+    pop.style.top = 'auto';
+    pop.style.bottom = Math.round(window.innerHeight - rect.top + 4) + 'px';
+  } else {
+    pop.style.bottom = 'auto';
+    pop.style.top = Math.round(rect.bottom + 4) + 'px';
+  }
+
+  var rightCoord = Math.round(window.innerWidth - rect.right);
+  if (rect.right - popWidth < 12) {
+    pop.style.right = 'auto';
+    pop.style.left = Math.max(12, Math.round(rect.left)) + 'px';
+  } else {
+    pop.style.left = 'auto';
+    pop.style.right = Math.max(12, rightCoord) + 'px';
+  }
+}
+
+// Bắt sự kiện cuộn trang hoặc resize để đóng Action Dropdown đang mở
+window.addEventListener('scroll', function () {
+  var openDropdowns = document.querySelectorAll('details.action-dropdown[open]');
+  openDropdowns.forEach(function (d) {
+    d.removeAttribute('open');
+    resetDropdownPosition(d);
+  });
+}, true);
+
+window.addEventListener('resize', function () {
+  var openDropdowns = document.querySelectorAll('details.action-dropdown[open]');
+  openDropdowns.forEach(function (d) {
+    d.removeAttribute('open');
+    resetDropdownPosition(d);
+  });
+});
+
+// Lắng nghe sự kiện toggle native của details
+document.addEventListener('toggle', function (e) {
+  if (e.target && e.target.matches && e.target.matches('details.action-dropdown')) {
+    if (e.target.open) {
+      document.querySelectorAll('details.action-dropdown[open]').forEach(function (other) {
+        if (other !== e.target) {
+          other.removeAttribute('open');
+          resetDropdownPosition(other);
+        }
+      });
+      positionActionDropdown(e.target);
+    } else {
+      resetDropdownPosition(e.target);
+    }
+  }
+}, true);
 
 // ---- Modal Popup và Action Dropdown tuân thủ CSP ----
 document.addEventListener('click', function (e) {
@@ -219,7 +326,10 @@ document.addEventListener('click', function (e) {
       modalEl.classList.add('open');
       document.body.style.overflow = 'hidden';
       var parentDetails = modalOpenBtn.closest('details.action-dropdown');
-      if (parentDetails) parentDetails.removeAttribute('open');
+      if (parentDetails) {
+        parentDetails.removeAttribute('open');
+        resetDropdownPosition(parentDetails);
+      }
     }
     return;
   }
@@ -257,19 +367,175 @@ document.addEventListener('click', function (e) {
     return;
   }
 
+  // 3b. Kiểm tra hướng mở và định vị Action Dropdown (không bao giờ bị che khuất)
+  var dropdownSummary = e.target.closest('details.action-dropdown > summary');
+  if (dropdownSummary) {
+    var details = dropdownSummary.parentElement;
+    
+    // Đóng các dropdown khác đang mở
+    document.querySelectorAll('details.action-dropdown[open]').forEach(function (other) {
+      if (other !== details) {
+        other.removeAttribute('open');
+        resetDropdownPosition(other);
+      }
+    });
+
+    requestAnimationFrame(function () {
+      if (details.open) {
+        positionActionDropdown(details);
+      } else {
+        resetDropdownPosition(details);
+      }
+    });
+  }
+
   // 4. Click item bên trong Action Dropdown: tự đóng dropdown
   var item = e.target.closest('.dropdown-pop button, .dropdown-pop a');
   if (item) {
     var detailsEl = item.closest('details.action-dropdown');
-    if (detailsEl) detailsEl.removeAttribute('open');
+    if (detailsEl) {
+      detailsEl.removeAttribute('open');
+      resetDropdownPosition(detailsEl);
+    }
   }
 
   // 5. Đóng Action Dropdown khi click ra ngoài
   var openDropdowns = document.querySelectorAll('details.action-dropdown[open]');
   openDropdowns.forEach(function (d) {
-    if (!d.contains(e.target)) d.removeAttribute('open');
+    if (!d.contains(e.target)) {
+      d.removeAttribute('open');
+      resetDropdownPosition(d);
+    }
   });
+
+  // 6. Chuyển đổi Tabs trong form quản trị (.admin-tabs)
+  var tabBtn = e.target.closest('[data-tab-target]');
+  if (tabBtn) {
+    var tabList = tabBtn.closest('.admin-tabs');
+    var targetId = tabBtn.getAttribute('data-tab-target');
+    if (!tabList && targetId) {
+      var externalNavTab = document.querySelector('.admin-tabs [data-tab-target="' + targetId + '"]');
+      if (externalNavTab) {
+        externalNavTab.click();
+        return;
+      }
+    }
+    if (tabList && targetId) {
+      var allTabs = tabList.querySelectorAll('[data-tab-target]');
+      allTabs.forEach(function (t) {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tabBtn.classList.add('active');
+      tabBtn.setAttribute('aria-selected', 'true');
+
+      var container = tabList.closest('form') || tabList.parentElement;
+      var panes = container.querySelectorAll('.admin-tab-pane');
+      panes.forEach(function (p) {
+        if (p.id === targetId) {
+          p.hidden = false;
+        } else {
+          p.hidden = true;
+        }
+      });
+    }
+    return;
+  }
+
+  // 7. Multi-Step Form Wizard (Next / Prev / Jump)
+  var nextBtn = e.target.closest('[data-step-next]');
+  var prevBtn = e.target.closest('[data-step-prev]');
+  var stepBtn = e.target.closest('[data-step-target]');
+
+  if (nextBtn) {
+    var wizard = nextBtn.closest('[data-wizard]');
+    if (!wizard) return;
+    var currentPane = wizard.querySelector('.wizard-pane:not([hidden])');
+    if (!currentPane) return;
+    
+    // Validate các input trong pane hiện tại trước khi chuyển bước
+    var inputs = currentPane.querySelectorAll('input, select, textarea');
+    for (var i = 0; i < inputs.length; i++) {
+      if (!inputs[i].checkValidity()) {
+        inputs[i].reportValidity();
+        return;
+      }
+    }
+
+    var currentStep = parseInt(currentPane.getAttribute('data-step'), 10) || 1;
+    var nextStep = currentStep + 1;
+    var nextPane = wizard.querySelector('.wizard-pane[data-step="' + nextStep + '"]');
+    if (nextPane) {
+      goToWizardStep(wizard, nextStep);
+    }
+    return;
+  }
+
+  if (prevBtn) {
+    var wizard = prevBtn.closest('[data-wizard]');
+    if (!wizard) return;
+    var currentPane = wizard.querySelector('.wizard-pane:not([hidden])');
+    if (!currentPane) return;
+    var currentStep = parseInt(currentPane.getAttribute('data-step'), 10) || 1;
+    var prevStep = Math.max(1, currentStep - 1);
+    goToWizardStep(wizard, prevStep);
+    return;
+  }
+
+  if (stepBtn) {
+    var wizard = stepBtn.closest('[data-wizard]');
+    if (!wizard) return;
+    var targetStep = parseInt(stepBtn.getAttribute('data-step-target'), 10);
+    if (!targetStep) return;
+
+    var currentPane = wizard.querySelector('.wizard-pane:not([hidden])');
+    var currentStep = currentPane ? (parseInt(currentPane.getAttribute('data-step'), 10) || 1) : 1;
+    if (targetStep > currentStep) {
+      var inputs = currentPane.querySelectorAll('input, select, textarea');
+      for (var j = 0; j < inputs.length; j++) {
+        if (!inputs[j].checkValidity()) {
+          inputs[j].reportValidity();
+          return;
+        }
+      }
+    }
+    goToWizardStep(wizard, targetStep);
+    return;
+  }
 });
+
+function goToWizardStep(wizard, stepNum) {
+  var panes = wizard.querySelectorAll('.wizard-pane');
+  var steps = wizard.querySelectorAll('.wizard-step');
+  
+  panes.forEach(function (pane) {
+    var s = parseInt(pane.getAttribute('data-step'), 10);
+    if (s === stepNum) {
+      pane.hidden = false;
+      pane.classList.add('active');
+    } else {
+      pane.hidden = true;
+      pane.classList.remove('active');
+    }
+  });
+
+  steps.forEach(function (btn) {
+    var s = parseInt(btn.getAttribute('data-step-target'), 10);
+    if (s === stepNum) {
+      btn.classList.add('active');
+      btn.classList.remove('completed');
+    } else if (s < stepNum) {
+      btn.classList.remove('active');
+      btn.classList.add('completed');
+    } else {
+      btn.classList.remove('active');
+      btn.classList.remove('completed');
+    }
+  });
+
+  var header = wizard.querySelector('.wizard-header');
+  if (header) header.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
 // ---- Xử lý change event: auto-submit và bracket mode switcher ----
 document.addEventListener('change', function (e) {

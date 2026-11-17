@@ -41,7 +41,7 @@
               %>
               <% if (divImg) { %><img src="<%= divImg %>" alt="" loading="lazy"><% } %>
               <strong><%= d.name %></strong>
-              <small><%= d.subtitle || (d.max_total_points ? `Tổng ≤ ${fmt.pts(d.max_total_points)}` : fmt.GENDER_RULE_LABEL[d.gender_rule]) %></small>
+              <small><%= d.subtitle || (d.max_total_points ? `Tổng ≤ ${fmt.pts(d.max_total_points)}` : fmt.categoryLabel(d)) %></small>
             </span>
           </label>
           <% }) %>

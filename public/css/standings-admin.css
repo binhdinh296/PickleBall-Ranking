@@ -1,0 +1,13 @@
+/* Bảng xếp hạng vòng tròn: chưa đấu / đang đấu (hạng tạm) / đã xong */
+.std-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.std-head h3 { margin: 0; font-size: 15px; color: var(--brand); }
+.std-head .chip { font-size: 11px; padding: 3px 9px; }
+.std-chip-wait { color: var(--text-3); }
+.std-chip-live { color: var(--warn); border-color: color-mix(in oklab, var(--warn) 45%, transparent); }
+.std-chip-done { color: var(--ok); border-color: color-mix(in oklab, var(--ok) 45%, transparent); }
+.std-row { padding: 6px 8px; }
+.std-rank { font-size: 16px; min-width: 24px; text-align: center; }
+.std-wait .std-rank { color: var(--text-3); }
+.std-live .std-rank { opacity: .7; }
+.std-place { font-size: 10.5px; white-space: nowrap; }
+.std-row.is-qualified { background: color-mix(in oklab, var(--ok) 6%, transparent); }

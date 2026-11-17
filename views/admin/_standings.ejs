@@ -1,0 +1,33 @@
+<%
+  // 1 bảng xếp hạng vòng tròn theo trạng thái:
+  //   chưa đấu  → không có hạng, giữ thứ tự bốc thăm; không có Nhất/Nhì
+  //   đang đấu  → hạng TẠM; không gắn Nhất/Nhì
+  //   đã xong   → hạng chính thức; Nhất/Nhì (đồng hạng chưa phân định thì ghi rõ)
+  // locals: st (bracket.standings), title, teamMap, advance (số suất đi tiếp, 0 = không có nhánh sau)
+  const adv = locals.advance || 0;
+  const state = !st.started ? 'wait' : st.complete ? 'done' : 'live';
+  const stateText = { wait: 'Chưa thi đấu', live: `Đang đấu · ${st.played}/${st.total} trận · hạng tạm`, done: `Đã đấu xong ${st.total} trận` }[state];
+  const placeLabel = (r, k) => {
+    if (state !== 'done' || !adv || k >= adv) return null;
+    const tie = r.tiedWithPrev || (st.rows[k + 1] && st.rows[k + 1].tiedWithPrev);
+    return tie ? 'Đồng hạng · chờ bốc thăm' : ['Nhất', 'Nhì'][k];
+  };
+%>
+<div class="sub-card std std-<%= state %>">
+  <div class="std-head">
+    <h3><%= title %></h3>
+    <span class="chip std-chip-<%= state %>"><%= stateText %></span>
+  </div>
+  <div class="list">
+    <% st.rows.forEach((r, k) => { const place = placeLabel(r, k); %>
+    <div class="list-item std-row<%= place && !place.startsWith('Đồng') ? ' is-qualified' : '' %>">
+      <strong class="serif std-rank"><%= r.rank == null ? '–' : r.rank %></strong>
+      <span class="main">
+        <strong class="small"><%= teamMap[r.id] ? teamMap[r.id].name : 'Đội #' + r.id %></strong>
+        <span class="sub"><% if (state === 'wait') { %>Chưa có kết quả<% } else { %><%= r.played %> trận · <%= r.wins %>T <%= r.losses %>B · HS <%= r.diff > 0 ? '+' : '' %><%= r.diff %> (<%= r.pf %>/<%= r.pa %>)<%= r.basis && r.basis !== 'Trận thắng / hiệu số tổng' ? ` · ${r.basis}` : '' %><% } %></span>
+      </span>
+      <% if (place) { %><span class="chip <%= place === 'Nhất' ? 'chip-gold' : place === 'Nhì' ? 'chip-ok' : 'chip-warn' %> std-place"><%= place %></span><% } %>
+    </div>
+    <% }) %>
+  </div>
+</div>

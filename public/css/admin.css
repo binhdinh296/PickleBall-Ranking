@@ -100,9 +100,11 @@ summary.link { display: inline-flex; align-items: center; min-height: 36px; }
    ========================================================================== */
 table.atable td { padding: 9px 10px; }
 table.atable th { padding: 10px; }
-.atable .c-main { width: 100%; max-width: 0; } /* max-width 0: cột chính co lại, chữ dài tự cắt "…" thay vì đẩy bảng tràn ngang */
+.atable .c-main { width: 100%; max-width: 0; min-width: 180px; } /* max-width 0: cột chính co lại, chữ dài tự cắt "…" thay vì đẩy bảng tràn ngang */
 .atable .c-fit { width: 1%; white-space: nowrap; }
 .atable .c-col > span { display: block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* cột chữ phụ (vd. CLB): một dòng, dài thì cắt "…" */
+.atable .c-event { min-width: 220px; white-space: nowrap; }
+.atable .c-event a { display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
 .atable .c-act { width: 1%; white-space: nowrap; text-align: right; }
 .atable .c-idx { width: 1%; white-space: nowrap; color: var(--text-3); font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .atable .c-chk { width: 36px; padding-right: 0; }
@@ -168,6 +170,22 @@ div.at-who { cursor: default; }
    HỆ THỐNG MÀU SẮC NÚT BẤM CMS QUẢN TRỊ (.btn & .action-dropdown)
    Làm nổi bật rõ rệt các thành phần bấm được (clickable), phân cấp chức năng rõ ràng.
    ========================================================================== */
+
+/* Khống chế kích thước SVG icon inline để không bao giờ bị vỡ phóng to */
+.admin-shell svg:not([width]) {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.admin-shell p svg,
+.admin-shell span svg,
+.admin-shell .small svg {
+  width: 16px;
+  height: 16px;
+  vertical-align: -2.5px;
+  display: inline-block;
+  flex-shrink: 0;
+}
 
 /* 1. NÚT CHUNG TRÊN TOÀN TRANG QUẢN TRỊ */
 .admin-shell .btn {
@@ -308,7 +326,135 @@ div.at-who { cursor: default; }
   box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
 }
 
-/* 8. NÚT ĐÓNG / HỦY TRONG POPUP MODAL */
+/* Đảm bảo table-wrap không cắt dropdown ở cạnh dưới */
+.admin-shell .table-wrap {
+  padding-bottom: 4px;
+  min-height: 220px;
+}
+.admin-shell table.atable tr:has(.action-dropdown[open]),
+.admin-shell table.atable td:has(.action-dropdown[open]) {
+  z-index: 100;
+  position: relative;
+}
+
+/* ---------- Khối Copy Bar liền mạch không rớt dòng ---------- */
+.copy-bar {
+  display: inline-flex;
+  align-items: stretch;
+  width: 100%;
+  max-width: 260px;
+  vertical-align: middle;
+}
+.copy-bar .input {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.copy-bar .btn {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-left: none !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  flex-shrink: 0;
+  border-radius: 0 var(--r-sm, 8px) var(--r-sm, 8px) 0 !important;
+}
+
+/* ---------- Guide Tip Component (Icon giải thích khi hover) ---------- */
+.guide-tip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  color: #38bdf8;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: help;
+  vertical-align: middle;
+  line-height: 1;
+  user-select: none;
+  flex-shrink: 0;
+  margin-left: 6px;
+  transition: all 0.18s ease;
+}
+.guide-tip:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #7dd3fc;
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+}
+.guide-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  width: max-content;
+  max-width: 290px;
+  padding: 8px 12px;
+  background: var(--card-solid, #18181b);
+  border: 1px solid var(--line-strong, #3f3f46);
+  border-radius: 8px;
+  color: #f4f6fa;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+  white-space: normal;
+  text-align: left;
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+}
+.guide-tip::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: var(--line-strong, #3f3f46) transparent transparent transparent;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1001;
+}
+.guide-tip:hover::after,
+.guide-tip:hover::before,
+.guide-tip:focus-visible::after,
+.guide-tip:focus-visible::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.guide-tip.tip-left::after {
+  left: auto;
+  right: -8px;
+  transform: translateY(4px);
+}
+.guide-tip.tip-left::before {
+  left: auto;
+  right: 4px;
+}
+.guide-tip.tip-left:hover::after {
+  transform: translateY(0);
+}
 .admin-modal-actions button[data-modal-close],
 .admin-modal-header button[data-modal-close] {
   background: rgba(255, 255, 255, 0.08) !important;
@@ -320,4 +466,250 @@ div.at-who { cursor: default; }
   background: rgba(255, 255, 255, 0.18) !important;
   border-color: rgba(255, 255, 255, 0.4) !important;
   color: #ffffff !important;
+}
+
+/* ==========================================================================
+   TABS CHUYỂN ĐỔI FORM QUẢN TRỊ (.admin-tabs & .admin-tab)
+   Chuyển đổi linh hoạt giữa các nhóm cấu hình mà không ép buộc từng bước
+   ========================================================================== */
+.admin-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  background: var(--surface-2, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  border-radius: var(--r-md, 14px);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 8px;
+}
+.admin-tabs::-webkit-scrollbar {
+  display: none;
+}
+.admin-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: var(--r-sm, 10px);
+  background: transparent;
+  border: 1.5px solid transparent;
+  color: var(--text-2, #cbd5e1);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.admin-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+.admin-tab.active,
+.admin-tab[aria-selected="true"] {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+  border-color: rgba(52, 211, 153, 0.7) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35) !important;
+}
+.admin-tab-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+.admin-tab-pane[hidden] {
+  display: none !important;
+}
+
+/* ==========================================================================
+   MULTI-STEP FORM WIZARD CHO TRANG QUẢN TRỊ
+   Chia các form dài nhiều trường thành các bước logic, tối ưu không gian và thao tác
+   ========================================================================== */
+.form-wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+.wizard-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--surface-2, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  border-radius: var(--r-md, 14px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.wizard-header::-webkit-scrollbar {
+  display: none;
+}
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.wizard-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: var(--r-sm, 10px);
+  background: transparent;
+  border: 1.5px solid transparent;
+  color: var(--text-3, #94a3b8);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.wizard-step:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text, #ffffff);
+}
+.wizard-step.active {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
+  color: #34d399 !important;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
+}
+.wizard-step.completed {
+  color: #a7f3d0;
+}
+.wizard-step .step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 12px;
+  font-weight: 700;
+  color: inherit;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.wizard-step.active .step-num {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #34d399;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+}
+.wizard-step.completed .step-num {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+  color: #34d399;
+}
+.wizard-step .step-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.wizard-step .step-title {
+  font-size: 13.5px;
+  line-height: 1.25;
+}
+.wizard-step .step-desc {
+  font-size: 11px;
+  color: var(--text-dim, #64748b);
+  font-weight: 400;
+}
+.wizard-step.active .step-desc {
+  color: #6ee7b7;
+}
+.step-line {
+  flex: 1;
+  min-width: 16px;
+  height: 2px;
+  background: var(--line, rgba(255, 255, 255, 0.1));
+}
+.wizard-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.wizard-pane[hidden] {
+  display: none !important;
+}
+.wizard-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+}
+@media (max-width: 640px) {
+  .wizard-header {
+    padding: 8px 12px;
+  }
+  .wizard-step .step-desc {
+    display: none;
+  }
+  .wizard-step {
+    padding: 6px 10px;
+    font-size: 12.5px;
+  }
+  .wizard-actions {
+    flex-wrap: wrap;
+  }
+  .wizard-actions .btn {
+    flex: 1 1 140px;
+  }
+}
+
+/* ==========================================================================
+   TỐI ƯU GIAO DIỆN POPUP MODAL CHO MOBILE (BOTTOM SHEET ERGONOMIC)
+   ========================================================================== */
+@media (max-width: 640px) {
+  .admin-modal {
+    padding: 0 !important;
+    align-items: flex-end !important;
+  }
+  .admin-modal-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: 90vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85) !important;
+  }
+  .admin-modal-header {
+    padding: 14px 18px !important;
+  }
+  .admin-modal-body {
+    padding: 14px 16px !important;
+    max-height: calc(90vh - 125px) !important;
+  }
+  .admin-modal-footer {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom)) !important;
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    gap: 8px !important;
+  }
+  .admin-modal-footer .btn {
+    width: 100% !important;
+    min-height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
 }

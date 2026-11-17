@@ -1,5 +1,8 @@
 <%- include('_top') %>
-<p class="tiny faint at-count"><%= rows.length %> tài khoản trong hệ thống</p>
+<div class="row" style="--gap: 6px; align-items: center; margin-bottom: 8px;">
+  <p class="tiny faint at-count" style="margin: 0;"><%= rows.length %> tài khoản</p>
+  <span class="guide-tip" data-tip="Bấm Thao tác trên từng hàng để phân quyền (Biên tập viên, Trọng tài, Quản trị viên), đặt lại mật khẩu hoặc khóa tài khoản.">?</span>
+</div>
 <div class="table-wrap">
   <table class="data atable">
     <thead>

@@ -5,11 +5,13 @@
   const who = (s, extra = '') => `${include('../partials/avatar', { a: s, size: 36 })}<span class="at-name"><strong>${fmt.esc(s.full_name)}${s.nickname ? ` <small>(${fmt.esc(s.nickname)})</small>` : ''}</strong><span class="at-meta">${fmt.esc(meta(s))}</span>${extra ? `<span class="at-meta">${fmt.esc(extra)}</span>` : ''}</span>`;
   const reviewed = (s) => [`${fmt.SUB_STATUS_LABEL[s.status]}${s.reviewed_by ? ` bởi ${s.reviewed_by}` : ''}`, s.reviewed_at && fmt.dateTimeVN(s.reviewed_at), s.admin_note].filter(Boolean).join(' · ');
 %>
-<nav class="tabs" aria-label="Trạng thái đơn">
-  <% [['pending', 'Chờ duyệt'], ['approved', 'Đã duyệt'], ['rejected', 'Từ chối']].forEach(([k, l]) => { %><a class="tab" href="?status=<%= k %>" aria-current="<%= status === k %>"><%= l %> <span class="count">(<%= counts[k] || 0 %>)</span></a><% }) %>
-</nav>
+<div class="row" style="align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px;">
+  <nav class="tabs grow" aria-label="Trạng thái đơn">
+    <% [['pending', 'Chờ duyệt'], ['approved', 'Đã duyệt'], ['rejected', 'Từ chối']].forEach(([k, l]) => { %><a class="tab" href="?status=<%= k %>" aria-current="<%= status === k %>"><%= l %> <span class="count">(<%= counts[k] || 0 %>)</span></a><% }) %>
+  </nav>
+  <span class="guide-tip" data-tip="Sửa điểm trực tiếp trong ô nếu cần, sau đó bấm Thao tác để duyệt hoặc từ chối đơn. Có thể tích chọn nhiều đơn để duyệt hoặc từ chối hàng loạt.">?</span>
+</div>
 <% if (!rows.length) { %><div class="empty">Không có đơn nào.</div><% } else if (status === 'pending') { %>
-<p class="small muted">Sửa điểm nếu cần rồi bấm <b>✓</b> để duyệt từng đơn, hoặc tích chọn nhiều đơn và duyệt một lần. Bấm vào tên để xem SĐT, mô tả hoặc từ chối đơn.</p>
 <form method="post" action="/admin/don-cham-trinh/hang-loat" data-bulk-form>
   <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
   <%# Nút mặc định bị tắt: nhấn Enter trong ô điểm không vô tình gửi nút của dòng khác %>

@@ -1,0 +1,207 @@
+<%
+  // Cấu hình nhánh đấu theo 2 bước (2 tab):
+  //   1. Đội / VĐV tham gia: tạo từ đăng ký đã duyệt, thêm tay, xoá; chốt danh sách → tự xếp hạt giống theo trình
+  //   2. Bốc thăm & phân nhánh: theo "Thể thức thi đấu" của nội dung (chia bảng / loại trực tiếp thua đi Playoff)
+  // locals: d, teams, matches, pendingRegs, csrfToken
+  const ic = (n) => include('../partials/icon', { name: n });
+  const unit = fmt.unitLabel(d);
+  const single = fmt.isSingle(d);
+  const who = single ? 'VĐV' : d.team_type === 'team' ? 'Đội' : 'Đôi';
+  const locked = !!d.teams_locked;
+  const step = locked ? 'draw' : 'teams'; // tab mở sẵn
+  const maxGroups = Math.floor(teams.length / 3);
+  const groupOptions = [2, 3, 4, 6, 8].filter((g) => g <= maxGroups);
+  const isGroups = d.format === 'roundrobin'; // "Chia bảng" ở form nội dung
+  const defaultGroups = groupOptions.includes(4) ? 4 : groupOptions.length ? groupOptions[groupOptions.length - 1] : 0;
+  const letters = (n) => Array.from({ length: n }, (_, i) => String.fromCharCode(65 + i));
+  // Trận đã đánh (có đủ 2 đội và đã xong / đang live) — bỏ qua trận miễn đấu tự hoàn tất
+  const played = matches.filter((m) => m.team_a_id && m.team_b_id && (m.status === 'done' || m.status === 'live')).length;
+  const redrawConfirm = `Tạo lại nhánh đấu sẽ XOÁ ${matches.length} trận hiện có${played ? `, trong đó ${played} trận đã có kết quả` : ''}. Tiếp tục?`;
+%>
+<link rel="stylesheet" href="/static/css/bracket-setup.css?v=<%= locals.assetV || '' %>">
+<details class="card bs" id="bs-setup" <%= !matches.length ? 'open' : '' %>>
+  <summary class="bs-sum">
+    <span class="bs-sum-title"><%- ic('settings') %>Cấu hình bốc thăm</span>
+    <span class="bs-sum-chips">
+      <span class="chip"><%= teams.length %> <%= unit %></span>
+      <span class="chip <%= locked ? 'chip-ok' : 'chip-warn' %>"><%= locked ? 'Đã chốt danh sách' : 'Chưa chốt danh sách' %></span>
+      <span class="chip <%= matches.length ? 'chip-brand' : 'chip-muted' %>"><%= matches.length ? `${matches.length} trận` : 'Chưa tạo trận' %></span>
+    </span>
+    <% if (matches.length) { %>
+    <span class="bs-sum-actions">
+      <button type="button" class="btn btn-sm" data-bs-open="tab-teams"><%- ic('users') %>Sửa danh sách <%= unit %></button>
+      <button type="button" class="btn btn-sm btn-brand" data-bs-open="tab-draw">↻ Tạo lại nhánh đấu</button>
+    </span>
+    <% } %>
+    <span class="bs-sum-toggle small link" data-open-text="Thu gọn" data-closed-text="Mở cấu hình"></span>
+  </summary>
+
+  <div class="bs-body">
+    <nav class="admin-tabs bs-steps" role="tablist" aria-label="Các bước bốc thăm">
+      <button type="button" class="admin-tab bs-step<%= step === 'teams' ? ' active' : '' %>" role="tab" id="bs-tab-teams" aria-controls="tab-teams" aria-selected="<%= step === 'teams' %>" data-tab-target="tab-teams">
+        <span class="bs-num<%= locked ? ' is-done' : '' %>"><%= locked ? '✓' : '1' %></span>
+        <span class="bs-step-txt"><b><%= who %> tham gia</b><small><%= teams.length %> <%= unit %> · <%= locked ? 'đã chốt' : 'chưa chốt' %></small></span>
+      </button>
+      <span class="bs-arrow" aria-hidden="true">›</span>
+      <button type="button" class="admin-tab bs-step<%= step === 'draw' ? ' active' : '' %>" role="tab" id="bs-tab-draw" aria-controls="tab-draw" aria-selected="<%= step === 'draw' %>" data-tab-target="tab-draw">
+        <span class="bs-num"><%= locked ? '2' : '🔒' %></span>
+        <span class="bs-step-txt"><b>Bốc thăm &amp; phân nhánh</b><small><%= matches.length ? `${matches.length} trận đã tạo` : locked ? 'sẵn sàng bốc thăm' : 'cần chốt bước 1' %></small></span>
+      </button>
+    </nav>
+
+    <!-- ===== BƯỚC 1: ĐỘI / VĐV THAM GIA ===== -->
+    <section class="admin-tab-pane bs-pane" id="tab-teams" role="tabpanel" aria-labelledby="bs-tab-teams"<%= step !== 'teams' ? ' hidden' : '' %>>
+      <div class="bs-bar">
+        <p class="small muted bs-lead">
+          <% if (locked) { %>Danh sách đã chốt, hạt giống xếp theo trình từ cao xuống thấp. Mở khoá nếu cần sửa.
+          <% } else { %>Lấy <%= unit %> từ đăng ký đã duyệt hoặc thêm tay, kiểm tra rồi <b>chốt danh sách</b> để sang bước bốc thăm.<% } %>
+        </p>
+        <% if (!locked) { %>
+        <div class="bs-actions">
+          <% if (d.team_type !== 'team' && pendingRegs > 0) { %>
+          <form method="post" action="/admin/noi-dung/<%= d.id %>/doi/dong-bo">
+            <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+            <button class="btn btn-brand btn-sm" type="submit"><%- ic('plus') %>Tạo từ <%= pendingRegs %> đăng ký đã duyệt</button>
+          </form>
+          <% } %>
+          <button class="btn btn-sm" type="button" data-toggle-target="bs-add" aria-expanded="false" aria-controls="bs-add"><%- ic('plus') %>Thêm <%= who.toLowerCase() %> thủ công</button>
+        </div>
+        <% } %>
+      </div>
+
+      <% if (!locked) { %>
+      <form class="bs-add" id="bs-add" method="post" action="/admin/noi-dung/<%= d.id %>/doi" hidden>
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+        <div class="field bs-add-name"><label for="bs-name">Tên <%= who.toLowerCase() %></label><input class="input" id="bs-name" name="name" required maxlength="120" placeholder="<%= single ? 'Nguyễn Văn A' : d.team_type === 'team' ? 'Tên đội' : 'VĐV A / VĐV B' %>"></div>
+        <div class="field bs-add-seed"><label for="bs-seed">Hạt giống</label><input class="input tnum" id="bs-seed" name="seed" inputmode="numeric" placeholder="vd. 1"></div>
+        <% if (d.team_type === 'team') { %><div class="field bs-add-members"><label for="bs-members">Thành viên (mỗi dòng 1 người)</label><textarea class="input" id="bs-members" name="members" rows="2"></textarea></div><% } %>
+        <button class="btn btn-brand btn-sm" type="submit">Lưu</button>
+      </form>
+      <% } %>
+
+      <% if (!teams.length) { %>
+      <div class="empty bs-empty">Chưa có <%= unit %> nào.<% if (pendingRegs > 0) { %> Bấm "Tạo từ <%= pendingRegs %> đăng ký đã duyệt" ở trên.<% } else { %> Duyệt đăng ký ở trang <a class="link" href="/admin/noi-dung/<%= d.id %>/dang-ky">Đăng ký</a> trước.<% } %></div>
+      <% } else { %>
+      <div class="bs-list">
+        <table class="data atable bs-teams">
+          <thead><tr>
+            <th class="c-idx">#</th>
+            <th><%= who %></th>
+            <th class="num c-fit"><% if (!single) { %><span class="hide-m">Tổng </span><% } %>Trình</th>
+            <th class="c-fit"><span class="hide-m">Hạt giống</span><span class="show-m">HG</span></th>
+            <% if (!locked) { %><th class="c-act"><span class="sr-only">Xoá</span></th><% } %>
+          </tr></thead>
+          <tbody>
+          <% teams.forEach((t, i) => { %>
+            <tr>
+              <td class="c-idx"><%= i + 1 %></td>
+              <td class="c-main"><strong><%= t.name %></strong><% if (t.members) { %><span class="tiny faint bs-members"><%= String(t.members).split(/\r?\n/).filter(Boolean).join(' · ') %></span><% } %></td>
+              <td class="num c-fit tnum"><%= t.total_points ? fmt.pts(t.total_points) : '—' %></td>
+              <td class="c-fit"><% if (t.seed) { %><span class="chip chip-gold bs-seed">#<%= t.seed %></span><% } else { %><span class="faint">—</span><% } %></td>
+              <% if (!locked) { %>
+              <td class="c-act">
+                <form method="post" action="/admin/doi/<%= t.id %>/xoa" data-confirm="Xoá <%= t.name %> khỏi danh sách?">
+                  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+                  <button class="btn btn-xs bs-del" type="submit" aria-label="Xoá <%= t.name %>" title="Xoá">✕</button>
+                </form>
+              </td>
+              <% } %>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+
+      <div class="bs-foot<%= locked ? ' is-locked' : '' %>">
+        <% if (!locked) { %>
+          <span class="small muted"><%= teams.length < 2 ? `Cần ít nhất 2 ${unit} để chốt.` : `Chốt xong, hệ thống tự xếp hạt giống theo trình và mở bước 2.` %></span>
+          <form method="post" action="/admin/noi-dung/<%= d.id %>/khoa-danh-sach">
+            <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+            <input type="hidden" name="locked" value="1">
+            <button class="btn btn-brand" type="submit"<%= teams.length < 2 ? ' disabled' : '' %>>🔒 Chốt danh sách (<%= teams.length %> <%= unit %>) →</button>
+          </form>
+        <% } else { %>
+          <span class="bs-ok small">🔒 Đã chốt <b><%= teams.length %> <%= unit %></b></span>
+          <form method="post" action="/admin/noi-dung/<%= d.id %>/khoa-danh-sach"<% if (matches.length) { %> data-confirm="Mở khoá để sửa danh sách? Nhánh đấu hiện tại vẫn giữ, nhưng cần bốc thăm lại nếu đổi đội."<% } %>>
+            <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+            <input type="hidden" name="locked" value="0">
+            <button class="btn btn-sm" type="submit">Mở khoá để sửa</button>
+          </form>
+          <button class="btn btn-brand" type="button" data-tab-target="tab-draw">Sang bước 2: Bốc thăm →</button>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- ===== BƯỚC 2: BỐC THĂM & PHÂN NHÁNH ===== -->
+    <section class="admin-tab-pane bs-pane" id="tab-draw" role="tabpanel" aria-labelledby="bs-tab-draw"<%= step !== 'draw' ? ' hidden' : '' %>>
+      <% if (!locked) { %>
+      <div class="bs-gate">
+        <span class="bs-gate-ico" aria-hidden="true">🔒</span>
+        <div>
+          <b>Chưa chốt danh sách <%= unit %></b>
+          <p class="small muted">Bốc thăm dựa trên hạt giống theo trình, nên cần chốt danh sách ở bước 1 trước.<% if (matches.length) { %> Nhánh hiện tại (<%= matches.length %> trận) vẫn giữ nguyên cho tới khi bốc thăm lại.<% } %></p>
+        </div>
+        <button class="btn btn-brand btn-sm" type="button" data-tab-target="tab-teams">← Về bước 1 để chốt</button>
+      </div>
+      <% } else { %>
+      <form class="bs-draw" method="post" action="/admin/noi-dung/<%= d.id %>/tao-nhanh" data-confirm="<%= matches.length ? redrawConfirm : `Tạo nhánh đấu cho ${teams.length} ${unit}?` %>">
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+        <% if (matches.length) { %>
+        <div class="bs-current<%= played ? ' has-played' : '' %>">
+          <b>Đang có nhánh đấu <%= matches.length %> trận<%= played ? ` · ${played} trận đã có kết quả` : '' %>.</b>
+          <span class="small muted">Bốc thăm lại sẽ xoá nhánh hiện tại (kể cả tỉ số) và tạo nhánh mới theo cài đặt bên dưới. Muốn đổi <%= unit %> tham gia: quay lại bước 1, mở khoá, sửa rồi chốt lại.</span>
+        </div>
+        <% } %>
+        <div class="bs-format">
+          <span class="bs-format-ico" aria-hidden="true"><%- ic(isGroups ? 'list' : 'bracket') %></span>
+          <div class="bs-format-txt">
+            <span class="tiny faint">Thể thức thi đấu (theo cài đặt nội dung)</span>
+            <b><%= isGroups ? 'Chia bảng' : 'Loại trực tiếp, thua Vòng 1 đi Playoff' %></b>
+            <small class="muted"><%= isGroups
+              ? 'Đánh vòng tròn trong bảng, chia đều theo trình (snake). 1 bảng = vòng tròn tất cả; nhiều bảng thì Nhất / Nhì mỗi bảng vào nhánh loại trực tiếp.'
+              : 'Xếp nhánh theo hạt giống trình độ, hạt giống cao không gặp nhau sớm. Đội thua Vòng 1 đấu vớt (Playoff), thắng Playoff vào Vòng 2.' %></small>
+          </div>
+          <a class="btn btn-sm bs-format-edit" href="/admin/noi-dung/<%= d.id %>/sua"><%- ic('edit') %>Đổi thể thức</a>
+        </div>
+
+        <% if (isGroups) { %>
+        <div class="bs-opts bs-grid2">
+          <div class="field">
+            <label for="num_groups">Số bảng</label>
+            <select class="input" id="num_groups" name="num_groups" data-bs-groups>
+              <option value="1"<%= !defaultGroups ? ' selected' : '' %>>1 bảng · vòng tròn tất cả <%= teams.length %> <%= unit %></option>
+              <% groupOptions.forEach((g) => { %><option value="<%= g %>"<%= g === defaultGroups ? ' selected' : '' %>><%= g %> bảng (<%= letters(g)[0] %>–<%= letters(g)[g - 1] %>) · ~<%= Math.round(teams.length / g) %> <%= unit %>/bảng</option><% }) %>
+            </select>
+            <% if (!groupOptions.length) { %><span class="hint">Cần ít nhất 6 <%= unit %> để chia từ 2 bảng (mỗi bảng tối thiểu 3).</span><% } %>
+          </div>
+          <div class="field" data-bs-advance<%= !defaultGroups ? ' hidden' : '' %>>
+            <label for="advance_per_group">Suất vào loại trực tiếp mỗi bảng</label>
+            <select class="input" id="advance_per_group" name="advance_per_group">
+              <option value="2" selected>Nhất và Nhì</option>
+              <option value="1">Chỉ Nhất</option>
+            </select>
+          </div>
+        </div>
+        <% } %>
+
+        <label class="check bs-random">
+          <input type="checkbox" name="randomize" value="1">
+          <span><b>Bốc thăm ngẫu nhiên</b><br><small class="muted">Mặc định xếp theo hạt giống trình độ. Tích chọn nếu muốn xáo ngẫu nhiên.</small></span>
+        </label>
+
+        <div class="bs-foot">
+          <span class="small muted"><%= teams.length %> <%= unit %> · hạt giống theo trình<%= matches.length ? ` · đang có ${matches.length} trận` : '' %></span>
+          <% if (matches.length) { %><button class="btn btn-danger btn-sm" type="submit" form="form-del-matches">Xoá toàn bộ trận</button><% } %>
+          <button class="btn btn-brand" type="submit"><%- ic('trophy') %><%= matches.length ? 'Bốc thăm lại & tạo nhánh mới' : 'Bốc thăm & tạo nhánh' %></button>
+        </div>
+      </form>
+      <% if (matches.length) { %>
+      <form id="form-del-matches" method="post" action="/admin/noi-dung/<%= d.id %>/xoa-nhanh" data-confirm="Xoá toàn bộ trận của nội dung này?">
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+      </form>
+      <% } %>
+      <% } %>
+    </section>
+  </div>
+</details>

@@ -12,38 +12,43 @@
   const tone = (st) => st === 'approved' ? 'chip-ok' : st === 'rejected' ? 'chip-err' : 'chip-warn';
   const total = (r) => r.points1 && (r.points2 || !r.name2) ? fmt.pts(r.points1 + (r.points2 || 0)) : '—';
 %>
-<p class="tiny faint at-count"><%= regs.length %> <%= fmt.unitLabel(d) %> đăng ký · bấm chi tiết để ghi chú hoặc xoá</p>
-<form method="post" action="/admin/noi-dung/<%= d.id %>/dang-ky/hang-loat" data-bulk-form>
+<div class="row" style="--gap: 6px; align-items: center; margin-bottom: 8px;">
+  <p class="tiny faint at-count" style="margin: 0;"><%= regs.length %> <%= fmt.unitLabel(d) %> đăng ký</p>
+  <span class="guide-tip" data-tip="Bấm Thao tác trên từng dòng để xem chi tiết, đổi trạng thái duyệt, sửa ghi chú nội bộ hoặc xóa đơn đăng ký.">?</span>
+</div>
+<form method="post" action="/admin/noi-dung/<%= d.id %>/dang-ky/hang-loat" data-bulk-form autocomplete="off">
   <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
   <input type="hidden" name="back_status" value="<%= status %>">
   <button type="submit" disabled hidden aria-hidden="true" tabindex="-1"></button>
-  <div class="table-wrap">
-    <table class="data atable">
+  <div class="table-wrap reg-scroll">
+    <table class="data atable reg-table">
       <thead><tr>
         <th class="c-chk"><input type="checkbox" data-check-all aria-label="Chọn tất cả"></th>
         <th class="c-idx">#</th>
-        <th>Vận động viên & SĐT</th>
-        <th class="num c-fit">Tổng điểm</th>
+        <th><%= fmt.isSingle(d) ? "Vận động viên" : "Đôi" %> <span class="tiny faint reg-hint">· rê chuột / chạm vào tên để xem SĐT</span></th>
+        <th class="num c-fit hide-m reg-pts"><%= fmt.isSingle(d) ? 'Trình' : 'Trình từng VĐV' %></th>
+        <th class="num c-fit"><%= fmt.isSingle(d) ? 'Điểm' : 'Tổng' %></th>
         <th class="c-fit hide-m">Trạng thái</th>
-        <th class="c-act" style="text-align: right;">Duyệt / Từ chối</th>
+        <th class="c-act" style="text-align: right;">Thao tác</th>
       </tr></thead>
       <tbody>
       <% regs.forEach((r, i) => { %>
         <tr class="at-row">
-          <td class="c-chk"><input type="checkbox" name="ids" value="<%= r.id %>" data-check-item aria-label="Chọn <%= fmt.regName(r) %>"></td>
+          <td class="c-chk"><input type="checkbox" name="ids" value="<%= r.id %>" data-check-item data-status="<%= r.status %>" aria-label="Chọn <%= fmt.regName(r) %>"></td>
           <td class="c-idx"><%= i + 1 %></td>
           <td class="c-main">
-            <div class="stack" style="--gap: 2px;">
-              <strong style="font-size: 14px;"><%= fmt.regName(r) %></strong>
-              <div class="row small muted" style="--gap: 8px; flex-wrap: wrap;">
-                <span><%= r.name1 %> (<%= r.points1 ? fmt.pts(r.points1) : '?' %>): <b class="tnum"><%= r.phone1 || 'chưa có SĐT' %></b></span>
-                <% if (r.name2) { %><span>·</span>
-                <span><%= r.name2 %> (<%= r.points2 ? fmt.pts(r.points2) : '?' %>): <b class="tnum"><%= r.phone2 || 'chưa có SĐT' %></b></span><% } %>
-              </div>
-              <span class="tiny faint">Đăng ký lúc <%= fmt.dateTimeVN(r.created_at) %><%= r.admin_note ? ` · Ghi chú: ${r.admin_note}` : '' %></span>
-            </div>
+            <span class="reg-who" tabindex="0" data-hover-tip>
+              <strong class="reg-name"><%= fmt.regName(r) %></strong><% if (r.admin_note) { %><span class="reg-note-dot" aria-label="Có ghi chú">✎</span><% } %>
+              <template>
+                <div class="ht-row"><b><%= r.name1 %></b><span>Trình <%= r.points1 ? fmt.pts(r.points1) : '?' %></span><span class="tnum"><%= r.phone1 || 'chưa có SĐT' %></span></div>
+                <% if (r.name2) { %><div class="ht-row"><b><%= r.name2 %></b><span>Trình <%= r.points2 ? fmt.pts(r.points2) : '?' %></span><span class="tnum"><%= r.phone2 || 'chưa có SĐT' %></span></div><% } %>
+                <div class="ht-meta">Đăng ký lúc <%= fmt.dateTimeVN(r.created_at) %></div>
+                <% if (r.admin_note) { %><div class="ht-meta">Ghi chú: <%= r.admin_note %></div><% } %>
+              </template>
+            </span>
           </td>
-          <td class="num c-fit tnum"><b style="font-size: 15px;"><%= total(r) %></b></td>
+          <td class="num c-fit tnum hide-m reg-pts"><%= r.points1 ? fmt.pts(r.points1) : '?' %><% if (r.name2) { %> + <%= r.points2 ? fmt.pts(r.points2) : '?' %><% } %></td>
+          <td class="num c-fit tnum"><b><%= total(r) %></b></td>
           <td class="c-fit hide-m"><span class="chip <%= tone(r.status) %>"><%= fmt.REG_STATUS_LABEL[r.status] %></span></td>
           <td class="c-act" style="text-align: right; vertical-align: middle;">
             <details class="action-dropdown">
@@ -89,8 +94,8 @@
   </div>
   <div class="at-bar">
     <span class="small">Đã chọn <b data-bulk-count>0</b>/<%= regs.length %></span>
-    <button class="btn btn-danger btn-sm" type="submit" name="action" value="reject" data-bulk-action data-bulk-confirm="Từ chối {n} đội đã chọn?" disabled>Từ chối</button>
-    <button class="btn btn-brand btn-sm" type="submit" name="action" value="approve" data-bulk-action data-bulk-confirm="Duyệt {n} đội đã chọn?" disabled>Duyệt đã chọn</button>
+    <button class="btn btn-danger btn-sm" type="submit" name="action" value="reject" data-bulk-action data-bulk-skip="rejected" data-bulk-confirm="Từ chối {n} <%= fmt.unitLabel(d) %> đã chọn?" disabled>Từ chối</button>
+    <button class="btn btn-brand btn-sm" type="submit" name="action" value="approve" data-bulk-action data-bulk-skip="approved" data-bulk-confirm="Duyệt {n} <%= fmt.unitLabel(d) %> đã chọn?" disabled>Duyệt đã chọn</button>
   </div>
 </form>
 
@@ -246,5 +251,7 @@
   </div>
 <% }) %>
 <% } %>
+<link rel="stylesheet" href="/static/css/hover-tip.css?v=<%= locals.assetV || '' %>">
+<script src="/static/js/hover-tip.js?v=<%= locals.assetV || '' %>" defer></script>
 <%- include('_reg-quick-add') %>
 <%- include('_bottom') %>
