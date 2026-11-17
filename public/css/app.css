@@ -111,6 +111,23 @@
   --f-photo: saturate(.86) brightness(1.02) contrast(1.04); --f-photo-hero: saturate(.95) brightness(1.02) contrast(1.04);
 }
 
+/* Cam sân đấu — nền xanh teal mặt sân pickleball buổi tối, nhấn chính cam bóng thi đấu, nhấn phụ xanh ngọc vạch sân */
+[data-theme="rally"] {
+  --f-bg: #0B1D1E; --f-bg-rgb: 11, 29, 30; --f-bg2: #10272A; --f-card: #163236; --f-raised: #1D3F43; --f-raised-2: #264C51; --f-raised-rgb: 38, 76, 81; --f-deep: #081517;
+  --f-accent: #FF8A3D; --f-accent-rgb: 255, 138, 61; --f-accent-hi: #FFB27E; --f-accent-2: #F26A1F; --f-accent-3: #D65516; --f-accent-pale: #FFE2CC; --f-court: #3CC7B4;
+  --f-on: #2A1204; --f-on-rgb: 42, 18, 4;
+  --f-text: #F1FAF8; --f-text-soft: #DDEFEB; --f-text2: #B3D2CC; --f-text3: #8BB1AA; --f-line-rgb: 210, 245, 238;
+  --f-stripe-a: #183639; --f-stripe-b: #21454A; --f-female: #F5A9BE;
+  --f-live: #FF4F62; --f-ok: #4FD6A8; --f-warn: #FFC94D; --f-err: #FF6E6E;
+  --f-photo: saturate(.92) brightness(1.03) contrast(1.05); --f-photo-hero: saturate(1) brightness(1.02) contrast(1.05);
+  /* Nhấn phụ xanh ngọc (vạch sân) cho các điểm "court": cam + xanh ngọc phối cùng nhau */
+  --ink-court: #6FE0CF !important;
+}
+/* Phối 2 màu: nhãn nhỏ trên tiêu đề và đường nối nhánh đấu dùng xanh ngọc vạch sân, nút/điểm nhấn chính giữ cam bóng
+   (html[...] để thắng rule [data-flat] chung khai báo phía sau) */
+html[data-theme="rally"] .eyebrow { color: #6FE0CF !important; }
+html[data-theme="rally"] .bracket { --bk-line: rgba(111, 224, 207, .5); }
+
 /* ---------- Nền tảng ---------- */
 *, *::before, *::after { box-sizing: border-box; font-style: normal; }
 em, i, cite, address, dfn, var { font-style: normal; }
@@ -208,6 +225,7 @@ button { font: inherit; }
 .tsw-luxe { --sw-bg: #24211B; --sw-ac: #E5BE57; }
 .tsw-sky { --sw-bg: #1D2A3C; --sw-ac: #65BAF7; }
 .tsw-banana { --sw-bg: #232E1A; --sw-ac: #B2E046; }
+.tsw-rally { --sw-bg: #163236; --sw-ac: #FF8A3D; }
 [data-theme="dark"] .icon-sun, [data-flat] .icon-moon { display: block; }
 [data-theme="dark"] .icon-moon, [data-flat] .icon-sun { display: none; }
 
