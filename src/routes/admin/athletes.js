@@ -10,6 +10,8 @@ const router = express.Router();
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 const editor = requireRole('editor');
 const PAGE = 20;
+// Quay lại trang danh sách (giữ bộ lọc / trang) sau thao tác nhanh; chỉ nhận đường dẫn nội bộ /admin/vdv…
+const backTo = (b, fallback) => (typeof b === 'string' && /^\/admin\/vdv(\?[^\s]*)?$/.test(b) ? b : fallback);
 
 // ---- Danh sách VĐV ----
 router.get('/vdv', editor, wrap(async (req, res) => {
@@ -24,7 +26,7 @@ router.get('/vdv', editor, wrap(async (req, res) => {
   const pages = Math.max(1, Math.ceil(total / PAGE));
   const rows = await all(`SELECT * FROM athletes WHERE ${where.join(' AND ')} ORDER BY points DESC, id LIMIT ? OFFSET ?`,
     ...params, PAGE, (Math.min(page, pages) - 1) * PAGE);
-  res.render('admin/athletes', { title: 'Vận động viên', rows, q, gender, page: Math.min(page, pages), pages, total });
+  res.render('admin/athletes', { title: 'Vận động viên', rows, q, gender, page: Math.min(page, pages), pages, total, back: backTo(req.originalUrl, '/admin/vdv') });
 }));
 
 // ---- Lịch sử biến động điểm toàn hệ thống ----
@@ -147,23 +149,37 @@ router.post('/vdv/:id', editor, upload.any(), verifyCsrf, wrap(async (req, res, 
 router.post('/vdv/:id/diem', editor, wrap(async (req, res, next) => {
   const a = await get('SELECT * FROM athletes WHERE id = ?', parseInt(req.params.id, 10) || 0);
   if (!a) return next();
+  const back = backTo(req.body.back, `/admin/vdv/${a.id}`);
   let target;
   if (req.body.mode === 'delta') {
     const sign = String(req.body.delta || '').trim().startsWith('-') ? -1 : 1;
     const d = fmt.parsePoints(String(req.body.delta || '').replace(/^[+-]/, ''));
-    if (d === null) { req.flash('error', 'Mức cộng/trừ không hợp lệ.'); return res.redirect(`/admin/vdv/${a.id}`); }
+    if (d === null) { req.flash('error', 'Mức cộng/trừ không hợp lệ.'); return res.redirect(back); }
     target = a.points + sign * d;
   } else {
     target = fmt.parsePoints(req.body.points);
   }
-  if (target === null || target < 0) { req.flash('error', 'Điểm mới không hợp lệ.'); return res.redirect(`/admin/vdv/${a.id}`); }
+  if (target === null || target < 0) { req.flash('error', 'Điểm mới không hợp lệ.'); return res.redirect(back); }
   const ignoreLock = req.body.ignore_lock === '1' && req.session.user.role === 'admin';
   const kind = req.body.kind === 'tournament' ? 'tournament' : 'adjust';
   const eventId = parseInt(req.body.event_id, 10) || null;
   const r = await points.changePoints(a.id, target, { kind, note: String(req.body.note || '').trim().slice(0, 300) || null, eventId, author: req.session.user.displayName, ignoreLock });
   await audit(req, 'points_change', `athlete:${a.id}`, `${fmt.pts(a.points)} -> ${fmt.pts(r.athlete.points)}${ignoreLock ? ' (bỏ qua Lock)' : ''}`);
-  req.flash(r.clamped ? 'warning' : 'success', r.clamped ? `Điểm không được thấp hơn Lock, đã đặt ở ${fmt.pts(r.athlete.points)}.` : r.changed ? 'Đã cập nhật điểm.' : 'Điểm không thay đổi.');
-  res.redirect(`/admin/vdv/${a.id}`);
+  req.flash(r.clamped ? 'warning' : 'success', r.clamped ? `Điểm không được thấp hơn Lock, đã đặt ở ${fmt.pts(r.athlete.points)}.` : r.changed ? `Đã cập nhật điểm ${a.full_name}: ${fmt.pts(a.points)} → ${fmt.pts(r.athlete.points)}.` : 'Điểm không thay đổi.');
+  res.redirect(back);
+}));
+
+// Thao tác nhanh từ danh sách: ẩn / hiện hồ sơ công khai, bật / tắt "VĐV nổi bật"
+router.post('/vdv/:id/nhanh', editor, wrap(async (req, res, next) => {
+  const field = { visible: 'visible', featured: 'featured' }[req.body.field];
+  if (!field) return next();
+  const on = req.body.value === '1';
+  const a = await get(`UPDATE athletes SET ${field} = ?, updated_at = now() WHERE id = ? RETURNING id, full_name`, on, parseInt(req.params.id, 10) || 0);
+  if (!a) return next();
+  await audit(req, `athlete_${field}`, `athlete:${a.id}`, on ? 'on' : 'off');
+  const msg = field === 'visible' ? (on ? 'đang hiển thị công khai' : 'đã ẩn khỏi trang công khai') : (on ? 'được đánh dấu VĐV nổi bật' : 'đã bỏ khỏi VĐV nổi bật');
+  req.flash('success', `${a.full_name} ${msg}.`);
+  res.redirect(backTo(req.body.back, '/admin/vdv'));
 }));
 
 router.post('/vdv/:id/xoa', requireRole('admin'), wrap(async (req, res) => {

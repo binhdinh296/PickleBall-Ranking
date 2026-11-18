@@ -1,0 +1,10 @@
+/* Danh sách VĐV (CMS): popup chỉnh điểm nhanh, menu thao tác gọn */
+.mp-chips { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.mp-chip { min-height: 34px; padding: 4px 6px; font-size: 13px; font-variant-numeric: tabular-nums; justify-content: center; }
+.mp-chip.is-up { color: var(--ok); }
+.mp-chip.is-down { color: var(--err); }
+.atable .c-act form { margin: 0; }
+.atable .c-act .dropdown-pop form .dropdown-item { width: 100%; }
+@media (max-width: 760px) {
+  .mp-chips { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

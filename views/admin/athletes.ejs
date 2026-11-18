@@ -9,12 +9,12 @@
 </form>
 <div class="row" style="--gap: 6px; align-items: center; margin-bottom: 8px;">
   <p class="tiny faint at-count" style="margin: 0;"><%= total %> vận động viên</p>
-  <span class="guide-tip" data-tip="Bấm vào hàng VĐV để chỉnh sửa thông tin cá nhân, điều chỉnh điểm số hoặc theo dõi lịch sử điểm.">?</span>
+  <span class="guide-tip" data-tip="Bấm vào hàng để mở hồ sơ. Nút Thao tác: chỉnh điểm nhanh, ẩn/hiện công khai, đánh dấu nổi bật, xem trang công khai.">?</span>
 </div>
-<% if (!rows.length) { %><div class="empty">Không có VĐV phù hợp.</div><% } else { %>
+<% if (!rows.length) { %><div class="empty">Không có VĐV phù hợp.</div><% } else { const ip = (n) => include('../partials/icon', { name: n }); %>
 <div class="table-wrap">
   <table class="data atable">
-    <thead><tr><th>Vận động viên</th><th class="hide-m">CLB</th><th class="c-fit hide-m">SĐT</th><th class="num c-fit">Điểm</th></tr></thead>
+    <thead><tr><th>Vận động viên</th><th class="hide-m">CLB</th><th class="c-fit hide-m">SĐT</th><th class="num c-fit">Điểm</th><th class="c-act" style="text-align: right;"><span class="hide-m">Thao tác</span></th></tr></thead>
     <tbody>
     <% rows.forEach((a) => { %>
       <tr class="at-row" data-href="/admin/vdv/<%= a.id %>">
@@ -25,11 +25,77 @@
         <td class="c-sub c-col hide-m"><span title="<%= a.club || '' %>"><%= a.club || '—' %></span></td>
         <td class="c-fit c-sub tnum hide-m"><%= a.phone || '—' %></td>
         <td class="num c-fit tnum"><b><%= fmt.pts(a.points) %></b></td>
+        <td class="c-act" style="text-align: right;">
+          <details class="action-dropdown">
+            <summary class="btn btn-sm" aria-label="Thao tác cho <%= a.full_name %>"><span class="hide-m">Thao tác <span style="font-size: 10px; opacity: 0.7;">▾</span></span><span class="show-m" aria-hidden="true">•••</span></summary>
+            <div class="dropdown-pop">
+              <button type="button" class="dropdown-item" data-modal-target="modal-points" data-points-open data-id="<%= a.id %>" data-name="<%= a.full_name %>" data-points="<%= fmt.pts(a.points) %>">
+                <%- ip('edit') %><span>Chỉnh điểm nhanh</span>
+              </button>
+              <a class="dropdown-item" href="/admin/vdv/<%= a.id %>"><%- ip('users') %><span>Sửa hồ sơ &amp; lịch sử điểm</span></a>
+              <a class="dropdown-item" href="/vdv/<%= a.id %>" target="_blank" rel="noopener"><%- ip('external') %><span>Xem trang công khai</span></a>
+              <div class="dropdown-divider"></div>
+              <form method="post" action="/admin/vdv/<%= a.id %>/nhanh">
+                <input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="back" value="<%= back %>">
+                <input type="hidden" name="field" value="featured"><input type="hidden" name="value" value="<%= a.featured ? 0 : 1 %>">
+                <button class="dropdown-item" type="submit"><%- ip('trophy') %><span><%= a.featured ? 'Bỏ khỏi VĐV nổi bật' : 'Đánh dấu VĐV nổi bật' %></span></button>
+              </form>
+              <form method="post" action="/admin/vdv/<%= a.id %>/nhanh"<% if (a.visible) { %> data-confirm="Ẩn hồ sơ <%= a.full_name %> khỏi trang công khai?"<% } %>>
+                <input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="back" value="<%= back %>">
+                <input type="hidden" name="field" value="visible"><input type="hidden" name="value" value="<%= a.visible ? 0 : 1 %>">
+                <button class="dropdown-item<%= a.visible ? ' text-danger' : ' text-ok' %>" type="submit"><%- ip(a.visible ? 'close' : 'check') %><span><%= a.visible ? 'Ẩn khỏi trang công khai' : 'Hiện lại công khai' %></span></button>
+              </form>
+              <% if (user.role === 'admin') { %>
+              <div class="dropdown-divider"></div>
+              <form method="post" action="/admin/vdv/<%= a.id %>/xoa" data-confirm="Xoá vĩnh viễn <%= a.full_name %> cùng toàn bộ lịch sử điểm? Không thể hoàn tác.">
+                <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+                <button class="dropdown-item text-danger" type="submit"><%- ip('trash') %><span>Xoá VĐV</span></button>
+              </form>
+              <% } %>
+            </div>
+          </details>
+        </td>
       </tr>
     <% }) %>
     </tbody>
   </table>
 </div>
+<% } %>
+<% if (rows.length) { %>
+<div class="admin-modal" id="modal-points" role="dialog" aria-modal="true" aria-labelledby="mp-title">
+  <div class="admin-modal-card">
+    <div class="admin-modal-header">
+      <h3 id="mp-title" style="margin: 0; font-size: 16px;">Chỉnh điểm: <span data-mp-name></span></h3>
+      <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
+    </div>
+    <form method="post" action="" data-mp-form>
+      <div class="admin-modal-body stack" style="--gap: 12px;">
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="back" value="<%= back %>">
+        <input type="hidden" name="mode" value="delta" data-mp-mode>
+        <p class="small muted" style="margin: 0;">Điểm hiện tại: <b class="tnum" data-mp-current></b> → mới: <b class="tnum gold-text" data-mp-preview>—</b></p>
+        <div class="field">
+          <span class="label">Cộng / trừ nhanh</span>
+          <div class="mp-chips">
+            <% ['-0.100', '-0.050', '-0.025', '+0.025', '+0.050', '+0.100'].forEach((v) => { %><button type="button" class="btn btn-sm mp-chip<%= v[0] === '-' ? ' is-down' : ' is-up' %>" data-mp-delta="<%= v %>"><%= v %></button><% }) %>
+          </div>
+        </div>
+        <div class="form-grid two">
+          <div class="field"><label for="mp-delta">Cộng/trừ</label><input class="input tnum" id="mp-delta" name="delta" inputmode="decimal" placeholder="+0.050 hoặc -0.050" data-mp-delta-input></div>
+          <div class="field"><label for="mp-points">Hoặc đặt điểm mới</label><input class="input tnum" id="mp-points" name="points" inputmode="decimal" placeholder="vd. 3.250" data-mp-points-input></div>
+          <div class="field"><label for="mp-kind">Loại</label><select class="input" id="mp-kind" name="kind"><option value="adjust">Điều chỉnh điểm</option><option value="tournament">Kết quả giải</option></select></div>
+          <div class="field"><label for="mp-note">Ghi chú</label><input class="input" id="mp-note" name="note" maxlength="300" placeholder="Lý do điều chỉnh"></div>
+        </div>
+        <span class="tiny faint">Điểm không xuống dưới mức Lock của VĐV (trừ khi quản trị viên cho phép trong trang hồ sơ).</span>
+      </div>
+      <div class="admin-modal-actions">
+        <button type="button" class="btn btn-sm" data-modal-close>Huỷ</button>
+        <button type="submit" class="btn btn-sm btn-brand">Cập nhật điểm</button>
+      </div>
+    </form>
+  </div>
+</div>
+<link rel="stylesheet" href="/static/css/athlete-list.css?v=<%= locals.assetV || '' %>">
+<script src="/static/js/athlete-list.js?v=<%= locals.assetV || '' %>" defer></script>
 <% } %>
 <% if (pages > 1) { %>
 <nav class="pager"><% if (page > 1) { %><a href="/admin/vdv<%= qs({ page: page - 1 }) %>">‹</a><% } %><span aria-current="page"><%= page %>/<%= pages %></span><% if (page < pages) { %><a href="/admin/vdv<%= qs({ page: page + 1 }) %>">›</a><% } %></nav>

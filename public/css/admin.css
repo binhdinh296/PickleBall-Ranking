@@ -713,3 +713,24 @@ div.at-who { cursor: default; }
     justify-content: center !important;
   }
 }
+
+/* ==========================================================================
+   Ô NHẬP LIỆU GỌN CHO CMS
+   Mặc định toàn site là 50px / chữ 16px (hợp trang công khai trên điện thoại); trong CMS form dày đặc
+   nên thu về 40px, chữ 14.5px. Màn điện thoại vẫn giữ chữ 16px để iOS không tự phóng to khi gõ.
+   ========================================================================== */
+.admin-body .input, .admin-body select.input { min-height: 40px; padding: 8px 12px; font-size: 14.5px; border-radius: 10px; }
+.admin-body select.input { padding-right: 34px; background-position: right 12px center; }
+.admin-body textarea.input { min-height: 84px; line-height: 1.5; }
+.admin-body input[type="file"].input { min-height: 40px; padding: 5px 8px; font-size: 13.5px; }
+.admin-body input[type="file"].input::file-selector-button { padding: 5px 12px; margin-right: 10px; border-radius: 8px; }
+.admin-body .form { gap: 14px; }
+.admin-body .form-grid { gap: 12px 14px; }
+.admin-body .field { gap: 5px; }
+.admin-body .field > label, .admin-body .label { font-size: 13px; }
+.admin-body .field .hint { font-size: 12.5px; }
+.admin-body .prize-edit .btn { min-height: 40px; }
+.admin-body .check input { width: 18px; height: 18px; }
+@media (max-width: 760px) {
+  .admin-body .input, .admin-body select.input { min-height: 44px; font-size: 16px; }
+}

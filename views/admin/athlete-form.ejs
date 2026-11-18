@@ -1,23 +1,43 @@
 <%- include('_top', { back: '/admin/vdv', cropper: true }) %>
-<div class="grid" style="--min: 360px; align-items: start;">
-  <form class="card card-pad form" method="post" action="/admin/vdv/<%= a.id || 'moi' %>" enctype="multipart/form-data" data-once>
+<link rel="stylesheet" href="/static/css/athlete-form.css?v=<%= locals.assetV || '' %>">
+<div class="af-page<%= a.id ? ' has-side' : '' %>">
+  <form class="card card-pad form af-form" method="post" action="/admin/vdv/<%= a.id || 'moi' %>" enctype="multipart/form-data" data-once>
     <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-    <h2 class="section-title">Thông tin vận động viên</h2>
+    <h2 class="section-title"><%= a.id ? 'Thông tin vận động viên' : 'Thêm vận động viên mới' %></h2>
     <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
-    <%- include('../partials/avatar-crop', { current: a.avatar }) %>
-    <div class="form-grid two">
-      <div class="field span-2"><label for="full_name">Họ và tên *</label><input class="input" id="full_name" name="full_name" required maxlength="80" value="<%= a.full_name || '' %>"></div>
-      <div class="field"><label for="nickname">Nickname</label><input class="input" id="nickname" name="nickname" maxlength="40" value="<%= a.nickname || '' %>"></div>
-      <div class="field"><span class="label">Giới tính</span><div class="segmented"><label><input type="radio" name="gender" value="M" <%= a.gender !== 'F' ? 'checked' : '' %>><span>Nam</span></label><label><input type="radio" name="gender" value="F" <%= a.gender === 'F' ? 'checked' : '' %>><span>Nữ</span></label></div></div>
-      <div class="field"><label for="phone">Số điện thoại</label><input class="input" id="phone" name="phone" type="tel" inputmode="tel" data-phone maxlength="16" value="<%= a.phone || '' %>"><span class="hint" data-phone-hint data-default="Số di động Việt Nam, không bắt buộc"></span></div>
-      <% if (!a.id) { %><div class="field"><label for="points">Điểm khởi tạo *</label><input class="input tnum" id="points" name="points" inputmode="decimal" required placeholder="3.000" value="<%= a.points ? fmt.pts(a.points) : '' %>"></div><% } %>
-      <div class="field"><label for="club">Câu lạc bộ</label><input class="input" id="club" name="club" maxlength="80" value="<%= a.club || '' %>"></div>
-      <div class="field"><label for="hometown">Quê quán</label><input class="input" id="hometown" name="hometown" maxlength="80" value="<%= a.hometown || '' %>"></div>
-      <div class="field span-2"><label for="description">Mô tả</label><textarea class="input" id="description" name="description" maxlength="1000"><%= a.description || '' %></textarea></div>
+    <div class="af-layout">
+      <!-- Cột trái: ảnh đại diện + hiển thị -->
+      <aside class="af-side">
+        <%- include('../partials/avatar-crop', { current: a.avatar }) %>
+        <div class="af-flags">
+          <span class="label">Hiển thị</span>
+          <label class="check"><input type="checkbox" name="visible" value="1" <%= a.visible !== false ? 'checked' : '' %>><span>Hiển thị công khai<br><small class="muted">Bỏ chọn để ẩn hồ sơ theo yêu cầu VĐV</small></span></label>
+          <label class="check"><input type="checkbox" name="featured" value="1" <%= a.featured ? 'checked' : '' %>><span>VĐV nổi bật<br><small class="muted">Ưu tiên hiện ở trang chủ</small></span></label>
+        </div>
+      </aside>
+      <!-- Cột phải: thông tin -->
+      <div class="af-main">
+        <div class="af-group">
+          <span class="af-group-title">Thông tin cơ bản</span>
+          <div class="af-grid">
+            <div class="field af-span2"><label for="full_name">Họ và tên *</label><input class="input" id="full_name" name="full_name" required maxlength="80" value="<%= a.full_name || '' %>" placeholder="Nguyễn Văn A"></div>
+            <div class="field"><span class="label">Giới tính</span><div class="segmented"><label><input type="radio" name="gender" value="M" <%= a.gender !== 'F' ? 'checked' : '' %>><span>Nam</span></label><label><input type="radio" name="gender" value="F" <%= a.gender === 'F' ? 'checked' : '' %>><span>Nữ</span></label></div></div>
+            <div class="field"><label for="nickname">Nickname</label><input class="input" id="nickname" name="nickname" maxlength="40" value="<%= a.nickname || '' %>" placeholder="Tên gọi ở sân"></div>
+            <div class="field"><label for="phone">Số điện thoại</label><input class="input" id="phone" name="phone" type="tel" inputmode="tel" data-phone maxlength="16" value="<%= a.phone || '' %>" placeholder="09xx xxx xxx"><span class="hint" data-phone-hint data-default="Không bắt buộc"></span></div>
+            <% if (!a.id) { %><div class="field"><label for="points">Điểm khởi tạo *</label><input class="input tnum" id="points" name="points" inputmode="decimal" required placeholder="3.000" value="<%= a.points ? fmt.pts(a.points) : '' %>"></div><% } %>
+          </div>
+        </div>
+        <div class="af-group">
+          <span class="af-group-title">Thông tin thêm</span>
+          <div class="af-grid">
+            <div class="field"><label for="club">Câu lạc bộ</label><input class="input" id="club" name="club" maxlength="80" value="<%= a.club || '' %>"></div>
+            <div class="field"><label for="hometown">Quê quán</label><input class="input" id="hometown" name="hometown" maxlength="80" value="<%= a.hometown || '' %>"></div>
+            <div class="field af-span-all"><label for="description">Mô tả</label><textarea class="input" id="description" name="description" maxlength="1000" placeholder="Thành tích, lối chơi… (hiện trên trang cá nhân)"><%= a.description || '' %></textarea></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <label class="check"><input type="checkbox" name="featured" value="1" <%= a.featured ? 'checked' : '' %>><span>Ưu tiên hiện ở "VĐV nổi bật" trang chủ</span></label>
-    <label class="check"><input type="checkbox" name="visible" value="1" <%= a.visible !== false ? 'checked' : '' %>><span>Hiển thị công khai (bỏ chọn để ẩn hồ sơ theo yêu cầu VĐV)</span></label>
-    <div class="form-actions"><button class="btn btn-brand" type="submit">Lưu</button><% if (a.id) { %><a class="btn" href="/vdv/<%= a.id %>" target="_blank" rel="noopener">Xem trang công khai</a><% } %></div>
+    <div class="form-actions af-actions"><% if (a.id) { %><a class="btn" href="/vdv/<%= a.id %>" target="_blank" rel="noopener">Xem trang công khai</a><% } %><button class="btn btn-brand" type="submit"><%= a.id ? 'Lưu thay đổi' : 'Thêm vận động viên' %></button></div>
   </form>
 
   <% if (a.id) { %>

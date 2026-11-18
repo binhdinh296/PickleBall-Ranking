@@ -1,0 +1,32 @@
+/* Form vận động viên (CMS): màn rộng 2 cột (ảnh + hiển thị | thông tin 3 cột), màn hẹp xếp dọc */
+.af-page { display: grid; gap: 16px; align-items: start; max-width: 1080px; }
+.af-page.has-side { max-width: none; }
+@media (min-width: 1360px) { .af-page.has-side { grid-template-columns: minmax(0, 1fr) 360px; } }
+/* Cột điều chỉnh điểm hẹp: số điểm vừa ô, không bị cắt */
+.af-page .kpis .kpi { min-width: 0; padding-left: 10px; padding-right: 10px; }
+.af-page .kpis .kpi b { font-size: clamp(18px, 1.5vw, 24px); }
+
+.af-form { container-type: inline-size; }
+.af-layout { display: grid; gap: 18px; }
+.af-side { display: flex; flex-direction: column; gap: 16px; }
+.af-flags { display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-sm); }
+.af-flags .check { font-size: 14px; }
+.af-flags small { font-size: 12px; font-weight: 400; }
+.af-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.af-group { display: flex; flex-direction: column; gap: 10px; }
+.af-group-title { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text-3); }
+.af-grid { display: grid; gap: 12px 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+.af-span-all { grid-column: 1 / -1; }
+.af-actions { justify-content: flex-end; }
+
+/* Đủ rộng: ảnh bên trái, thông tin bên phải chia 3 cột */
+@container (min-width: 620px) {
+  .af-layout { grid-template-columns: 190px minmax(0, 1fr); gap: 24px; }
+  .af-side { padding-right: 20px; border-right: 1px solid var(--line); }
+  .af-side .avatar-pick { flex-direction: column; align-items: center; text-align: center; }
+  .af-side .avatar-pick > .stack { align-items: center; }
+  .af-side .avatar-pick label.btn { align-self: center !important; }
+  .af-side .avatar-preview { width: 128px; height: 128px; }
+  .af-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .af-span2 { grid-column: span 2; }
+}
