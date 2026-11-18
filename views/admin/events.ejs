@@ -1,130 +1,95 @@
 <%- include('_top') %>
+<%
+  // Danh sách giải: nhìn nhanh giải nào đang diễn ra / sắp tới, đơn chờ duyệt, tiến độ thi đấu; vào điều hành bằng 1 nút.
+  const ic = (n) => include('../partials/icon', { name: n });
+  const filters = [['', 'Tất cả', stats.total], ['ongoing', 'Đang diễn ra', stats.ongoing], ['upcoming', 'Sắp tới', stats.upcoming], ['ended', 'Đã kết thúc', stats.ended]];
+  const daysTo = (d) => Math.ceil((new Date(d) - new Date(fmt.today())) / 86400000);
+%>
+<link rel="stylesheet" href="/static/css/event-hub.css?v=<%= locals.assetV || '' %>">
 
-<div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-  <div class="row" style="--gap: 6px; align-items: center;">
-    <p class="tiny faint at-count" style="margin: 0;"><%= rows.length %> giải đấu</p>
-    <span class="guide-tip" data-tip="Bấm Vào quản lý giải để thiết lập nội dung thi đấu, duyệt danh sách VĐV đăng ký, bốc thăm phân nhánh và trao giải vinh danh.">?</span>
-  </div>
-  <a class="btn btn-brand btn-sm" href="/admin/giai-dau/moi">
-    <%- include('../partials/icon', { name: 'plus' }) %>Tạo giải đấu mới
-  </a>
+<div class="eh-kpis el-kpis">
+  <div class="eh-kpi"><b><%= stats.total %></b><span>Giải đấu</span></div>
+  <div class="eh-kpi<%= stats.ongoing ? ' is-live' : '' %>"><b><%= stats.ongoing %></b><span>Đang diễn ra</span></div>
+  <div class="eh-kpi"><b><%= stats.openReg %></b><span>Đang mở đăng ký</span></div>
+  <div class="eh-kpi<%= stats.newRegs ? ' is-warn' : '' %>"><b><%= stats.newRegs %></b><span>Đơn chờ duyệt</span></div>
+  <div class="eh-kpi<%= stats.live ? ' is-live' : '' %>"><b><%= stats.live %></b><span>Trận đang live</span></div>
+</div>
+
+<div class="toolbar el-bar">
+  <nav class="tabs grow" aria-label="Lọc theo trạng thái">
+    <% filters.forEach(([k, l, n]) => { %><a class="tab" href="/admin/giai-dau<%= k ? `?loc=${k}` : '' %>" aria-current="<%= filter === k %>"><%= l %> <small><%= n %></small></a><% }) %>
+  </nav>
+  <a class="btn btn-brand btn-sm" href="/admin/giai-dau/moi"><%- ic('plus') %>Tạo giải đấu</a>
 </div>
 
 <% if (!rows.length) { %>
-  <div class="empty">Chưa có giải đấu nào. Bấm <strong>"+ Tạo giải đấu mới"</strong> ở trên để tạo giải đầu tiên.</div>
+  <div class="empty"><%= stats.total ? 'Không có giải nào ở trạng thái này.' : 'Chưa có giải đấu nào. Bấm "+ Tạo giải đấu" để tạo giải đầu tiên.' %></div>
 <% } else { %>
 <div class="table-wrap">
-  <table class="data atable">
-    <thead>
-      <tr>
-        <th>Giải đấu & Thời gian</th>
-        <th class="c-fit" style="text-align: center;">Nội dung</th>
-        <th class="c-fit" style="text-align: center;">Đơn mới</th>
-        <th class="c-fit hide-m" style="text-align: center;">Hiển thị</th>
-        <th class="c-fit" style="text-align: center;">Tiến độ</th>
-        <th class="c-act" style="text-align: right;">Thao tác</th>
-      </tr>
-    </thead>
+  <table class="data atable el-table">
+    <thead><tr>
+      <th>Giải đấu</th>
+      <th class="c-fit hide-m">Trạng thái</th>
+      <th class="c-fit">Đăng ký</th>
+      <th class="c-fit hide-m">Thi đấu</th>
+      <th class="c-act" style="text-align: right;"><span class="sr-only">Thao tác</span></th>
+    </tr></thead>
     <tbody>
-    <% rows.forEach((e) => { %>
+    <% rows.forEach((e) => { const pct = e.matches ? Math.round(e.done_matches / e.matches * 100) : 0; const dd = daysTo(e.start_date); %>
       <tr class="at-row" data-href="/admin/giai-dau/<%= e.id %>">
         <td class="c-main">
-          <a class="at-who" href="/admin/giai-dau/<%= e.id %>">
-            <span class="at-name">
-              <strong style="font-size: 15px;"><%= e.name %></strong>
-              <span class="at-meta" style="font-size: 12px;">
-                <%= fmt.dateVN(e.start_date) %> – <%= fmt.dateVN(e.end_date) %><%= e.venue ? ` · Sân: ${e.venue}` : '' %>
-              </span>
+          <a class="el-name" href="/admin/giai-dau/<%= e.id %>"><%= e.name %></a>
+          <span class="at-meta"><%= fmt.dateVN(e.start_date) %> – <%= fmt.dateVN(e.end_date) %><%= e.venue ? ` · ${e.venue}` : '' %> · <%= e.divisions %> nội dung
+            <span class="show-m"> · <%= fmt.EVENT_STATUS_LABEL[e.status] %></span></span>
+        </td>
+        <td class="c-fit hide-m">
+          <div class="el-status">
+            <span class="chip eh-status eh-status-<%= e.status %>"><%= e.status === 'upcoming' && dd > 0 ? `Còn ${dd} ngày` : fmt.EVENT_STATUS_LABEL[e.status] %></span>
+            <span class="el-flags">
+              <span class="el-flag<%= e.registration_open ? ' is-on' : '' %>" title="<%= e.registration_open ? 'Đang mở đăng ký' : 'Đã đóng đăng ký' %>">ĐK <%= e.registration_open ? 'mở' : 'đóng' %></span>
+              <span class="el-flag<%= e.published ? ' is-on' : '' %>" title="<%= e.published ? 'Đang công khai trên website' : 'Đang ẩn (bản nháp)' %>"><%= e.published ? 'Công khai' : 'Nháp' %></span>
             </span>
-          </a>
+          </div>
         </td>
-
-        <td class="c-fit tnum" style="text-align: center; vertical-align: middle;">
-          <span class="chip" style="font-size: 11px;"><b><%= e.divisions %></b> nội dung</span>
+        <td class="c-fit">
+          <div class="el-regs">
+            <b class="tnum"><%= e.approved_regs %></b><span class="tiny faint">đã duyệt</span>
+            <% if (e.new_regs) { %><a class="chip chip-warn el-new" href="/admin/giai-dau/<%= e.id %>"><%= e.new_regs %> chờ duyệt</a><% } %>
+          </div>
         </td>
-
-        <td class="c-fit tnum" style="text-align: center; vertical-align: middle;">
-          <% if (e.new_regs) { %>
-            <a class="chip chip-warn" href="/admin/giai-dau/<%= e.id %>" style="font-weight: 700; font-size: 11px;">
-              <%= e.new_regs %> đơn mới!
-            </a>
-          <% } else { %>
-            <span class="tiny faint">0</span>
-          <% } %>
+        <td class="c-fit hide-m">
+          <% if (e.matches) { %>
+          <div class="el-prog" title="<%= e.done_matches %>/<%= e.matches %> trận đã xong">
+            <span class="el-bar-track"><i style="width: <%= pct %>%;"></i></span>
+            <span class="tiny tnum"><%= e.done_matches %>/<%= e.matches %><% if (e.live_matches) { %> · <b class="text-live"><%= e.live_matches %> live</b><% } %></span>
+          </div>
+          <% } else { %><span class="tiny faint">Chưa bốc thăm</span><% } %>
         </td>
-
-        <td class="c-fit hide-m" style="text-align: center; vertical-align: middle;">
-          <span class="chip <%= e.published ? 'chip-ok' : 'chip-muted' %>">
-            <%= e.published ? 'Công khai' : 'Nháp' %>
-          </span>
-        </td>
-
-        <td class="c-fit" style="text-align: center; vertical-align: middle;">
-          <span class="chip">
-            <%= fmt.EVENT_STATUS_LABEL[e.status] %>
-          </span>
-        </td>
-
-        <td class="c-act" style="text-align: right; vertical-align: middle;">
-          <details class="action-dropdown">
-            <summary class="btn btn-sm" aria-label="Thao tác cho giải <%= e.name %>">
-              <span>Thao tác</span> <span style="font-size: 10px; opacity: 0.7;">▾</span>
-            </summary>
-            <div class="dropdown-pop">
-              <a class="dropdown-item" href="/admin/giai-dau/<%= e.id %>">
-                <%- include('../partials/icon', { name: 'trophy' }) %>
-                <span>Vào quản lý giải</span>
-              </a>
-              <a class="dropdown-item" href="/admin/giai-dau/<%= e.id %>/sua">
-                <%- include('../partials/icon', { name: 'edit' }) %>
-                <span>Sửa thông tin</span>
-              </a>
-              <a class="dropdown-item" href="/admin/livestream?giai=<%= e.id %>">
-                <%- include('../partials/icon', { name: 'live' }) %>
-                <span>Livestream giải</span>
-              </a>
-              <% if (e.published) { %>
-                <a class="dropdown-item" href="/giai-dau/<%= e.slug %>" target="_blank" rel="noopener">
-                  <%- include('../partials/icon', { name: 'external' }) %>
-                  <span>Xem trên website</span>
-                </a>
-              <% } %>
-              <div class="dropdown-divider"></div>
-              <button type="button" class="dropdown-item text-danger" data-modal-target="modal-del-event-<%= e.id %>">
-                <%- include('../partials/icon', { name: 'close' }) %>
-                <span>Xóa giải đấu</span>
-              </button>
-            </div>
-          </details>
+        <td class="c-act">
+          <div class="el-acts">
+            <a class="btn btn-sm btn-brand" href="/admin/giai-dau/<%= e.id %>">Điều hành<span class="hide-m"> →</span></a>
+            <details class="action-dropdown">
+              <summary class="btn btn-sm" aria-label="Thêm thao tác cho <%= e.name %>">⋯</summary>
+              <div class="dropdown-pop">
+                <a class="dropdown-item" href="/admin/giai-dau/<%= e.id %>/sua"><%- ic('edit') %><span>Sửa thông tin giải</span></a>
+                <a class="dropdown-item" href="/admin/giai-dau/<%= e.id %>/noi-dung/moi"><%- ic('plus') %><span>Thêm nội dung thi đấu</span></a>
+                <a class="dropdown-item" href="/admin/livestream?giai=<%= e.id %>"><%- ic('live') %><span>Livestream</span></a>
+                <% if (e.published) { %><a class="dropdown-item" href="/giai-dau/<%= e.slug %>" target="_blank" rel="noopener"><%- ic('external') %><span>Xem trên website</span></a><% } %>
+                <% if (user.role === 'admin') { %>
+                <div class="dropdown-divider"></div>
+                <form method="post" action="/admin/giai-dau/<%= e.id %>/xoa" data-confirm="Xoá giải &quot;<%= e.name %>&quot; cùng toàn bộ nội dung, đăng ký, nhánh đấu, livestream? Không thể hoàn tác.">
+                  <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+                  <button class="dropdown-item text-danger" type="submit"><%- ic('close') %><span>Xoá giải đấu</span></button>
+                </form>
+                <% } %>
+              </div>
+            </details>
+          </div>
         </td>
       </tr>
     <% }) %>
     </tbody>
   </table>
 </div>
-
-<!-- MODALS XÁC NHẬN XÓA GIẢI ĐẤU -->
-<% rows.forEach((e) => { %>
-  <div class="admin-modal" id="modal-del-event-<%= e.id %>" role="dialog" aria-modal="true">
-    <div class="admin-modal-card">
-      <div class="admin-modal-header">
-        <h3 style="margin: 0; font-size: 16px;">Xóa giải đấu: <%= e.name %></h3>
-        <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
-      </div>
-      <div class="admin-modal-body">
-        <p>Bạn có chắc chắn muốn xóa giải <strong><%= e.name %></strong> cùng toàn bộ nội dung thi đấu, đăng ký, sơ đồ thi đấu và luồng phát livestream?</p>
-        <p class="small text-danger" style="margin-top: 8px;">Thao tác này không thể hoàn tác.</p>
-      </div>
-      <div class="admin-modal-actions">
-        <button type="button" class="btn btn-sm" data-modal-close>Hủy</button>
-        <form method="post" action="/admin/giai-dau/<%= e.id %>/xoa" style="margin: 0;">
-          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-          <button type="submit" class="btn btn-sm btn-danger">Xác nhận xóa vĩnh viễn</button>
-        </form>
-      </div>
-    </div>
-  </div>
-<% }) %>
 <% } %>
-
 <%- include('_bottom') %>

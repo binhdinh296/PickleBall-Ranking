@@ -1,11 +1,11 @@
 <%- include('_top', { back: `/admin/giai-dau/${d.event_id}` }) %>
+<%- include('_division-nav', { tab: 'dang-ky' }) %>
 <div class="toolbar" style="flex-wrap: wrap; gap: 8px;">
   <nav class="tabs grow" aria-label="Lọc trạng thái">
     <% [['', 'Tất cả'], ['new', 'Mới'], ['approved', 'Đã duyệt'], ['rejected', 'Từ chối']].forEach(([k, l]) => { %><a class="tab" href="?status=<%= k %>" aria-current="<%= status === k %>"><%= l %></a><% }) %>
   </nav>
   <a class="btn btn-sm" href="#them-dang-ky"><%- include('../partials/icon', { name: 'plus' }) %>Thêm đăng ký</a>
   <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/dang-ky.csv"><%- include('../partials/icon', { name: 'download' }) %>Xuất CSV</a>
-  <a class="btn btn-brand btn-sm" href="/admin/noi-dung/<%= d.id %>/nhanh-dau"><%- include('../partials/icon', { name: 'trophy' }) %>Bốc thăm & Nhánh đấu →</a>
 </div>
 <% if (!regs.length) { %><div class="empty">Chưa có đăng ký nào trong danh sách này.</div><% } else {
   const ip = (n) => include('../partials/icon', { name: n });

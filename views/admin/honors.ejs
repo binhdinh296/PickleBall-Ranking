@@ -1,4 +1,5 @@
 <%- include('_top', { back: `/admin/giai-dau/${d.event_id}` }) %>
+<%- include('_division-nav', { tab: 'vinh-danh' }) %>
 <%
   // Bảng vinh danh dạng bảng: mỗi dòng 1 hạng (Vô địch, Giải nhì, 2 Đồng giải ba); cột VĐV 1 / VĐV 2 (nội dung đơn chỉ 1 cột).
   // Mỗi ô VĐV: tên hiển thị + ô tìm hồ sơ để gắn (danh sách gợi ý nổi lên, không đẩy bảng dài ra).
@@ -12,7 +13,6 @@
 <div class="toolbar hn-bar">
   <form method="post" action="/admin/noi-dung/<%= d.id %>/vinh-danh/goi-y"><input type="hidden" name="csrf_token" value="<%= csrfToken %>"><button class="btn btn-sm" type="submit"><%- include('../partials/icon', { name: 'trophy' }) %>Lấy tự động từ nhánh đấu</button></form>
   <% if (suggestion) { %><span class="chip chip-warn">Đã điền gợi ý từ nhánh đấu · kiểm tra rồi bấm Lưu</span><% } %>
-  <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/nhanh-dau" style="margin-left: auto;"><%- include('../partials/icon', { name: 'bracket' }) %>Nhánh đấu</a>
 </div>
 <form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/vinh-danh">
   <input type="hidden" name="csrf_token" value="<%= csrfToken %>">

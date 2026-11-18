@@ -1,13 +1,6 @@
 <%- include('_top', { back: `/admin/giai-dau/${d.event_id}` }) %>
 <% const streamsMap = Object.fromEntries(streams.map((s) => [s.id, s])); const ev = { slug: d.event.slug }; %>
-<div class="toolbar" style="margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-  <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/dang-ky"><%- include('../partials/icon', { name: 'users' }) %>Quản lý Đăng ký / VĐV</a>
-  <span class="muted small" style="align-self: center;">·</span>
-  <span class="chip chip-brand">Sơ đồ & Bốc thăm Nhánh đấu</span>
-  <span class="muted small" style="align-self: center;">·</span>
-  <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/vinh-danh"><%- include('../partials/icon', { name: 'trophy' }) %>Trao giải & Vinh danh</a>
-  <a class="btn btn-sm" href="/giai-dau/<%= d.event.slug %>/nhanh-dau?d=<%= d.id %>" target="_blank" rel="noopener" style="margin-left: auto;"><%- include('../partials/icon', { name: 'external' }) %>Xem nhánh ngoài web</a>
-</div>
+<%- include('_division-nav', { tab: 'nhanh-dau' }) %>
 
 <%- include('_bracket-setup') %>
 <script src="/static/js/bracket-setup.js?v=<%= locals.assetV || '' %>" defer></script>
@@ -74,5 +67,48 @@
 
 <% if (!matches.length) { %><div class="empty">Chưa có trận nào.</div><% } else { %>
 <%- include('../partials/bracket-board', { board, teamMap, teamNo, streams: streamsMap, d, ev, hrefFor: (m) => `/admin/tran/${m.id}` }) %>
+<% } %>
+<% if (matches.length) { %>
+<!-- Popup nhập tỉ số nhanh (dùng chung): bấm thẻ trận trên sơ đồ để mở; Ctrl/⌘ + bấm để mở trang trận đầy đủ -->
+<div class="admin-modal" id="modal-quick-score" role="dialog" aria-modal="true" aria-labelledby="qs-title">
+  <div class="admin-modal-card qs-card">
+    <div class="admin-modal-header">
+      <h3 id="qs-title" style="margin: 0; font-size: 16px;"><span data-qs-code></span> <small class="muted" data-qs-round></small></h3>
+      <button type="button" class="btn btn-sm" data-modal-close aria-label="Đóng">✕</button>
+    </div>
+    <form class="admin-modal-body qs-body" data-qs-form>
+      <p class="alert alert-warning qs-wait" data-qs-wait hidden>Trận chưa đủ 2 đội (chờ kết quả trận trước), chỉ đặt được sân và giờ.</p>
+      <% ['a', 'b'].forEach((s) => { %>
+      <div class="qs-side" data-qs-side="<%= s %>">
+        <span class="qs-name" data-qs-name="<%= s %>"></span>
+        <div class="qs-ctl">
+          <button type="button" class="btn" data-qs-step="-1" data-qs-for="<%= s %>" aria-label="Trừ 1 điểm">−</button>
+          <input class="input tnum" name="score_<%= s %>" inputmode="numeric" autocomplete="off" aria-label="Điểm">
+          <button type="button" class="btn btn-brand" data-qs-step="1" data-qs-for="<%= s %>" aria-label="Cộng 1 điểm">+</button>
+        </div>
+      </div>
+      <% }) %>
+      <div class="segmented qs-status" style="--n: 3;" role="radiogroup" aria-label="Trạng thái trận">
+        <label><input type="radio" name="status" value="scheduled"><span>Chưa đấu</span></label>
+        <label><input type="radio" name="status" value="live"><span>Đang đấu</span></label>
+        <label><input type="radio" name="status" value="done"><span>Kết thúc</span></label>
+      </div>
+      <div class="form-grid two">
+        <div class="field"><label for="qs-court">Sân</label><input class="input" id="qs-court" name="court" maxlength="30" placeholder="Sân 1" list="qs-courts"></div>
+        <div class="field"><label for="qs-time">Giờ</label><input class="input tnum" id="qs-time" name="start_time" placeholder="10:00" maxlength="5"></div>
+      </div>
+      <datalist id="qs-courts"><% [...new Set(matches.map((x) => x.court).filter(Boolean))].sort().forEach((c) => { %><option value="<%= c %>"><% }) %></datalist>
+      <p class="small text-danger qs-err" data-qs-err hidden></p>
+    </form>
+    <div class="admin-modal-actions qs-actions">
+      <a class="btn btn-sm" href="#" data-qs-full>Mở trang trận đầy đủ</a>
+      <span style="flex: 1;"></span>
+      <button type="button" class="btn btn-sm" data-modal-close>Huỷ</button>
+      <button type="button" class="btn btn-sm btn-brand" data-qs-save>Lưu</button>
+    </div>
+  </div>
+</div>
+<link rel="stylesheet" href="/static/css/quick-score.css?v=<%= locals.assetV || '' %>">
+<script src="/static/js/quick-score.js?v=<%= locals.assetV || '' %>" defer></script>
 <% } %>
 <%- include('_bottom') %>

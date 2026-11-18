@@ -22,8 +22,11 @@
   const time = m.start_time ? m.start_time.replace(':', 'h') : null;
   const tag = href ? 'a' : 'div';
   const srcAttr = [m.src_a_match_id, m.src_b_match_id].filter(Boolean).join(',');
+  const qs = (v) => fmt.esc(v ?? ''); // thoát HTML cho giá trị trong thuộc tính
+  const quick = href ? ` data-quick data-code="${qs(m.code)}" data-round="${qs(m.round_name)}" data-court="${qs(m.court)}" data-time="${qs(m.start_time)}"`
+    + ` data-status="${m.status}" data-sa="${m.score_a ?? ''}" data-sb="${m.score_b ?? ''}" data-ta="${qs(ta ? (m.players_a || ta.name) : '')}" data-tb="${qs(tb ? (m.players_b || tb.name) : '')}"` : '';
 %>
-<<%= tag %> class="bk-match<%= m.status === 'live' ? ' is-live' : bye ? ' is-done is-bye' : done ? ' is-done' : waiting ? ' is-waiting' : '' %>" id="m<%= m.id %>" data-match-id="<%= m.id %>"<% if (srcAttr) { %> data-src="<%= srcAttr %>"<% } %><% if (href) { %> href="<%= href %>"<% } %>>
+<<%= tag %> class="bk-match<%= m.status === 'live' ? ' is-live' : bye ? ' is-done is-bye' : done ? ' is-done' : waiting ? ' is-waiting' : '' %>" id="m<%= m.id %>" data-match-id="<%= m.id %>"<% if (srcAttr) { %> data-src="<%= srcAttr %>"<% } %><% if (href) { %> href="<%= href %>"<% } %><%- quick %>>
   <div class="bk-head">
     <span class="bk-code"><%= m.code || '' %></span>
     <span class="bk-badges">

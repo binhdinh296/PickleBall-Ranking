@@ -58,7 +58,7 @@ const RULES = [
   { re: /^\/$/, kind: 'home' },
   { re: /^\/giai-dau$/, kind: 'home' },
   { re: /^\/giai-dau\/moi$/, kind: 'create' },
-  { re: /^\/giai-dau\/(\d+)(?:\/sua|\/noi-dung\/moi)?$/, kind: 'event' },
+  { re: /^\/giai-dau\/(\d+)(?:\/sua|\/noi-dung\/moi|\/nhanh)?$/, kind: 'event' },
   { re: /^\/noi-dung\/(\d+)\/(?:sua|xoa|dang-ky|dang-ky\.csv|dang-ky\/hang-loat|dang-ky\/nhap-nhanh|dang-ky\/nhap-file|dang-ky\/mau\.xlsx|nhanh-dau|doi\/dong-bo|doi|tao-nhanh|tran|xoa-nhanh|vinh-danh|vinh-danh\/goi-y)$/, kind: 'division' },
   { re: /^\/dang-ky\/(\d+)\/(?:trang-thai|xoa)$/, kind: 'registration' },
   { re: /^\/doi\/(\d+)\/xoa$/, kind: 'team' },

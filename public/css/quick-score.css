@@ -1,0 +1,15 @@
+/* Popup nhập tỉ số nhanh trên sơ đồ (CMS) */
+.qs-card { width: min(460px, 100%); }
+.qs-body { display: flex; flex-direction: column; gap: 12px; }
+.qs-side { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-sm); }
+.qs-name { flex: 1; min-width: 0; font-weight: 700; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qs-ctl { display: flex; align-items: center; gap: 6px; flex: none; }
+.qs-ctl .btn { width: 44px; min-height: 44px; padding: 0; font-size: 22px; font-weight: 800; justify-content: center; }
+.qs-ctl .input { width: 64px; min-height: 44px !important; text-align: center; font-size: 22px !important; font-weight: 800; padding: 4px !important; }
+.qs-status label span { font-size: 13.5px; }
+.qs-wait { margin: 0; font-size: 13px; }
+.qs-err { margin: 0; }
+.qs-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* Thẻ trận trên sơ đồ CMS: con trỏ & viền khi rê để gợi ý bấm được */
+a.bk-match[data-quick] { cursor: pointer; }
+a.bk-match[data-quick]:hover { outline: 2px solid color-mix(in oklab, var(--ok) 60%, transparent); outline-offset: 1px; }

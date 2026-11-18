@@ -1,195 +1,139 @@
 <% const org = user.role === 'organizer'; %>
 <%- include('_top', { back: org ? null : '/admin/giai-dau' }) %>
+<%
+  // Trung tâm điều hành 1 giải: trạng thái + bật/tắt nhanh, việc cần làm, tiến độ từng nội dung (5 bước) và việc tiếp theo.
+  const ic = (n) => include('../partials/icon', { name: n });
+  const STEPS = ['Đăng ký', 'Chốt danh sách', 'Bốc thăm', 'Thi đấu', 'Vinh danh'];
+  const stepInfo = (d, i) => {
+    const u = fmt.unitLabel(d);
+    return [
+      `${d.approvedRegs} ${u}${d.newRegs ? ` · ${d.newRegs} chờ` : ''}`,
+      d.teams_locked || d.matchCount ? `${d.teamCount} ${u}` : d.teamCount ? `${d.teamCount} ${u} · chưa chốt` : 'Chưa chốt',
+      d.matchCount ? `${d.realMatches} trận` : 'Chưa bốc',
+      d.matchCount ? `${d.doneMatches}/${d.realMatches}${d.liveMatches ? ` · ${d.liveMatches} live` : ''}` : '—',
+      d.honorCount ? 'Đã trao' : d.finished ? 'Sẵn sàng' : '—',
+    ][i];
+  };
+  // Việc cần làm của cả giải, gom theo nội dung
+  const todos = [];
+  ev.divisions.forEach((d) => {
+    const base = `/admin/noi-dung/${d.id}`;
+    if (d.newRegs) todos.push({ tone: 'warn', text: `${d.newRegs} đơn đăng ký mới chờ duyệt`, d, href: `${base}/dang-ky?status=new`, btn: 'Duyệt' });
+    if (d.liveMatches) todos.push({ tone: 'live', text: `${d.liveMatches} trận đang thi đấu`, d, href: `${base}/nhanh-dau`, btn: 'Theo dõi' });
+    if (!d.matchCount && d.step === 2) todos.push({ tone: 'info', text: `${d.approvedRegs} ${fmt.unitLabel(d)} đã duyệt, chưa chốt danh sách`, d, href: `${base}/nhanh-dau`, btn: 'Chốt' });
+    if (!d.matchCount && d.step === 3) todos.push({ tone: 'info', text: 'Đã chốt danh sách, chưa bốc thăm', d, href: `${base}/nhanh-dau`, btn: 'Bốc thăm' });
+    if (d.finished && !d.honorCount) todos.push({ tone: 'ok', text: 'Đã đấu xong, chưa trao giải', d, href: `${base}/vinh-danh`, btn: 'Vinh danh' });
+  });
+  const totalReal = ev.divisions.reduce((s, d) => s + d.realMatches, 0);
+  const totalDone = ev.divisions.reduce((s, d) => s + d.doneMatches, 0);
+%>
+<link rel="stylesheet" href="/static/css/event-hub.css?v=<%= locals.assetV || '' %>">
 
-<!-- 1. BẢNG ĐIỀU HÀNH TỔNG QUAN GIẢI ĐẤU (COMMAND CENTER) -->
-<div class="card card-pad stack" style="--gap: 12px; margin-bottom: 16px;">
-  <!-- Dòng tiêu đề + Chip trạng thái + Toolbar -->
-  <div class="row" style="justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
-    <div class="stack" style="--gap: 4px;">
-      <div class="row" style="--gap: 6px; align-items: center; flex-wrap: wrap;">
-        <span class="chip <%= ev.published ? 'chip-ok' : org ? 'chip-warn' : 'chip-muted' %>" style="font-size: 11px;">
-          <%= ev.published ? 'Công khai' : org ? 'Chờ duyệt' : 'Bản nháp' %>
-        </span>
-        <span class="chip" style="font-size: 11px;"><%= fmt.EVENT_STATUS_LABEL[ev.status] %></span>
-        <span class="chip <%= ev.registration_open ? 'chip-ok' : 'chip-muted' %>" style="font-size: 11px;">
-          <%= ev.registration_open ? 'Đang mở đăng ký' : 'Đóng đăng ký' %>
-        </span>
-      </div>
-      <p class="small muted" style="margin: 0;">
-        <%- include('../partials/icon', { name: 'trophy' }) %>
-        <strong><%= fmt.dateVN(ev.start_date) %> – <%= fmt.dateVN(ev.end_date) %></strong> · Sân: <b><%= ev.venue || 'Chưa nhập địa điểm' %></b>
-      </p>
-    </div>
-
-    <!-- Toolbar hành động nhanh -->
-    <div class="row" style="--gap: 6px; flex-wrap: wrap;">
-      <a class="btn btn-sm" href="/admin/giai-dau/<%= ev.id %>/sua">
-        <%- include('../partials/icon', { name: 'edit' }) %>Sửa giải
-      </a>
+<!-- 1. ĐẦU TRANG: trạng thái + bật/tắt nhanh + thao tác -->
+<section class="card eh-head">
+  <div class="eh-head-main">
+    <p class="small muted eh-when"><%- ic('calendar') %><b><%= fmt.dateVN(ev.start_date) %> – <%= fmt.dateVN(ev.end_date) %></b><span>·</span><%- ic('pin') %><%= ev.venue || 'Chưa nhập địa điểm' %></p>
+    <div class="eh-switches">
+      <span class="chip eh-status eh-status-<%= ev.status %>"><%= fmt.EVENT_STATUS_LABEL[ev.status] %></span>
+      <form method="post" action="/admin/giai-dau/<%= ev.id %>/nhanh">
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="field" value="registration_open"><input type="hidden" name="value" value="<%= ev.registration_open ? 0 : 1 %>">
+        <button type="submit" class="eh-toggle<%= ev.registration_open ? ' is-on' : '' %>" title="Bấm để <%= ev.registration_open ? 'đóng' : 'mở' %> đăng ký"><i></i><%= ev.registration_open ? 'Đang mở đăng ký' : 'Đã đóng đăng ký' %></button>
+      </form>
       <% if (!org) { %>
-        <a class="btn btn-sm" href="/admin/livestream?giai=<%= ev.id %>">
-          <%- include('../partials/icon', { name: 'live' }) %>Livestream
-        </a>
-      <% } %>
-      <% if (ev.published) { %>
-        <a class="btn btn-sm" href="/giai-dau/<%= ev.slug %>" target="_blank" rel="noopener">
-          <%- include('../partials/icon', { name: 'external' }) %>Xem web
-        </a>
-      <% } %>
-      <% if (user.role === 'admin') { %>
-        <form class="inline-form" method="post" action="/admin/giai-dau/<%= ev.id %>/xoa" data-confirm="Xoá giải &quot;<%= ev.name %>&quot; cùng toàn bộ nội dung, đăng ký, nhánh đấu và vinh danh?">
-          <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
-          <button class="btn btn-sm btn-danger" type="submit" title="Xóa giải">
-            <%- include('../partials/icon', { name: 'close' }) %>Xoá
-          </button>
-        </form>
+      <form method="post" action="/admin/giai-dau/<%= ev.id %>/nhanh"<% if (ev.published) { %> data-confirm="Ẩn giải khỏi website? VĐV sẽ không xem được trang giải."<% } %>>
+        <input type="hidden" name="csrf_token" value="<%= csrfToken %>"><input type="hidden" name="field" value="published"><input type="hidden" name="value" value="<%= ev.published ? 0 : 1 %>">
+        <button type="submit" class="eh-toggle<%= ev.published ? ' is-on' : '' %>" title="Bấm để <%= ev.published ? 'ẩn khỏi' : 'công khai lên' %> website"><i></i><%= ev.published ? 'Công khai trên web' : 'Đang ẩn (nháp)' %></button>
+      </form>
+      <% } else { %>
+      <span class="chip <%= ev.published ? 'chip-ok' : 'chip-warn' %>"><%= ev.published ? 'Công khai' : 'Chờ quản trị viên duyệt' %></span>
       <% } %>
     </div>
   </div>
+  <div class="eh-actions">
+    <a class="btn btn-sm" href="/admin/giai-dau/<%= ev.id %>/sua"><%- ic('edit') %>Sửa giải</a>
+    <% if (!org) { %><a class="btn btn-sm" href="/admin/livestream?giai=<%= ev.id %>"><%- ic('live') %>Livestream</a><% } %>
+    <% if (ev.published) { %><a class="btn btn-sm" href="/giai-dau/<%= ev.slug %>" target="_blank" rel="noopener"><%- ic('external') %>Xem web</a><% } %>
+    <% if (user.role === 'admin') { %>
+    <form class="inline-form" method="post" action="/admin/giai-dau/<%= ev.id %>/xoa" data-confirm="Xoá giải &quot;<%= ev.name %>&quot; cùng toàn bộ nội dung, đăng ký, nhánh đấu và vinh danh? Không thể hoàn tác.">
+      <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+      <button class="btn btn-sm btn-danger" type="submit" title="Xoá giải"><%- ic('close') %><span class="hide-m">Xoá</span></button>
+    </form>
+    <% } %>
+  </div>
 
-  <!-- Link đăng ký VĐV (gọn gàng, tối ưu diện tích) -->
   <% if (locals.shortRegUrl) { %>
-  <div class="card card-pad" style="background: var(--surface-2, rgba(255,255,255,0.02)); border: 1px dashed var(--line); padding: 8px 12px;">
-    <div class="row" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-      <div class="row" style="--gap: 6px; align-items: center;">
-        <span class="small"><strong>Link đăng ký cho VĐV</strong></span>
-        <span class="guide-tip" data-tip="Gửi link này vào nhóm Zalo/Facebook hoặc quét mã QR để vận động viên tự đăng ký tham gia giải.">?</span>
-      </div>
-      <div class="copy-bar" style="max-width: 360px;">
-        <input class="input tnum small" id="short-reg-url" readonly value="<%= shortRegUrl %>" style="height: 32px; font-size: 12px;">
-        <button type="button" class="btn btn-sm" data-copy="short-reg-url">Chép link</button>
-      </div>
-    </div>
+  <div class="eh-link">
+    <span class="small"><b>Link đăng ký cho VĐV</b> <span class="guide-tip" data-tip="Gửi link này vào nhóm Zalo/Facebook để VĐV tự đăng ký.">?</span></span>
+    <div class="copy-bar"><input class="input tnum" id="short-reg-url" readonly value="<%= shortRegUrl %>"><button type="button" class="btn btn-sm" data-copy="short-reg-url">Chép link</button></div>
   </div>
   <% } %>
 
-  <!-- Hàng thẻ thống kê nhanh (KPI Summary Tiles) -->
-  <% if (locals.stats) { %>
-  <div class="kpis" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-top: 4px;">
-    <div class="kpi" style="padding: 10px;">
-      <b><%= stats.divisions %></b>
-      <span style="font-size: 11px;">Nội dung thi đấu</span>
-    </div>
-    <div class="kpi" style="padding: 10px;">
-      <b style="color: var(--ok, #10b981);"><%= stats.approvedRegs %> đôi</b>
-      <span style="font-size: 11px;"><%= stats.newRegs ? `${stats.newRegs} đơn chờ duyệt!` : 'Đã duyệt' %></span>
-    </div>
-    <div class="kpi" style="padding: 10px;">
-      <b style="color: var(--accent, #f59e0b);"><%= stats.totalMatches %></b>
-      <span style="font-size: 11px;">Trận đấu (<%= stats.doneMatches %> xong, <%= stats.liveMatches %> live)</span>
-    </div>
-    <div class="kpi" style="padding: 10px;">
-      <b><%= stats.streams %></b>
-      <span style="font-size: 11px;">Luồng phát Live</span>
-    </div>
+  <div class="eh-kpis">
+    <div class="eh-kpi"><b><%= stats.divisions %></b><span>Nội dung</span></div>
+    <div class="eh-kpi"><b class="text-ok"><%= stats.approvedRegs %></b><span>Đăng ký đã duyệt</span></div>
+    <div class="eh-kpi<%= stats.newRegs ? ' is-warn' : '' %>"><b><%= stats.newRegs %></b><span>Đơn chờ duyệt</span></div>
+    <div class="eh-kpi"><b><%= totalDone %><small>/<%= totalReal %></small></b><span>Trận đã xong</span></div>
+    <div class="eh-kpi<%= stats.liveMatches ? ' is-live' : '' %>"><b><%= stats.liveMatches %></b><span>Đang live</span></div>
   </div>
+</section>
+
+<!-- 2. VIỆC CẦN LÀM -->
+<% if (ev.divisions.length) { %>
+<section class="card eh-todo">
+  <h2 class="section-title">Việc cần làm <span class="chip"><%= todos.length %></span></h2>
+  <% if (!todos.length) { %>
+    <p class="small muted" style="margin: 0;">✓ Không có việc nào đang chờ. Theo dõi tiến độ từng nội dung bên dưới.</p>
+  <% } else { %>
+  <ul class="eh-todo-list">
+    <% todos.forEach((t) => { %>
+    <li class="eh-todo-item is-<%= t.tone %>">
+      <span class="eh-dot" aria-hidden="true"></span>
+      <span class="eh-todo-txt"><b><%= t.d.name %></b><span><%= t.text %></span></span>
+      <a class="btn btn-sm<%= t.tone === 'warn' || t.tone === 'info' ? ' btn-brand' : '' %>" href="<%= t.href %>"><%= t.btn %> →</a>
+    </li>
+    <% }) %>
+  </ul>
   <% } %>
-</div>
+</section>
+<% } %>
 
-<!-- 2. THANH QUY TRÌNH TỔ CHỨC 4 BƯỚC (STEPPER THU GỌN) -->
-<div class="card card-pad" style="background: var(--surface-2, rgba(255,255,255,0.02)); border-left: 3px solid var(--accent, #f59e0b); padding: 8px 14px; margin-bottom: 16px;">
-  <div class="row small muted" style="--gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-    <span><strong style="color: var(--text);">Quy trình tổ chức:</strong></span>
-    <span><strong>1.</strong> Thu & Duyệt VĐV (nút <em>Đăng ký</em>)</span>
-    <span>➔</span>
-    <span><strong>2.</strong> Bốc thăm nhánh đấu (nút <em>Nhánh đấu</em>)</span>
-    <span>➔</span>
-    <span><strong>3.</strong> Trọng tài nhập điểm trực tiếp</span>
-    <span>➔</span>
-    <span><strong>4.</strong> Trao cúp Vinh danh (nút <em>Vinh danh</em>)</span>
-  </div>
-</div>
-
-<!-- 3. BẢNG ĐIỀU HÀNH NỘI DUNG THI ĐẤU (MISSION CONTROL) -->
-<div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+<!-- 3. TIẾN ĐỘ TỪNG NỘI DUNG -->
+<div class="eh-sec-head">
   <h2 class="section-title" style="margin: 0;">Nội dung thi đấu (<%= ev.divisions.length %>)</h2>
-  <a class="btn btn-brand btn-sm" href="/admin/giai-dau/<%= ev.id %>/noi-dung/moi">
-    <%- include('../partials/icon', { name: 'plus' }) %>Thêm nội dung thi đấu mới
-  </a>
+  <a class="btn btn-brand btn-sm" href="/admin/giai-dau/<%= ev.id %>/noi-dung/moi"><%- ic('plus') %>Thêm nội dung</a>
 </div>
 
 <% if (!ev.divisions.length) { %>
-  <div class="empty">Chưa có nội dung thi đấu nào. Bấm <strong>"+ Thêm nội dung thi đấu mới"</strong> ở trên (ví dụ: "Đôi nam 5.5", "Đôi nam nữ hỗn hợp") để mở nhận đăng ký và tạo nhánh đấu.</div>
+  <div class="empty">Chưa có nội dung thi đấu. Bấm <b>"+ Thêm nội dung"</b> (vd. "Đôi nam 6.5", "Đơn nữ tự do") để bắt đầu nhận đăng ký.</div>
 <% } else { %>
-<div class="table-wrap">
-  <table class="data atable">
-    <thead>
-      <tr>
-        <th>Nội dung thi đấu</th>
-        <th class="c-fit" style="text-align: center;">Quản lý VĐV / Đăng ký</th>
-        <th class="c-fit" style="text-align: center;">Bốc thăm & Nhánh đấu</th>
-        <th class="c-fit" style="text-align: center;">Vinh danh</th>
-        <th class="c-act" style="text-align: right;">Cài đặt</th>
-      </tr>
-    </thead>
-    <tbody>
-    <% ev.divisions.forEach((d) => { %>
-      <tr class="at-row">
-        <!-- Cột Nội dung -->
-        <td class="c-main">
-          <div class="stack" style="--gap: 2px;">
-            <strong style="font-size: 15px;"><%= d.name %></strong>
-            <% if (d.subtitle) { %><span class="small muted"><%= d.subtitle %></span><% } %>
-            <span class="at-meta" style="font-size: 12px; color: var(--text-dim, #888);">
-              <%= [
-                fmt.formatLabel(d.format),
-                d.max_teams ? `Tối đa ${d.max_teams} ${fmt.unitLabel(d)}` : `Không giới hạn ${fmt.unitLabel(d)}`,
-                d.max_total_points ? `Tổng điểm ≤ ${fmt.pts(d.max_total_points)}` : null,
-                fmt.categoryLabel(d)
-              ].filter(Boolean).join(' · ') %>
-            </span>
-          </div>
-        </td>
+<div class="eh-divs">
+  <% ev.divisions.forEach((d) => { const base = `/admin/noi-dung/${d.id}`; %>
+  <article class="card eh-div">
+    <div class="eh-div-info">
+      <a class="eh-div-name" href="<%= base %>/<%= d.step >= 3 ? 'nhanh-dau' : 'dang-ky' %>"><%= d.name %></a>
+      <span class="tiny faint"><%= [fmt.categoryLabel(d), fmt.formatLabel(d.format), d.max_teams ? `Tối đa ${d.max_teams} ${fmt.unitLabel(d)}` : null, d.max_total_points && !fmt.isSingle(d) ? `Tổng ≤ ${fmt.pts(d.max_total_points)}` : null].filter(Boolean).join(' · ') %></span>
+    </div>
 
-        <!-- Cột Quản lý Đăng ký / VĐV -->
-        <td class="c-fit" style="text-align: center; vertical-align: middle;">
-          <div class="stack" style="--gap: 4px; align-items: center;">
-            <a class="btn btn-sm <%= d.newRegs ? 'btn-brand' : '' %>" href="/admin/noi-dung/<%= d.id %>/dang-ky" title="Quản lý danh sách VĐV đăng ký" style="white-space: nowrap; min-width: 140px; justify-content: center;">
-              <%- include('../partials/icon', { name: 'users' }) %>
-              <strong><%= d.approvedRegs %> <%= fmt.unitLabel(d) %> đã duyệt</strong><% if (d.max_teams) { %><span class="small faint">/<%= d.max_teams %></span><% } %>
-            </a>
-            <% if (d.newRegs) { %>
-              <a class="chip chip-warn" href="/admin/noi-dung/<%= d.id %>/dang-ky?status=new" style="font-size: 11px; font-weight: 700;">
-                <%= d.newRegs %> đơn mới chờ duyệt!
-              </a>
-            <% } else { %>
-              <span class="tiny faint">0 đơn chờ</span>
-            <% } %>
-          </div>
-        </td>
+    <ol class="eh-steps" aria-label="Tiến độ <%= d.name %>">
+      <% STEPS.forEach((label, i) => { const n = i + 1; const state = n < d.step || (n === 5 && d.honorCount) ? 'done' : n === d.step ? 'now' : 'todo'; %>
+      <li class="eh-step is-<%= state %>"<%- state === 'now' ? ' aria-current="step"' : '' %>>
+        <span class="eh-step-dot"><%= state === 'done' ? '✓' : n %></span>
+        <span class="eh-step-txt"><b><%= label %></b><small><%= stepInfo(d, i) %></small></span>
+      </li>
+      <% }) %>
+    </ol>
 
-        <!-- Cột Nhánh đấu & Bốc thăm -->
-        <td class="c-fit" style="text-align: center; vertical-align: middle;">
-          <div class="stack" style="--gap: 4px; align-items: center;">
-            <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/nhanh-dau" title="Quản lý nhánh đấu & bốc thăm" style="white-space: nowrap; min-width: 140px; justify-content: center;">
-              <%- include('../partials/icon', { name: 'trophy' }) %>
-              <span>Nhánh đấu (<%= d.matchCount %> trận)</span>
-            </a>
-            <% if (d.matchCount === 0) { %>
-              <span class="tiny faint" style="color: var(--warn, #f59e0b);">Chưa bốc thăm</span>
-            <% } else { %>
-              <span class="tiny faint" style="color: var(--ok, #10b981);">Đã lên sơ đồ</span>
-            <% } %>
-          </div>
-        </td>
-
-        <!-- Cột Vinh danh -->
-        <td class="c-fit" style="text-align: center; vertical-align: middle;">
-          <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/vinh-danh" title="Trao giải & vinh danh cúp" style="white-space: nowrap;">
-            Vinh danh
-          </a>
-        </td>
-
-        <!-- Cột Cài đặt -->
-        <td class="c-act" style="text-align: right; vertical-align: middle;">
-          <a class="btn btn-sm" href="/admin/noi-dung/<%= d.id %>/sua" title="Sửa cấu hình nội dung">
-            <%- include('../partials/icon', { name: 'edit' }) %>Sửa
-          </a>
-        </td>
-      </tr>
-    <% }) %>
-    </tbody>
-  </table>
+    <div class="eh-div-acts">
+      <a class="btn btn-sm<%= d.next.primary ? ' btn-brand' : '' %> eh-next" href="<%= d.next.href %>"><%= d.next.label %> →</a>
+      <nav class="eh-links" aria-label="Trang của <%= d.name %>">
+        <a href="<%= base %>/dang-ky" title="Đăng ký"><%- ic('users') %><span>Đăng ký</span><% if (d.newRegs) { %><em><%= d.newRegs %></em><% } %></a>
+        <a href="<%= base %>/nhanh-dau" title="Nhánh đấu"><%- ic('bracket') %><span>Nhánh đấu</span></a>
+        <a href="<%= base %>/vinh-danh" title="Vinh danh"><%- ic('trophy') %><span>Vinh danh</span></a>
+        <a href="<%= base %>/sua" title="Cài đặt nội dung"><%- ic('settings') %><span>Cài đặt</span></a>
+      </nav>
+    </div>
+  </article>
+  <% }) %>
 </div>
 <% } %>
 

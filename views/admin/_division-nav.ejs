@@ -1,0 +1,43 @@
+<%
+  // Thanh điều hướng chung cho các trang của 1 nội dung thi đấu.
+  // locals: divNav (do middleware /noi-dung/:id trong routes/admin/events.js đặt), tab: 'dang-ky' | 'nhanh-dau' | 'vinh-danh' | 'sua'
+  const nv = locals.divNav;
+  if (nv) {
+    const ic = (n) => include('../partials/icon', { name: n });
+    const p = nv.prog;
+    const u = fmt.unitLabel(nv.d);
+    const cur = locals.tab || 'dang-ky';
+    const tabs = [
+      ['dang-ky', 'Đăng ký', 'users', `${p.approvedRegs} ${u}`, p.newRegs],
+      ['nhanh-dau', 'Nhánh đấu', 'bracket', p.matchCount ? `${p.doneMatches}/${p.realMatches} trận` : 'Chưa bốc thăm', p.liveMatches ? `${p.liveMatches} live` : 0],
+      ['vinh-danh', 'Vinh danh', 'trophy', p.honorCount ? 'Đã trao' : '—', 0],
+      ['sua', 'Cài đặt', 'settings', '', 0],
+    ];
+    const nextIsHere = p.next && p.next.href.split(/[?#]/)[0].endsWith(`/${cur}`);
+%>
+<link rel="stylesheet" href="/static/css/division-nav.css?v=<%= locals.assetV || '' %>">
+<nav class="dn" aria-label="Điều hướng nội dung thi đấu">
+  <div class="dn-top">
+    <a class="dn-ev" href="/admin/giai-dau/<%= nv.ev.id %>" title="Về trang điều hành giải"><%- ic('back') %><span><%= nv.ev.name %></span></a>
+    <span class="dn-sep" aria-hidden="true">›</span>
+    <label class="dn-switch">
+      <span class="sr-only">Chuyển nội dung</span>
+      <select class="input" data-dn-switch aria-label="Chuyển sang nội dung khác cùng giải">
+        <% nv.siblings.forEach((s) => { %><option value="/admin/noi-dung/<%= s.id %>/<%= cur %>"<%= s.id === nv.d.id ? ' selected' : '' %>><%= s.name %><%= Number(s.new_regs) ? ` · ${s.new_regs} đơn mới` : '' %></option><% }) %>
+      </select>
+    </label>
+    <span class="dn-grow"></span>
+    <% if (p.next && !nextIsHere) { %><a class="btn btn-sm<%= p.next.primary ? ' btn-brand' : '' %>" href="<%= p.next.href %>">Tiếp theo: <%= p.next.label %> →</a><% } %>
+    <% if (nv.ev.published) { %><a class="btn btn-sm" href="/giai-dau/<%= nv.ev.slug %>/<%= cur === 'dang-ky' ? 'danh-sach' : 'nhanh-dau' %>?d=<%= nv.d.id %>" target="_blank" rel="noopener" title="Xem trên website"><%- ic('external') %><span class="hide-m">Xem trên web</span></a><% } %>
+  </div>
+  <div class="dn-tabs" role="tablist">
+    <% tabs.forEach(([key, label, icon, sub, badge]) => { %>
+    <a class="dn-tab<%= key === cur ? ' is-active' : '' %>" href="/admin/noi-dung/<%= nv.d.id %>/<%= key %>" role="tab" aria-selected="<%= key === cur %>">
+      <%- ic(icon) %><span class="dn-tab-txt"><b><%= label %></b><% if (sub) { %><small><%= sub %></small><% } %></span>
+      <% if (badge) { %><em class="dn-badge<%= key === 'nhanh-dau' ? ' is-live' : '' %>"><%= badge %></em><% } %>
+    </a>
+    <% }) %>
+  </div>
+</nav>
+<script src="/static/js/division-nav.js?v=<%= locals.assetV || '' %>" defer></script>
+<% } %>

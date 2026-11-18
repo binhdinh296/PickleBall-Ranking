@@ -31,21 +31,91 @@ async function loadDivision(id) {
   return d;
 }
 
+// Tiến độ 1 nội dung theo quy trình tổ chức: Đăng ký → Chốt danh sách → Bốc thăm → Thi đấu → Vinh danh
+async function divisionProgress(d) {
+  const sql = `SELECT
+      (SELECT COUNT(*) FROM registrations WHERE division_id = $1 AND status = 'new') AS new_regs,
+      (SELECT COUNT(*) FROM registrations WHERE division_id = $1 AND status = 'approved') AS approved,
+      (SELECT COUNT(*) FROM teams WHERE division_id = $1) AS teams,
+      (SELECT COUNT(*) FROM registrations r WHERE r.division_id = $1 AND r.status = 'approved'
+        AND NOT EXISTS (SELECT 1 FROM teams t WHERE t.registration_id = r.id)) AS pending_teams,
+      (SELECT COUNT(*) FROM matches WHERE division_id = $1) AS matches,
+      (SELECT COUNT(*) FROM matches WHERE division_id = $1 AND status = 'done' AND team_a_id IS NOT NULL AND team_b_id IS NOT NULL) AS done,
+      (SELECT COUNT(*) FROM matches WHERE division_id = $1 AND status <> 'done') AS open,
+      (SELECT COUNT(*) FROM matches WHERE division_id = $1 AND status = 'done' AND (team_a_id IS NULL OR team_b_id IS NULL)) AS byes,
+      (SELECT COUNT(*) FROM matches WHERE division_id = $1 AND status = 'live') AS live,
+      (SELECT COUNT(*) FROM honors WHERE division_id = $1) AS honors`;
+  const c = await get(sql.replace(/\$1/g, '?'), ...Array(sql.split('$1').length - 1).fill(d.id));
+  const n = (k) => parseInt(c[k], 10) || 0;
+  const p = { newRegs: n('new_regs'), approvedRegs: n('approved'), teamCount: n('teams'), pendingTeams: n('pending_teams'),
+    matchCount: n('matches'), doneMatches: n('done'), liveMatches: n('live'), honorCount: n('honors') };
+  p.realMatches = p.matchCount - n('byes'); // không tính trận miễn đấu
+  p.finished = p.matchCount > 0 && n('open') === 0;
+  // Bước hiện tại + việc cần làm tiếp theo (nút chính trên trang giải)
+  const base = `/admin/noi-dung/${d.id}`;
+  let step; let next;
+  if (p.matchCount && !p.finished) { // đang thi đấu
+    step = 4; next = { label: p.liveMatches ? `${p.liveMatches} trận đang live` : 'Theo dõi & nhập kết quả', href: `${base}/nhanh-dau` };
+  } else if (p.finished || p.honorCount) { // đấu xong (hoặc đã nhập vinh danh)
+    step = 5;
+    next = p.honorCount ? { label: 'Xem vinh danh', href: `${base}/vinh-danh` } : { label: 'Trao giải & vinh danh', href: `${base}/vinh-danh`, primary: true };
+  } else if (d.teams_locked) {
+    step = 3; next = { label: 'Bốc thăm & tạo nhánh', href: `${base}/nhanh-dau`, primary: true };
+  } else if (p.newRegs) {
+    step = 1; next = { label: `Duyệt ${p.newRegs} đơn mới`, href: `${base}/dang-ky?status=new`, primary: true };
+  } else if (p.approvedRegs >= 2 || p.teamCount >= 2) {
+    step = 2; next = { label: 'Chốt danh sách', href: `${base}/nhanh-dau`, primary: true };
+  } else {
+    step = 1; next = { label: 'Thêm đăng ký', href: `${base}/dang-ky#them-dang-ky` };
+  }
+  return { ...p, step, next };
+}
+
+// Thanh điều hướng chung cho các trang của 1 nội dung (Đăng ký / Nhánh đấu / Vinh danh / Cài đặt)
+// + chuyển nhanh sang nội dung khác cùng giải
+router.use('/noi-dung/:id', wrap(async (req, res, next) => {
+  const d = await get('SELECT id, event_id, name, team_type FROM divisions WHERE id = ?', parseInt(req.params.id, 10) || 0);
+  if (!d) return next();
+  const ev = await get('SELECT id, name, slug, published FROM events WHERE id = ?', d.event_id);
+  const siblings = await all(`SELECT d.id, d.name, d.team_type,
+      (SELECT COUNT(*) FROM registrations r WHERE r.division_id = d.id AND r.status = 'new') AS new_regs
+    FROM divisions d WHERE d.event_id = ? ORDER BY d.sort_order, d.id`, d.event_id);
+  const prog = await divisionProgress({ ...d, teams_locked: (await get('SELECT teams_locked FROM divisions WHERE id = ?', d.id)).teams_locked });
+  res.locals.divNav = { d, ev, siblings, prog };
+  next();
+}));
+
 // ---- Giải đấu ----
 router.get('/giai-dau', editor, wrap(async (req, res) => {
   const rows = await all(`SELECT e.*, (SELECT COUNT(*) FROM divisions d WHERE d.event_id = e.id) AS divisions,
-    (SELECT COUNT(*) FROM registrations r JOIN divisions d ON d.id = r.division_id WHERE d.event_id = e.id AND r.status = 'new') AS new_regs
+    (SELECT COUNT(*) FROM registrations r JOIN divisions d ON d.id = r.division_id WHERE d.event_id = e.id AND r.status = 'new') AS new_regs,
+    (SELECT COUNT(*) FROM registrations r JOIN divisions d ON d.id = r.division_id WHERE d.event_id = e.id AND r.status = 'approved') AS approved_regs,
+    (SELECT COUNT(*) FROM matches m JOIN divisions d ON d.id = m.division_id WHERE d.event_id = e.id
+      AND NOT (m.status = 'done' AND (m.team_a_id IS NULL OR m.team_b_id IS NULL))) AS matches,
+    (SELECT COUNT(*) FROM matches m JOIN divisions d ON d.id = m.division_id WHERE d.event_id = e.id
+      AND m.status = 'done' AND m.team_a_id IS NOT NULL AND m.team_b_id IS NOT NULL) AS done_matches,
+    (SELECT COUNT(*) FROM matches m JOIN divisions d ON d.id = m.division_id WHERE d.event_id = e.id AND m.status = 'live') AS live_matches
     FROM events e ORDER BY e.start_date DESC`);
-  rows.forEach((e) => { e.status = fmt.eventStatus(e); });
+  rows.forEach((e) => {
+    e.status = fmt.eventStatus(e);
+    ['divisions', 'new_regs', 'approved_regs', 'matches', 'done_matches', 'live_matches'].forEach((k) => { e[k] = parseInt(e[k], 10) || 0; });
+  });
+  // Thứ tự quản trị viên cần: đang diễn ra → sắp tới (gần nhất trước) → đã kết thúc (mới nhất trước)
+  const rank = { ongoing: 0, upcoming: 1, ended: 2 };
+  rows.sort((a, b) => rank[a.status] - rank[b.status]
+    || (a.status === 'upcoming' ? new Date(a.start_date) - new Date(b.start_date) : new Date(b.start_date) - new Date(a.start_date)));
 
   const stats = {
     total: rows.length,
-    openReg: rows.filter((e) => e.registration_open).length,
-    newRegs: rows.reduce((s, e) => s + (parseInt(e.new_regs, 10) || 0), 0),
+    ongoing: rows.filter((e) => e.status === 'ongoing').length,
     upcoming: rows.filter((e) => e.status === 'upcoming').length,
+    ended: rows.filter((e) => e.status === 'ended').length,
+    openReg: rows.filter((e) => e.registration_open).length,
+    newRegs: rows.reduce((s, e) => s + e.new_regs, 0),
+    live: rows.reduce((s, e) => s + e.live_matches, 0),
   };
-
-  res.render('admin/events', { title: 'Giải đấu', rows, stats });
+  const filter = ['ongoing', 'upcoming', 'ended'].includes(req.query.loc) ? req.query.loc : '';
+  res.render('admin/events', { title: 'Giải đấu', rows: filter ? rows.filter((e) => e.status === filter) : rows, stats, filter });
 }));
 
 function eventForm(res, ev, error) {
@@ -155,11 +225,7 @@ router.post('/giai-dau/moi', editor, upload.any(), verifyCsrf, wrap(async (req, 
 router.get('/giai-dau/:id', editor, wrap(async (req, res, next) => {
   const ev = await loadEvent(req.params.id);
   if (!ev) return next();
-  for (const d of ev.divisions) {
-    const c = await get(`SELECT COUNT(*) FILTER (WHERE status = 'new') AS new, COUNT(*) FILTER (WHERE status = 'approved') AS approved,
-      (SELECT COUNT(*) FROM matches m WHERE m.division_id = ?) AS matches FROM registrations WHERE division_id = ?`, d.id, d.id);
-    Object.assign(d, { newRegs: c.new, approvedRegs: c.approved, matchCount: c.matches });
-  }
+  for (const d of ev.divisions) Object.assign(d, await divisionProgress(d));
 
   const stats = {
     divisions: ev.divisions.length,
@@ -175,6 +241,19 @@ router.get('/giai-dau/:id', editor, wrap(async (req, res, next) => {
   const org = await get('SELECT code FROM organizers WHERE event_id = ? AND code IS NOT NULL', ev.id);
   const shortRegUrl = org ? `${req.protocol}://${req.get('host')}/${org.code}/dangky` : null;
   res.render('admin/event', { title: ev.name, ev, stats, shortRegUrl });
+}));
+
+// Bật/tắt nhanh trên trang giải: mở/đóng đăng ký, công khai/ẩn (Ban tổ chức không tự công khai được)
+router.post('/giai-dau/:id/nhanh', editor, wrap(async (req, res, next) => {
+  const ev = await get('SELECT id, name FROM events WHERE id = ?', parseInt(req.params.id, 10) || 0);
+  if (!ev) return next();
+  const field = { registration_open: 'registration_open', published: 'published' }[req.body.field];
+  if (!field || (field === 'published' && isOrganizer(req))) { req.flash('error', 'Không có quyền thực hiện.'); return res.redirect(`/admin/giai-dau/${ev.id}`); }
+  const on = req.body.value === '1';
+  await run(`UPDATE events SET ${field} = ? WHERE id = ?`, on, ev.id);
+  await audit(req, `event_${field}`, `event:${ev.id}`, on ? 'on' : 'off');
+  req.flash('success', field === 'registration_open' ? (on ? 'Đã mở đăng ký.' : 'Đã đóng đăng ký.') : (on ? 'Giải đã công khai trên website.' : 'Đã ẩn giải khỏi website.'));
+  res.redirect(`/admin/giai-dau/${ev.id}`);
 }));
 
 router.get('/giai-dau/:id/sua', editor, wrap(async (req, res, next) => {
@@ -565,15 +644,22 @@ router.all('/trong-tai', referee, wrap(async (req, res) => {
   const me = req.session.user;
   // Trọng tài: chỉ thấy trận giao cho mình + trận chưa giao; BTV/Admin thấy tất cả kèm tên trọng tài
   const onlyMine = me.role === 'referee';
-  const matches = await all(`SELECT m.*, d.name AS division, e.name AS event_name, ta.name AS team_a, tb.name AS team_b, u.display_name AS referee_name
+  const all_ = await all(`SELECT m.*, d.name AS division, e.name AS event_name, e.id AS event_id, ta.name AS team_a, tb.name AS team_b, u.display_name AS referee_name
     FROM matches m JOIN divisions d ON d.id = m.division_id JOIN events e ON e.id = d.event_id
     LEFT JOIN teams ta ON ta.id = m.team_a_id LEFT JOIN teams tb ON tb.id = m.team_b_id
     LEFT JOIN users u ON u.id = m.referee_id AND u.active AND u.role = 'referee'
     WHERE e.end_date >= CURRENT_DATE - 1 AND m.status <> 'done' AND m.team_a_id IS NOT NULL AND m.team_b_id IS NOT NULL
       ${onlyMine ? 'AND (u.id IS NULL OR u.id = ?)' : ''}
-    ORDER BY CASE WHEN m.referee_id = ? THEN 0 ELSE 1 END, CASE m.status WHEN 'live' THEN 0 ELSE 1 END, e.start_date, d.sort_order, m.round_order, m.position LIMIT 100`,
+    ORDER BY CASE m.status WHEN 'live' THEN 0 ELSE 1 END, CASE WHEN m.referee_id = ? THEN 0 ELSE 1 END,
+      m.start_time NULLS LAST, e.start_date, d.sort_order, m.round_order, m.position LIMIT 300`,
     ...(onlyMine ? [me.id, me.id] : [me.id]));
-  res.render('admin/referee', { title: 'Trọng tài', matches });
+  // Lọc theo sân (ngày thi đấu mỗi trọng tài thường đứng 1 sân) và theo giải nếu nhiều giải cùng lúc
+  const courts = [...new Set(all_.map((m) => m.court || ''))].sort((a, b) => (a === '' ? 1 : b === '' ? -1 : a.localeCompare(b, 'vi', { numeric: true })));
+  const events = [...new Map(all_.map((m) => [m.event_id, m.event_name])).entries()];
+  const san = typeof req.query.san === 'string' ? req.query.san.slice(0, 30) : null; // '' = chưa xếp sân
+  const giai = parseInt(req.query.giai, 10) || null;
+  const matches = all_.filter((m) => (san === null || (m.court || '') === san) && (!giai || m.event_id === giai));
+  res.render('admin/referee', { title: 'Trọng tài · Nhập tỉ số', matches, courts, events, san, giai, total: all_.length });
 }));
 
 async function loadMatch(id) {

@@ -1,26 +1,55 @@
 <%- include('_top') %>
-<p class="muted small"><%= user.role === 'referee' ? 'Các trận được giao cho bạn hiện trên cùng, kế đến là trận chưa giao cho ai.' : 'Tất cả trận đang chờ nhập tỉ số, kèm trọng tài được giao.' %> Trận "Đang đấu" được ưu tiên.</p>
-<% if (!matches.length) { %><div class="empty">Không có trận nào chờ nhập tỉ số.</div><% } else { %>
-<div class="table-wrap">
-  <table class="data atable">
-    <thead><tr><th>Trận</th><th class="c-fit hide-m">Trọng tài</th><th class="c-fit" style="text-align: right;">Trạng thái</th></tr></thead>
-    <tbody>
-    <% matches.forEach((m) => {
-      const mine = m.referee_name && m.referee_id === user.id;
-      const refLabel = mine ? 'Giao cho bạn' : m.referee_name ? `TT: ${m.referee_name}` : 'Chưa giao';
-    %>
-      <tr class="at-row" data-href="/admin/tran/<%= m.id %>">
-        <td class="c-main"><a class="at-who" href="/admin/tran/<%= m.id %>"><span class="at-name">
-          <strong><%= m.team_a %> <span class="faint">vs</span> <%= m.team_b %></strong>
-          <span class="at-meta"><%= [m.code, m.court, m.round_name].filter(Boolean).join(' · ') %></span>
-          <span class="at-meta"><%= m.division %> · <%= m.event_name %><span class="show-m"> · <%= refLabel %></span></span>
-        </span></a></td>
-        <td class="c-fit hide-m"><span class="chip <%= mine ? 'chip-brand' : m.referee_name ? '' : 'chip-muted' %>"><%= refLabel %></span></td>
-        <td class="c-fit" style="text-align: right;"><span class="chips"><span class="chip <%= m.status === 'live' ? 'chip-live' : '' %>"><%= fmt.MATCH_STATUS_LABEL[m.status] %></span><% if (m.status === 'live') { %><strong class="tnum"><%= m.score_a ?? 0 %>–<%= m.score_b ?? 0 %></strong><% } %></span></td>
-      </tr>
-    <% }) %>
-    </tbody>
-  </table>
+<%
+  // Ngày thi đấu: trọng tài / BTC chọn sân mình đứng → thấy trận đang đấu + các trận sắp tới theo giờ.
+  // Bấm trận để vào màn nhập tỉ số (tối ưu điện thoại); "Bắt đầu" bấm ngay trên danh sách.
+  const qs = (o) => { const p = new URLSearchParams(); const v = { san, giai, ...o }; Object.keys(v).forEach((k) => { if (v[k] !== null && v[k] !== undefined) p.set(k, v[k]); }); const t = p.toString(); return t ? `?${t}` : ''; };
+  const live = matches.filter((m) => m.status === 'live');
+  const next = matches.filter((m) => m.status !== 'live');
+  const refLabel = (m) => (m.referee_name && m.referee_id === user.id ? 'Giao cho bạn' : m.referee_name ? `TT: ${m.referee_name}` : 'Chưa giao trọng tài');
+  const row = (m, i) => `
+    <li class="rf-item${m.status === 'live' ? ' is-live' : ''}">
+      <a class="rf-main" href="/admin/tran/${m.id}">
+        <span class="rf-when">${m.start_time ? fmt.esc(m.start_time.replace(':', 'h')) : '—'}<small>${fmt.esc(m.court || 'Chưa xếp sân')}</small></span>
+        <span class="rf-teams">
+          <b>${fmt.esc(m.team_a)}</b><b>${fmt.esc(m.team_b)}</b>
+          <small>${fmt.esc([m.code, m.round_name, m.division].filter(Boolean).join(' · '))}${events.length > 1 ? ` · ${fmt.esc(m.event_name)}` : ''} · ${fmt.esc(refLabel(m))}</small>
+        </span>
+        ${m.status === 'live' ? `<span class="rf-score tnum">${m.score_a ?? 0}<i>–</i>${m.score_b ?? 0}</span>` : ''}
+      </a>
+      ${m.status === 'live'
+        ? `<a class="btn btn-sm btn-brand rf-act" href="/admin/tran/${m.id}">Nhập điểm</a>`
+        : `<button type="button" class="btn btn-sm rf-act" data-rf-start="${m.id}">Bắt đầu</button>`}
+    </li>`;
+%>
+<link rel="stylesheet" href="/static/css/referee.css?v=<%= locals.assetV || '' %>">
+<div class="rf-bar">
+  <nav class="tabs rf-courts" aria-label="Lọc theo sân">
+    <a class="tab" href="/admin/trong-tai<%= qs({ san: null }) %>" aria-current="<%= san === null %>">Tất cả sân <small><%= total %></small></a>
+    <% courts.forEach((c) => { %><a class="tab" href="/admin/trong-tai<%= qs({ san: c }) %>" aria-current="<%= san === c %>"><%= c || 'Chưa xếp sân' %></a><% }) %>
+  </nav>
+  <% if (events.length > 1) { %>
+  <form method="get" action="/admin/trong-tai" class="rf-ev">
+    <% if (san !== null) { %><input type="hidden" name="san" value="<%= san %>"><% } %>
+    <select class="input" name="giai" data-auto-submit aria-label="Lọc theo giải">
+      <option value="">Tất cả giải</option>
+      <% events.forEach(([id, name]) => { %><option value="<%= id %>"<%= giai === id ? ' selected' : '' %>><%= name %></option><% }) %>
+    </select>
+  </form>
+  <% } %>
 </div>
+<p class="tiny faint" style="margin: 0 0 10px;"><%= user.role === 'referee' ? 'Trận giao cho bạn và trận chưa giao ai.' : 'Mọi trận đủ 2 đội đang chờ kết quả.' %> Bấm vào trận để nhập tỉ số.</p>
+
+<% if (!matches.length) { %>
+  <div class="empty">Không có trận nào chờ nhập tỉ số<%= san !== null ? ' ở sân này' : '' %>.</div>
+<% } else { %>
+  <% if (live.length) { %>
+  <h2 class="section-title rf-h"><span class="rf-dot"></span>Đang đấu <small><%= live.length %></small></h2>
+  <ul class="rf-list"><%- live.map(row).join('') %></ul>
+  <% } %>
+  <% if (next.length) { %>
+  <h2 class="section-title rf-h">Sắp tới <small><%= next.length %></small></h2>
+  <ul class="rf-list"><%- next.map(row).join('') %></ul>
+  <% } %>
 <% } %>
+<script src="/static/js/referee.js?v=<%= locals.assetV || '' %>" defer></script>
 <%- include('_bottom') %>

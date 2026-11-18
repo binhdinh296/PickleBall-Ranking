@@ -1,0 +1,125 @@
+/* Trung tâm điều hành giải (CMS › Giải đấu › 1 giải) */
+.eh-head { padding: 16px 18px; display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr) auto; align-items: start; margin-bottom: 14px; }
+.eh-head-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.eh-when { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 0; }
+.eh-when svg { width: 15px; height: 15px; }
+.eh-switches { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.eh-switches form { margin: 0; }
+.eh-status { font-size: 12px; }
+.eh-status-ongoing { color: var(--live); border-color: color-mix(in oklab, var(--live) 45%, transparent); }
+.eh-status-upcoming { color: var(--ok); border-color: color-mix(in oklab, var(--ok) 45%, transparent); }
+/* Nút bật/tắt dạng công tắc: bấm 1 lần là đổi */
+.eh-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 4px 12px 4px 6px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line-strong); background: var(--input-bg); color: var(--text-2); font: inherit; font-size: 13px; font-weight: 600; }
+.eh-toggle i { width: 30px; height: 18px; border-radius: 999px; background: color-mix(in oklab, var(--text) 18%, transparent); position: relative; flex: none; transition: background .15s; }
+.eh-toggle i::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.eh-toggle.is-on { color: var(--text); border-color: color-mix(in oklab, var(--ok) 50%, transparent); }
+.eh-toggle.is-on i { background: var(--ok); }
+.eh-toggle.is-on i::after { transform: translateX(12px); }
+.eh-toggle:hover { border-color: var(--text-3); }
+.eh-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.eh-actions .btn svg { width: 15px; height: 15px; }
+.eh-link { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 8px 12px; border: 1px dashed var(--line); border-radius: var(--r-sm); }
+.eh-link .copy-bar { max-width: 380px; }
+.eh-kpis { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.eh-kpi { padding: 10px 12px; border-radius: var(--r-sm); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.eh-kpi b { font-size: 22px; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.eh-kpi b small { font-size: 14px; color: var(--text-3); font-weight: 600; }
+.eh-kpi span { font-size: 12px; color: var(--text-3); }
+.eh-kpi.is-warn { border-color: color-mix(in oklab, var(--warn) 50%, transparent); }
+.eh-kpi.is-warn b { color: var(--warn); }
+.eh-kpi.is-live b { color: var(--live); }
+
+/* Việc cần làm */
+.eh-todo { padding: 14px 18px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 10px; }
+.eh-todo .section-title { margin: 0; display: flex; align-items: center; gap: 8px; }
+.eh-todo .section-title .chip { font-size: 11px; padding: 2px 9px; }
+.eh-todo-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 8px; }
+.eh-todo-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 12px; border-radius: var(--r-sm); border: 1px solid var(--line); }
+.eh-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--text-3); }
+.eh-todo-item.is-warn .eh-dot { background: var(--warn); }
+.eh-todo-item.is-live .eh-dot { background: var(--live); box-shadow: 0 0 0 4px color-mix(in oklab, var(--live) 25%, transparent); }
+.eh-todo-item.is-info .eh-dot { background: var(--court, #3b82f6); }
+.eh-todo-item.is-ok .eh-dot { background: var(--ok); }
+.eh-todo-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 13px; line-height: 1.35; }
+.eh-todo-txt b { font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eh-todo-txt span { color: var(--text-2); }
+.eh-todo-item .btn { flex: none; min-height: 32px; padding: 4px 12px; }
+
+/* Danh sách nội dung với thanh tiến độ 5 bước */
+.eh-sec-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.eh-sec-head .btn svg { width: 16px; height: 16px; }
+.eh-divs { display: flex; flex-direction: column; gap: 10px; }
+.eh-div { display: grid; grid-template-columns: minmax(180px, 1.1fr) minmax(0, 2.6fr) auto; gap: 16px; align-items: center; padding: 14px 16px; }
+.eh-div-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.eh-div-name { font-size: 15.5px; font-weight: 800; color: var(--text); text-decoration: none; }
+.eh-div-name:hover { text-decoration: underline; }
+.eh-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: relative; }
+.eh-step { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; position: relative; min-width: 0; }
+.eh-step + .eh-step::before { content: ''; position: absolute; top: 12px; right: calc(50% + 14px); width: calc(100% - 28px); height: 2px; background: var(--line-strong); }
+.eh-step.is-done + .eh-step::before, .eh-step.is-done + .eh-step.is-now::before { background: var(--ok); }
+.eh-step-dot { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; position: relative; z-index: 1;
+  border: 2px solid var(--line-strong); background: var(--card-solid, var(--card)); color: var(--text-3); }
+.eh-step.is-done .eh-step-dot { border-color: var(--ok); background: var(--ok); color: #fff; }
+.eh-step.is-now .eh-step-dot { border-color: var(--ok); color: var(--ok); box-shadow: 0 0 0 4px color-mix(in oklab, var(--ok) 22%, transparent); }
+.eh-step-txt { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; max-width: 100%; }
+.eh-step-txt b { font-size: 12px; font-weight: 700; color: var(--text-2); white-space: nowrap; }
+.eh-step.is-now .eh-step-txt b { color: var(--text); }
+.eh-step-txt small { font-size: 11.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.eh-step.is-todo .eh-step-txt { opacity: .7; }
+.eh-div-acts { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.eh-next { white-space: nowrap; }
+.eh-links { display: flex; gap: 2px; }
+.eh-links a { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 30px; border-radius: 8px; color: var(--text-2); }
+.eh-links a:hover { background: color-mix(in oklab, var(--text) 8%, transparent); color: var(--text); }
+.eh-links a svg { width: 17px; height: 17px; }
+.eh-links a span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.eh-links a em { position: absolute; top: -2px; right: -2px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--warn); color: #1b1300; font-size: 10px; font-style: normal; font-weight: 800; display: grid; place-items: center; }
+
+@media (max-width: 1100px) {
+  .eh-div { grid-template-columns: minmax(0, 1fr) auto; }
+  .eh-steps { grid-column: 1 / -1; grid-row: 2; }
+  .eh-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .eh-head { grid-template-columns: 1fr; padding: 14px; }
+  .eh-actions { justify-content: flex-start; }
+  .eh-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .eh-kpi { padding: 7px 9px; }
+  .eh-kpi b { font-size: 18px; }
+  .eh-kpi span { font-size: 11px; line-height: 1.25; }
+  .eh-div { grid-template-columns: 1fr; gap: 12px; padding: 12px; }
+  .eh-steps { grid-row: auto; }
+  .eh-step-txt small { display: none; }
+  .eh-step-txt b { font-size: 10.5px; white-space: normal; }
+  .eh-div-acts { flex-direction: row; justify-content: space-between; align-items: center; }
+  .eh-todo { padding: 12px; }
+}
+
+/* Danh sách giải (CMS › Giải đấu) */
+.el-kpis { margin-bottom: 14px; }
+.el-bar { flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.el-bar .tab small { opacity: .7; font-weight: 600; margin-left: 2px; }
+.el-bar .btn svg { width: 16px; height: 16px; }
+.el-name { display: block; font-size: 15px; font-weight: 800; color: var(--text); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.el-name:hover { text-decoration: underline; }
+.el-status { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+.el-status .chip { font-size: 11.5px; padding: 2px 9px; }
+.el-flags { display: flex; gap: 4px; }
+.el-flag { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 6px; border: 1px solid var(--line); color: var(--text-3); white-space: nowrap; }
+.el-flag.is-on { color: var(--ok); border-color: color-mix(in oklab, var(--ok) 45%, transparent); }
+.el-regs { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.el-regs b { font-size: 16px; line-height: 1.1; }
+.el-new { font-size: 11px; padding: 1px 8px; font-weight: 700; }
+.el-prog { display: flex; flex-direction: column; gap: 4px; min-width: 120px; }
+.el-bar-track { display: block; height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--text) 12%, transparent); overflow: hidden; }
+.el-bar-track i { display: block; height: 100%; border-radius: inherit; background: var(--ok); }
+.text-live { color: var(--live); }
+.el-acts { display: flex; gap: 6px; justify-content: flex-end; align-items: center; }
+.el-acts summary.btn { min-width: 36px; justify-content: center; }
+.el-acts .dropdown-pop form { margin: 0; }
+.el-acts .dropdown-pop form .dropdown-item { width: 100%; }
+@media (max-width: 760px) {
+  .el-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .el-kpis .eh-kpi:nth-child(n + 4) { display: none; }
+}

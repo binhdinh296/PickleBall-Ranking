@@ -682,7 +682,7 @@ div.at-who { cursor: default; }
     padding: 0 !important;
     align-items: flex-end !important;
   }
-  .admin-modal-content {
+  .admin-modal-content, .admin-modal-card {
     max-width: 100% !important;
     width: 100% !important;
     max-height: 90vh !important;

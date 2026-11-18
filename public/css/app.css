@@ -2178,7 +2178,8 @@ input[type="file"].input::file-selector-button { font: inherit; font-weight: 600
   -webkit-backdrop-filter: blur(4px);
   transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s;
 }
-.admin-modal-content {
+/* .admin-modal-card / .admin-modal-actions: tên class các trang CMS đang dùng (trước chỉ có kiểu cho -content / -footer → khung popup trong suốt) */
+.admin-modal-content, .admin-modal-card {
   background: var(--card-solid, #18181b);
   border: 1px solid var(--line-strong, #3f3f46);
   border-radius: var(--r-lg, 12px);
@@ -2226,7 +2227,7 @@ input[type="file"].input::file-selector-button { font: inherit; font-weight: 600
   padding: 18px;
   overflow-y: auto;
 }
-.admin-modal-footer {
+.admin-modal-footer, .admin-modal-actions {
   padding: 12px 18px;
   border-top: 1px solid var(--line, rgba(255, 255, 255, 0.1));
   display: flex;
