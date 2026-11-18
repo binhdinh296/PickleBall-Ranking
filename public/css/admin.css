@@ -734,3 +734,51 @@ div.at-who { cursor: default; }
 @media (max-width: 760px) {
   .admin-body .input, .admin-body select.input { min-height: 44px; font-size: 16px; }
 }
+
+/* ==========================================================================
+   THANG KÍCH THƯỚC CHUẨN CỦA CMS
+   Một thang dùng chung cho chữ, nút, chip, tab, bảng, thẻ để mọi trang đồng bộ:
+     chữ  : 12 (nhỏ) · 13 (phụ) · 14 (thường) · 16 (tiêu đề mục) · 20 (tiêu đề trang)
+     cao  : 28 (xs) · 32 (sm) · 40 (thường — bằng ô nhập) ; mọi nút bo góc var(--r-sm)
+   Dùng :where(.admin-body) để độ ưu tiên thấp: thành phần có kích thước riêng (nút ± nhập điểm,
+   popup tỉ số, bảng nhập nhanh…) vẫn giữ thiết kế của nó, chỉ thay các kiểu mặc định chưa đồng bộ.
+   ========================================================================== */
+:where(.admin-body) .btn { min-height: 40px; padding: 0 16px; font-size: 14px; line-height: 1.2; gap: 7px; }
+:where(.admin-body) .btn svg { width: 16px; height: 16px; }
+:where(.admin-body) .btn-sm { min-height: 32px; padding: 0 12px; font-size: 13px; gap: 6px; }
+:where(.admin-body) .btn-sm svg { width: 15px; height: 15px; }
+:where(.admin-body) .btn-xs { min-height: 28px; padding: 0 10px; font-size: 12px; gap: 5px; }
+:where(.admin-body) .btn-xs svg { width: 14px; height: 14px; }
+:where(.admin-body) .btn-lg { min-height: 44px; padding: 0 22px; font-size: 15px; }
+/* Nút "Thao tác" trên dòng bảng: cùng cỡ & bo góc với nút nhỏ (trước là viên thuốc tròn, lệch với các nút cạnh) */
+.admin-shell .action-dropdown summary.btn, .admin-shell .action-btn { min-height: 32px !important; padding: 0 12px !important; border-radius: var(--r-sm, 12px) !important; font-size: 13px !important; }
+
+:where(.admin-body) .chip { padding: 3px 10px; font-size: 12px; line-height: 1.35; gap: 5px; }
+:where(.admin-body) .tab { min-height: 34px; padding: 0 14px; font-size: 13.5px; gap: 6px; }
+:where(.admin-body) .admin-tab { min-height: 40px; padding: 0 14px; font-size: 13.5px; }
+:where(.admin-body) .admin-tab svg { width: 16px; height: 16px; }
+
+:where(.admin-body) .section-title { font-size: 16px; font-weight: 800; line-height: 1.3; }
+:where(.admin-body) .admin-content h3 { font-size: 15px; }
+:where(.admin-body) .small { font-size: 13px; }
+:where(.admin-body) .tiny { font-size: 12px; }
+:where(.admin-body) .hint { font-size: 12px; }
+
+:where(.admin-body) .card-pad { padding: 20px; }
+:where(.admin-body) .card, :where(.admin-body) .sub-card { border-radius: 16px; }
+:where(.admin-body) .kpi b { font-size: 22px; }
+:where(.admin-body) .kpi span { font-size: 12px; }
+
+/* Bảng dữ liệu: chữ 13.5px, tiêu đề cột 11.5px */
+:where(.admin-body) table.data th { font-size: 11.5px; }
+:where(.admin-body) table.data td { font-size: 13.5px; }
+:where(.admin-body) .dropdown-item { font-size: 13px; min-height: 34px; }
+
+@media (max-width: 760px) {
+  /* Điện thoại: nút cao hơn một chút cho dễ chạm */
+  :where(.admin-body) .btn { min-height: 42px; }
+  :where(.admin-body) .btn-sm { min-height: 34px; }
+  :where(.admin-body) .card-pad { padding: 14px; }
+}
+/* Ô chọn có chữ dài: không xuống dòng (trước bị cao 57px), cắt bằng dấu … */
+:where(.admin-body) select.input { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

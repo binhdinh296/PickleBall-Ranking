@@ -15,7 +15,7 @@
 <div class="card card-pad stack" style="--gap: 16px; margin: 12px 0 16px;">
   <div class="row" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
     <div>
-      <h2 class="section-title" style="margin: 0; font-size: 16px;">Bảng xếp hạng các bảng đấu</h2>
+      <h2 class="section-title" style="margin: 0;">Bảng xếp hạng các bảng đấu</h2>
       <span class="tiny faint">Tiêu chí: 1. Thắng ➔ 2. Hiệu số ➔ 3. Đối đầu · Nhất/Nhì chỉ xác định khi bảng đã đấu xong · <%= doneGroups %>/<%= gList.length %> bảng đã xong</span>
     </div>
     <form method="post" action="/admin/noi-dung/<%= d.id %>/dong-bo-bang">
@@ -36,7 +36,7 @@
 <!-- TIÊU ĐỀ SƠ ĐỒ THI ĐẤU & THANH CÔNG CỤ -->
 <div class="row" style="justify-content: space-between; align-items: center; margin: 12px 0 8px; flex-wrap: wrap; gap: 8px;">
   <div class="row" style="--gap: 8px; align-items: center;">
-    <h2 class="section-title" style="margin: 0; font-size: 16px;">Sơ đồ thi đấu (<%= matches.length %> trận)</h2>
+    <h2 class="section-title" style="margin: 0;">Sơ đồ thi đấu (<%= matches.length %> trận)</h2>
     <% if (matches.length) { %><button type="button" class="btn btn-sm" data-bs-open="tab-draw">↻ Tạo lại nhánh đấu</button><% } %>
     <span class="guide-tip" data-tip="Bấm trực tiếp vào từng ô trận để nhập tỉ số, đổi nguồn đội, đổi sân đấu hoặc phát livestream.">?</span>
   </div>
@@ -49,12 +49,12 @@
         <form class="form" method="post" action="/admin/noi-dung/<%= d.id %>/tran" style="gap: 8px;">
           <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
           <div class="form-grid two" style="gap: 6px;">
-            <div class="field"><label for="nm-round" style="font-size: 11px;">Cột vòng</label><input class="input" id="nm-round" name="round_order" inputmode="numeric" placeholder="1, 2, 3…" required style="font-size: 12px; padding: 4px 6px;"></div>
-            <div class="field"><label for="nm-rname" style="font-size: 11px;">Tên vòng</label><input class="input" id="nm-rname" name="round_name" placeholder="Playoff, Tứ kết…" list="round-names" style="font-size: 12px; padding: 4px 6px;"></div>
-            <div class="field"><label for="nm-code" style="font-size: 11px;">Mã trận</label><input class="input" id="nm-code" name="code" placeholder="PO1, TK1…" style="font-size: 12px; padding: 4px 6px;"></div>
-            <div class="field"><label for="nm-zone" style="font-size: 11px;">Khu riêng</label><input class="input" id="nm-zone" name="zone" placeholder="Bảng A / MINI" style="font-size: 12px; padding: 4px 6px;"></div>
-            <div class="field"><label for="nm-court" style="font-size: 11px;">Sân</label><input class="input" id="nm-court" name="court" placeholder="Sân 1" style="font-size: 12px; padding: 4px 6px;"></div>
-            <div class="field"><label for="nm-time" style="font-size: 11px;">Giờ</label><input class="input tnum" id="nm-time" name="start_time" placeholder="10:00" style="font-size: 12px; padding: 4px 6px;"></div>
+            <div class="field"><label for="nm-round">Cột vòng</label><input class="input" id="nm-round" name="round_order" inputmode="numeric" placeholder="1, 2, 3…" required></div>
+            <div class="field"><label for="nm-rname">Tên vòng</label><input class="input" id="nm-rname" name="round_name" placeholder="Playoff, Tứ kết…" list="round-names"></div>
+            <div class="field"><label for="nm-code">Mã trận</label><input class="input" id="nm-code" name="code" placeholder="PO1, TK1…"></div>
+            <div class="field"><label for="nm-zone">Khu riêng</label><input class="input" id="nm-zone" name="zone" placeholder="Bảng A / MINI"></div>
+            <div class="field"><label for="nm-court">Sân</label><input class="input" id="nm-court" name="court" placeholder="Sân 1"></div>
+            <div class="field"><label for="nm-time">Giờ</label><input class="input tnum" id="nm-time" name="start_time" placeholder="10:00"></div>
           </div>
           <% ['a', 'b'].forEach((s) => { %><%- include('../partials/slot-source', { s, m: {}, matches, teams }) %><% }) %>
           <datalist id="round-names"><% ['Vòng 1', 'Playoff', 'Vòng 2', 'Tứ kết', 'Bán kết', 'Chung kết'].forEach((n) => { %><option value="<%= n %>"><% }) %></datalist>

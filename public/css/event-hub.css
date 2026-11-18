@@ -123,3 +123,10 @@
   .el-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .el-kpis .eh-kpi:nth-child(n + 4) { display: none; }
 }
+/* Danh sách giải: dòng phụ (ngày · sân · số nội dung) không tràn sang cột bên cạnh */
+.el-table .c-main .at-meta { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 640px) {
+  /* Điện thoại: chạm vào dòng là vào điều hành → bỏ nút "Điều hành", giữ nút ⋯ cho gọn */
+  .el-acts .btn-brand { display: none; }
+  .el-regs .el-new { white-space: nowrap; }
+}
