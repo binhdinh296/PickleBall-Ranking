@@ -8,7 +8,7 @@ const phone = require('./lib/phone');
 const { getSettings, loadSettings, themeColors } = require('./lib/settings');
 const themes = require('./lib/themes');
 const { PgStore, purgeExpired, csrf, securityHeaders } = require('./lib/security');
-const { UPLOAD_DIR } = require('./lib/upload');
+const { UPLOAD_DIR, serveStoredFile } = require('./lib/upload');
 const youtube = require('./lib/youtube');
 const devtools = require('./routes/devtools');
 const { IS_PROD: isProd, IS_VERCEL } = require('./lib/env');
@@ -77,6 +77,8 @@ function createApp() {
   // Trình duyệt luôn tự gọi /favicon.ico: chuyển sang icon SVG (tránh lỗi 404 trong console)
   app.get('/favicon.ico', (req, res) => res.redirect(301, '/static/favicon.svg'));
   if (!IS_VERCEL) app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '30d', dotfiles: 'deny', index: false }));
+  // File lưu trong CSDL (Vercel chưa gắn Blob) — xem src/lib/upload.js
+  app.get('/files/:sub/:name', (req, res, next) => serveStoredFile(req, res, next).catch(next));
   app.get('/cron/daily', (req, res, next) => cronDaily(req, res).catch(next));
   app.use(express.urlencoded({ extended: false, limit: '200kb' }));
   app.use(express.json({ limit: '50kb' }));

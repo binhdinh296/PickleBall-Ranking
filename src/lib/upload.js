@@ -3,13 +3,14 @@ const fs = require('fs');
 const crypto = require('crypto');
 const multer = require('multer');
 const sharp = require('sharp');
-const { DATA_DIR, ensureDir } = require('../db');
+const { DATA_DIR, ensureDir, run, get } = require('../db');
 const { IS_VERCEL } = require('./env');
 
 // ---- Nơi lưu file ----
 // • Có BLOB_READ_WRITE_TOKEN (Vercel Blob): lưu lên Blob, CSDL giữ URL đầy đủ https://….public.blob.vercel-storage.com/…
-// • Không có: lưu vào ổ đĩa data/uploads, CSDL giữ đường dẫn /uploads/… (server thường, máy dev)
-// Trên Vercel ổ đĩa chỉ đọc nên bắt buộc dùng Blob.
+// • Không có, chạy server thường / máy dev: lưu vào ổ đĩa data/uploads, CSDL giữ đường dẫn /uploads/…
+// • Không có, chạy trên Vercel (ổ đĩa chỉ đọc): lưu nội dung file vào bảng stored_files, đường dẫn /files/…
+//   (dự phòng để chức năng tải ảnh không hỏng khi chưa gắn Blob; gắn Blob vẫn là cách khuyến nghị)
 const UPLOAD_DIR = path.join(DATA_DIR, 'uploads');
 const useBlob = () => !!process.env.BLOB_READ_WRITE_TOKEN;
 const BLOB_HOST = /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//i;
@@ -43,7 +44,10 @@ async function store(sub, name, buffer, contentType) {
     });
     return blob.url;
   }
-  if (IS_VERCEL) throw userError('Máy chủ chưa cấu hình nơi lưu ảnh (Vercel Blob). Liên hệ quản trị kỹ thuật.');
+  if (IS_VERCEL) {
+    await run('INSERT INTO stored_files(name, sub, content_type, data, size) VALUES (?,?,?,?,?)', name, sub, contentType, buffer, buffer.length);
+    return `/files/${sub}/${name}`;
+  }
   fs.writeFileSync(path.join(ensureDir(path.join(UPLOAD_DIR, sub)), name), buffer);
   return `/uploads/${sub}/${name}`;
 }
@@ -92,13 +96,30 @@ function removeUpload(stored) {
     del(stored).catch((err) => console.error('[upload] xóa blob', err.message));
     return;
   }
+  const db = /^\/files\/[a-z]+\/([A-Za-z0-9_.-]+)$/.exec(stored);
+  if (db) { run('DELETE FROM stored_files WHERE name = ?', db[1]).catch((err) => console.error('[upload] xóa file CSDL', err.message)); return; }
   if (!stored.startsWith('/uploads/') || IS_VERCEL) return;
   const full = path.join(UPLOAD_DIR, stored.slice('/uploads/'.length));
   if (full.startsWith(UPLOAD_DIR + path.sep)) fs.rm(full, { force: true }, () => {});
+}
+
+// Phục vụ file lưu trong CSDL: GET /files/<thư mục>/<tên>. Tên file là ngẫu nhiên, không đổi → cache lâu dài.
+async function serveStoredFile(req, res, next) {
+  const name = String(req.params.name || '');
+  if (!/^[A-Za-z0-9_-]+\.(webp|pdf)$/.test(name)) return next();
+  const f = await get('SELECT sub, content_type, data FROM stored_files WHERE name = ?', name);
+  if (!f || f.sub !== req.params.sub) return next();
+  res.set({
+    'Content-Type': f.content_type,
+    'Cache-Control': 'public, max-age=31536000, immutable',
+    'X-Content-Type-Options': 'nosniff',
+    ...(f.content_type === 'application/pdf' ? { 'Content-Disposition': `inline; filename="${name}"` } : {}),
+  });
+  res.send(f.data);
 }
 
 function fileOf(req, field) {
   return (req.files || []).find((f) => f.fieldname === field) || null;
 }
 
-module.exports = { upload, saveImage, saveAvatar, savePdf, removeUpload, fileOf, UPLOAD_DIR, useBlob };
+module.exports = { upload, saveImage, saveAvatar, savePdf, removeUpload, fileOf, serveStoredFile, UPLOAD_DIR, useBlob };
