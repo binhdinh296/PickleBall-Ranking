@@ -5,6 +5,7 @@ const THEMES = [
   { id: 'sky', name: 'Xanh dương nhạt', desc: 'Nền tối · than chì, xanh trời' },
   { id: 'banana', name: 'Xanh chuối', desc: 'Nền tối · đen rêu, xanh chuối' },
   { id: 'rally', name: 'Cam sân đấu', desc: 'Nền tối · xanh sân, cam bóng' },
+  { id: 'matchday', name: 'Matchday', desc: 'Nền sáng · mực đen, vàng chanh' },
 ];
 const IDS = THEMES.map((t) => t.id);
 

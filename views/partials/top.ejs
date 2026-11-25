@@ -14,13 +14,14 @@
 <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,700&family=Barlow+Condensed:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,700&family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&display=swap">
 <% if (locals.cropper) { %><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"><% } %>
 <link rel="stylesheet" href="/static/css/app.css?v=<%= locals.assetV || "" %>">
 <% if (locals.pageScript) { %><link rel="stylesheet" href="/static/css/<%= pageScript %>.css?v=<%= locals.assetV || "" %>"><% } %>
 <% if (locals.pageStyle) { %><link rel="stylesheet" href="/static/css/<%= pageStyle %>.css?v=<%= locals.assetV || "" %>"><% } %>
 <% if (locals.admin) { %><link rel="stylesheet" href="/static/css/admin.css?v=<%= locals.assetV || "" %>"><% } %>
 <link rel="stylesheet" href="/static/css/mobile.css?v=<%= locals.assetV || "" %>" media="(max-width: 640px)"><%# bố cục gọn cho điện thoại, nạp sau cùng %>
+<link rel="stylesheet" href="/static/css/matchday.css?v=<%= locals.assetV || "" %>"><%# theme Matchday (sáng): chỉ tác động khi html[data-theme="matchday"] %>
 <script src="/static/js/theme.js?v=<%= locals.assetV || "" %>"></script>
 </head>
 <body<% if (locals.admin) { %> class="admin-body"<% } else if (locals.bare) { %> class="bare-body"<% } %>>

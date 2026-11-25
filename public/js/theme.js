@@ -2,9 +2,9 @@
 (function () {
   var root = document.documentElement;
   // 'dark' = Midnight; các theme còn lại thuộc nhóm theme phẳng [data-flat]
-  var THEMES = ['dark', 'luxe', 'sky', 'banana', 'rally'];
+  var THEMES = ['dark', 'luxe', 'sky', 'banana', 'rally', 'matchday'];
   var saved = null;
-  var param = location.search.match(/[?&]theme=(dark|luxe|sky|banana|rally|blue)\b/);
+  var param = location.search.match(/[?&]theme=(dark|luxe|sky|banana|rally|matchday|blue)\b/);
   if (param) {
     saved = param[1];
     try { localStorage.setItem('theme', saved); } catch (e) {}

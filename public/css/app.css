@@ -127,6 +127,19 @@
    (html[...] để thắng rule [data-flat] chung khai báo phía sau) */
 html[data-theme="rally"] .eyebrow { color: #6FE0CF !important; }
 
+/* Matchday — theme sáng duy nhất: nền phấn sân, chữ mực đen, vàng chanh chỉ dùng làm nền (chữ mực trên nền chanh).
+   Bảng màu ở đây; hình khối, chữ và bố cục riêng nằm trong matchday.css (nạp sau cùng). */
+[data-theme="matchday"] {
+  color-scheme: light;
+  --f-bg: #F3F4EE; --f-bg-rgb: 243, 244, 238; --f-bg2: #E9EAE3; --f-card: #FFFFFF; --f-raised: #ECEDE7; --f-raised-2: #D9DBD2; --f-raised-rgb: 217, 219, 210; --f-deep: #0D0F14;
+  --f-accent: #CCFF00; --f-accent-rgb: 204, 255, 0; --f-accent-hi: #0D0F14; --f-accent-2: #B8E600; --f-accent-3: #9CC400; --f-accent-pale: #F1FFC2; --f-court: #1E4DFF;
+  --f-on: #0D0F14; --f-on-rgb: 13, 15, 20;
+  --f-text: #0D0F14; --f-text-soft: #1C2029; --f-text2: #3A3F49; --f-text3: #5B606B; --f-line-rgb: 13, 15, 20;
+  --f-stripe-a: #ECEDE7; --f-stripe-b: #E2E4DC; --f-female: #B0215F;
+  --f-live: #E02A10; --f-ok: #137A3A; --f-warn: #8A5A00; --f-err: #C0261A;
+  --f-photo: none; --f-photo-hero: none;
+}
+
 /* ---------- Nền tảng ---------- */
 *, *::before, *::after { box-sizing: border-box; font-style: normal; }
 em, i, cite, address, dfn, var { font-style: normal; }
@@ -225,6 +238,8 @@ button { font: inherit; }
 .tsw-sky { --sw-bg: #1D2A3C; --sw-ac: #65BAF7; }
 .tsw-banana { --sw-bg: #232E1A; --sw-ac: #B2E046; }
 .tsw-rally { --sw-bg: #163236; --sw-ac: #FF8A3D; }
+.tsw-matchday { --sw-bg: #F3F4EE; --sw-ac: #CCFF00; box-shadow: inset 0 0 0 2px #0D0F14, 0 2px 6px rgba(0, 0, 0, .25); }
+.tsw-matchday::after { box-shadow: 0 0 0 2px #0D0F14; }
 
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--live); flex: none; box-shadow: 0 0 0 0 color-mix(in oklab, var(--live) 60%, transparent); animation: pulse 1.8s infinite; }
 @keyframes pulse { 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
