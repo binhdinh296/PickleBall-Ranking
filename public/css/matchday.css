@@ -7,7 +7,7 @@
    Bảng màu --f-* khai báo trong app.css ([data-theme="matchday"]); file này nạp sau cùng nên thắng các rule [data-flat].
    ========================================================================== */
 
-html[data-theme="matchday"] {
+html[data-theme^="matchday"] {
   --md-ink: #0D0F14;
   --md-ink-2: #1C2029;
   --md-chalk: #F3F4EE;
@@ -30,23 +30,50 @@ html[data-theme="matchday"] {
   --input-bg: #FFFFFF;
   --grad-brand: var(--md-volt);
   -webkit-tap-highlight-color: transparent;
+
+  /* Vai trò màu (đổi theo sáng/tối): nền trang, bề mặt thẻ, chữ, khối tối (header, footer, đầu thẻ) */
+  --md-page: var(--md-chalk);
+  --md-surface: #FFFFFF;
+  --md-text: var(--md-ink);
+  --md-text-2: #3A3F49;
+  --md-block: var(--md-ink);
+  --md-block-2: var(--md-ink-2);
 }
-html[data-theme="matchday"] body { background: var(--md-chalk); color: var(--md-ink); }
+
+/* MATCHDAY DARK — cùng hình khối, chữ và bố cục; chỉ đổi bảng màu sang nền tối.
+   Vàng chanh vẫn chỉ làm nền với chữ mực; chữ chính màu phấn; khối tối đậm hơn nền để tách lớp. */
+html[data-theme="matchday-dark"] {
+  --md-page: #0B0D11;
+  --md-surface: #161A22;
+  --md-text: #F3F4EE;
+  --md-text-2: #C5C9D1;
+  --md-muted: #A3A8B2;
+  --md-soft: #222732;
+  --md-rule: #2E3440;
+  --md-block: #050608;
+  --md-block-2: #1C2029;
+  --md-blue: #9DB4FF;
+  --line: rgba(243, 244, 238, 0.12);
+  --line-strong: rgba(243, 244, 238, 0.36);
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 18px 36px -24px rgba(0, 0, 0, 0.9);
+  --input-bg: var(--md-surface);
+}
+html[data-theme^="matchday"] body { background: var(--md-page); color: var(--md-text); }
 
 /* ---------- Chữ ---------- */
-html[data-theme="matchday"] :is(h1, h2, h3, .h1, .h2) { letter-spacing: 0; }
-html[data-theme="matchday"] :is(.h1, .h2, .hero-title, .event-grand-title, .tournament-title, .sx-title, .rl-title, .stage-header-title) {
+html[data-theme^="matchday"] :is(h1, h2, h3, .h1, .h2) { letter-spacing: 0; }
+html[data-theme^="matchday"] :is(.h1, .h2, .hero-title, .event-grand-title, .tournament-title, .sx-title, .rl-title, .stage-header-title) {
   font-family: var(--md-display) !important;
   font-style: italic;
   font-weight: 800 !important;
   text-transform: uppercase;
   line-height: 0.92 !important;
-  color: var(--md-ink);
+  color: var(--md-text);
 }
-html[data-theme="matchday"] .h1 { font-size: clamp(40px, 6vw, 80px); }
-html[data-theme="matchday"] .h2 { font-size: clamp(32px, 4vw, 52px); }
+html[data-theme^="matchday"] .h1 { font-size: clamp(40px, 6vw, 80px); }
+html[data-theme^="matchday"] .h2 { font-size: clamp(32px, 4vw, 52px); }
 /* Chữ nhấn trong tiêu đề: khối chanh, chữ mực (thay cho chữ gradient) */
-html[data-theme="matchday"] :is(.h1, .h2, .hero-title) :is(.grad-text, .gold-text, .serif) {
+html[data-theme^="matchday"] :is(.h1, .h2, .hero-title) :is(.grad-text, .gold-text, .serif) {
   background: var(--md-volt) !important;
   -webkit-background-clip: border-box !important;
   background-clip: border-box !important;
@@ -58,35 +85,35 @@ html[data-theme="matchday"] :is(.h1, .h2, .hero-title) :is(.grad-text, .gold-tex
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
-html[data-theme="matchday"] :is(.grad-text, .gold-text) { -webkit-text-fill-color: currentColor; background: none; color: var(--md-ink); }
-html[data-theme="matchday"] .eyebrow {
+html[data-theme^="matchday"] :is(.grad-text, .gold-text) { -webkit-text-fill-color: currentColor !important; background: none; color: var(--md-text); }
+html[data-theme^="matchday"] .eyebrow {
   font-family: var(--md-display);
   font-size: 15px;
   font-weight: 800;
   letter-spacing: 0.16em;
   color: var(--md-muted) !important;
 }
-html[data-theme="matchday"] .tnum,
-html[data-theme="matchday"] :is(.rank-row .p, .stat-tile b, .h-points, .p-pts, .pi-pts) { font-variant-numeric: tabular-nums; }
-html[data-theme="matchday"] a.link { color: var(--md-blue); }
-html[data-theme="matchday"] .muted { color: #3A3F49; }
-html[data-theme="matchday"] .faint { color: var(--md-muted); }
+html[data-theme^="matchday"] .tnum,
+html[data-theme^="matchday"] :is(.rank-row .p, .stat-tile b, .h-points, .p-pts, .pi-pts) { font-variant-numeric: tabular-nums; }
+html[data-theme^="matchday"] a.link { color: var(--md-blue); }
+html[data-theme^="matchday"] .muted { color: var(--md-text-2); }
+html[data-theme^="matchday"] .faint { color: var(--md-muted); }
 /* Mục: vạch mực 3px dưới tiêu đề */
-html[data-theme="matchday"] .section-head { padding-bottom: 12px; border-bottom: 3px solid var(--md-ink); margin-bottom: 24px; align-items: flex-end; }
-html[data-theme="matchday"] .section-head[style*="center"] { justify-content: space-between !important; text-align: left !important; }
-html[data-theme="matchday"] .section-head[style*="center"] .h2 { text-align: left !important; }
-html[data-theme="matchday"] .glow { background: none !important; }
+html[data-theme^="matchday"] .section-head { padding-bottom: 12px; border-bottom: 3px solid var(--md-text); margin-bottom: 24px; align-items: flex-end; }
+html[data-theme^="matchday"] .section-head[style*="center"] { justify-content: space-between !important; text-align: left !important; }
+html[data-theme^="matchday"] .section-head[style*="center"] .h2 { text-align: left !important; }
+html[data-theme^="matchday"] .glow { background: none !important; }
 
 /* ---------- Thanh đầu trang: dải mực ---------- */
-html[data-theme="matchday"] .site-header {
-  background: var(--md-ink) !important;
+html[data-theme^="matchday"] .site-header {
+  background: var(--md-block) !important;
   border-bottom: 0 !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
   box-shadow: none !important;
   color: var(--md-chalk);
 }
-html[data-theme="matchday"] .site-header .brand-name {
+html[data-theme^="matchday"] .site-header .brand-name {
   font-family: var(--md-display);
   font-style: italic;
   font-weight: 800;
@@ -95,9 +122,9 @@ html[data-theme="matchday"] .site-header .brand-name {
   text-transform: uppercase;
   color: var(--md-chalk) !important;
 }
-html[data-theme="matchday"] .site-header .brand-name .grad-text { color: var(--md-volt) !important; -webkit-text-fill-color: var(--md-volt) !important; }
-html[data-theme="matchday"] .site-header .brand-sub { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .main-nav a {
+html[data-theme^="matchday"] .site-header .brand-name .grad-text { color: var(--md-volt) !important; -webkit-text-fill-color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .site-header .brand-sub { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .main-nav a {
   border-radius: 0 !important;
   background: none !important;
   box-shadow: none !important;
@@ -106,41 +133,41 @@ html[data-theme="matchday"] .main-nav a {
   padding: 10px 2px;
   margin: 0 10px;
 }
-html[data-theme="matchday"] .main-nav a[aria-current="page"] { color: var(--md-chalk) !important; box-shadow: inset 0 -3px 0 var(--md-volt) !important; }
-html[data-theme="matchday"] .site-header .icon-btn { background: transparent !important; color: var(--md-chalk) !important; border-color: #3A3F49 !important; border-radius: 0 !important; }
+html[data-theme^="matchday"] .main-nav a[aria-current="page"] { color: var(--md-chalk) !important; box-shadow: inset 0 -3px 0 var(--md-volt) !important; }
+html[data-theme^="matchday"] .site-header .icon-btn { background: transparent !important; color: var(--md-chalk) !important; border-color: #3A3F49 !important; border-radius: 0 !important; }
 
 /* ---------- Thanh tab dưới (điện thoại) ---------- */
-html[data-theme="matchday"] .tabbar { background: var(--md-ink) !important; border-top: 0 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-html[data-theme="matchday"] .tabbar a { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .tabbar a[aria-current="page"], html[data-theme="matchday"] .tabbar a.is-active { color: var(--md-chalk) !important; }
-html[data-theme="matchday"] .tabbar a[aria-current="page"]::before, html[data-theme="matchday"] .tabbar a.is-active::after { background: var(--md-volt) !important; border-radius: 0 !important; height: 3px; }
+html[data-theme^="matchday"] .tabbar { background: var(--md-block) !important; border-top: 0 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+html[data-theme^="matchday"] .tabbar a { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .tabbar a[aria-current="page"], html[data-theme^="matchday"] .tabbar a.is-active { color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] .tabbar a[aria-current="page"]::before, html[data-theme^="matchday"] .tabbar a.is-active::after { background: var(--md-volt) !important; border-radius: 0 !important; height: 3px; }
 
 /* ---------- Nút ---------- */
-html[data-theme="matchday"] :is(.btn, .btn-vip, .btn-lux-outline, .tx-more-btn) {
+html[data-theme^="matchday"] :is(.btn, .btn-vip, .btn-lux-outline, .tx-more-btn) {
   border-radius: 0 !important;
   border: 0 !important;
   background: transparent !important;
-  color: var(--md-ink) !important;
-  box-shadow: inset 0 0 0 2px var(--md-ink) !important;
+  color: var(--md-text) !important;
+  box-shadow: inset 0 0 0 2px var(--md-text) !important;
   font-weight: 700;
   filter: none !important;
   transform: none;
 }
-html[data-theme="matchday"] :is(.btn-brand, .btn-vip-primary) { background: var(--md-volt) !important; color: var(--md-ink) !important; box-shadow: none !important; }
-html[data-theme="matchday"] .btn-live { background: var(--f-live) !important; color: #FFFFFF !important; box-shadow: none !important; }
-html[data-theme="matchday"] .btn-danger { color: var(--f-err) !important; box-shadow: inset 0 0 0 2px var(--f-err) !important; }
-html[data-theme="matchday"] .btn:active { transform: translateY(1px); }
+html[data-theme^="matchday"] :is(.btn-brand, .btn-vip-primary) { background: var(--md-volt) !important; color: var(--md-ink) !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .btn-live { background: var(--f-live) !important; color: #FFFFFF !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .btn-danger { color: var(--f-err) !important; box-shadow: inset 0 0 0 2px var(--f-err) !important; }
+html[data-theme^="matchday"] .btn:active { transform: translateY(1px); }
 @media (hover: hover) {
-  html[data-theme="matchday"] :is(.btn, .btn-vip, .btn-lux-outline, .tx-more-btn):hover { background: var(--md-ink) !important; color: var(--md-chalk) !important; }
-  html[data-theme="matchday"] :is(.btn-brand, .btn-vip-primary):hover { background: var(--md-ink) !important; color: var(--md-volt) !important; }
-  html[data-theme="matchday"] .btn-live:hover { background: #B81F08 !important; color: #FFFFFF !important; }
+  html[data-theme^="matchday"] :is(.btn, .btn-vip, .btn-lux-outline, .tx-more-btn):hover { background: var(--md-text) !important; color: var(--md-page) !important; }
+  html[data-theme^="matchday"] :is(.btn-brand, .btn-vip-primary):hover { background: var(--md-block) !important; color: var(--md-volt) !important; }
+  html[data-theme^="matchday"] .btn-live:hover { background: #B81F08 !important; color: #FFFFFF !important; }
 }
-html[data-theme="matchday"] .icon-btn { border-radius: 0 !important; background: #FFFFFF !important; color: var(--md-ink) !important; border: 0 !important; box-shadow: inset 0 0 0 2px var(--md-ink) !important; }
+html[data-theme^="matchday"] .icon-btn { border-radius: 0 !important; background: var(--md-surface) !important; color: var(--md-text) !important; border: 0 !important; box-shadow: inset 0 0 0 2px var(--md-text) !important; }
 /* Nút trên nền mực (header, khối tối) */
-html[data-theme="matchday"] .site-header .btn:not(.btn-brand) { color: var(--md-chalk) !important; box-shadow: inset 0 0 0 2px var(--md-chalk) !important; }
+html[data-theme^="matchday"] .site-header .btn:not(.btn-brand) { color: var(--md-chalk) !important; box-shadow: inset 0 0 0 2px var(--md-chalk) !important; }
 
 /* ---------- Chip ---------- */
-html[data-theme="matchday"] :is(.chip, .chip-mini, .chip-gold-lux, .chip-titanium, .chip-live-sub, .tournament-tag) {
+html[data-theme^="matchday"] :is(.chip, .chip-mini, .chip-gold-lux, .chip-titanium, .chip-live-sub, .tournament-tag) {
   border-radius: 0 !important;
   border: 0 !important;
   -webkit-backdrop-filter: none !important;
@@ -153,44 +180,44 @@ html[data-theme="matchday"] :is(.chip, .chip-mini, .chip-gold-lux, .chip-titaniu
   box-shadow: none !important;
   animation: none !important;
 }
-html[data-theme="matchday"] .chip { background: var(--md-soft) !important; color: #3A3F49 !important; }
-html[data-theme="matchday"] :is(.chip-brand, .chip-ball, .chip-gold, .chip-gold-lux) { background: var(--md-volt) !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] :is(.chip-live, .chip-live-sub) { background: var(--f-live) !important; color: #FFFFFF !important; }
-html[data-theme="matchday"] .chip-live-sub svg { color: #FFFFFF; }
-html[data-theme="matchday"] .chip-titanium { background: var(--md-rule) !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] :is(.chip-ok, .chip-mini.chip-ok) { background: #E3F3E8 !important; color: var(--f-ok) !important; }
-html[data-theme="matchday"] :is(.chip-warn, .chip-mini.chip-warn) { background: #FFF1D6 !important; color: #7A4A00 !important; }
-html[data-theme="matchday"] .chip-err { background: #FCE5E2 !important; color: var(--f-err) !important; }
-html[data-theme="matchday"] .chip-muted { background: var(--md-soft) !important; color: var(--md-muted) !important; }
+html[data-theme^="matchday"] .chip { background: var(--md-soft) !important; color: var(--md-text-2) !important; }
+html[data-theme^="matchday"] :is(.chip-brand, .chip-ball, .chip-gold, .chip-gold-lux) { background: var(--md-volt) !important; color: var(--md-ink) !important; }
+html[data-theme^="matchday"] :is(.chip-live, .chip-live-sub) { background: var(--f-live) !important; color: #FFFFFF !important; }
+html[data-theme^="matchday"] .chip-live-sub svg { color: #FFFFFF; }
+html[data-theme^="matchday"] .chip-titanium { background: var(--md-rule) !important; color: var(--md-text) !important; }
+html[data-theme^="matchday"] :is(.chip-ok, .chip-mini.chip-ok) { background: #E3F3E8 !important; color: var(--f-ok) !important; }
+html[data-theme^="matchday"] :is(.chip-warn, .chip-mini.chip-warn) { background: #FFF1D6 !important; color: #7A4A00 !important; }
+html[data-theme^="matchday"] .chip-err { background: #FCE5E2 !important; color: var(--f-err) !important; }
+html[data-theme^="matchday"] .chip-muted { background: var(--md-soft) !important; color: var(--md-muted) !important; }
 
 /* ---------- Tab lọc ---------- */
-html[data-theme="matchday"] .tabs { gap: 4px; }
-html[data-theme="matchday"] .tab {
+html[data-theme^="matchday"] .tabs { gap: 4px; }
+html[data-theme^="matchday"] .tab {
   border-radius: 0 !important;
   border: 0 !important;
-  background: #FFFFFF !important;
-  color: var(--md-ink) !important;
-  box-shadow: inset 0 0 0 2px var(--md-ink) !important;
+  background: var(--md-surface) !important;
+  color: var(--md-text) !important;
+  box-shadow: inset 0 0 0 2px var(--md-text) !important;
   font-family: var(--md-display);
   font-size: 17px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
-html[data-theme="matchday"] :is(.tab[aria-current="true"], .tab[aria-current="page"], .tab[aria-selected="true"]) { background: var(--md-ink) !important; color: var(--md-volt) !important; }
+html[data-theme^="matchday"] :is(.tab[aria-current="true"], .tab[aria-current="page"], .tab[aria-selected="true"]) { background: var(--md-block) !important; color: var(--md-volt) !important; }
 
 /* ---------- Thẻ, ô, danh sách ---------- */
-html[data-theme="matchday"] :is(.card, .stat-tile, .info-tile, .alert) {
+html[data-theme^="matchday"] :is(.card, .stat-tile, .info-tile, .alert) {
   border-radius: 0 !important;
   border: 0 !important;
-  background: #FFFFFF !important;
+  background: var(--md-surface) !important;
   box-shadow: var(--shadow) !important;
 }
-html[data-theme="matchday"] .empty { border-radius: 0; border: 2px dashed var(--md-rule); background: #FFFFFF; color: var(--md-muted); }
-html[data-theme="matchday"] .alert-success { box-shadow: inset 4px 0 0 var(--f-ok), var(--shadow) !important; }
-html[data-theme="matchday"] .alert-error { box-shadow: inset 4px 0 0 var(--f-err), var(--shadow) !important; }
-html[data-theme="matchday"] .alert-warning { box-shadow: inset 4px 0 0 #E8A200, var(--shadow) !important; }
-html[data-theme="matchday"] .info-tile .step-num {
+html[data-theme^="matchday"] .empty { border-radius: 0; border: 2px dashed var(--md-rule); background: var(--md-surface); color: var(--md-muted); }
+html[data-theme^="matchday"] .alert-success { box-shadow: inset 4px 0 0 var(--f-ok), var(--shadow) !important; }
+html[data-theme^="matchday"] .alert-error { box-shadow: inset 4px 0 0 var(--f-err), var(--shadow) !important; }
+html[data-theme^="matchday"] .alert-warning { box-shadow: inset 4px 0 0 #E8A200, var(--shadow) !important; }
+html[data-theme^="matchday"] .info-tile .step-num {
   border-radius: 0 !important;
   background: var(--md-volt) !important;
   color: var(--md-ink) !important;
@@ -199,482 +226,504 @@ html[data-theme="matchday"] .info-tile .step-num {
   font-weight: 800;
   font-size: 20px;
 }
-html[data-theme="matchday"] .stat-tile b { font-family: var(--md-display); font-size: 40px; line-height: 0.95; font-weight: 800; color: var(--md-ink) !important; -webkit-text-fill-color: currentColor; }
-html[data-theme="matchday"] .stat-tile span { color: var(--md-muted); font-weight: 600; }
+html[data-theme^="matchday"] .stat-tile b { font-family: var(--md-display); font-size: 40px; line-height: 0.95; font-weight: 800; color: var(--md-text) !important; -webkit-text-fill-color: currentColor; }
+html[data-theme^="matchday"] .stat-tile span { color: var(--md-muted); font-weight: 600; }
 
 /* Avatar: tròn, không viền gradient */
-html[data-theme="matchday"] .avatar { padding: 0 !important; background: var(--md-rule) !important; }
-html[data-theme="matchday"] .avatar.gold { background: var(--md-volt) !important; box-shadow: 0 0 0 3px var(--md-volt); }
-html[data-theme="matchday"] .avatar > * { background: var(--md-rule) !important; color: #3A3F49; font-weight: 700; }
+html[data-theme^="matchday"] .avatar { padding: 0 !important; background: var(--md-rule) !important; }
+html[data-theme^="matchday"] .avatar.gold { background: var(--md-volt) !important; box-shadow: 0 0 0 3px var(--md-volt); }
+html[data-theme^="matchday"] .avatar > * { background: var(--md-rule) !important; color: var(--md-text-2); font-weight: 700; }
 
 /* Ô nhập: viền mực 2px, chữ 16px để iOS không tự phóng to */
-html[data-theme="matchday"] :is(.input, select.input, textarea.input, .select-face) {
+html[data-theme^="matchday"] :is(.input, select.input, textarea.input, .select-face) {
   border-radius: 0 !important;
   border: 0 !important;
-  background: #FFFFFF !important;
-  color: var(--md-ink) !important;
-  box-shadow: inset 0 0 0 2px var(--md-ink) !important;
+  background: var(--md-surface) !important;
+  color: var(--md-text) !important;
+  box-shadow: inset 0 0 0 2px var(--md-text) !important;
   font-size: 16px;
 }
-html[data-theme="matchday"] :is(.input, .select-face):focus,
-html[data-theme="matchday"] .input:focus-visible { box-shadow: inset 0 0 0 2px var(--md-ink), 0 0 0 3px var(--md-volt) !important; outline: none; }
-html[data-theme="matchday"] .input::placeholder { color: #7A7F8A; }
-html[data-theme="matchday"] .input[aria-invalid="true"] { box-shadow: inset 0 0 0 2px var(--f-err) !important; }
-html[data-theme="matchday"] .field > label, html[data-theme="matchday"] .label { color: #3A3F49; }
+html[data-theme^="matchday"] :is(.input, .select-face):focus,
+html[data-theme^="matchday"] .input:focus-visible { box-shadow: inset 0 0 0 2px var(--md-text), 0 0 0 3px var(--md-volt) !important; outline: none; }
+html[data-theme^="matchday"] .input::placeholder { color: #7A7F8A; }
+html[data-theme^="matchday"] .input[aria-invalid="true"] { box-shadow: inset 0 0 0 2px var(--f-err) !important; }
+html[data-theme^="matchday"] .field > label, html[data-theme^="matchday"] .label { color: var(--md-text-2); }
 
 /* Phân trang */
-html[data-theme="matchday"] .pager :is(a, span) { border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important; color: var(--md-ink) !important; box-shadow: inset 0 0 0 2px var(--md-ink); font-family: var(--md-display); font-size: 18px; font-weight: 800; }
-html[data-theme="matchday"] .pager [aria-current="page"] { background: var(--md-ink) !important; color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .pager :is(a, span) { border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important; color: var(--md-text) !important; box-shadow: inset 0 0 0 2px var(--md-text); font-family: var(--md-display); font-size: 18px; font-weight: 800; }
+html[data-theme^="matchday"] .pager [aria-current="page"] { background: var(--md-block) !important; color: var(--md-volt) !important; }
 
 /* Mở/đóng (details) */
-html[data-theme="matchday"] .fold { border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important; box-shadow: var(--shadow); }
-html[data-theme="matchday"] .fold > summary { font-family: var(--md-display); font-style: italic; font-weight: 800; font-size: 26px; text-transform: uppercase; }
-html[data-theme="matchday"] .timeline-item { border-bottom-color: var(--md-soft) !important; }
-html[data-theme="matchday"] .delta.up { color: var(--f-ok); }
-html[data-theme="matchday"] .delta.down { color: var(--f-err); }
+html[data-theme^="matchday"] .fold { border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important; box-shadow: var(--shadow); }
+html[data-theme^="matchday"] .fold > summary { font-family: var(--md-display); font-style: italic; font-weight: 800; font-size: 26px; text-transform: uppercase; }
+html[data-theme^="matchday"] .timeline-item { border-bottom-color: var(--md-soft) !important; }
+html[data-theme^="matchday"] .delta.up { color: var(--f-ok); }
+html[data-theme^="matchday"] .delta.down { color: var(--f-err); }
 
 /* Tiêu điểm bàn phím rõ trên nền sáng */
-html[data-theme="matchday"] :is(a, button, summary, [tabindex]):focus-visible { outline: 3px solid var(--md-blue); outline-offset: 2px; }
+html[data-theme^="matchday"] :is(a, button, summary, [tabindex]):focus-visible { outline: 3px solid var(--md-blue); outline-offset: 2px; }
 
 /* ---------- Chân trang ---------- */
-html[data-theme="matchday"] .site-footer { background: var(--md-ink) !important; color: var(--md-grey); border-top: 0 !important; }
-html[data-theme="matchday"] .site-footer :is(h4, .sponsors-title) { color: var(--md-chalk) !important; font-family: var(--md-display); font-weight: 800; letter-spacing: 0.12em; }
-html[data-theme="matchday"] .site-footer :is(p, ul, li, a:not(.btn)) { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .site-footer .brand-name { font-family: var(--md-display); font-style: italic; font-weight: 800; font-size: 26px; text-transform: uppercase; color: var(--md-chalk) !important; }
-html[data-theme="matchday"] .site-footer .brand-name .grad-text { color: var(--md-volt) !important; -webkit-text-fill-color: var(--md-volt) !important; }
-html[data-theme="matchday"] .sponsors-rule { background: #3A3F49 !important; }
-html[data-theme="matchday"] .footer-bottom { border-top-color: #2A2F3A !important; }
+html[data-theme^="matchday"] .site-footer { background: var(--md-block) !important; color: var(--md-grey); border-top: 0 !important; }
+html[data-theme^="matchday"] .site-footer :is(h4, .sponsors-title) { color: var(--md-chalk) !important; font-family: var(--md-display); font-weight: 800; letter-spacing: 0.12em; }
+html[data-theme^="matchday"] .site-footer :is(p, ul, li, a:not(.btn)) { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .site-footer .brand-name { font-family: var(--md-display); font-style: italic; font-weight: 800; font-size: 26px; text-transform: uppercase; color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] .site-footer .brand-name .grad-text { color: var(--md-volt) !important; -webkit-text-fill-color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .sponsors-rule { background: #3A3F49 !important; }
+html[data-theme^="matchday"] .footer-bottom { border-top-color: #2A2F3A !important; }
 
 /* ==========================================================================
    TRANG CHỦ
    ========================================================================== */
 /* Hero: dải mực, ảnh thi đấu cắt góc vát, không phủ mờ lên chữ */
-html[data-theme="matchday"] .hero-photo { background: var(--md-ink) !important; color: var(--md-chalk); }
-html[data-theme="matchday"] .hero-photo::before,
-html[data-theme="matchday"] .hero-photo .hero-bg,
-html[data-theme="matchday"] .hero-photo .he-svg,
-html[data-theme="matchday"] .hero-slash { display: none !important; }
-html[data-theme="matchday"] .hero-media::after { display: none !important; }
-html[data-theme="matchday"] .hero.hero-photo .hero-media { -webkit-mask-image: none !important; mask-image: none !important; }
-html[data-theme="matchday"] .hero-media img { filter: none !important; }
-html[data-theme="matchday"] .hero-energy .hero-copy { text-shadow: none; }
-html[data-theme="matchday"] .hero .hero-title { color: var(--md-chalk) !important; -webkit-text-fill-color: currentColor; }
-html[data-theme="matchday"] .hero .hero-title .tail { background: none !important; color: var(--md-volt) !important; -webkit-text-fill-color: var(--md-volt) !important; padding: 0; }
-html[data-theme="matchday"] .hero-title .dink::before { display: none; }
-html[data-theme="matchday"] .hero-sport .hero-lead { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .hero-sport .hero-tag .clip { color: var(--md-grey) !important; background: none !important; border: 0 !important; }
-html[data-theme="matchday"] .hero-sport .btn.btn-sport:not(.btn-brand) { color: var(--md-chalk) !important; box-shadow: inset 0 0 0 2px var(--md-chalk) !important; background: transparent !important; }
+html[data-theme^="matchday"] .hero-photo { background: var(--md-block) !important; color: var(--md-chalk); }
+html[data-theme^="matchday"] .hero-photo::before,
+html[data-theme^="matchday"] .hero-photo .hero-bg,
+html[data-theme^="matchday"] .hero-photo .he-svg,
+html[data-theme^="matchday"] .hero-slash { display: none !important; }
+html[data-theme^="matchday"] .hero-media::after { display: none !important; }
+html[data-theme^="matchday"] .hero.hero-photo .hero-media { -webkit-mask-image: none !important; mask-image: none !important; }
+html[data-theme^="matchday"] .hero-media img { filter: none !important; }
+html[data-theme^="matchday"] .hero-energy .hero-copy { text-shadow: none; }
+html[data-theme^="matchday"] .hero .hero-title { color: var(--md-chalk) !important; -webkit-text-fill-color: currentColor; }
+html[data-theme^="matchday"] .hero .hero-title .tail { background: none !important; color: var(--md-volt) !important; -webkit-text-fill-color: var(--md-volt) !important; padding: 0; }
+html[data-theme^="matchday"] .hero-title .dink::before { display: none; }
+html[data-theme^="matchday"] .hero-sport .hero-lead { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .hero-sport .hero-tag .clip { color: var(--md-grey) !important; background: none !important; border: 0 !important; }
+html[data-theme^="matchday"] .hero-sport .btn.btn-sport:not(.btn-brand) { color: var(--md-chalk) !important; box-shadow: inset 0 0 0 2px var(--md-chalk) !important; background: transparent !important; }
 @media (hover: hover) {
-  html[data-theme="matchday"] .hero-sport .btn.btn-sport:not(.btn-brand):hover { background: var(--md-chalk) !important; color: var(--md-ink) !important; }
+  html[data-theme^="matchday"] .hero-sport .btn.btn-sport:not(.btn-brand):hover { background: var(--md-chalk) !important; color: var(--md-ink) !important; }
 }
 @media (min-width: 960px) {
-  html[data-theme="matchday"] .hero.hero-photo { min-height: clamp(380px, 46vh, 480px); }
-  html[data-theme="matchday"] .hero .hero-title { font-size: clamp(48px, 5.2vw, 84px); line-height: 0.9 !important; }
-  html[data-theme="matchday"] .hero.hero-photo .hero-media { -webkit-clip-path: polygon(7% 0, 100% 0, 100% 100%, 0 100%) !important; clip-path: polygon(7% 0, 100% 0, 100% 100%, 0 100%) !important; }
-  html[data-theme="matchday"] .hero-sport .hero-lead { font-size: 16px; }
+  html[data-theme^="matchday"] .hero.hero-photo { min-height: clamp(380px, 46vh, 480px); }
+  html[data-theme^="matchday"] .hero .hero-title { font-size: clamp(48px, 5.2vw, 84px); line-height: 0.9 !important; }
+  html[data-theme^="matchday"] .hero.hero-photo .hero-media { -webkit-clip-path: polygon(7% 0, 100% 0, 100% 100%, 0 100%) !important; clip-path: polygon(7% 0, 100% 0, 100% 100%, 0 100%) !important; }
+  html[data-theme^="matchday"] .hero-sport .hero-lead { font-size: 16px; }
 }
 @media (max-width: 959px) {
-  html[data-theme="matchday"] .hero .hero-title { font-size: clamp(34px, 10vw, 48px); line-height: 0.92 !important; }
-  html[data-theme="matchday"] .hero.hero-photo .hero-media { -webkit-clip-path: polygon(0 0, 100% 0, 100% 86%, 92% 100%, 0 100%) !important; clip-path: polygon(0 0, 100% 0, 100% 86%, 92% 100%, 0 100%) !important; }
+  html[data-theme^="matchday"] .hero .hero-title { font-size: clamp(34px, 10vw, 48px); line-height: 0.92 !important; }
+  html[data-theme^="matchday"] .hero.hero-photo .hero-media { -webkit-clip-path: polygon(0 0, 100% 0, 100% 86%, 92% 100%, 0 100%) !important; clip-path: polygon(0 0, 100% 0, 100% 86%, 92% 100%, 0 100%) !important; }
 }
 
 /* VĐV nổi bật: thẻ ảnh chữ nhật thay cho cây vợt — số hạng khối chanh, tên/điểm trên băng mực */
-html[data-theme="matchday"] .paddles-section { background: none !important; }
-html[data-theme="matchday"] .paddles { --pw: min(68vw, 240px); }
-html[data-theme="matchday"] .paddle-viewport { -webkit-mask-image: none; mask-image: none; }
-html[data-theme="matchday"] .paddle-track { padding: 20px 4px 14px; gap: 16px; }
-html[data-theme="matchday"] :is(.paddle-throat, .paddle-handle, .paddle-cap, .paddle-lines) { display: none !important; }
-html[data-theme="matchday"] .paddle { transform: none !important; }
-html[data-theme="matchday"] .paddle .paddle-head {
+html[data-theme^="matchday"] .paddles-section { background: none !important; }
+html[data-theme^="matchday"] .paddles { --pw: min(68vw, 240px); }
+html[data-theme^="matchday"] .paddle-viewport { -webkit-mask-image: none; mask-image: none; }
+html[data-theme^="matchday"] .paddle-track { padding: 20px 4px 14px; gap: 16px; }
+html[data-theme^="matchday"] :is(.paddle-throat, .paddle-handle, .paddle-cap, .paddle-lines) { display: none !important; }
+html[data-theme^="matchday"] .paddle { transform: none !important; }
+html[data-theme^="matchday"] .paddle .paddle-head {
   --rad: 0;
   padding: 0 !important;
-  background: var(--md-ink) !important;
+  background: var(--md-block) !important;
   box-shadow: 0 1px 0 rgba(13, 15, 20, 0.06), 0 18px 34px -24px rgba(13, 15, 20, 0.6) !important;
   min-height: calc(var(--pw) * 1.32);
   clip-path: var(--md-cut);
 }
-html[data-theme="matchday"] .paddle .paddle-face { inset: 0 !important; border-radius: 0; background: var(--md-rule); }
-html[data-theme="matchday"] .paddle .paddle-face img { filter: none !important; transform: none !important; object-position: 50% 22%; }
-html[data-theme="matchday"] .paddle .paddle-shade { background: linear-gradient(180deg, transparent calc(100% - 92px), var(--md-ink) calc(100% - 92px)) !important; box-shadow: none !important; }
-html[data-theme="matchday"] .paddle-initials { color: #3A3F49; font-family: var(--md-display); font-style: italic; font-size: 72px; }
-html[data-theme="matchday"] .paddle-hit { border-radius: 0; }
-html[data-theme="matchday"] .paddle .paddle-ball {
+html[data-theme^="matchday"] .paddle .paddle-face { inset: 0 !important; border-radius: 0; background: var(--md-rule); }
+html[data-theme^="matchday"] .paddle .paddle-face img { filter: none !important; transform: none !important; object-position: 50% 22%; }
+html[data-theme^="matchday"] .paddle .paddle-shade { background: linear-gradient(180deg, transparent calc(100% - 92px), var(--md-block) calc(100% - 92px)) !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .paddle-initials { color: var(--md-text-2); font-family: var(--md-display); font-style: italic; font-size: 72px; }
+html[data-theme^="matchday"] .paddle-hit { border-radius: 0; }
+html[data-theme^="matchday"] .paddle .paddle-ball {
   top: 0; left: 0; margin: 0; width: auto; height: auto; min-width: 52px; padding: 6px 12px 4px;
   border-radius: 0; background: var(--md-volt) !important; box-shadow: none !important; transform: none !important;
 }
-html[data-theme="matchday"] .paddle .paddle-ball span { font-family: var(--md-display); font-style: italic; font-size: 30px; font-weight: 800; color: var(--md-ink) !important; text-shadow: none !important; line-height: 0.9; }
-html[data-theme="matchday"] .paddle-caption { align-items: flex-start; text-align: left; padding: 0 16px 16px; gap: 6px; height: 92px; box-sizing: border-box; justify-content: flex-end; width: 100%; }
-html[data-theme="matchday"] .p-name { font-family: var(--md-display); font-size: 22px; font-weight: 800; line-height: 1; text-transform: uppercase; text-shadow: none; color: var(--md-chalk); }
-html[data-theme="matchday"] .paddle .p-bar { display: none; }
-html[data-theme="matchday"] .p-pts { color: var(--md-volt) !important; font-size: 30px; }
-html[data-theme="matchday"] .p-pts small { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .paddle .paddle-ball span { font-family: var(--md-display); font-style: italic; font-size: 30px; font-weight: 800; color: var(--md-ink) !important; text-shadow: none !important; line-height: 0.9; }
+html[data-theme^="matchday"] .paddle-caption { align-items: flex-start; text-align: left; padding: 0 16px 16px; gap: 6px; height: 92px; box-sizing: border-box; justify-content: flex-end; width: 100%; }
+html[data-theme^="matchday"] .p-name { font-family: var(--md-display); font-size: 22px; font-weight: 800; line-height: 1; text-transform: uppercase; text-shadow: none; color: var(--md-chalk); }
+html[data-theme^="matchday"] .paddle .p-bar { display: none; }
+html[data-theme^="matchday"] .p-pts { color: var(--md-volt) !important; font-size: 30px; }
+html[data-theme^="matchday"] .p-pts small { color: var(--md-grey) !important; }
 /* Bảng thông tin khi chạm/rê chuột: nền mực đặc, đọc rõ */
-html[data-theme="matchday"] .paddle-info {
-  border-radius: 0; background: var(--md-ink) !important; color: var(--md-chalk);
+html[data-theme^="matchday"] .paddle-info {
+  border-radius: 0; background: var(--md-block) !important; color: var(--md-chalk);
   align-items: flex-start; text-align: left; padding: 52px 16px 18px; gap: 8px;
 }
-html[data-theme="matchday"] .pi-eyebrow { font-family: var(--md-display); font-size: 14px; color: var(--md-volt) !important; letter-spacing: 0.12em; }
-html[data-theme="matchday"] .pi-name { font-family: var(--md-display); font-size: 26px; line-height: 0.95; text-transform: uppercase; }
-html[data-theme="matchday"] .pi-sub { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .pi-pts { color: var(--md-chalk) !important; font-size: 44px; line-height: 0.9; }
-html[data-theme="matchday"] .pi-stats { gap: 1px; background: #2A2F3A; }
-html[data-theme="matchday"] .pi-stats > div { border-radius: 0; background: var(--md-ink-2) !important; padding: 6px 8px; text-align: left; }
-html[data-theme="matchday"] .pi-stats dt { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .pi-stats dd { font-family: var(--md-display); font-size: 20px; color: var(--md-chalk); }
-html[data-theme="matchday"] .pi-stats dd.up { color: #6EE7A0; }
-html[data-theme="matchday"] .pi-stats dd.down { color: #FF8A7A; }
-html[data-theme="matchday"] .paddle-info .btn { align-self: stretch; }
-html[data-theme="matchday"] :is(.paddle:hover, .paddle:focus-within, .paddle.is-open) .paddle-face img { filter: brightness(0.5) !important; }
+html[data-theme^="matchday"] .pi-eyebrow { font-family: var(--md-display); font-size: 14px; color: var(--md-volt) !important; letter-spacing: 0.12em; }
+html[data-theme^="matchday"] .pi-name { font-family: var(--md-display); font-size: 26px; line-height: 0.95; text-transform: uppercase; }
+html[data-theme^="matchday"] .pi-sub { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .pi-pts { color: var(--md-chalk) !important; font-size: 44px; line-height: 0.9; }
+html[data-theme^="matchday"] .pi-stats { gap: 1px; background: #2A2F3A; }
+html[data-theme^="matchday"] .pi-stats > div { border-radius: 0; background: var(--md-block-2) !important; padding: 6px 8px; text-align: left; }
+html[data-theme^="matchday"] .pi-stats dt { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .pi-stats dd { font-family: var(--md-display); font-size: 20px; color: var(--md-chalk); }
+html[data-theme^="matchday"] .pi-stats dd.up { color: #6EE7A0; }
+html[data-theme^="matchday"] .pi-stats dd.down { color: #FF8A7A; }
+html[data-theme^="matchday"] .paddle-info .btn { align-self: stretch; }
+html[data-theme^="matchday"] :is(.paddle:hover, .paddle:focus-within, .paddle.is-open) .paddle-face img { filter: brightness(0.5) !important; }
 /* Điều khiển slide: chấm vuông, thanh tiến độ mực */
-html[data-theme="matchday"] .ball-dot { border-radius: 0 !important; width: 14px; height: 14px; background: var(--md-rule) !important; transform: none !important; }
-html[data-theme="matchday"] .ball-dot.is-active { background: var(--md-ink) !important; width: 28px; }
-html[data-theme="matchday"] .pg-progress { border-radius: 0; background: var(--md-rule) !important; height: 4px; }
-html[data-theme="matchday"] .pg-progress i { background: var(--md-ink) !important; border-radius: 0; }
+html[data-theme^="matchday"] .ball-dot { border-radius: 0 !important; width: 14px; height: 14px; background: var(--md-rule) !important; transform: none !important; }
+html[data-theme^="matchday"] .ball-dot.is-active { background: var(--md-text) !important; width: 28px; }
+html[data-theme^="matchday"] .pg-progress { border-radius: 0; background: var(--md-rule) !important; height: 4px; }
+html[data-theme^="matchday"] .pg-progress i { background: var(--md-text) !important; border-radius: 0; }
 
 /* Thẻ giải đấu (trang chủ + danh sách giải) */
-html[data-theme="matchday"] .ecard {
-  border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important;
+html[data-theme^="matchday"] .ecard {
+  border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important;
   box-shadow: var(--shadow) !important; transform: none !important;
 }
-html[data-theme="matchday"] .ecard-ambient,
-html[data-theme="matchday"] .cover-overlay { display: none !important; }
-html[data-theme="matchday"] .ecard .cover { aspect-ratio: 16 / 9; background: var(--md-ink) !important; }
-html[data-theme="matchday"] .ecard .cover img { transform: none !important; filter: none !important; }
-html[data-theme="matchday"] .ecard.is-ended .cover img { filter: grayscale(0.6) !important; }
-html[data-theme="matchday"] .cover-chips { left: 12px; right: auto; align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
-html[data-theme="matchday"] .date-badge {
+html[data-theme^="matchday"] .ecard-ambient,
+html[data-theme^="matchday"] .cover-overlay { display: none !important; }
+html[data-theme^="matchday"] .ecard .cover { aspect-ratio: 16 / 9; background: var(--md-block) !important; }
+html[data-theme^="matchday"] .ecard .cover img { transform: none !important; filter: none !important; }
+html[data-theme^="matchday"] .ecard.is-ended .cover img { filter: grayscale(0.6) !important; }
+html[data-theme^="matchday"] .cover-chips { left: 12px; right: auto; align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+html[data-theme^="matchday"] .date-badge {
   top: auto !important; bottom: 0; left: 0 !important; border-radius: 0 !important; border: 0 !important;
-  background: var(--md-ink) !important; padding: 8px 12px 6px !important; min-width: 64px; box-shadow: none !important;
+  background: var(--md-block) !important; padding: 8px 12px 6px !important; min-width: 64px; box-shadow: none !important;
   -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
 }
-html[data-theme="matchday"] .date-badge .db-day { font-family: var(--md-display); font-size: 34px; line-height: 0.9; color: var(--md-chalk) !important; }
-html[data-theme="matchday"] .date-badge .db-month { font-family: var(--md-display); font-size: 13px; color: var(--md-volt) !important; }
-html[data-theme="matchday"] .ecard .event-tag { color: var(--md-muted) !important; font-family: var(--md-display); font-size: 14px; letter-spacing: 0.1em; }
-html[data-theme="matchday"] .ecard.is-live .event-tag { color: var(--f-live) !important; }
-html[data-theme="matchday"] .ecard .tournament-title { font-family: var(--md-display) !important; font-size: 28px !important; line-height: 1 !important; }
-html[data-theme="matchday"] .ecard .tournament-title a { color: var(--md-ink) !important; }
-html[data-theme="matchday"] .tournament-tag { background: var(--md-soft) !important; color: #3A3F49 !important; font-size: 13px !important; }
-html[data-theme="matchday"] .prize-pill { border-radius: 0 !important; border: 0 !important; background: var(--md-ink) !important; color: var(--md-chalk); }
-html[data-theme="matchday"] .prize-pill .pp-text { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .prize-pill .pp-amount { font-family: var(--md-display); font-size: 24px; color: var(--md-volt) !important; }
-html[data-theme="matchday"] .tournament-info { color: #3A3F49 !important; }
-html[data-theme="matchday"] .tournament-info-row svg { color: var(--md-ink) !important; }
-html[data-theme="matchday"] .tournament-cta {
+html[data-theme^="matchday"] .date-badge .db-day { font-family: var(--md-display); font-size: 34px; line-height: 0.9; color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] .date-badge .db-month { font-family: var(--md-display); font-size: 13px; color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .ecard .event-tag { color: var(--md-muted) !important; font-family: var(--md-display); font-size: 14px; letter-spacing: 0.1em; }
+html[data-theme^="matchday"] .ecard.is-live .event-tag { color: var(--f-live) !important; }
+html[data-theme^="matchday"] .ecard .tournament-title { font-family: var(--md-display) !important; font-size: 28px !important; line-height: 1 !important; }
+html[data-theme^="matchday"] .ecard .tournament-title a { color: var(--md-text) !important; }
+html[data-theme^="matchday"] .tournament-tag { background: var(--md-soft) !important; color: var(--md-text-2) !important; font-size: 13px !important; }
+html[data-theme^="matchday"] .prize-pill { border-radius: 0 !important; border: 0 !important; background: var(--md-block) !important; color: var(--md-chalk); }
+html[data-theme^="matchday"] .prize-pill .pp-text { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .prize-pill .pp-amount { font-family: var(--md-display); font-size: 24px; color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .tournament-info { color: var(--md-text-2) !important; }
+html[data-theme^="matchday"] .tournament-info-row svg { color: var(--md-text) !important; }
+html[data-theme^="matchday"] .tournament-cta {
   border-radius: 0 !important; border: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important;
   box-shadow: none !important; font-weight: 700; min-height: 44px;
 }
-html[data-theme="matchday"] .ecard.is-live .tournament-cta { background: var(--f-live) !important; color: #FFFFFF !important; }
-html[data-theme="matchday"] .ecard.is-ended .tournament-cta { background: var(--md-ink) !important; color: var(--md-chalk) !important; }
-html[data-theme="matchday"] .qa-link { color: var(--md-blue) !important; }
-html[data-theme="matchday"] .qa-live { color: var(--f-live) !important; }
-html[data-theme="matchday"] .qa-gold { color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .ecard.is-live .tournament-cta { background: var(--f-live) !important; color: #FFFFFF !important; }
+html[data-theme^="matchday"] .ecard.is-ended .tournament-cta { background: var(--md-block) !important; color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] .qa-link { color: var(--md-blue) !important; }
+html[data-theme^="matchday"] .qa-live { color: var(--f-live) !important; }
+html[data-theme^="matchday"] .qa-gold { color: var(--md-text) !important; }
 @media (hover: hover) {
-  html[data-theme="matchday"] .tournament-cta:hover { background: var(--md-ink) !important; color: var(--md-volt) !important; }
+  html[data-theme^="matchday"] .tournament-cta:hover { background: var(--md-block) !important; color: var(--md-volt) !important; }
 }
 
 /* Khối "Tự chấm trình": nền chanh, các bước trên ô mực */
-html[data-theme="matchday"] .cta-frame { padding: 0; border-radius: 0; background: none; }
-html[data-theme="matchday"] .cta-inner { border-radius: 0; background: var(--md-volt) !important; color: var(--md-ink); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%); }
-html[data-theme="matchday"] .cta-inner .eyebrow { color: var(--md-ink) !important; }
-html[data-theme="matchday"] .cta-inner .h2 .grad-text { background: var(--md-ink) !important; color: var(--md-volt) !important; -webkit-text-fill-color: var(--md-volt) !important; }
-html[data-theme="matchday"] .cta-inner .muted { color: var(--md-ink) !important; }
-html[data-theme="matchday"] .cta-inner .btn-brand { background: var(--md-ink) !important; color: var(--md-chalk) !important; }
-html[data-theme="matchday"] .cta-inner .info-tile { background: var(--md-ink) !important; color: var(--md-chalk); box-shadow: none !important; border: 0 !important; }
-html[data-theme="matchday"] .cta-inner .step-content strong { color: var(--md-chalk) !important; }
-html[data-theme="matchday"] .cta-inner .step-content .muted { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .paddle .paddle-caption, html[data-theme="matchday"] .paddle .p-name { color: var(--md-chalk) !important; -webkit-text-fill-color: currentColor; }
-html[data-theme="matchday"] .ecard .tournament-tags .tournament-tag { background: var(--md-soft) !important; color: #3A3F49 !important; border: 0 !important; border-radius: 0 !important; }
+html[data-theme^="matchday"] .cta-frame { padding: 0; border-radius: 0; background: none; }
+html[data-theme^="matchday"] .cta-inner { border-radius: 0; background: var(--md-volt) !important; color: var(--md-ink); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%); }
+html[data-theme^="matchday"] .cta-inner .eyebrow { color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .cta-inner .h2 .grad-text { background: var(--md-block) !important; color: var(--md-volt) !important; -webkit-text-fill-color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .cta-inner .muted { color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .cta-inner .btn-brand { background: var(--md-block) !important; color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] .cta-inner .info-tile { background: var(--md-block) !important; color: var(--md-chalk); box-shadow: none !important; border: 0 !important; }
+html[data-theme^="matchday"] .cta-inner .step-content strong { color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] .cta-inner .step-content .muted { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .paddle .paddle-caption, html[data-theme^="matchday"] .paddle .p-name { color: var(--md-chalk) !important; -webkit-text-fill-color: currentColor; }
+html[data-theme^="matchday"] .ecard .tournament-tags .tournament-tag { background: var(--md-soft) !important; color: var(--md-text-2) !important; border: 0 !important; border-radius: 0 !important; }
 /* Nhà tài trợ: logo giữ màu gốc trên ô trắng, dải nền mực */
-html[data-theme="matchday"] .sponsors-board,
-html[data-theme="matchday"] .sponsors-board.is-marquee { background: var(--md-ink) !important; border-block: 0 !important; }
-html[data-theme="matchday"] .sp-tile { background: #FFFFFF !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; transform: none !important; }
-html[data-theme="matchday"] .sp-tile .sp-name { color: var(--md-ink) !important; }
-html[data-theme="matchday"] .sponsors-more { color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .sponsors-board,
+html[data-theme^="matchday"] .sponsors-board.is-marquee { background: var(--md-block) !important; border-block: 0 !important; }
+html[data-theme^="matchday"] .sp-tile { background: #FFFFFF !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; transform: none !important; }
+html[data-theme^="matchday"] .sp-tile .sp-name { color: #0D0F14 !important; }
+html[data-theme^="matchday"] .sponsors-more { color: var(--md-volt) !important; }
 
 /* ==========================================================================
    XẾP HẠNG
    ========================================================================== */
 /* Thẻ Top 1: khối mực cắt góc, avatar viền chanh, điểm lớn */
-html[data-theme="matchday"] .paddle-horizontal { transform: none !important; filter: none !important; }
-html[data-theme="matchday"] .paddle-horizontal :is(.paddle-throat, .paddle-handle, .paddle-cap, .paddle-ball) { display: none !important; }
-html[data-theme="matchday"] .paddle-horizontal .paddle-head {
-  --rad: 0; border-radius: 0 !important; padding: 0 !important; background: var(--md-ink) !important;
+html[data-theme^="matchday"] .paddle-horizontal { transform: none !important; filter: none !important; }
+html[data-theme^="matchday"] .paddle-horizontal :is(.paddle-throat, .paddle-handle, .paddle-cap, .paddle-ball) { display: none !important; }
+html[data-theme^="matchday"] .paddle-horizontal .paddle-head {
+  --rad: 0; border-radius: 0 !important; padding: 0 !important; background: var(--md-block) !important;
   box-shadow: 0 18px 34px -24px rgba(13, 15, 20, 0.6) !important; clip-path: var(--md-cut); min-height: 0;
 }
-html[data-theme="matchday"] .paddle-horizontal .paddle-face { position: relative; inset: auto !important; border-radius: 0 !important; background: var(--md-ink) !important; padding: 16px 20px; gap: 16px; }
-html[data-theme="matchday"] .paddle-horizontal .paddle-shade { display: none !important; }
-html[data-theme="matchday"] .top1-badge-pill { border-radius: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important; font-family: var(--md-display); font-size: 14px; font-weight: 800; letter-spacing: 0.08em; }
-html[data-theme="matchday"] .h-player-name { font-family: var(--md-display); font-size: 26px !important; font-weight: 800; text-transform: uppercase; line-height: 1 !important; color: var(--md-chalk) !important; -webkit-text-fill-color: currentColor; }
-html[data-theme="matchday"] .h-player-sub { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .h-points { font-family: var(--md-display) !important; font-size: 48px !important; font-weight: 800; line-height: 0.85; color: var(--md-volt) !important; -webkit-text-fill-color: currentColor; background: none !important; }
-html[data-theme="matchday"] .h-pts-label { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .paddle-horizontal .paddle-face { position: relative; inset: auto !important; border-radius: 0 !important; background: var(--md-block) !important; padding: 16px 20px; gap: 16px; }
+html[data-theme^="matchday"] .paddle-horizontal .paddle-shade { display: none !important; }
+html[data-theme^="matchday"] .top1-badge-pill { border-radius: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important; font-family: var(--md-display); font-size: 14px; font-weight: 800; letter-spacing: 0.08em; }
+html[data-theme^="matchday"] .h-player-name { font-family: var(--md-display); font-size: 26px !important; font-weight: 800; text-transform: uppercase; line-height: 1 !important; color: var(--md-chalk) !important; -webkit-text-fill-color: currentColor; }
+html[data-theme^="matchday"] .paddle-horizontal .h-player-sub { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .h-points { font-family: var(--md-display) !important; font-size: 48px !important; font-weight: 800; line-height: 0.85; color: var(--md-volt) !important; -webkit-text-fill-color: currentColor; background: none !important; }
+html[data-theme^="matchday"] .h-pts-label { color: var(--md-grey) !important; }
 
 /* Danh sách hạng */
-html[data-theme="matchday"] .rank-list { display: flex; flex-direction: column; gap: 6px; background: none !important; border: 0 !important; box-shadow: none !important; }
-html[data-theme="matchday"] .rank-row { background: #FFFFFF !important; border: 0 !important; border-radius: 0 !important; box-shadow: 0 1px 0 rgba(13, 15, 20, 0.06); grid-template-columns: 64px 48px minmax(0, 1fr) auto; }
-html[data-theme="matchday"] .rank-row .r { font-family: var(--md-display); font-style: italic; font-weight: 800; font-size: 30px; color: #9BA0AA; }
-html[data-theme="matchday"] .rank-row .r.top { color: var(--md-ink) !important; -webkit-text-fill-color: currentColor; background: none !important; }
-html[data-theme="matchday"] .rank-row .who strong { font-size: 16px; }
-html[data-theme="matchday"] .rank-row .p { font-family: var(--md-display); font-size: 30px; line-height: 0.95; }
-html[data-theme="matchday"] .rank-row .p small { font-family: 'Be Vietnam Pro', sans-serif; color: var(--md-muted); }
-html[data-theme="matchday"] .rank-row:has(.r.top) { box-shadow: inset 4px 0 0 var(--md-volt), 0 1px 0 rgba(13, 15, 20, 0.06); }
+html[data-theme^="matchday"] .rank-list { display: flex; flex-direction: column; gap: 6px; background: none !important; border: 0 !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .rank-row { background: var(--md-surface) !important; border: 0 !important; border-radius: 0 !important; box-shadow: 0 1px 0 rgba(13, 15, 20, 0.06); grid-template-columns: 64px 48px minmax(0, 1fr) auto; }
+html[data-theme^="matchday"] .rank-row .r { font-family: var(--md-display); font-style: italic; font-weight: 800; font-size: 30px; color: var(--md-muted); }
+html[data-theme^="matchday"] .rank-row .r.top { color: var(--md-text) !important; -webkit-text-fill-color: currentColor; background: none !important; }
+html[data-theme^="matchday"] .rank-row .who strong { font-size: 16px; }
+html[data-theme^="matchday"] .rank-row .p { font-family: var(--md-display); font-size: 30px; line-height: 0.95; }
+html[data-theme^="matchday"] .rank-row .p small { font-family: 'Be Vietnam Pro', sans-serif; color: var(--md-muted); }
+html[data-theme^="matchday"] .rank-row:has(.r.top) { box-shadow: inset 4px 0 0 var(--md-volt), 0 1px 0 rgba(13, 15, 20, 0.06); }
 @media (hover: hover) {
-  html[data-theme="matchday"] .rank-row:hover { box-shadow: inset 0 0 0 2px var(--md-ink); }
+  html[data-theme^="matchday"] .rank-row:hover { box-shadow: inset 0 0 0 2px var(--md-text); }
 }
-html[data-theme="matchday"] .rank-row .who strong .g[style*="#F472B6"] { color: #B0215F !important; }
-html[data-theme="matchday"] .rank-row .who strong .g[style*="#60A5FA"] { color: var(--md-blue) !important; }
+html[data-theme^="matchday"] .rank-row .who strong .g[style*="#F472B6"] { color: #B0215F !important; }
+html[data-theme^="matchday"] .rank-row .who strong .g[style*="#60A5FA"] { color: var(--md-blue) !important; }
 
 /* ==========================================================================
    HỒ SƠ VĐV
    ========================================================================== */
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) { background: var(--md-ink) !important; color: var(--md-chalk); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%); }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) h1 {
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) { background: var(--md-block) !important; color: var(--md-chalk); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%); }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) h1 {
   font-family: var(--md-display); font-style: italic; font-weight: 800 !important; text-transform: uppercase;
   font-size: clamp(40px, 7vw, 88px) !important; line-height: 0.88; color: var(--md-chalk);
 }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) .eyebrow { color: var(--md-volt) !important; }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) :is(.muted, .small) { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) strong { color: var(--md-chalk); }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) .chip { background: transparent !important; color: #D9DBD2 !important; box-shadow: inset 0 0 0 1.5px #5B606B !important; }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) .avatar { --s: 112px !important; width: 112px !important; height: 112px !important; border-radius: 0; box-shadow: none; clip-path: var(--md-cut); }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) .avatar > * { border-radius: 0; }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) .stat-tile { background: var(--md-ink-2) !important; border: 0 !important; box-shadow: none !important; }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) .stat-tile b { color: var(--md-chalk) !important; font-size: 48px; }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) .stat-tile span { color: var(--md-grey); }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) .stat-tile:first-child { background: var(--md-volt) !important; }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) .stat-tile:first-child :is(b, span) { color: var(--md-ink) !important; background: none !important; -webkit-text-fill-color: currentColor; }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) a.link { color: #9DB4FF; }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) .eyebrow { color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) :is(.muted, .small) { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) strong { color: var(--md-chalk); }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) .chip { background: transparent !important; color: #D9DBD2 !important; box-shadow: inset 0 0 0 1.5px #5B606B !important; }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) .avatar { --s: 112px !important; width: 112px !important; height: 112px !important; border-radius: 0; box-shadow: none; clip-path: var(--md-cut); }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) .avatar > * { border-radius: 0; }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) .stat-tile { background: var(--md-block-2) !important; border: 0 !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) .stat-tile b { color: var(--md-chalk) !important; font-size: 48px; }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) .stat-tile span { color: var(--md-grey); }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) .stat-tile:first-child { background: var(--md-volt) !important; }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) .stat-tile:first-child :is(b, span) { color: var(--md-ink) !important; background: none !important; -webkit-text-fill-color: currentColor; }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) a.link { color: #9DB4FF; }
 /* Biểu đồ điểm: nét mực trên nền trắng */
-html[data-theme="matchday"] .chart { --court: #0D0F14; --ball: #0D0F14; --ink-gold: #0D0F14; background: #FFFFFF !important; }
-html[data-theme="matchday"] .chart .gold-text { color: var(--md-ink) !important; font-family: var(--md-display); font-size: 22px; }
-html[data-theme="matchday"] .timeline-item .chip-gold { background: var(--md-volt) !important; }
-html[data-theme="matchday"] .page-head .card:has(.stat-tile) .stat-tile b { font-size: 48px !important; line-height: 0.95 !important; font-family: var(--md-display) !important; }
+html[data-theme^="matchday"] .chart { --court: var(--md-text); --ball: var(--md-text); --ink-gold: var(--md-text); background: var(--md-surface) !important; }
+html[data-theme^="matchday"] .chart .gold-text { color: var(--md-text) !important; font-family: var(--md-display); font-size: 22px; }
+html[data-theme^="matchday"] .timeline-item .chip-gold { background: var(--md-volt) !important; }
+html[data-theme^="matchday"] .page-head .card:has(.stat-tile) .stat-tile b { font-size: 48px !important; line-height: 0.95 !important; font-family: var(--md-display) !important; }
 
 /* ==========================================================================
    DANH SÁCH GIẢI ĐẤU
    ========================================================================== */
-html[data-theme="matchday"] .brand-dot { display: none; }
-html[data-theme="matchday"] .page-head .h1[style] { font-size: clamp(44px, 6vw, 84px) !important; line-height: 0.88 !important; }
-html[data-theme="matchday"] .tx-controls { border-radius: 0 !important; background: var(--md-ink) !important; border: 0 !important; box-shadow: none !important; padding: 6px !important; }
-html[data-theme="matchday"] .tx-tab {
+html[data-theme^="matchday"] .brand-dot { display: none; }
+html[data-theme^="matchday"] .page-head .h1[style] { font-size: clamp(44px, 6vw, 84px) !important; line-height: 0.88 !important; }
+html[data-theme^="matchday"] .tx-controls { border-radius: 0 !important; background: var(--md-block) !important; border: 0 !important; box-shadow: none !important; padding: 6px !important; }
+html[data-theme^="matchday"] .tx-tab {
   border-radius: 0 !important; color: var(--md-grey) !important; background: transparent !important; border: 0 !important;
   font-family: var(--md-display); font-size: 17px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; min-height: 44px;
 }
-html[data-theme="matchday"] .tx-tab b { border-radius: 0 !important; background: #2A2F3A !important; color: var(--md-chalk) !important; font-family: var(--md-display); }
-html[data-theme="matchday"] .tx-tab.is-active { background: var(--md-chalk) !important; color: var(--md-ink) !important; box-shadow: none !important; }
-html[data-theme="matchday"] .tx-tab.is-active b { background: var(--md-ink) !important; color: var(--md-volt) !important; }
-@media (hover: hover) { html[data-theme="matchday"] .tx-tab:not(.is-active):hover { color: var(--md-chalk) !important; } }
-html[data-theme="matchday"] .tx-search input { border-radius: 0 !important; border: 0 !important; background: var(--md-chalk) !important; color: var(--md-ink) !important; font-size: 16px; min-height: 44px; box-shadow: none !important; }
-html[data-theme="matchday"] .tx-search input:focus { box-shadow: 0 0 0 3px var(--md-volt) !important; }
-html[data-theme="matchday"] .tx-search svg { color: var(--md-muted) !important; }
-html[data-theme="matchday"] .tx-empty { border-radius: 0 !important; border: 2px dashed var(--md-rule) !important; background: #FFFFFF !important; }
-html[data-theme="matchday"] .tx-more-btn b { color: var(--md-ink); }
+html[data-theme^="matchday"] .tx-tab b { border-radius: 0 !important; background: #2A2F3A !important; color: var(--md-chalk) !important; font-family: var(--md-display); }
+html[data-theme^="matchday"] .tx-tab.is-active { background: var(--md-chalk) !important; color: var(--md-ink) !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .tx-tab.is-active b { background: var(--md-block) !important; color: var(--md-volt) !important; }
+@media (hover: hover) { html[data-theme^="matchday"] .tx-tab:not(.is-active):hover { color: var(--md-chalk) !important; } }
+html[data-theme^="matchday"] .tx-search input { border-radius: 0 !important; border: 0 !important; background: var(--md-chalk) !important; color: var(--md-ink) !important; font-size: 16px; min-height: 44px; box-shadow: none !important; }
+html[data-theme^="matchday"] .tx-search input:focus { box-shadow: 0 0 0 3px var(--md-volt) !important; }
+html[data-theme^="matchday"] .tx-search svg { color: var(--md-muted) !important; }
+html[data-theme^="matchday"] .tx-empty { border-radius: 0 !important; border: 2px dashed var(--md-rule) !important; background: var(--md-surface) !important; }
+html[data-theme^="matchday"] .tx-more-btn b { color: var(--md-text); }
 
 /* Thẻ giải */
-html[data-theme="matchday"] .tc { border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important; box-shadow: var(--shadow) !important; transform: none !important; }
-html[data-theme="matchday"] .tc-cover { border-radius: 0 !important; background: var(--md-ink) !important; }
-html[data-theme="matchday"] .tc-cover img { transform: none !important; filter: none !important; }
-html[data-theme="matchday"] .tc--ended .tc-cover img { filter: grayscale(0.6) !important; }
-html[data-theme="matchday"] .tc-flag { border-radius: 0 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: none !important; font-family: var(--md-display); font-size: 14px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
-html[data-theme="matchday"] .tc-flag.is-live { background: var(--f-live) !important; color: #FFFFFF !important; }
-html[data-theme="matchday"] .tc-flag.is-upcoming { background: var(--md-volt) !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .tc-flag.is-ended { background: var(--md-rule) !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .tc-flag.is-courts { background: var(--md-ink) !important; color: #FFFFFF !important; }
-html[data-theme="matchday"] .tc-kicker { font-family: var(--md-display); font-size: 14px; font-weight: 800; letter-spacing: 0.08em; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .tc--live .tc-kicker { color: var(--f-live) !important; }
-html[data-theme="matchday"] .tc--ended .tc-kicker { color: var(--md-muted) !important; }
-html[data-theme="matchday"] .tc-kicker-dot { border-radius: 0; box-shadow: none !important; }
-html[data-theme="matchday"] .tc--upcoming .tc-kicker-dot { background: var(--md-ink) !important; }
-html[data-theme="matchday"] .tc-div-count { border-radius: 0 !important; background: var(--md-ink) !important; color: var(--md-chalk) !important; border: 0 !important; font-family: var(--md-display); font-weight: 800; }
-html[data-theme="matchday"] .tc-title { font-family: var(--md-display) !important; font-weight: 800 !important; font-size: 26px !important; line-height: 1 !important; text-transform: uppercase; }
-html[data-theme="matchday"] .tc-title a { color: var(--md-ink) !important; }
-html[data-theme="matchday"] .tc-meta { color: #3A3F49 !important; }
-html[data-theme="matchday"] .tc-meta svg { color: var(--md-ink) !important; }
-html[data-theme="matchday"] .tc-tag { border-radius: 0 !important; background: var(--md-soft) !important; color: #3A3F49 !important; border: 0 !important; }
-html[data-theme="matchday"] .tc-primary-btn { border-radius: 0 !important; box-shadow: none !important; filter: none !important; min-height: 44px; }
-html[data-theme="matchday"] .tc--upcoming .tc-primary-btn { background: var(--md-volt) !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .tc--live .tc-primary-btn { background: var(--f-live) !important; color: #FFFFFF !important; }
-html[data-theme="matchday"] .tc--ended .tc-primary-btn { background: var(--md-ink) !important; color: var(--md-chalk) !important; }
-html[data-theme="matchday"] .tc-action-btn { border-radius: 0 !important; min-height: 44px; }
+html[data-theme^="matchday"] .tc { border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important; box-shadow: var(--shadow) !important; transform: none !important; }
+html[data-theme^="matchday"] .tc-cover { border-radius: 0 !important; background: var(--md-block) !important; }
+html[data-theme^="matchday"] .tc-cover img { transform: none !important; filter: none !important; }
+html[data-theme^="matchday"] .tc--ended .tc-cover img { filter: grayscale(0.6) !important; }
+html[data-theme^="matchday"] .tc-flag { border-radius: 0 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: none !important; font-family: var(--md-display); font-size: 14px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+html[data-theme^="matchday"] .tc-flag.is-live { background: var(--f-live) !important; color: #FFFFFF !important; }
+html[data-theme^="matchday"] .tc-flag.is-upcoming { background: var(--md-volt) !important; color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .tc-flag.is-ended { background: var(--md-rule) !important; color: var(--md-text) !important; }
+html[data-theme^="matchday"] .tc-flag.is-courts { background: var(--md-block) !important; color: #FFFFFF !important; }
+html[data-theme^="matchday"] .tc-kicker { font-family: var(--md-display); font-size: 14px; font-weight: 800; letter-spacing: 0.08em; color: var(--md-text) !important; }
+html[data-theme^="matchday"] .tc--live .tc-kicker { color: var(--f-live) !important; }
+html[data-theme^="matchday"] .tc--ended .tc-kicker { color: var(--md-muted) !important; }
+html[data-theme^="matchday"] .tc-kicker-dot { border-radius: 0; box-shadow: none !important; }
+html[data-theme^="matchday"] .tc--upcoming .tc-kicker-dot { background: var(--md-text) !important; }
+html[data-theme^="matchday"] .tc-div-count { border-radius: 0 !important; background: var(--md-block) !important; color: var(--md-chalk) !important; border: 0 !important; font-family: var(--md-display); font-weight: 800; }
+html[data-theme^="matchday"] .tc-title { font-family: var(--md-display) !important; font-weight: 800 !important; font-size: 26px !important; line-height: 1 !important; text-transform: uppercase; }
+html[data-theme^="matchday"] .tc-title a { color: var(--md-text) !important; }
+html[data-theme^="matchday"] .tc-meta { color: var(--md-text-2) !important; }
+html[data-theme^="matchday"] .tc-meta svg { color: var(--md-text) !important; }
+html[data-theme^="matchday"] .tc-tag { border-radius: 0 !important; background: var(--md-soft) !important; color: var(--md-text-2) !important; border: 0 !important; }
+html[data-theme^="matchday"] .tc-primary-btn { border-radius: 0 !important; box-shadow: none !important; filter: none !important; min-height: 44px; }
+html[data-theme^="matchday"] .tc--upcoming .tc-primary-btn { background: var(--md-volt) !important; color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .tc--live .tc-primary-btn { background: var(--f-live) !important; color: #FFFFFF !important; }
+html[data-theme^="matchday"] .tc--ended .tc-primary-btn { background: var(--md-block) !important; color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] .tc-action-btn { border-radius: 0 !important; min-height: 44px; }
 
 /* ==========================================================================
    TRANG GIẢI ĐẤU
    ========================================================================== */
-html[data-theme="matchday"] .event-official-badge { border-radius: 0 !important; background: var(--md-ink) !important; color: var(--md-chalk) !important; border: 0 !important; box-shadow: none !important; font-family: var(--md-display); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-html[data-theme="matchday"] .hero-ambient-glow, html[data-theme="matchday"] .hero-glass-vignette { display: none !important; }
-html[data-theme="matchday"] .event-hero.luxury-hero { border-radius: 0 !important; border: 0 !important; box-shadow: none !important; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 32px), calc(100% - 32px) 100%, 0 100%); background: var(--md-ink) !important; }
-html[data-theme="matchday"] .event-hero img { filter: none !important; }
-html[data-theme="matchday"] .event-grand-title { font-size: clamp(44px, 6.4vw, 96px) !important; color: var(--md-ink) !important; -webkit-text-fill-color: currentColor; background: none !important; }
-html[data-theme="matchday"] .event-detail-head .eyebrow { color: var(--md-muted) !important; }
+html[data-theme^="matchday"] .event-official-badge { border-radius: 0 !important; background: var(--md-block) !important; color: var(--md-chalk) !important; border: 0 !important; box-shadow: none !important; font-family: var(--md-display); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+html[data-theme^="matchday"] .hero-ambient-glow, html[data-theme^="matchday"] .hero-glass-vignette { display: none !important; }
+html[data-theme^="matchday"] .event-hero.luxury-hero { border-radius: 0 !important; border: 0 !important; box-shadow: none !important; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 32px), calc(100% - 32px) 100%, 0 100%); background: var(--md-block) !important; }
+html[data-theme^="matchday"] .event-hero img { filter: none !important; }
+html[data-theme^="matchday"] .event-grand-title { font-size: clamp(44px, 6.4vw, 96px) !important; color: var(--md-text) !important; -webkit-text-fill-color: currentColor; background: none !important; }
+html[data-theme^="matchday"] .event-detail-head .eyebrow { color: var(--md-muted) !important; }
 /* Thông tin chính */
-html[data-theme="matchday"] .spec-card { border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important; box-shadow: var(--shadow) !important; transform: none !important; }
-html[data-theme="matchday"] .spec-card-gold { background: var(--md-ink) !important; }
-html[data-theme="matchday"] .spec-icon { border-radius: 0 !important; background: var(--md-soft) !important; color: var(--md-ink) !important; border: 0 !important; }
-html[data-theme="matchday"] .spec-icon.gold-icon { background: var(--md-volt) !important; }
-html[data-theme="matchday"] .spec-label { color: var(--md-muted) !important; }
-html[data-theme="matchday"] .spec-value { font-family: var(--md-display); font-size: 22px !important; font-weight: 800; line-height: 1.05 !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .spec-card-gold .spec-label { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .spec-card-gold .spec-value, html[data-theme="matchday"] .spec-gold-val { color: var(--md-volt) !important; -webkit-text-fill-color: currentColor; font-size: 26px !important; }
-html[data-theme="matchday"] .spec-card-gold .spec-sub { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .spec-sub { color: var(--md-muted) !important; }
+html[data-theme^="matchday"] .spec-card { border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important; box-shadow: var(--shadow) !important; transform: none !important; }
+html[data-theme^="matchday"] .spec-card-gold { background: var(--md-block) !important; }
+html[data-theme^="matchday"] .spec-icon { border-radius: 0 !important; background: var(--md-soft) !important; color: var(--md-text) !important; border: 0 !important; }
+html[data-theme^="matchday"] .spec-icon.gold-icon { background: var(--md-volt) !important; }
+html[data-theme^="matchday"] .spec-label { color: var(--md-muted) !important; }
+html[data-theme^="matchday"] .spec-value { font-family: var(--md-display); font-size: 22px !important; font-weight: 800; line-height: 1.05 !important; color: var(--md-text) !important; }
+html[data-theme^="matchday"] .spec-card-gold .spec-label { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .spec-card-gold .spec-value, html[data-theme^="matchday"] .spec-gold-val { color: var(--md-volt) !important; -webkit-text-fill-color: currentColor; font-size: 26px !important; }
+html[data-theme^="matchday"] .spec-card-gold .spec-sub { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .spec-sub { color: var(--md-muted) !important; }
 /* Mô tả */
-html[data-theme="matchday"] .lux-desc-card { border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important; box-shadow: inset 4px 0 0 var(--md-ink), var(--shadow) !important; }
-html[data-theme="matchday"] .ldc-quote-icon { color: var(--md-ink) !important; font-family: var(--md-display); }
-html[data-theme="matchday"] .ldc-text { color: #3A3F49 !important; }
+html[data-theme^="matchday"] .lux-desc-card { border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important; box-shadow: inset 4px 0 0 var(--md-text), var(--shadow) !important; }
+html[data-theme^="matchday"] .ldc-quote-icon { color: var(--md-text) !important; font-family: var(--md-display); }
+html[data-theme^="matchday"] .ldc-text { color: var(--md-text-2) !important; }
 /* Cơ cấu giải thưởng từng nội dung */
-html[data-theme="matchday"] .lux-prize-card { border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important; box-shadow: var(--shadow) !important; transform: none !important; padding: 0 !important; overflow: hidden; }
-html[data-theme="matchday"] .lpc-head { background: var(--md-ink); color: var(--md-chalk); padding: 16px 18px; }
-html[data-theme="matchday"] .lpc-badge { border-radius: 0 !important; background: none !important; border: 0 !important; padding: 0 !important; color: var(--md-volt) !important; font-family: var(--md-display); font-size: 14px; }
-html[data-theme="matchday"] .lpc-head h4 { font-family: var(--md-display); font-size: 30px; line-height: 0.95; text-transform: uppercase; color: var(--md-chalk) !important; }
-html[data-theme="matchday"] .lpc-sub { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .lpc-prizes { padding: 4px 18px; gap: 0; }
-html[data-theme="matchday"] .lpc-row { border-radius: 0 !important; background: none !important; border: 0 !important; box-shadow: inset 0 -1px 0 var(--md-soft) !important; padding: 12px 0 !important; }
-html[data-theme="matchday"] .lpc-medal-tag strong { color: var(--md-ink) !important; }
-html[data-theme="matchday"] .lpc-amount { font-family: var(--md-display); font-size: 24px !important; color: var(--md-ink) !important; -webkit-text-fill-color: currentColor; background: none !important; }
-html[data-theme="matchday"] .lpc-action { padding: 12px 18px 18px; }
+html[data-theme^="matchday"] .lux-prize-card { border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important; box-shadow: var(--shadow) !important; transform: none !important; padding: 0 !important; overflow: hidden; }
+html[data-theme^="matchday"] .lpc-head { background: var(--md-block); color: var(--md-chalk); padding: 16px 18px; }
+html[data-theme^="matchday"] .lpc-badge { border-radius: 0 !important; background: none !important; border: 0 !important; padding: 0 !important; color: var(--md-volt) !important; font-family: var(--md-display); font-size: 14px; }
+html[data-theme^="matchday"] .lpc-head h4 { font-family: var(--md-display); font-size: 30px; line-height: 0.95; text-transform: uppercase; color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] .lpc-sub { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .lpc-prizes { padding: 4px 18px; gap: 0; }
+html[data-theme^="matchday"] .lpc-row { border-radius: 0 !important; background: none !important; border: 0 !important; box-shadow: inset 0 -1px 0 var(--md-soft) !important; padding: 12px 0 !important; }
+html[data-theme^="matchday"] .lpc-medal-tag strong { color: var(--md-text) !important; }
+html[data-theme^="matchday"] .lpc-amount { font-family: var(--md-display); font-size: 24px !important; color: var(--md-text) !important; -webkit-text-fill-color: currentColor; background: none !important; }
+html[data-theme^="matchday"] .lpc-action { padding: 12px 18px 18px; }
 /* Vinh danh */
-html[data-theme="matchday"] .royal-honors-section { background: none !important; }
-html[data-theme="matchday"] .podium-nav-btn { border-radius: 0 !important; background: #FFFFFF !important; color: var(--md-ink) !important; border: 0 !important; box-shadow: inset 0 0 0 2px var(--md-ink) !important; transform: none !important; font-family: var(--md-display); font-size: 17px; font-weight: 800; text-transform: uppercase; min-height: 44px; }
-html[data-theme="matchday"] .podium-nav-btn.is-active { background: var(--md-ink) !important; color: var(--md-volt) !important; }
-html[data-theme="matchday"] .royal-podium-card { border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: var(--shadow) !important; }
-html[data-theme="matchday"] .podium-card-header h3 { font-family: var(--md-display); font-style: italic; font-size: 34px; text-transform: uppercase; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .podium-div-crest, html[data-theme="matchday"] .podium-crown, html[data-theme="matchday"] .podium-aura { display: none !important; }
-html[data-theme="matchday"] .podium-avatar { border: 3px solid #FFFFFF !important; box-shadow: 0 0 0 2px var(--md-ink) !important; background: var(--md-rule); color: #3A3F49; }
-html[data-theme="matchday"] .podium-1st .podium-avatar { box-shadow: 0 0 0 3px var(--md-volt), 0 0 0 5px var(--md-ink) !important; }
-html[data-theme="matchday"] .podium-medal-badge { border-radius: 0 !important; }
-html[data-theme="matchday"] .podium-rank-tag { border-radius: 0 !important; border: 0 !important; font-family: var(--md-display); font-size: 14px; }
-html[data-theme="matchday"] .podium-1st .podium-rank-tag { background: var(--md-volt) !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .podium-2nd .podium-rank-tag { background: #C9CDD3 !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .podium-3rd .podium-rank-tag { background: #E9C9A8 !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .podium-names, html[data-theme="matchday"] .podium-names .p-link { color: var(--md-ink) !important; }
-html[data-theme="matchday"] .podium-pedestal { border-radius: 0 !important; border: 0 !important; box-shadow: none !important; }
-html[data-theme="matchday"] .podium-1st .podium-pedestal { background: var(--md-volt) !important; }
-html[data-theme="matchday"] .podium-2nd .podium-pedestal { background: var(--md-ink) !important; }
-html[data-theme="matchday"] .podium-3rd .podium-pedestal { background: #3A3F49 !important; }
-html[data-theme="matchday"] .pedestal-num { font-family: var(--md-display); font-style: italic; font-weight: 800; opacity: 1 !important; text-shadow: none !important; }
-html[data-theme="matchday"] .podium-1st .pedestal-num { color: var(--md-ink) !important; }
-html[data-theme="matchday"] :is(.podium-2nd, .podium-3rd) .pedestal-num { color: var(--md-chalk) !important; }
-html[data-theme="matchday"] :is(h1, h2, h3, h4, .h1, .h2, .event-grand-title, .hero-title) { text-shadow: none !important; }
+html[data-theme^="matchday"] .royal-honors-section { background: none !important; }
+html[data-theme^="matchday"] .podium-nav-btn { border-radius: 0 !important; background: var(--md-surface) !important; color: var(--md-text) !important; border: 0 !important; box-shadow: inset 0 0 0 2px var(--md-text) !important; transform: none !important; font-family: var(--md-display); font-size: 17px; font-weight: 800; text-transform: uppercase; min-height: 44px; }
+html[data-theme^="matchday"] .podium-nav-btn.is-active { background: var(--md-block) !important; color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .royal-podium-card { border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: var(--shadow) !important; }
+html[data-theme^="matchday"] .podium-card-header h3 { font-family: var(--md-display); font-style: italic; font-size: 34px; text-transform: uppercase; color: var(--md-text) !important; }
+html[data-theme^="matchday"] .podium-div-crest, html[data-theme^="matchday"] .podium-crown, html[data-theme^="matchday"] .podium-aura { display: none !important; }
+html[data-theme^="matchday"] .podium-avatar { border: 3px solid #FFFFFF !important; box-shadow: 0 0 0 2px var(--md-text) !important; background: var(--md-rule); color: var(--md-text-2); }
+html[data-theme^="matchday"] .podium-1st .podium-avatar { box-shadow: 0 0 0 3px var(--md-volt), 0 0 0 5px var(--md-text) !important; }
+html[data-theme^="matchday"] .podium-medal-badge { border-radius: 0 !important; }
+html[data-theme^="matchday"] .podium-rank-tag { border-radius: 0 !important; border: 0 !important; font-family: var(--md-display); font-size: 14px; }
+html[data-theme^="matchday"] .podium-1st .podium-rank-tag { background: var(--md-volt) !important; color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .podium-2nd .podium-rank-tag { background: #C9CDD3 !important; color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .podium-3rd .podium-rank-tag { background: #E9C9A8 !important; color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .podium-names, html[data-theme^="matchday"] .podium-names .p-link { color: var(--md-text) !important; }
+html[data-theme^="matchday"] .podium-pedestal { border-radius: 0 !important; border: 0 !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .podium-1st .podium-pedestal { background: var(--md-volt) !important; }
+html[data-theme^="matchday"] .podium-2nd .podium-pedestal { background: var(--md-block) !important; }
+html[data-theme^="matchday"] .podium-3rd .podium-pedestal { background: #3A3F49 !important; }
+html[data-theme^="matchday"] .pedestal-num { font-family: var(--md-display); font-style: italic; font-weight: 800; opacity: 1 !important; text-shadow: none !important; }
+html[data-theme^="matchday"] .podium-1st .pedestal-num { color: var(--md-ink) !important; }
+html[data-theme^="matchday"] :is(.podium-2nd, .podium-3rd) .pedestal-num { color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] :is(h1, h2, h3, h4, .h1, .h2, .event-grand-title, .hero-title) { text-shadow: none !important; }
 
 /* ==========================================================================
    NHÁNH ĐẤU
    ========================================================================== */
-html[data-theme="matchday"] .bk-shell { border-radius: 0 !important; border: 0 !important; background: var(--md-chalk) !important; padding: 8px 0 14px; }
-html[data-theme="matchday"] .bk-full-btn { border-radius: 0 !important; background: var(--md-ink) !important; color: var(--md-volt) !important; box-shadow: none !important; filter: none !important; font-weight: 700; min-height: 40px; }
-html[data-theme="matchday"] .bk-title,
-html[data-theme="matchday"] :is(.bk-r1, .bk-po, .bk-v2, .bk-tk, .bk-bk, .bk-ck, .bk-zone-title) {
-  border-radius: 0 !important; background: var(--md-ink) !important; color: var(--md-chalk) !important; border: 0 !important; box-shadow: none !important;
+html[data-theme^="matchday"] .bk-shell { border-radius: 0 !important; border: 0 !important; background: var(--md-page) !important; padding: 8px 0 14px; }
+html[data-theme^="matchday"] .bk-full-btn { border-radius: 0 !important; background: var(--md-block) !important; color: var(--md-volt) !important; box-shadow: none !important; filter: none !important; font-weight: 700; min-height: 40px; }
+html[data-theme^="matchday"] .bk-title,
+html[data-theme^="matchday"] :is(.bk-r1, .bk-po, .bk-v2, .bk-tk, .bk-bk, .bk-ck, .bk-zone-title) {
+  border-radius: 0 !important; background: var(--md-block) !important; color: var(--md-chalk) !important; border: 0 !important; box-shadow: none !important;
   font-family: var(--md-display); font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
 }
-html[data-theme="matchday"] .bk-ck { background: var(--md-volt) !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .bk-lines path { stroke: #9BA0AA; }
-html[data-theme="matchday"] .bk-match { border-radius: 0 !important; box-shadow: 0 1px 0 rgba(13, 15, 20, 0.06), 0 10px 22px -18px rgba(13, 15, 20, 0.5) !important; }
-html[data-theme="matchday"] .bk-match.is-live { box-shadow: 0 0 0 2px var(--f-live), 0 12px 26px -16px rgba(224, 42, 16, 0.6) !important; }
-@media (hover: hover) { html[data-theme="matchday"] a.bk-match:hover { box-shadow: 0 0 0 2px var(--md-ink) !important; transform: none; } }
-html[data-theme="matchday"] .bk-head { background: var(--md-soft) !important; border: 0 !important; }
-html[data-theme="matchday"] .bk-match.is-live .bk-head { background: #FCE5E2 !important; }
-html[data-theme="matchday"] .bk-code { font-family: var(--md-display); font-size: 15px; color: var(--md-ink) !important; letter-spacing: 0.04em; }
-html[data-theme="matchday"] .bk-badge { border-radius: 0 !important; font-weight: 800; }
-html[data-theme="matchday"] .bk-court { background: var(--md-ink) !important; color: #FFFFFF !important; }
-html[data-theme="matchday"] .bk-time { background: var(--md-blue) !important; color: #FFFFFF !important; }
-html[data-theme="matchday"] .bk-live { background: var(--f-live) !important; color: #FFFFFF !important; box-shadow: none !important; }
-html[data-theme="matchday"] .bk-live i { background: #FFFFFF !important; }
-html[data-theme="matchday"] .bk-done { background: var(--md-rule) !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .bk-wait { background: #FFFFFF !important; color: #3A3F49 !important; box-shadow: inset 0 0 0 1px var(--md-rule) !important; }
-html[data-theme="matchday"] .bk-team + .bk-team { border-top-color: var(--md-soft) !important; }
-html[data-theme="matchday"] .bk-name { color: var(--md-ink) !important; font-size: 13px; }
-html[data-theme="matchday"] .bk-score { border-radius: 0 !important; border: 0 !important; background: var(--md-soft) !important; color: var(--md-ink) !important; font-family: var(--md-display); font-size: 17px; font-weight: 800; }
-html[data-theme="matchday"] .bk-team.is-win .bk-name { color: var(--md-ink) !important; font-weight: 800; }
-html[data-theme="matchday"] .bk-team.is-win .bk-score { background: var(--md-volt) !important; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .bk-team.is-lose :is(.bk-name, .bk-score) { color: #7A7F8A !important; }
-html[data-theme="matchday"] .bk-legs span { border-radius: 0 !important; background: var(--md-soft) !important; color: #3A3F49 !important; }
-html[data-theme="matchday"] .bk-legs .cur { background: #FCE5E2 !important; color: var(--f-err) !important; }
-html[data-theme="matchday"] .bk-watch { border-radius: 0 !important; background: var(--md-ink) !important; color: var(--md-chalk) !important; }
-html[data-theme="matchday"] .bk-watch.is-live { background: var(--f-live) !important; color: #FFFFFF !important; }
-html[data-theme="matchday"] .bk-champ { border-radius: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important; border: 0 !important; box-shadow: none !important; }
-html[data-theme="matchday"] .bk-note { color: var(--md-muted) !important; }
+html[data-theme^="matchday"] .bk-ck { background: var(--md-volt) !important; color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .bk-lines path { stroke: #9BA0AA; }
+html[data-theme^="matchday"] .bk-match { border-radius: 0 !important; box-shadow: 0 1px 0 rgba(13, 15, 20, 0.06), 0 10px 22px -18px rgba(13, 15, 20, 0.5) !important; }
+html[data-theme^="matchday"] .bk-match.is-live { box-shadow: 0 0 0 2px var(--f-live), 0 12px 26px -16px rgba(224, 42, 16, 0.6) !important; }
+@media (hover: hover) { html[data-theme^="matchday"] a.bk-match:hover { box-shadow: 0 0 0 2px var(--md-text) !important; transform: none; } }
+html[data-theme^="matchday"] .bk-head { background: var(--md-soft) !important; border: 0 !important; }
+html[data-theme^="matchday"] .bk-match.is-live .bk-head { background: #FCE5E2 !important; }
+html[data-theme^="matchday"] .bk-code { font-family: var(--md-display); font-size: 15px; color: var(--md-text) !important; letter-spacing: 0.04em; }
+html[data-theme^="matchday"] .bk-badge { border-radius: 0 !important; font-weight: 800; }
+html[data-theme^="matchday"] .bk-court { background: var(--md-block) !important; color: #FFFFFF !important; }
+html[data-theme^="matchday"] .bk-time { background: var(--md-blue) !important; color: #FFFFFF !important; }
+html[data-theme^="matchday"] .bk-live { background: var(--f-live) !important; color: #FFFFFF !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .bk-live i { background: var(--md-surface) !important; }
+html[data-theme^="matchday"] .bk-done { background: var(--md-rule) !important; color: var(--md-text) !important; }
+html[data-theme^="matchday"] .bk-wait { background: var(--md-surface) !important; color: var(--md-text-2) !important; box-shadow: inset 0 0 0 1px var(--md-rule) !important; }
+html[data-theme^="matchday"] .bk-team + .bk-team { border-top-color: var(--md-soft) !important; }
+html[data-theme^="matchday"] .bk-name { color: var(--md-text) !important; font-size: 13px; }
+html[data-theme^="matchday"] .bk-score { border-radius: 0 !important; border: 0 !important; background: var(--md-soft) !important; color: var(--md-text) !important; font-family: var(--md-display); font-size: 17px; font-weight: 800; }
+html[data-theme^="matchday"] .bk-team.is-win .bk-name { color: var(--md-text) !important; font-weight: 800; }
+html[data-theme^="matchday"] .bk-team.is-win .bk-score { background: var(--md-volt) !important; color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .bk-team.is-lose :is(.bk-name, .bk-score) { color: #7A7F8A !important; }
+html[data-theme^="matchday"] .bk-legs span { border-radius: 0 !important; background: var(--md-soft) !important; color: var(--md-text-2) !important; }
+html[data-theme^="matchday"] .bk-legs .cur { background: #FCE5E2 !important; color: var(--f-err) !important; }
+html[data-theme^="matchday"] .bk-watch { border-radius: 0 !important; background: var(--md-block) !important; color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] .bk-watch.is-live { background: var(--f-live) !important; color: #FFFFFF !important; }
+html[data-theme^="matchday"] .bk-champ { border-radius: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important; border: 0 !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .bk-note { color: var(--md-muted) !important; }
 
 /* ==========================================================================
    TRỰC TIẾP
    ========================================================================== */
-html[data-theme="matchday"] .player { border-radius: 0 !important; border: 0 !important; background: var(--md-ink) !important; }
-html[data-theme="matchday"] .player-empty { color: var(--md-chalk); }
-html[data-theme="matchday"] .scoreboard { padding: 0 !important; overflow: hidden; gap: 0 !important; }
-html[data-theme="matchday"] .scoreboard > :first-child { background: var(--md-volt); color: var(--md-ink) !important; padding: 10px 16px; font-family: var(--md-display); font-size: 15px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
-html[data-theme="matchday"] .scoreboard > :not(:first-child) { padding-inline: 16px; }
-html[data-theme="matchday"] .scoreboard > :last-child { padding-bottom: 14px; }
-html[data-theme="matchday"] .scoreboard .team { padding-block: 12px; box-shadow: inset 0 -1px 0 var(--md-soft); align-items: center; }
-html[data-theme="matchday"] .scoreboard .team span:first-child { font-size: 16px; font-weight: 700; }
-html[data-theme="matchday"] .scoreboard .score { font-family: var(--md-display); font-size: 64px; line-height: 0.85; color: var(--md-ink) !important; -webkit-text-fill-color: currentColor; background: none !important; }
-html[data-theme="matchday"] .scoreboard .team.muted .score { color: #7A7F8A !important; }
-html[data-theme="matchday"] .scoreboard .divider { display: none; }
+html[data-theme^="matchday"] .player { border-radius: 0 !important; border: 0 !important; background: var(--md-block) !important; }
+html[data-theme^="matchday"] .player-empty { color: var(--md-chalk); }
+html[data-theme^="matchday"] .scoreboard { padding: 0 !important; overflow: hidden; gap: 0 !important; }
+html[data-theme^="matchday"] .scoreboard > :first-child { background: var(--md-volt); color: var(--md-ink) !important; padding: 10px 16px; font-family: var(--md-display); font-size: 15px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+html[data-theme^="matchday"] .scoreboard > :not(:first-child) { padding-inline: 16px; }
+html[data-theme^="matchday"] .scoreboard > :last-child { padding-bottom: 14px; }
+html[data-theme^="matchday"] .scoreboard .team { padding-block: 12px; box-shadow: inset 0 -1px 0 var(--md-soft); align-items: center; }
+html[data-theme^="matchday"] .scoreboard .team span:first-child { font-size: 16px; font-weight: 700; }
+html[data-theme^="matchday"] .scoreboard .score { font-family: var(--md-display); font-size: 64px; line-height: 0.85; color: var(--md-text) !important; -webkit-text-fill-color: currentColor; background: none !important; }
+html[data-theme^="matchday"] .scoreboard .team.muted .score { color: #7A7F8A !important; }
+html[data-theme^="matchday"] .scoreboard .divider { display: none; }
 
 /* ==========================================================================
    TỰ CHẤM TRÌNH & ĐĂNG KÝ (biểu mẫu)
    ========================================================================== */
-html[data-theme="matchday"] .sx-visual { border-radius: 0 !important; border: 0 !important; background: var(--md-ink) !important; color: var(--md-chalk) !important; box-shadow: none !important; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%); }
-html[data-theme="matchday"] .sx-photo img { filter: none !important; }
-html[data-theme="matchday"] .sx-photo::after { background: linear-gradient(180deg, transparent 50%, var(--md-ink) 50%) !important; }
-html[data-theme="matchday"] .sx-eyebrow { font-family: var(--md-display); font-size: 15px; font-weight: 800; color: var(--md-volt) !important; }
-html[data-theme="matchday"] .sx-title { color: var(--md-chalk) !important; font-size: clamp(44px, 12vw, 64px); }
-html[data-theme="matchday"] .sx-title em { font-family: inherit; color: var(--md-volt) !important; }
-html[data-theme="matchday"] .sx-lead { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .sx-facts { border-radius: 0 !important; border: 0 !important; background: var(--md-ink-2) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-html[data-theme="matchday"] .sx-facts li + li { border-left-color: #2A2F3A !important; }
-html[data-theme="matchday"] .sx-facts span { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .sx-facts b { color: var(--md-chalk) !important; font-family: var(--md-display); font-size: 20px; }
-html[data-theme="matchday"] .sx-card { border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important; box-shadow: var(--shadow) !important; }
-html[data-theme="matchday"] .sx-h2 { font-family: var(--md-display); font-style: italic; font-weight: 800; font-size: 32px !important; text-transform: uppercase; line-height: 0.95; }
-html[data-theme="matchday"] .sx-step { border-top: 3px solid var(--md-ink) !important; }
-html[data-theme="matchday"] .sx-step legend { font-family: var(--md-display); font-size: 17px; font-weight: 800; color: var(--md-ink) !important; }
-html[data-theme="matchday"] .sx-step-no { border-radius: 0 !important; border: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important; font-family: var(--md-display); font-size: 16px; font-weight: 800; width: 28px; height: 28px; }
-html[data-theme="matchday"] .sx-done-icon { border-radius: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .sx-visual { border-radius: 0 !important; border: 0 !important; background: var(--md-block) !important; color: var(--md-chalk) !important; box-shadow: none !important; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%); }
+html[data-theme^="matchday"] .sx-photo img { filter: none !important; }
+html[data-theme^="matchday"] .sx-photo::after { background: linear-gradient(180deg, transparent 50%, var(--md-ink) 50%) !important; }
+html[data-theme^="matchday"] .sx-eyebrow { font-family: var(--md-display); font-size: 15px; font-weight: 800; color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .sx-title { color: var(--md-chalk) !important; font-size: clamp(44px, 12vw, 64px); }
+html[data-theme^="matchday"] .sx-title em { font-family: inherit; color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .sx-lead { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .sx-facts { border-radius: 0 !important; border: 0 !important; background: var(--md-block-2) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+html[data-theme^="matchday"] .sx-facts li + li { border-left-color: #2A2F3A !important; }
+html[data-theme^="matchday"] .sx-facts span { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .sx-facts b { color: var(--md-chalk) !important; font-family: var(--md-display); font-size: 20px; }
+html[data-theme^="matchday"] .sx-card { border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important; box-shadow: var(--shadow) !important; }
+html[data-theme^="matchday"] .sx-h2 { font-family: var(--md-display); font-style: italic; font-weight: 800; font-size: 32px !important; text-transform: uppercase; line-height: 0.95; }
+html[data-theme^="matchday"] .sx-step { border-top: 3px solid var(--md-text) !important; }
+html[data-theme^="matchday"] .sx-step legend { font-family: var(--md-display); font-size: 17px; font-weight: 800; color: var(--md-text) !important; }
+html[data-theme^="matchday"] .sx-step-no { border-radius: 0 !important; border: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important; font-family: var(--md-display); font-size: 16px; font-weight: 800; width: 28px; height: 28px; }
+html[data-theme^="matchday"] .sx-done-icon { border-radius: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important; }
 /* Chọn giới tính (radio dạng nút) và ô ảnh đại diện */
-html[data-theme="matchday"] .seg, html[data-theme="matchday"] .gender-seg { border-radius: 0 !important; }
-html[data-theme="matchday"] .avatar-preview { border-radius: 0 !important; border: 2px dashed var(--md-ink) !important; background: #FFFFFF; }
+html[data-theme^="matchday"] .seg, html[data-theme^="matchday"] .gender-seg { border-radius: 0 !important; }
+html[data-theme^="matchday"] .avatar-preview { border-radius: 0 !important; border: 2px dashed var(--md-text) !important; background: var(--md-surface); }
 /* Khung VĐV trong form đăng ký */
-html[data-theme="matchday"] .player-box { border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important; box-shadow: var(--shadow) !important; }
-html[data-theme="matchday"] .segmented { border-radius: 0 !important; background: var(--md-ink) !important; border: 0 !important; padding: 4px !important; gap: 4px; }
-html[data-theme="matchday"] .segmented span { border-radius: 0 !important; color: var(--md-grey) !important; font-family: var(--md-display); font-size: 18px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; min-height: 44px; }
-html[data-theme="matchday"] .segmented input:checked + span { background: var(--md-volt) !important; color: var(--md-ink) !important; box-shadow: none !important; }
-html[data-theme="matchday"] .segmented input:focus-visible + span { outline: 3px solid var(--md-blue); outline-offset: 2px; }
+html[data-theme^="matchday"] .player-box { border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important; box-shadow: var(--shadow) !important; }
+html[data-theme^="matchday"] .segmented { border-radius: 0 !important; background: var(--md-block) !important; border: 0 !important; padding: 4px !important; gap: 4px; }
+html[data-theme^="matchday"] .segmented span { border-radius: 0 !important; color: var(--md-grey) !important; font-family: var(--md-display); font-size: 18px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; min-height: 44px; }
+html[data-theme^="matchday"] .segmented input:checked + span { background: var(--md-volt) !important; color: var(--md-ink) !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .segmented input:focus-visible + span { outline: 3px solid var(--md-blue); outline-offset: 2px; }
 /* Ảnh chấm trình nằm trên, chữ nằm hẳn dưới ảnh (không đè lên ảnh) */
-html[data-theme="matchday"] .sx-photo { bottom: auto !important; height: 220px; }
-html[data-theme="matchday"] .sx-photo::after { display: none !important; }
-html[data-theme="matchday"] .sx-intro { min-height: 0 !important; padding-top: 240px !important; justify-content: flex-start; }
+html[data-theme^="matchday"] .sx-photo { bottom: auto !important; height: 220px; }
+html[data-theme^="matchday"] .sx-photo::after { display: none !important; }
+html[data-theme^="matchday"] .sx-intro { min-height: 0 !important; padding-top: 240px !important; justify-content: flex-start; }
 @media (min-width: 960px) {
-  html[data-theme="matchday"] .sx-photo { height: 42%; }
-  html[data-theme="matchday"] .sx-intro { padding-top: 32px !important; justify-content: flex-end; }
+  html[data-theme^="matchday"] .sx-photo { height: 42%; }
+  html[data-theme^="matchday"] .sx-intro { padding-top: 32px !important; justify-content: flex-end; }
 }
 /* Chọn nội dung thi đấu */
-html[data-theme="matchday"] .division-pick .opt { border-radius: 0 !important; border: 0 !important; background: #FFFFFF !important; box-shadow: inset 0 0 0 2px var(--md-ink) !important; color: var(--md-ink); }
-html[data-theme="matchday"] .division-pick .opt strong { font-family: var(--md-display); font-size: 19px; font-weight: 800; text-transform: uppercase; line-height: 1.05; }
-html[data-theme="matchday"] .division-pick .opt small { color: var(--md-muted) !important; }
-html[data-theme="matchday"] .division-pick input:checked + .opt { background: var(--md-ink) !important; color: var(--md-volt) !important; box-shadow: none !important; }
-html[data-theme="matchday"] .division-pick input:checked + .opt small { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .division-pick input:focus-visible + .opt { outline: 3px solid var(--md-blue); outline-offset: 2px; }
-html[data-theme="matchday"] .field .hint.ok { color: var(--f-ok) !important; }
-html[data-theme="matchday"] .field .hint.err { color: var(--f-err) !important; }
-html[data-theme="matchday"] .hero-sport .hero-tag { border-radius: 0 !important; background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; gap: 10px; }
+html[data-theme^="matchday"] .division-pick .opt { border-radius: 0 !important; border: 0 !important; background: var(--md-surface) !important; box-shadow: inset 0 0 0 2px var(--md-text) !important; color: var(--md-text); }
+html[data-theme^="matchday"] .division-pick .opt strong { font-family: var(--md-display); font-size: 19px; font-weight: 800; text-transform: uppercase; line-height: 1.05; }
+html[data-theme^="matchday"] .division-pick .opt small { color: var(--md-muted) !important; }
+html[data-theme^="matchday"] .division-pick input:checked + .opt { background: var(--md-block) !important; color: var(--md-volt) !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .division-pick input:checked + .opt small { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .division-pick input:focus-visible + .opt { outline: 3px solid var(--md-blue); outline-offset: 2px; }
+html[data-theme^="matchday"] .field .hint.ok { color: var(--f-ok) !important; }
+html[data-theme^="matchday"] .field .hint.err { color: var(--f-err) !important; }
+html[data-theme^="matchday"] .hero-sport .hero-tag { border-radius: 0 !important; background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; gap: 10px; }
 
 /* ==========================================================================
    CMS: thanh bên mực, mục đang mở nền chanh; nội dung giữ nền sáng để đọc lâu không mỏi
    ========================================================================== */
-html[data-theme="matchday"] .admin-side { background: var(--md-ink) !important; border-right: 0 !important; color: var(--md-grey); }
-html[data-theme="matchday"] .admin-side .brand-name { font-family: var(--md-display); font-style: italic; font-size: 22px; text-transform: uppercase; color: var(--md-chalk) !important; }
-html[data-theme="matchday"] .admin-side .brand-name .grad-text { color: var(--md-volt) !important; -webkit-text-fill-color: var(--md-volt) !important; }
-html[data-theme="matchday"] .admin-side .side-head .tiny,
-html[data-theme="matchday"] .admin-side .side-head .faint { color: var(--md-grey) !important; }
-html[data-theme="matchday"] .admin-side .group { color: #7A7F8A !important; font-family: var(--md-display); font-size: 13px; letter-spacing: 0.14em; }
-html[data-theme="matchday"] .admin-side a.item { border-radius: 0 !important; color: var(--md-grey) !important; }
-@media (hover: hover) { html[data-theme="matchday"] .admin-side a.item:hover { background: var(--md-ink-2) !important; color: var(--md-chalk) !important; } }
-html[data-theme="matchday"] .admin-side a.item[aria-current="page"] { background: var(--md-volt) !important; color: var(--md-ink) !important; box-shadow: none !important; }
-html[data-theme="matchday"] .admin-side a.item .badge { border-radius: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important; font-family: var(--md-display); font-weight: 800; }
-html[data-theme="matchday"] .admin-side a.item[aria-current="page"] .badge { background: var(--md-ink) !important; color: var(--md-volt) !important; }
-html[data-theme="matchday"] .admin-side .side-foot { border-top-color: #2A2F3A !important; color: var(--md-grey); }
-html[data-theme="matchday"] .admin-side .side-foot :is(strong, b) { color: var(--md-chalk); }
-html[data-theme="matchday"] .admin-side .side-foot .btn { color: var(--md-chalk) !important; box-shadow: inset 0 0 0 2px #5B606B !important; }
-html[data-theme="matchday"] .admin-side .side-foot .icon-btn { background: transparent !important; color: var(--md-chalk) !important; box-shadow: inset 0 0 0 2px #5B606B !important; }
-html[data-theme="matchday"] .admin-side .avatar > * { background: var(--md-ink-2) !important; color: var(--md-chalk); }
-html[data-theme="matchday"] .admin-top { background: var(--md-chalk) !important; border-bottom: 3px solid var(--md-ink) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-html[data-theme="matchday"] .admin-top h1 { font-family: var(--md-display); font-style: italic; font-weight: 800; text-transform: uppercase; font-size: 30px; }
+html[data-theme^="matchday"] .admin-side { background: var(--md-block) !important; border-right: 0 !important; color: var(--md-grey); }
+html[data-theme^="matchday"] .admin-side .brand-name { font-family: var(--md-display); font-style: italic; font-size: 22px; text-transform: uppercase; color: var(--md-chalk) !important; }
+html[data-theme^="matchday"] .admin-side .brand-name .grad-text { color: var(--md-volt) !important; -webkit-text-fill-color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .admin-side .side-head .tiny,
+html[data-theme^="matchday"] .admin-side .side-head .faint { color: var(--md-grey) !important; }
+html[data-theme^="matchday"] .admin-side .group { color: #7A7F8A !important; font-family: var(--md-display); font-size: 13px; letter-spacing: 0.14em; }
+html[data-theme^="matchday"] .admin-side a.item { border-radius: 0 !important; color: var(--md-grey) !important; }
+@media (hover: hover) { html[data-theme^="matchday"] .admin-side a.item:hover { background: var(--md-block-2) !important; color: var(--md-chalk) !important; } }
+html[data-theme^="matchday"] .admin-side a.item[aria-current="page"] { background: var(--md-volt) !important; color: var(--md-ink) !important; box-shadow: none !important; }
+html[data-theme^="matchday"] .admin-side a.item .badge { border-radius: 0 !important; background: var(--md-volt) !important; color: var(--md-ink) !important; font-family: var(--md-display); font-weight: 800; }
+html[data-theme^="matchday"] .admin-side a.item[aria-current="page"] .badge { background: var(--md-block) !important; color: var(--md-volt) !important; }
+html[data-theme^="matchday"] .admin-side .side-foot { border-top-color: #2A2F3A !important; color: var(--md-grey); }
+html[data-theme^="matchday"] .admin-side .side-foot :is(strong, b) { color: var(--md-chalk); }
+html[data-theme^="matchday"] .admin-side .side-foot .btn { color: var(--md-chalk) !important; box-shadow: inset 0 0 0 2px #5B606B !important; }
+html[data-theme^="matchday"] .admin-side .side-foot .icon-btn { background: transparent !important; color: var(--md-chalk) !important; box-shadow: inset 0 0 0 2px #5B606B !important; }
+html[data-theme^="matchday"] .admin-side .avatar > * { background: var(--md-block-2) !important; color: var(--md-chalk); }
+html[data-theme^="matchday"] .admin-top { background: var(--md-page) !important; border-bottom: 3px solid var(--md-text) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+html[data-theme^="matchday"] .admin-top h1 { font-family: var(--md-display); font-style: italic; font-weight: 800; text-transform: uppercase; font-size: 30px; }
+
+/* ==========================================================================
+   MATCHDAY DARK: các nền màu nhạt cố định (chip trạng thái, trận live) đổi sang tông tối
+   ========================================================================== */
+html[data-theme="matchday-dark"] .site-header { box-shadow: inset 0 -1px 0 #1C2029 !important; }
+html[data-theme="matchday-dark"] .site-footer { box-shadow: inset 0 1px 0 #1C2029; }
+html[data-theme="matchday-dark"] :is(.chip-ok, .chip-mini.chip-ok) { background: #12301F !important; color: #6EE7A0 !important; }
+html[data-theme="matchday-dark"] :is(.chip-warn, .chip-mini.chip-warn) { background: #3A2A08 !important; color: #FFC24D !important; }
+html[data-theme="matchday-dark"] .chip-err { background: #3A1410 !important; color: #FF8A7A !important; }
+html[data-theme="matchday-dark"] .bk-match.is-live .bk-head { background: #3A1410 !important; }
+html[data-theme="matchday-dark"] .bk-legs .cur { background: #3A1410 !important; color: #FF8A7A !important; }
+html[data-theme="matchday-dark"] .delta.up, html[data-theme="matchday-dark"] .field .hint.ok { color: #6EE7A0 !important; }
+html[data-theme="matchday-dark"] .delta.down, html[data-theme="matchday-dark"] .field .hint.err { color: #FF8A7A !important; }
+html[data-theme="matchday-dark"] .rank-row .who strong .g[style*="#F472B6"] { color: #FF8FB8 !important; }
+html[data-theme="matchday-dark"] .rank-row .who strong .g[style*="#60A5FA"] { color: #9DB4FF !important; }
+html[data-theme="matchday-dark"] .input::placeholder { color: #8A8F99; }
+/* Chữ trên nền chanh luôn là mực, ở cả hai chế độ */
+html[data-theme^="matchday"] .cta-inner :is(.h2, h2) { color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .spec-icon.gold-icon { color: var(--md-ink) !important; }
+html[data-theme^="matchday"] .bk-match, html[data-theme^="matchday"] .bk-team { background: var(--md-surface) !important; }
+html[data-theme^="matchday"] .bk-name em { color: var(--md-text-2) !important; }
+html[data-theme="matchday-dark"] .eh-step.is-done .eh-step-dot { color: #0D0F14 !important; }
